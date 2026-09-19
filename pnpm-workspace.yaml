@@ -1,7 +1,0 @@
-allowBuilds:
-  core-js: false
-minimumReleaseAgeExclude:
-  - '@posthog/core@1.54.4'
-  - '@posthog/react@1.11.1'
-  - '@posthog/types@1.412.2'
-  - posthog-js@1.434.0
