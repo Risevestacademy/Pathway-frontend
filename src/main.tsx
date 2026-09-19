@@ -3,7 +3,10 @@ import { createRoot } from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen.ts";
 import { PostHogProvider } from "@posthog/react";
+import { initSentry } from "./lib/monitoring/sentry";
 import "./index.css";
+
+initSentry();
 
 const options = {
   api_host: import.meta.env.VITE_POSTHOG_HOST,
