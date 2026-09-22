@@ -16,7 +16,10 @@ api.interceptors.request.use((config) => {
 })
 
 let isRefreshing = false
-let pendingRequests: Array<() => void> = []
+let pendingRequests: Array<{
+  resolve: (value: unknown) => void
+  reject: (reason: unknown) => void
+}> = []
 
 api.interceptors.response.use(
   (response) => response,
@@ -31,19 +34,20 @@ api.interceptors.response.use(
     originalRequest._retry = true
 
     if (isRefreshing) {
-      return new Promise((resolve) => {
-        pendingRequests.push(() => resolve(api(originalRequest)))
-      })
+      return new Promise((resolve, reject) => {
+        pendingRequests.push({ resolve, reject })
+      }).then(() => api(originalRequest))
     }
 
     isRefreshing = true
     try {
       const { data } = await api.post('/auth/refresh')
       useAuthStore.getState().setAccessToken(data.data.accessToken)
-      pendingRequests.forEach((retry) => retry())
+      pendingRequests.forEach(({ resolve }) => resolve(undefined))
       pendingRequests = []
       return api(originalRequest)
     } catch (refreshError) {
+      pendingRequests.forEach(({ reject }) => reject(refreshError))
       pendingRequests = []
       useAuthStore.getState().clearAuth()
       window.location.href = '/login'
