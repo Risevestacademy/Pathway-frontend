@@ -57,3 +57,8 @@ api.interceptors.response.use(
     }
   }
 )
+
+export function __resetAuthInterceptorState() {
+  isRefreshing = false
+  pendingRequests = []
+}
