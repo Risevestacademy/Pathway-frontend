@@ -121,6 +121,6 @@
   --inset-shadow-primary-btn: inset 0 -6px 0 var(--color-brand-edge);
   --inset-shadow-primary-btn-pressed: inset 0 -2px 0 var(--color-brand-edge);
 
-  --inset-shadow-secondary-btn: inset 0 -6px 0 var(--color-grey-150);
-  --inset-shadow-secondary-btn-pressed: inset 0 -2px 0 var(--color-grey-150);
+  --inset-shadow-secondary-btn: inset 0 -2px 0 var(--color-grey-150);
+  --inset-shadow-secondary-btn-pressed: inset 0 0px 0 var(--color-grey-150);
 }
