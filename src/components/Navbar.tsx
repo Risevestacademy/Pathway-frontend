@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import logo from "/brand-logo.svg";
+const logo = "/brand-logo.svg";
 
 export default function Navbar() {
   return (
@@ -24,7 +24,7 @@ export default function Navbar() {
 
       {/* Change when needed */}
       <a
-        href="/careers"
+        href="#"
         className="
           hidden
           font-sans text-sm font-medium text-ink-muted

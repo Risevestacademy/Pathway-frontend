@@ -16,9 +16,9 @@ function Index() {
   };
 
   return (
-    <main>
+    <main className="flex min-h-screen flex-col">
       <Navbar />
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex flex-1 items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold">Pathway</h1>
           <Button

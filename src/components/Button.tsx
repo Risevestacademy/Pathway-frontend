@@ -14,7 +14,7 @@ export function Button({
 }: ButtonProps) {
   const variantClasses = isPrimary
     ? `
-      bg-brand-500 text-white
+      bg-brand-500 text-canvas
       inset-shadow-primary-btn
       active:inset-shadow-primary-btn-pressed
     `
