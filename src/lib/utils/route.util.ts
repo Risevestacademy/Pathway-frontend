@@ -10,3 +10,12 @@ export function isInternalPath(value: string | undefined) {
     return false;
   }
 }
+
+export function normalizeRedirect(value: string | undefined = "") {
+  if (!isInternalPath(value)) {
+    return "/";
+  }
+
+  const url = new URL(value, window.location.origin);
+  return `${url.pathname}${url.search}${url.hash}`;
+}
