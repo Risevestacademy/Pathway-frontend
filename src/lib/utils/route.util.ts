@@ -1,5 +1,5 @@
 export function isInternalPath(value: string | undefined) {
-  if (!value || !value.startsWith("/") || value.startsWith("//")) {
+  if (!value || value.startsWith("//")) {
     return false;
   }
 

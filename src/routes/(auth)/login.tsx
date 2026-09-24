@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { loginSearchSchema } from "../../lib/validation/auth.schema";
-import { isInternalPath } from "../../lib/utils/route";
+import { isInternalPath } from "../../lib/utils/route.util";
 
 export const Route = createFileRoute("/(auth)/login")({
   validateSearch: loginSearchSchema,
