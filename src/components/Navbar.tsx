@@ -1,4 +1,4 @@
-import logo from "/public/brand-logo.svg";
+import logo from "/brand-logo.svg";
 export default function Navbar() {
   return (
     <nav className="bg-white border-b border-line py-4 px-56 flex items-center justify-between">
