@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { Button } from "../../../../components/Button";
 import RoadmapPage from "../../../../features/pathway/components/RoadmapPage";
-import StateMessage from "../../../../features/pathway/components/StateMessage";
+import StateMessage from "../../../../components/StateMessage";
 import StepEstimate from "../../../../features/pathway/components/StepEstimate";
 import StepSection from "../../../../features/pathway/components/StepSection";
 import {

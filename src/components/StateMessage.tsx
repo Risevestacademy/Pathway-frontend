@@ -6,6 +6,8 @@ type StateMessageProps = {
   title: string;
   body?: string;
   action?: ReactNode;
+  /** Errors are announced immediately; other states wait politely. */
+  variant?: "info" | "error";
 };
 
 export default function StateMessage({
@@ -13,17 +15,20 @@ export default function StateMessage({
   title,
   body,
   action,
+  variant = "info",
 }: StateMessageProps) {
+  const isError = variant === "error";
+
   return (
     <div
-      role="status"
+      role={isError ? "alert" : "status"}
       className="flex flex-col items-center px-6 py-16 text-center"
     >
       <div
-        className="
-          mb-4 grid size-12 place-items-center
-          rounded-pill bg-brand-50 text-brand-600
-        "
+        className={`
+          mb-4 grid size-12 place-items-center rounded-pill
+          ${isError ? "bg-danger-50 text-danger-600" : "bg-brand-50 text-brand-600"}
+        `}
       >
         <Icon className="size-6" aria-hidden />
       </div>

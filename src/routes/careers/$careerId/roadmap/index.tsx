@@ -3,7 +3,7 @@ import { ChevronLeft, Hourglass, MapPinOff } from "lucide-react";
 import { Button } from "../../../../components/Button";
 import RoadmapPage from "../../../../features/pathway/components/RoadmapPage";
 import RoadmapStepList from "../../../../features/pathway/components/RoadmapStepList";
-import StateMessage from "../../../../features/pathway/components/StateMessage";
+import StateMessage from "../../../../components/StateMessage";
 import { getRoadmap } from "../../../../features/pathway/pathway.utils";
 
 export const Route = createFileRoute("/careers/$careerId/roadmap/")({
