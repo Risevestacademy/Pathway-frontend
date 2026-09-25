@@ -44,8 +44,10 @@
   --color-brand-700: #5f3e94;
   --color-brand-800: #3f2963;
   --color-brand-900: #201531;
+  /* Wordmark color from the logo lockup — not part of the ramp */
   --color-brand-ink: #401386;
 
+  /* Accent — Pathway orange. Sparing highlights only, never for status. */
   --color-accent-50: #fff4ee;
   --color-accent-100: #ffe7dc;
   --color-accent-200: #ffd0b9;
@@ -57,27 +59,34 @@
   --color-accent-800: #663720;
   --color-accent-900: #331b10;
 
+  /* Primary button's 3D bottom edge (eyedropped from brand/Frame 24.png) */
   --color-brand-edge: #8b5ad9;
 
-  --color-grey-50: #f2f2f2;
-  --color-grey-100: #e4e4e4;
-  --color-grey-150: #dfdfdf;
-  --color-grey-200: #d2d2d2;
-  --color-grey-300: #c8c8c8;
-  --color-grey-500: #767676;
-  --color-grey-900: #181818;
+  /* Greys. 50 and 100 are named by design (Colors/Base/Grey/50, /100);
+   * the others are eyedropped from the auth screen (brand/Frame 24.png). */
+  --color-grey-50: #f2f2f2; /* design: Colors/Base/Grey/50 */
+  --color-grey-100: #e4e4e4; /* design: Colors/Base/Grey/100 */
+  --color-grey-150: #dfdfdf; /* auth: secondary button edge */
+  --color-grey-200: #d2d2d2; /* auth: secondary button bottom border */
+  --color-grey-300: #c8c8c8; /* auth: input placeholder */
+  --color-grey-500: #767676; /* auth: subtitle / secondary button text */
+  --color-grey-900: #181818; /* auth: wordmark / near-black text */
 
-  --color-canvas: #f7f7f7;
-  --color-surface: #ffffff;
+  /* Surfaces & ink */
+  --color-canvas: #f7f7f7; /* page background (stand-in, between white and grey-50) */
+  --color-surface: #ffffff; /* cards, sheets, inputs */
   --color-surface-muted: var(--color-grey-50);
-  --color-line: var(--color-grey-100);
+  --color-line: var(--color-grey-100); /* borders, dividers */
   --color-line-strong: var(--color-grey-200);
-  --color-ink: var(--color-grey-900);
-  --color-ink-muted: var(--color-grey-500);
-  --color-ink-subtle: #8f8f8f;
+  --color-ink: var(--color-grey-900); /* primary text */
+  --color-ink-muted: var(
+    --color-grey-500
+  ); /* secondary text (4.5:1 on white) */
+  --color-ink-subtle: #8f8f8f; /* captions, metadata (stand-in) */
   --color-ink-placeholder: var(--color-grey-300);
   --color-ink-inverse: #ffffff;
 
+  /* Status — reserved for state, always paired with icon + label */
   --color-success-50: #ecfdf3;
   --color-success-600: #16a34a;
   --color-success-700: #15803d;
@@ -90,32 +99,40 @@
   --color-info-50: #eff6ff;
   --color-info-700: #1d4ed8;
 
+  /* "Unavailable" data state (FR-02 rule 2) — deliberately neutral, not an error */
   --color-unavailable-bg: var(--color-grey-50);
   --color-unavailable-ink: var(--color-grey-500);
 
+  /* Type — Figtree for body/UI, Google Sans Flex for headings */
   --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
   --font-display:
     "Google Sans Flex", "Figtree", ui-sans-serif, system-ui, sans-serif;
 
+  /* Shape — md (8px) matches the auth screen's inputs and buttons */
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 20px;
   --radius-pill: 999px;
 
-  --spacing-navbar: 4rem;
-  --spacing-page-mobile: 1rem;
-  --spacing-page-tablet: 1.5rem;
-  --spacing-page-desktop: 3.5rem;
-  --spacing-page-wide: 14rem;
+  /* Layout sizing */
+  --spacing-navbar: 4rem; /* 64px navbar height */
+  --spacing-page-mobile: 1rem; /* 16px */
+  --spacing-page-tablet: 1.5rem; /* 24px */
+  --spacing-page-desktop: 3.5rem; /* 56px */
+  --spacing-page-wide: 14rem; /* 224px */
 
+  /* Elevation */
   --shadow-card: 0 1px 2px rgb(16 16 29 / 0.04), 0 1px 3px rgb(16 16 29 / 0.06);
   --shadow-raised:
     0 4px 12px rgb(16 16 29 / 0.08), 0 2px 4px rgb(16 16 29 / 0.04);
   --shadow-overlay: 0 20px 48px rgb(16 16 29 / 0.18);
 
+  /* Btn Shadow*/
+
   --inset-shadow-primary-btn: inset 0 -6px 0 var(--color-brand-edge);
   --inset-shadow-primary-btn-pressed: inset 0 -2px 0 var(--color-brand-edge);
+
   --inset-shadow-secondary-btn: inset 0 -2px 0 var(--color-grey-150);
   --inset-shadow-secondary-btn-pressed: inset 0 0px 0 var(--color-grey-150);
 }
