@@ -1,2 +1,210 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
+@custom-variant dark (&:is(.dark *));
+
+@font-face {
+  font-family: "Google Sans Flex";
+  src: url("./assets/fonts/GoogleSansFlex-VariableFont_wght.ttf")
+    format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Figtree";
+  src: url("./assets/fonts/Figtree-VariableFont_wght.ttf") format("truetype");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Figtree";
+  src: url("./assets/fonts/Figtree-Italic-VariableFont_wght.ttf")
+    format("truetype");
+  font-weight: 300 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@theme static {
+  /* Brand — Pathway purple. 500 is the logomark color (#9E67F7) and the
+   * primary button fill in the design team's auth screen. Note: white text
+   * on 500 is ~3.6:1 (below WCAG AA for normal text) — flagged to design. */
+  --color-brand-50: #f6f0ff;
+  --color-brand-100: #ece1fd;
+  --color-brand-200: #d8c2fc;
+  --color-brand-300: #c5a4fa;
+  --color-brand-400: #b285f9;
+  --color-brand-500: #9e67f7;
+  --color-brand-600: #7f52c6;
+  --color-brand-700: #5f3e94;
+  --color-brand-800: #3f2963;
+  --color-brand-900: #201531;
+  --color-brand-ink: #401386;
+
+  --color-accent-50: #fff4ee;
+  --color-accent-100: #ffe7dc;
+  --color-accent-200: #ffd0b9;
+  --color-accent-300: #ffb895;
+  --color-accent-400: #ffa172;
+  --color-accent-500: #ff894f;
+  --color-accent-600: #cc6e3f;
+  --color-accent-700: #99522f;
+  --color-accent-800: #663720;
+  --color-accent-900: #331b10;
+
+  --color-brand-edge: #8b5ad9;
+
+  --color-grey-50: #f2f2f2;
+  --color-grey-100: #e4e4e4;
+  --color-grey-150: #dfdfdf;
+  --color-grey-200: #d2d2d2;
+  --color-grey-300: #c8c8c8;
+  --color-grey-500: #767676;
+  --color-grey-900: #181818;
+
+  --color-canvas: #f7f7f7;
+  --color-surface: #ffffff;
+  --color-surface-muted: var(--color-grey-50);
+  --color-line: var(--color-grey-100);
+  --color-line-strong: var(--color-grey-200);
+  --color-ink: var(--color-grey-900);
+  --color-ink-muted: var(--color-grey-500);
+  --color-ink-subtle: #8f8f8f;
+  --color-ink-placeholder: var(--color-grey-300);
+  --color-ink-inverse: #ffffff;
+
+  --color-success-50: #ecfdf3;
+  --color-success-600: #16a34a;
+  --color-success-700: #15803d;
+  --color-warning-50: #fffbeb;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+  --color-danger-50: #fef2f2;
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
+  --color-info-50: #eff6ff;
+  --color-info-700: #1d4ed8;
+
+  --color-unavailable-bg: var(--color-grey-50);
+  --color-unavailable-ink: var(--color-grey-500);
+
+  --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --font-display:
+    "Google Sans Flex", "Figtree", ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+
+  --spacing-navbar: 4rem;
+  --spacing-page-mobile: 1rem;
+  --spacing-page-tablet: 1.5rem;
+  --spacing-page-desktop: 3.5rem;
+  --spacing-page-wide: 14rem;
+
+  --shadow-card: 0 1px 2px rgb(16 16 29 / 0.04), 0 1px 3px rgb(16 16 29 / 0.06);
+  --shadow-raised:
+    0 4px 12px rgb(16 16 29 / 0.08), 0 2px 4px rgb(16 16 29 / 0.04);
+  --shadow-overlay: 0 20px 48px rgb(16 16 29 / 0.18);
+
+  --inset-shadow-primary-btn: inset 0 -6px 0 var(--color-brand-edge);
+  --inset-shadow-primary-btn-pressed: inset 0 -2px 0 var(--color-brand-edge);
+  --inset-shadow-secondary-btn: inset 0 -2px 0 var(--color-grey-150);
+  --inset-shadow-secondary-btn-pressed: inset 0 0px 0 var(--color-grey-150);
+}
+
+@theme inline {
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-3xl: 28px;
+  --radius-4xl: 32px;
+}
+
+:root {
+  --background: var(--color-canvas);
+  --foreground: var(--color-ink);
+  --card: var(--color-surface);
+  --card-foreground: var(--color-ink);
+  --popover: var(--color-surface);
+  --popover-foreground: var(--color-ink);
+  --primary: var(--color-brand-600);
+  --primary-foreground: var(--color-ink-inverse);
+  --secondary: var(--color-surface-muted);
+  --secondary-foreground: var(--color-ink);
+  --muted: var(--color-surface-muted);
+  --muted-foreground: var(--color-ink-muted);
+  --accent: var(--color-brand-50);
+  --accent-foreground: var(--color-brand-700);
+  --destructive: var(--color-danger-600);
+  --border: var(--color-line);
+  --input: var(--color-line);
+  --ring: var(--color-brand-500);
+  --chart-1: var(--color-brand-300);
+  --chart-2: var(--color-brand-500);
+  --chart-3: var(--color-accent-500);
+  --chart-4: var(--color-success-600);
+  --chart-5: var(--color-info-700);
+  --radius: 0.5rem;
+  --sidebar: var(--color-surface);
+  --sidebar-foreground: var(--color-ink);
+  --sidebar-primary: var(--color-brand-600);
+  --sidebar-primary-foreground: var(--color-ink-inverse);
+  --sidebar-accent: var(--color-brand-50);
+  --sidebar-accent-foreground: var(--color-brand-700);
+  --sidebar-border: var(--color-line);
+  --sidebar-ring: var(--color-brand-500);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}

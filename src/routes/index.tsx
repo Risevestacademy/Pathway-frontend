@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { usePostHog } from "@posthog/react";
+import LevelSelect from "../features/catalog/LevelSelect";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -25,6 +26,10 @@ function Index() {
         >
           Send test PostHog event
         </button>
+      </div>
+
+      <div className="p-8 flex flex-col gap-4">
+        <LevelSelect onContinue={() => alert("continue clicked")} />
       </div>
     </div>
   );

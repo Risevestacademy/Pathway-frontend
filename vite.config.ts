@@ -1,4 +1,5 @@
 /// <reference types="vitest/config" />
+import path from "node:path";
 import { execSync } from "node:child_process";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
@@ -44,6 +45,11 @@ export default defineConfig({
       },
     }),
   ],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
   define: {
     "import.meta.env.VITE_APP_VERSION": JSON.stringify(release),
     ...(sentryEnvironment
