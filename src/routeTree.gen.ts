@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as ProtectedProgressRouteImport } from './routes/_protected/progress'
+import { Route as CareersCareerIdRoadmapIndexRouteImport } from './routes/careers/$careerId/roadmap/index'
+import { Route as CareersCareerIdRoadmapStepIdRouteImport } from './routes/careers/$careerId/roadmap/$stepId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -33,16 +35,32 @@ const ProtectedProgressRoute = ProtectedProgressRouteImport.update({
   path: '/progress',
   getParentRoute: () => ProtectedRoute,
 } as any)
+const CareersCareerIdRoadmapIndexRoute =
+  CareersCareerIdRoadmapIndexRouteImport.update({
+    id: '/careers/$careerId/roadmap/',
+    path: '/careers/$careerId/roadmap/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const CareersCareerIdRoadmapStepIdRoute =
+  CareersCareerIdRoadmapStepIdRouteImport.update({
+    id: '/careers/$careerId/roadmap/$stepId',
+    path: '/careers/$careerId/roadmap/$stepId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof authLoginRoute
   '/progress': typeof ProtectedProgressRoute
+  '/careers/$careerId/roadmap/$stepId': typeof CareersCareerIdRoadmapStepIdRoute
+  '/careers/$careerId/roadmap/': typeof CareersCareerIdRoadmapIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof authLoginRoute
   '/progress': typeof ProtectedProgressRoute
+  '/careers/$careerId/roadmap/$stepId': typeof CareersCareerIdRoadmapStepIdRoute
+  '/careers/$careerId/roadmap': typeof CareersCareerIdRoadmapIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -50,20 +68,40 @@ export interface FileRoutesById {
   '/_protected': typeof ProtectedRouteWithChildren
   '/(auth)/login': typeof authLoginRoute
   '/_protected/progress': typeof ProtectedProgressRoute
+  '/careers/$careerId/roadmap/$stepId': typeof CareersCareerIdRoadmapStepIdRoute
+  '/careers/$careerId/roadmap/': typeof CareersCareerIdRoadmapIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/progress'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/progress'
+    | '/careers/$careerId/roadmap/$stepId'
+    | '/careers/$careerId/roadmap/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/progress'
+  to:
+    | '/'
+    | '/login'
+    | '/progress'
+    | '/careers/$careerId/roadmap/$stepId'
+    | '/careers/$careerId/roadmap'
   id:
-    '__root__' | '/' | '/_protected' | '/(auth)/login' | '/_protected/progress'
+    | '__root__'
+    | '/'
+    | '/_protected'
+    | '/(auth)/login'
+    | '/_protected/progress'
+    | '/careers/$careerId/roadmap/$stepId'
+    | '/careers/$careerId/roadmap/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ProtectedRoute: typeof ProtectedRouteWithChildren
   authLoginRoute: typeof authLoginRoute
+  CareersCareerIdRoadmapStepIdRoute: typeof CareersCareerIdRoadmapStepIdRoute
+  CareersCareerIdRoadmapIndexRoute: typeof CareersCareerIdRoadmapIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -96,6 +134,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedProgressRouteImport
       parentRoute: typeof ProtectedRoute
     }
+    '/careers/$careerId/roadmap/': {
+      id: '/careers/$careerId/roadmap/'
+      path: '/careers/$careerId/roadmap'
+      fullPath: '/careers/$careerId/roadmap/'
+      preLoaderRoute: typeof CareersCareerIdRoadmapIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers/$careerId/roadmap/$stepId': {
+      id: '/careers/$careerId/roadmap/$stepId'
+      path: '/careers/$careerId/roadmap/$stepId'
+      fullPath: '/careers/$careerId/roadmap/$stepId'
+      preLoaderRoute: typeof CareersCareerIdRoadmapStepIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -115,6 +167,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ProtectedRoute: ProtectedRouteWithChildren,
   authLoginRoute: authLoginRoute,
+  CareersCareerIdRoadmapStepIdRoute: CareersCareerIdRoadmapStepIdRoute,
+  CareersCareerIdRoadmapIndexRoute: CareersCareerIdRoadmapIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
