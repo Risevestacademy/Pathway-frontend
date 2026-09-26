@@ -9,7 +9,8 @@ import type {
   Statistic,
 } from "../careerDetail.types";
 import { formatMoney, payPeriodLabel } from "../careerDetail.utils";
-import { Badge, Card } from "@/components/primitives";
+import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
 
 export function StatCard({ stat }: { stat: Statistic }) {
   switch (stat.kind) {

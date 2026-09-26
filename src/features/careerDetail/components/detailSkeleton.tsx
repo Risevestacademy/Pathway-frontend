@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/primitives";
+import { Skeleton } from "@/components/ui/Skeleton";
 import CareerDetailPage from "./CareerDetailPage";
 
 export default function DetailSkeleton() {

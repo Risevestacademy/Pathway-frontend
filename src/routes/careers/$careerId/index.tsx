@@ -38,13 +38,18 @@ function CareerDetailRoute() {
 
   return (
     <CareerDetailPage>
-      <a
-        href="#"
+      <button
+        type="button"
+        onClick={() =>
+          navigate({
+            to: "/careers",
+          })
+        }
         className="mb-4 inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink"
       >
         <ChevronLeft className="size-4" aria-hidden />
         All Careers
-      </a>
+      </button>
 
       <Detail career={result} />
     </CareerDetailPage>
