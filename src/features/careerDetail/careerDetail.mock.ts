@@ -1,16 +1,5 @@
 import type { Career } from "./careerDetail.types";
 
-/**
- * ILLUSTRATIVE content for reference designs only. Figures are placeholders
- * shaped like real sourced data — they are not real statistics.
- *
- * Deliberate edge cases (each one exercises a spec rule):
- *  - frontend-developer: full data, two geographies, a source-provided projection series
- *  - data-analyst: several values missing → "Unavailable" states; salary band without median
- *  - ux-researcher: no roadmap linked yet
- *  - cloud-support-engineer: status "draft" → must never render
- *  - flash-developer: status "retired" → must never render
- */
 export const careers: Career[] = [
   {
     id: "frontend-developer",

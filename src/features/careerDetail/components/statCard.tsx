@@ -11,14 +11,6 @@ import type {
 import { formatMoney, payPeriodLabel } from "../careerDetail.utils";
 import { Badge, Card } from "@/components/primitives";
 
-/**
- * FR-02 statistic cards. Rules encoded here:
- *  - every stat shows source · period · geography · meaning
- *  - missing values render an explicit "Unavailable" (never 0 / blank / spinner)
- *  - median is one number; a band is two labelled bounds; never merged
- *  - salary always states currency + pay period; basis shows "unspecified" when unknown
- *  - charts only when the source itself supplies a series
- */
 export function StatCard({ stat }: { stat: Statistic }) {
   switch (stat.kind) {
     case "salary-median":
@@ -174,7 +166,7 @@ function DemandCard({ stat }: { stat: DemandStat }) {
 }
 
 /**
- * Only rendered when the source provides the series (FR-02 rule 5).
+ * Only rendered when the source provides the series.
  * One series → no legend; direct labels + a table alternative for screen readers.
  */
 function SeriesBars({

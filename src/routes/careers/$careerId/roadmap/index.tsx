@@ -51,7 +51,6 @@ function RoadmapRoute() {
 
   return (
     <RoadmapPage>
-      {/*TODO: Change to the career detail route (FR-02) when it exists */}
       <button
         type="button"
         onClick={() =>
