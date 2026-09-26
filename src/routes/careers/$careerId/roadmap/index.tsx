@@ -52,13 +52,19 @@ function RoadmapRoute() {
   return (
     <RoadmapPage>
       {/*TODO: Change to the career detail route (FR-02) when it exists */}
-      <a
-        href={`/careers/${career.id}`}
+      <button
+        type="button"
+        onClick={() =>
+          navigate({
+            to: "/careers/$careerId",
+            params: { careerId: career.id },
+          })
+        }
         className="mb-4 inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink"
       >
         <ChevronLeft className="size-4" aria-hidden />
         Career details
-      </a>
+      </button>
 
       <p className="text-sm font-medium text-brand-700">{career.title}</p>
       <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">
