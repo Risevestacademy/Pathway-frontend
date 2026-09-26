@@ -28,3 +28,4 @@ dist-ssr
 !.env.example
 
 pnpm-lock.yaml
+pnpm-workspace.yaml
