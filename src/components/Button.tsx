@@ -34,6 +34,7 @@ export function Button({
         font-sans text-sm font-semibold
         transition-[box-shadow,transform] duration-100
         active:translate-y-[2px]
+        hover:cursor-pointer
         ${variantClasses}
         ${className}
       `}

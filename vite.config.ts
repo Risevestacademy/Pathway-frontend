@@ -5,10 +5,12 @@ import { defineConfig } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
+import path from "node:path";
 
 function resolveRelease(): string {
   if (process.env.VITE_APP_VERSION) return process.env.VITE_APP_VERSION;
-  if (process.env.VERCEL_GIT_COMMIT_SHA) return process.env.VERCEL_GIT_COMMIT_SHA;
+  if (process.env.VERCEL_GIT_COMMIT_SHA)
+    return process.env.VERCEL_GIT_COMMIT_SHA;
   if (process.env.GITHUB_SHA) return process.env.GITHUB_SHA;
 
   try {
@@ -57,6 +59,11 @@ export default defineConfig({
     sourcemap: "hidden",
   },
   test: {
-    environment: 'jsdom',
+    environment: "jsdom",
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "src"),
+    },
   },
 });

@@ -53,7 +53,7 @@ function RoadmapRoute() {
     <RoadmapPage>
       {/*TODO: Change to the career detail route (FR-02) when it exists */}
       <a
-        href="#"
+        href={`/careers/${career.id}`}
         className="mb-4 inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink"
       >
         <ChevronLeft className="size-4" aria-hidden />
