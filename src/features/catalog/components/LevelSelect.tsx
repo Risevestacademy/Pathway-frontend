@@ -1,8 +1,8 @@
 import { BriefcaseBusiness, Check, GraduationCap, School } from "lucide-react";
 import clsx from "clsx";
-import { Button } from "../../components/ui/Button";
-import { CAREER_LEVELS, type CareerLevel } from "./catalog.types";
-import { useSession } from "../../lib/stores/session";
+import { Button } from "../../../components/ui/Button";
+import { CAREER_LEVELS, type CareerLevel } from "../catalog.types";
+import { useSession } from "../../../lib/stores/session";
 
 const icons: Record<CareerLevel, typeof School> = {
   "university-student": School,
@@ -10,13 +10,17 @@ const icons: Record<CareerLevel, typeof School> = {
   "early-career": BriefcaseBusiness,
 };
 
-export default function LevelSelect({ onContinue }: { onContinue: () => void }) {
+interface LevelSelectProps {
+  onContinue: () => void;
+}
+
+export default function LevelSelect({ onContinue }: LevelSelectProps) {
   const { level, setLevel } = useSession();
 
   return (
-    <main className="max-w-lg mx-auto px-4 py-8">
+    <main className="max-w-2xl mx-auto px-4 py-8">
       <p className="mb-2 text-sm font-medium text-brand-700">Step 1 of 2</p>
-      <h1 className="font-display text-2xl font-semibold tracking-tight">
+      <h1 className="font-display text-2xl font-semibold tracking-tight md:text-3xl">
         Where are you in your career?
       </h1>
       <p className="mt-2 text-ink-muted">
@@ -34,7 +38,7 @@ export default function LevelSelect({ onContinue }: { onContinue: () => void }) 
               aria-pressed={active}
               onClick={() => setLevel(l.id)}
               className={clsx(
-                "flex items-center gap-4 rounded-lg border bg-surface p-4 text-left",
+                "flex items-center gap-4 rounded-lg border bg-surface p-4 text-left cursor-pointer",
                 "transition-[border-color,box-shadow] duration-150 motion-reduce:transition-none",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2",
                 active ? "border-brand-600 ring-2 ring-brand-100" : "border-line hover:border-brand-300"
@@ -68,6 +72,7 @@ export default function LevelSelect({ onContinue }: { onContinue: () => void }) 
 
       <Button
         isPrimary
+        size="lg"
         disabled={!level}
         onClick={onContinue}
         className="mt-8 w-full"

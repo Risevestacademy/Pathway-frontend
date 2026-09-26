@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { usePostHog } from "@posthog/react";
-import Navbar from "../components/Navbar";
 import { Button } from "../components/ui/Button";
 
 export const Route = createFileRoute("/")({
@@ -18,7 +17,6 @@ function Index() {
 
   return (
     <main>
-      <Navbar />
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold">Pathway</h1>
