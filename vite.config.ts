@@ -1,11 +1,11 @@
 /// <reference types="vitest/config" />
+import path from "node:path";
 import { execSync } from "node:child_process";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
-import path from "node:path";
 
 function resolveRelease(): string {
   if (process.env.VITE_APP_VERSION) return process.env.VITE_APP_VERSION;
@@ -46,6 +46,11 @@ export default defineConfig({
       },
     }),
   ],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
   define: {
     "import.meta.env.VITE_APP_VERSION": JSON.stringify(release),
     ...(sentryEnvironment
@@ -60,10 +65,5 @@ export default defineConfig({
   },
   test: {
     environment: "jsdom",
-  },
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "src"),
-    },
   },
 });

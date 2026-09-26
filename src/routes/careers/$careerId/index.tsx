@@ -4,7 +4,7 @@ import { ChevronLeft } from "lucide-react";
 import { getCareerInfo } from "@/features/careerDetail/careerDetail.utils";
 import StateMessage from "@/components/StateMessage";
 import { SearchX } from "lucide-react";
-import { Button } from "@/components/Button";
+import { Button } from "@/components/ui/Button";
 import { useNavigate } from "@tanstack/react-router";
 import Detail from "@/features/careerDetail/components/detail";
 import DetailSkeleton from "@/features/careerDetail/components/detailSkeleton";

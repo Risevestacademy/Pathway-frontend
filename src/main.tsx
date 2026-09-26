@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { routeTree } from "./routeTree.gen.ts";
 import { PostHogProvider } from "@posthog/react";
 import { initSentry } from "./lib/monitoring/sentry";
@@ -16,6 +17,7 @@ const options = {
 } as const;
 
 const router = createRouter({ routeTree });
+const queryClient = new QueryClient();
 
 declare module "@tanstack/react-router" {
   interface Register {
@@ -31,11 +33,13 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <PostHogProvider
-      apiKey={import.meta.env.VITE_POSTHOG_PROJECT_TOKEN}
-      options={options}
-    >
-      <RouterProvider router={router} />
-    </PostHogProvider>
+    <QueryClientProvider client={queryClient}>
+      <PostHogProvider
+        apiKey={import.meta.env.VITE_POSTHOG_PROJECT_TOKEN}
+        options={options}
+      >
+        <RouterProvider router={router} />
+      </PostHogProvider>
+    </QueryClientProvider>
   </StrictMode>,
 );

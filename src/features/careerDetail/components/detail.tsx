@@ -1,6 +1,6 @@
 import { CircleCheck, Route } from "lucide-react";
 import Section from "./section";
-import { Button } from "@/components/Button";
+import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/primitives";
 import type { Career } from "@/features/careerDetail/careerDetail.types";
 import StatGroup from "./statGroup";
