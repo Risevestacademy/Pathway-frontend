@@ -9,6 +9,7 @@ import { CAREER_LEVELS, type Career, type CareerLevel } from '../catalog.types';
 import { hasOptionalInput, useSession } from '../../../lib/stores/session';
 import { useCareers } from '../hooks/useCareers';
 import { LevelSwitcher } from './LevelSwitcher';
+import { filterPublished, filterByTags, isLevelFit } from '../catalog.utils';
 
 export default function Catalogue() {
   const profile = useSession();
@@ -75,24 +76,20 @@ interface ResultsProps {
 }
 
 function Results({ careers, level, skills, interests, clearFilters, levelLabel }: ResultsProps) {
-  const publishedCareers = careers.filter(c => c.status === 'published');
-  const filtered = skills.length > 0 || interests.length > 0;
-  let displayedCareers = publishedCareers;
-
-  if (filtered) {
-    const matchTerms = [...interests, ...skills].map(t => t.toLowerCase());
-    displayedCareers = publishedCareers.filter(c =>
-      c.tags.some(tag => matchTerms.includes(tag.toLowerCase()))
-    );
+  if (careers.length === 0) {
+    return <StateMessage kind="empty" title="No careers available yet" body="We're adding careers to the catalogue. Check back soon." />;
   }
 
+  const publishedCareers = filterPublished(careers);
+  
   if (publishedCareers.length === 0) {
     return <StateMessage kind="empty" title="No careers available yet" body="We're adding careers to the catalogue. Check back soon." />;
   }
 
-  if (careers.length === 0) {
-    return <StateMessage kind="empty" title="No careers available yet" body="We’re adding careers to the catalogue. Check back soon." />;
-  }
+  const filtered = skills.length > 0 || interests.length > 0;
+  const displayedCareers = filtered
+    ? filterByTags(publishedCareers, [...interests, ...skills])
+    : publishedCareers;
 
   if (displayedCareers.length === 0) {
     return (
@@ -112,7 +109,7 @@ function Results({ careers, level, skills, interests, clearFilters, levelLabel }
       </p>
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4">
         {displayedCareers.map((c) => {
-          const isLevelFit = level ? c.levels.includes(level as CareerLevel) : false;
+          const levelFit = isLevelFit(c, level as CareerLevel | null);
 
           return (
             <li key={c.id}>
@@ -121,7 +118,7 @@ function Results({ careers, level, skills, interests, clearFilters, levelLabel }
                 className="group block h-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-lg"
               >
                 <Card className="flex h-full flex-col p-5 transition-shadow hover:shadow-raised">
-                  {isLevelFit && levelLabel && (
+                  {levelFit && levelLabel && (
                     <Badge tone="accent" icon={<Sparkles className="size-3 text-accent-600" />} className="mb-3 self-start">
                       Good fit for {levelLabel.toLowerCase()}s
                     </Badge>
