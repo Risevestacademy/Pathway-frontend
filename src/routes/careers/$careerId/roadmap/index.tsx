@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ChevronLeft, Hourglass, MapPinOff } from "lucide-react";
-import { Button } from "../../../../components/Button";
+import { Button } from "../../../../components/ui/Button";
 import RoadmapPage from "../../../../features/pathway/components/RoadmapPage";
 import RoadmapStepList from "../../../../features/pathway/components/RoadmapStepList";
 import StateMessage from "../../../../components/StateMessage";
