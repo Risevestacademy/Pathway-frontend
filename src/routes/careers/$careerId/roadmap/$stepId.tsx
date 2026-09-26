@@ -10,7 +10,7 @@ import {
   SearchX,
   Target,
 } from "lucide-react";
-import { Button } from "../../../../components/Button";
+import { Button } from "../../../../components/ui/Button";
 import RoadmapPage from "../../../../features/pathway/components/RoadmapPage";
 import StateMessage from "../../../../components/StateMessage";
 import StepEstimate from "../../../../features/pathway/components/StepEstimate";
