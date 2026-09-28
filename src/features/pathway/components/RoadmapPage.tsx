@@ -4,7 +4,6 @@ import Navbar from "../../../components/Navbar";
 export default function RoadmapPage({ children }: { children: ReactNode }) {
   return (
     <main className="flex min-h-screen flex-col bg-canvas">
-      <Navbar />
       <div
         className="
           mx-auto w-full max-w-3xl

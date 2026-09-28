@@ -19,6 +19,7 @@ import { Route as CareersOnboardingIndexRouteImport } from './routes/careers/onb
 import { Route as CareersOnboardingAboutRouteImport } from './routes/careers/onboarding/about'
 import { Route as CareersCareerIdRoadmapIndexRouteImport } from './routes/careers/$careerId/roadmap/index'
 import { Route as CareersCareerIdRoadmapStepIdRouteImport } from './routes/careers/$careerId/roadmap/$stepId'
+import { Route as CareersCareerIdRoadmapStepIdResourcesRouteImport } from './routes/careers/$careerId/roadmap/$stepId/resources'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -71,6 +72,12 @@ const CareersCareerIdRoadmapStepIdRoute =
     path: '/careers/$careerId/roadmap/$stepId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const CareersCareerIdRoadmapStepIdResourcesRoute =
+  CareersCareerIdRoadmapStepIdResourcesRouteImport.update({
+    id: '/resources',
+    path: '/resources',
+    getParentRoute: () => CareersCareerIdRoadmapStepIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -80,8 +87,9 @@ export interface FileRoutesByFullPath {
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
   '/careers/$careerId/': typeof CareersCareerIdIndexRoute
   '/careers/onboarding/': typeof CareersOnboardingIndexRoute
-  '/careers/$careerId/roadmap/$stepId': typeof CareersCareerIdRoadmapStepIdRoute
+  '/careers/$careerId/roadmap/$stepId': typeof CareersCareerIdRoadmapStepIdRouteWithChildren
   '/careers/$careerId/roadmap/': typeof CareersCareerIdRoadmapIndexRoute
+  '/careers/$careerId/roadmap/$stepId/resources': typeof CareersCareerIdRoadmapStepIdResourcesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -91,8 +99,9 @@ export interface FileRoutesByTo {
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
   '/careers/$careerId': typeof CareersCareerIdIndexRoute
   '/careers/onboarding': typeof CareersOnboardingIndexRoute
-  '/careers/$careerId/roadmap/$stepId': typeof CareersCareerIdRoadmapStepIdRoute
+  '/careers/$careerId/roadmap/$stepId': typeof CareersCareerIdRoadmapStepIdRouteWithChildren
   '/careers/$careerId/roadmap': typeof CareersCareerIdRoadmapIndexRoute
+  '/careers/$careerId/roadmap/$stepId/resources': typeof CareersCareerIdRoadmapStepIdResourcesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -104,8 +113,9 @@ export interface FileRoutesById {
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
   '/careers/$careerId/': typeof CareersCareerIdIndexRoute
   '/careers/onboarding/': typeof CareersOnboardingIndexRoute
-  '/careers/$careerId/roadmap/$stepId': typeof CareersCareerIdRoadmapStepIdRoute
+  '/careers/$careerId/roadmap/$stepId': typeof CareersCareerIdRoadmapStepIdRouteWithChildren
   '/careers/$careerId/roadmap/': typeof CareersCareerIdRoadmapIndexRoute
+  '/careers/$careerId/roadmap/$stepId/resources': typeof CareersCareerIdRoadmapStepIdResourcesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/careers/onboarding/'
     | '/careers/$careerId/roadmap/$stepId'
     | '/careers/$careerId/roadmap/'
+    | '/careers/$careerId/roadmap/$stepId/resources'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -130,6 +141,7 @@ export interface FileRouteTypes {
     | '/careers/onboarding'
     | '/careers/$careerId/roadmap/$stepId'
     | '/careers/$careerId/roadmap'
+    | '/careers/$careerId/roadmap/$stepId/resources'
   id:
     | '__root__'
     | '/'
@@ -142,6 +154,7 @@ export interface FileRouteTypes {
     | '/careers/onboarding/'
     | '/careers/$careerId/roadmap/$stepId'
     | '/careers/$careerId/roadmap/'
+    | '/careers/$careerId/roadmap/$stepId/resources'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -152,7 +165,7 @@ export interface RootRouteChildren {
   CareersOnboardingAboutRoute: typeof CareersOnboardingAboutRoute
   CareersCareerIdIndexRoute: typeof CareersCareerIdIndexRoute
   CareersOnboardingIndexRoute: typeof CareersOnboardingIndexRoute
-  CareersCareerIdRoadmapStepIdRoute: typeof CareersCareerIdRoadmapStepIdRoute
+  CareersCareerIdRoadmapStepIdRoute: typeof CareersCareerIdRoadmapStepIdRouteWithChildren
   CareersCareerIdRoadmapIndexRoute: typeof CareersCareerIdRoadmapIndexRoute
 }
 
@@ -228,6 +241,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CareersCareerIdRoadmapStepIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/careers/$careerId/roadmap/$stepId/resources': {
+      id: '/careers/$careerId/roadmap/$stepId/resources'
+      path: '/resources'
+      fullPath: '/careers/$careerId/roadmap/$stepId/resources'
+      preLoaderRoute: typeof CareersCareerIdRoadmapStepIdResourcesRouteImport
+      parentRoute: typeof CareersCareerIdRoadmapStepIdRoute
+    }
   }
 }
 
@@ -243,6 +263,21 @@ const ProtectedRouteWithChildren = ProtectedRoute._addFileChildren(
   ProtectedRouteChildren,
 )
 
+interface CareersCareerIdRoadmapStepIdRouteChildren {
+  CareersCareerIdRoadmapStepIdResourcesRoute: typeof CareersCareerIdRoadmapStepIdResourcesRoute
+}
+
+const CareersCareerIdRoadmapStepIdRouteChildren: CareersCareerIdRoadmapStepIdRouteChildren =
+  {
+    CareersCareerIdRoadmapStepIdResourcesRoute:
+      CareersCareerIdRoadmapStepIdResourcesRoute,
+  }
+
+const CareersCareerIdRoadmapStepIdRouteWithChildren =
+  CareersCareerIdRoadmapStepIdRoute._addFileChildren(
+    CareersCareerIdRoadmapStepIdRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ProtectedRoute: ProtectedRouteWithChildren,
@@ -251,7 +286,8 @@ const rootRouteChildren: RootRouteChildren = {
   CareersOnboardingAboutRoute: CareersOnboardingAboutRoute,
   CareersCareerIdIndexRoute: CareersCareerIdIndexRoute,
   CareersOnboardingIndexRoute: CareersOnboardingIndexRoute,
-  CareersCareerIdRoadmapStepIdRoute: CareersCareerIdRoadmapStepIdRoute,
+  CareersCareerIdRoadmapStepIdRoute:
+    CareersCareerIdRoadmapStepIdRouteWithChildren,
   CareersCareerIdRoadmapIndexRoute: CareersCareerIdRoadmapIndexRoute,
 }
 export const routeTree = rootRouteImport
