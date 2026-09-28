@@ -1,15 +1,19 @@
-import { ArrowRight, SlidersHorizontal, Sparkles } from 'lucide-react';
-import { Link } from '@tanstack/react-router';
-import { Button } from '../../../components/ui/Button';
-import { Card } from '../../../components/ui/Card';
-import { Badge } from '../../../components/ui/Badge';
-import { Skeleton } from '../../../components/ui/Skeleton';
-import { StateMessage } from '../../../components/ui/StateMessage';
-import { CAREER_LEVELS, type Career, type CareerLevel } from '../catalog.types';
-import { hasOptionalInput, useSession } from '../../../lib/stores/session';
-import { useCareers } from '../hooks/useCareers';
-import { LevelSwitcher } from './LevelSwitcher';
-import { filterPublished, filterByTags, isLevelFit } from '../catalog.utils';
+import { ArrowRight, SlidersHorizontal, Sparkles } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Button } from "../../../components/ui/Button";
+import { Card } from "../../../components/ui/Card";
+import { Badge } from "../../../components/ui/Badge";
+import { Skeleton } from "../../../components/ui/Skeleton";
+import { StateMessage } from "../../../components/ui/StateMessage";
+import {
+  CAREER_LEVELS,
+  type Career,
+  type CareerLevel,
+} from "../../../types/career.types";
+import { hasOptionalInput, useSession } from "../../../lib/stores/session";
+import { useCareers } from "../hooks/useCareers";
+import { LevelSwitcher } from "./LevelSwitcher";
+import { filterPublished, filterByTags, isLevelFit } from "../catalog.utils";
 
 export default function Catalogue() {
   const profile = useSession();
@@ -21,8 +25,13 @@ export default function Catalogue() {
     <main className="px-page-mobile sm:px-page-tablet lg:px-page-desktop xl:px-page-wide py-8">
       <div className="mb-6 flex flex-col gap-4 md:mb-8 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-semibold tracking-tight md:text-3xl">Explore careers</h1>
-          <p className="mt-1 text-ink-muted">Open any career to see what the work involves, pay, outlook and a roadmap.</p>
+          <h1 className="font-display text-2xl font-semibold tracking-tight md:text-3xl">
+            Explore careers
+          </h1>
+          <p className="mt-1 text-ink-muted">
+            Open any career to see what the work involves, pay, outlook and a
+            roadmap.
+          </p>
         </div>
         <LevelSwitcher value={level} onChange={setLevel} />
       </div>
@@ -32,11 +41,23 @@ export default function Catalogue() {
           <SlidersHorizontal className="size-4 text-brand-700" />
           <span className="text-sm text-ink-muted">Showing matches for</span>
           {[...interests, ...skills].map((t) => (
-            <Badge key={t} tone="brand">{t}</Badge>
+            <Badge key={t} tone="brand">
+              {t}
+            </Badge>
           ))}
           <div className="ml-auto flex gap-3">
-            <Link to="/careers/onboarding/about" className="text-sm font-medium text-brand-700 hover:underline cursor-pointer">Edit</Link>
-            <button onClick={clearOptional} className="text-sm font-medium text-brand-700 hover:underline cursor-pointer">Clear</button>
+            <Link
+              to="/careers/onboarding/about"
+              className="text-sm font-medium text-brand-700 hover:underline cursor-pointer"
+            >
+              Edit
+            </Link>
+            <button
+              onClick={clearOptional}
+              className="text-sm font-medium text-brand-700 hover:underline cursor-pointer"
+            >
+              Clear
+            </button>
           </div>
         </div>
       )}
@@ -48,18 +69,22 @@ export default function Catalogue() {
           kind="error"
           title="We couldn’t load careers"
           body="Something went wrong on our side or with your connection. Please try again."
-          action={<Button onClick={() => refetch()} className="cursor-pointer">Try again</Button>}
+          action={
+            <Button onClick={() => refetch()} className="cursor-pointer">
+              Try again
+            </Button>
+          }
         />
       )}
 
       {!isLoading && !isError && (
-        <Results 
-          careers={data?.data || []} 
+        <Results
+          careers={data?.data || []}
           level={level}
           skills={skills}
           interests={interests}
           clearFilters={clearOptional}
-          levelLabel={CAREER_LEVELS.find((l) => l.id === level)?.label} 
+          levelLabel={CAREER_LEVELS.find((l) => l.id === level)?.label}
         />
       )}
     </main>
@@ -75,15 +100,34 @@ interface ResultsProps {
   levelLabel?: string;
 }
 
-function Results({ careers, level, skills, interests, clearFilters, levelLabel }: ResultsProps) {
+function Results({
+  careers,
+  level,
+  skills,
+  interests,
+  clearFilters,
+  levelLabel,
+}: ResultsProps) {
   if (careers.length === 0) {
-    return <StateMessage kind="empty" title="No careers available yet" body="We're adding careers to the catalogue. Check back soon." />;
+    return (
+      <StateMessage
+        kind="empty"
+        title="No careers available yet"
+        body="We're adding careers to the catalogue. Check back soon."
+      />
+    );
   }
 
   const publishedCareers = filterPublished(careers);
-  
+
   if (publishedCareers.length === 0) {
-    return <StateMessage kind="empty" title="No careers available yet" body="We're adding careers to the catalogue. Check back soon." />;
+    return (
+      <StateMessage
+        kind="empty"
+        title="No careers available yet"
+        body="We're adding careers to the catalogue. Check back soon."
+      />
+    );
   }
 
   const filtered = skills.length > 0 || interests.length > 0;
@@ -97,7 +141,11 @@ function Results({ careers, level, skills, interests, clearFilters, levelLabel }
         kind="no-match"
         title="No careers match your filters"
         body="Try removing some interests or skills, or clear filters to see the full catalogue."
-        action={<Button onClick={clearFilters} className="cursor-pointer">Clear filters</Button>}
+        action={
+          <Button onClick={clearFilters} className="cursor-pointer">
+            Clear filters
+          </Button>
+        }
       />
     );
   }
@@ -105,7 +153,8 @@ function Results({ careers, level, skills, interests, clearFilters, levelLabel }
   return (
     <>
       <p className="mb-3 text-sm text-ink-subtle" aria-live="polite">
-        {displayedCareers.length} {displayedCareers.length === 1 ? 'career' : 'careers'}
+        {displayedCareers.length}{" "}
+        {displayedCareers.length === 1 ? "career" : "careers"}
       </p>
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4">
         {displayedCareers.map((c) => {
@@ -113,20 +162,29 @@ function Results({ careers, level, skills, interests, clearFilters, levelLabel }
 
           return (
             <li key={c.id}>
-              <a 
-                href={`/careers/${c.id}`} 
+              <a
+                href={`/careers/${c.id}`}
                 className="group block h-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-lg"
               >
                 <Card className="flex h-full flex-col p-5 transition-shadow hover:shadow-raised">
                   {levelFit && levelLabel && (
-                    <Badge tone="accent" icon={<Sparkles className="size-3 text-accent-600" />} className="mb-3 self-start">
+                    <Badge
+                      tone="accent"
+                      icon={<Sparkles className="size-3 text-accent-600" />}
+                      className="mb-3 self-start"
+                    >
                       Good fit for {levelLabel.toLowerCase()}s
                     </Badge>
                   )}
-                  <h2 className="font-display text-base font-semibold text-ink">{c.title}</h2>
-                  <p className="mt-1 flex-1 text-sm text-ink-muted">{c.description}</p>
+                  <h2 className="font-display text-base font-semibold text-ink">
+                    {c.title}
+                  </h2>
+                  <p className="mt-1 flex-1 text-sm text-ink-muted">
+                    {c.description}
+                  </p>
                   <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-700">
-                    View career <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+                    View career{" "}
+                    <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
                   </span>
                 </Card>
               </a>

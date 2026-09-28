@@ -1,7 +1,7 @@
 import { BriefcaseBusiness, Check, GraduationCap, School } from "lucide-react";
 import clsx from "clsx";
 import { Button } from "../../../components/ui/Button";
-import { CAREER_LEVELS, type CareerLevel } from "../catalog.types";
+import { CAREER_LEVELS, type CareerLevel } from "../../../types/career.types";
 import { useSession } from "../../../lib/stores/session";
 
 const icons: Record<CareerLevel, typeof School> = {
@@ -41,13 +41,17 @@ export default function LevelSelect({ onContinue }: LevelSelectProps) {
                 "flex items-center gap-4 rounded-lg border bg-surface p-4 text-left cursor-pointer",
                 "transition-[border-color,box-shadow] duration-150 motion-reduce:transition-none",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2",
-                active ? "border-brand-600 ring-2 ring-brand-100" : "border-line hover:border-brand-300"
+                active
+                  ? "border-brand-600 ring-2 ring-brand-100"
+                  : "border-line hover:border-brand-300",
               )}
             >
               <span
                 className={clsx(
                   "grid size-11 shrink-0 place-items-center rounded-md",
-                  active ? "bg-brand-600 text-white" : "bg-brand-50 text-brand-700"
+                  active
+                    ? "bg-brand-600 text-white"
+                    : "bg-brand-50 text-brand-700",
                 )}
               >
                 <Icon className="size-5" aria-hidden="true" />
@@ -59,7 +63,9 @@ export default function LevelSelect({ onContinue }: LevelSelectProps) {
               <span
                 className={clsx(
                   "grid size-5 place-items-center rounded-full border",
-                  active ? "border-brand-600 bg-brand-600 text-white" : "border-grey-200"
+                  active
+                    ? "border-brand-600 bg-brand-600 text-white"
+                    : "border-grey-200",
                 )}
                 aria-hidden="true"
               >
