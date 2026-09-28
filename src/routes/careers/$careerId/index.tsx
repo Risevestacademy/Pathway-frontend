@@ -5,7 +5,7 @@ import { getCareerInfo } from "@/features/careerDetail/careerDetail.utils";
 import StateMessage from "@/components/StateMessage";
 import { SearchX } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, Link } from "@tanstack/react-router";
 import Detail from "@/features/careerDetail/components/detail";
 import DetailSkeleton from "@/features/careerDetail/components/detailSkeleton";
 
@@ -41,18 +41,13 @@ function CareerDetailRoute() {
 
   return (
     <CareerDetailPage>
-      <button
-        type="button"
-        onClick={() =>
-          navigate({
-            to: "/careers",
-          })
-        }
+      <Link
+        to="/careers"
         className="mb-4 inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink"
       >
         <ChevronLeft className="size-4" aria-hidden />
         All Careers
-      </button>
+      </Link>
 
       <Detail career={result} />
     </CareerDetailPage>

@@ -5,6 +5,7 @@ import RoadmapPage from "../../../../features/pathway/components/RoadmapPage";
 import RoadmapStepList from "../../../../features/pathway/components/RoadmapStepList";
 import StateMessage from "../../../../components/StateMessage";
 import { getRoadmap } from "../../../../features/pathway/pathway.utils";
+import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/careers/$careerId/roadmap/")({
   loader: ({ params }) => getRoadmap(params.careerId),
@@ -51,19 +52,14 @@ function RoadmapRoute() {
 
   return (
     <RoadmapPage>
-      <button
-        type="button"
-        onClick={() =>
-          navigate({
-            to: "/careers/$careerId",
-            params: { careerId: career.id },
-          })
-        }
+      <Link
+        to="/careers/$careerId"
+        params={{ careerId: career.id }}
         className="mb-4 inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink"
       >
         <ChevronLeft className="size-4" aria-hidden />
         Career details
-      </button>
+      </Link>
 
       <p className="text-sm font-medium text-brand-700">{career.title}</p>
       <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">

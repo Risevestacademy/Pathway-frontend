@@ -1,13 +1,11 @@
 import { CircleCheck, Route } from "lucide-react";
 import Section from "./section";
-import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import type { Career } from "@/types/career.types";
 import StatGroup from "./statGroup";
-import { useNavigate } from "@tanstack/react-router";
+import { LinkButton } from "@/components/ui/Button";
 
 export default function Detail({ career }: { career: Career }) {
-  const navigate = useNavigate();
   const salary = career.stats.filter(
     (s) => s.kind === "salary-median" || s.kind === "salary-range",
   );
@@ -70,16 +68,14 @@ export default function Detail({ career }: { career: Career }) {
             </p>
           </div>
           {career.roadmapId && (
-            <Button
-              onClick={() =>
-                navigate({
-                  to: "/careers/$careerId/roadmap",
-                  params: { careerId: career.id },
-                })
-              }
+            <LinkButton
+              to="/careers/$careerId/roadmap"
+              params={{ careerId: career.id }}
+              target="_blank"
+              rel="noopener noreferrer"
             >
               View roadmap
-            </Button>
+            </LinkButton>
           )}
         </Card>
       </Section>
