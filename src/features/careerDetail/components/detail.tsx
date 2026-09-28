@@ -2,7 +2,7 @@ import { CircleCheck, Route } from "lucide-react";
 import Section from "./section";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import type { Career } from "@/features/careerDetail/careerDetail.types";
+import type { Career } from "@/types/career.types";
 import StatGroup from "./statGroup";
 import { useNavigate } from "@tanstack/react-router";
 

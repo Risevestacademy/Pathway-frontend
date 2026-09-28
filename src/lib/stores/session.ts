@@ -1,15 +1,15 @@
-import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
-import type { CareerLevel } from '../../features/catalog/catalog.types'
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import type { CareerLevel } from "../../types/career.types";
 
 interface SessionState {
-  level: CareerLevel | null
-  skills: string[]
-  interests: string[]
-  setLevel: (level: CareerLevel) => void
-  setSkills: (skills: string[]) => void
-  setInterests: (interests: string[]) => void
-  clearOptional: () => void
+  level: CareerLevel | null;
+  skills: string[];
+  interests: string[];
+  setLevel: (level: CareerLevel) => void;
+  setSkills: (skills: string[]) => void;
+  setInterests: (interests: string[]) => void;
+  clearOptional: () => void;
 }
 
 export const useSession = create<SessionState>()(
@@ -24,11 +24,12 @@ export const useSession = create<SessionState>()(
       clearOptional: () => set({ skills: [], interests: [] }),
     }),
     {
-      name: 'pathway-onboarding-session',
+      name: "pathway-onboarding-session",
       storage: createJSONStorage(() => sessionStorage),
-    }
-  )
-)
+    },
+  ),
+);
 
-export const hasOptionalInput = (state: Pick<SessionState, 'skills' | 'interests'>) =>
-  state.skills.length > 0 || state.interests.length > 0
+export const hasOptionalInput = (
+  state: Pick<SessionState, "skills" | "interests">,
+) => state.skills.length > 0 || state.interests.length > 0;

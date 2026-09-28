@@ -1,5 +1,5 @@
 import { groupByGeo } from "../careerDetail.utils";
-import type { Statistic } from "@/features/careerDetail/careerDetail.types";
+import type { Statistic } from "@/types/career.types";
 import { MapPin } from "lucide-react";
 import { StatCard } from "./statCard";
 

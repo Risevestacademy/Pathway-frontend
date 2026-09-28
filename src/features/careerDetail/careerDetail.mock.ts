@@ -1,4 +1,4 @@
-import type { Career } from "./careerDetail.types";
+import type { Career } from "../../types/career.types";
 
 export const careers: Career[] = [
   {

@@ -7,7 +7,7 @@ import type {
   SalaryRangeStat,
   StatMeta,
   Statistic,
-} from "../careerDetail.types";
+} from "../../../types/career.types";
 import { formatMoney, payPeriodLabel } from "../careerDetail.utils";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
