@@ -1,6 +1,6 @@
 import type { PayPeriod } from "../../types/career.types";
 import type { Statistic } from "../../types/career.types";
-import { careers } from "./careerDetail.mock";
+import { careers } from "../../data/careers.mock";
 
 export function getCareerInfo(careerId: string) {
   return (
