@@ -27,7 +27,10 @@ function CareerDetailRoute() {
           title="This career isn't available"
           body="It may have been removed from the catalogue."
           action={
-            <Button isPrimary={false} onClick={() => navigate({ to: "/" })}>
+            <Button
+              isPrimary={false}
+              onClick={() => navigate({ to: "/careers" })}
+            >
               Browse careers
             </Button>
           }

@@ -3,7 +3,9 @@ import type { Statistic } from "./careerDetail.types";
 import { careers } from "./careerDetail.mock";
 
 export function getCareerInfo(careerId: string) {
-  return careers.find((c) => c.id === careerId);
+  return (
+    careers.find((c) => c.id === careerId && c.status === "published") ?? null
+  );
 }
 
 export function groupByGeo(items: Statistic[]) {

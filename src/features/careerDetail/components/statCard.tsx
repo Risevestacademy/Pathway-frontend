@@ -1,4 +1,4 @@
-import { CircleSlash, Info, TrendingUp } from "lucide-react";
+import { CircleSlash, Info, TrendingUp, TrendingDown } from "lucide-react";
 import type { ReactNode } from "react";
 import type {
   DemandStat,
@@ -142,7 +142,11 @@ function ProjectionCard({ stat }: { stat: ProjectionStat }) {
         <Unavailable what="projection" />
       ) : (
         <p className="flex items-center gap-2 font-display text-2xl font-semibold tabular-nums">
-          <TrendingUp className="size-5 text-success-600" aria-hidden />
+          {stat.value < 0 ? (
+            <TrendingDown className="size-5 text-danger-600" aria-hidden />
+          ) : (
+            <TrendingUp className="size-5 text-success-600" aria-hidden />
+          )}
           {stat.value > 0 ? "+" : ""}
           {stat.value}%
         </p>

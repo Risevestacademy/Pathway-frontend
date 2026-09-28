@@ -71,7 +71,12 @@ export default function Detail({ career }: { career: Career }) {
           </div>
           {career.roadmapId && (
             <Button
-              onClick={() => navigate({ to: `/careers/${career.id}/roadmap` })}
+              onClick={() =>
+                navigate({
+                  to: "/careers/$careerId/roadmap",
+                  params: { careerId: career.id },
+                })
+              }
             >
               View roadmap
             </Button>
