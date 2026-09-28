@@ -1,4 +1,4 @@
-import type { Career } from "../../types/career.types";
+import type { Career } from "../types/career.types";
 
 /**
  * Illustrative content only — figures are shaped like real data but not real statistics.

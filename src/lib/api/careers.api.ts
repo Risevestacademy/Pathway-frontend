@@ -1,4 +1,4 @@
-import { careers } from "../../features/catalog/catalog.mock";
+import { careers } from "../../data/careers.mock";
 import type { Career } from "../../types/career.types";
 
 export async function fetchCareers(): Promise<{ data: Career[] }> {
