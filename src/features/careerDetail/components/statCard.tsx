@@ -73,9 +73,7 @@ function SalaryTags({ stat }: { stat: SalaryMedianStat | SalaryRangeStat }) {
             ? "Gross (before tax)"
             : "Net (after tax)"}
       </Badge>
-      {stat.experienceLevel && (
-        <Badge tone="info">{stat.experienceLevel}</Badge>
-      )}
+      <Badge tone="info">{stat.experienceLevel ?? "unspecified"}</Badge>
     </>
   );
 }
@@ -203,14 +201,15 @@ function SeriesBars({
         ))}
       </div>
       <figcaption className="mt-2 flex items-center gap-1 text-[11px] text-ink-subtle">
-        <Info className="size-3" /> Source-provided series · {unit}
+        <Info className="size-3" />
+        Source-provided employment series{unit ? ` · ${unit}` : ""}
       </figcaption>
       <table className="sr-only">
-        <caption>Employment, {unit}</caption>
+        <caption>Employment series{unit ? ` · ${unit}` : ""}</caption>
         <tbody>
           {series.map((p) => (
             <tr key={p.label}>
-              <th>{p.label}</th>
+              <th scope="row">{p.label}</th>
               <td>{p.value}</td>
             </tr>
           ))}
