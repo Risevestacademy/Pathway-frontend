@@ -3,8 +3,8 @@ import {
   ExternalLink,
   FileText,
   Flag,
-  GraduationCap,
-  Video,
+  MonitorPlay,
+  Sparkles,
   type LucideIcon,
 } from "lucide-react";
 import { Badge } from "../../../components/ui/Badge";
@@ -25,16 +25,25 @@ export default function ResourceCard({
 }: ResourceCardProps) {
   const icons: Record<Resource["kind"], LucideIcon> = {
     article: FileText,
-    course: GraduationCap,
-    documentation: BookOpen,
-    video: Video,
+    course: BookOpen,
+    documentation: FileText,
+    interactive: Sparkles,
+    video: MonitorPlay,
+  };
+  const kindLabels: Record<Resource["kind"], string> = {
+    article: "Article",
+    course: "Course",
+    documentation: "Docs",
+    interactive: "Interactive",
+    video: "Video",
   };
   const Icon = icons[resource.kind];
-  const costTone = resource.costLabel?.toLowerCase().includes("free")
-    ? "success"
-    : resource.costLabel?.toLowerCase().includes("paid")
-      ? "warning"
-      : "unavailable";
+  const getCostTone = (label: string) => {
+    const normalized = label.toLowerCase();
+    if (normalized.includes("free")) return "success" as const;
+    if (normalized.includes("paid")) return "warning" as const;
+    return "unavailable" as const;
+  };
   const reportSubject = encodeURIComponent(`Resource issue: ${resource.title}`);
   const reportBody = encodeURIComponent(
     `Career: ${careerId}\nStep: ${stepId}\nResource: ${resource.title} (${resource.id})`,
@@ -54,17 +63,16 @@ export default function ResourceCard({
           <h2 className="font-display text-lg font-semibold text-ink">
             {resource.title}
           </h2>
-          <p className="mt-1 text-base text-ink-muted">{resource.provider}</p>
+          <p className="mt-1 text-base text-ink-muted">
+            {resource.provider} · {kindLabels[resource.kind]}
+          </p>
 
           {(resource.costLabel || resource.certificationLabel) && (
             <div className="mt-4 flex flex-wrap gap-2">
               {[resource.costLabel, resource.certificationLabel]
                 .filter((label): label is string => Boolean(label))
                 .map((label) => (
-                  <Badge
-                    key={label}
-                    tone={costTone}
-                  >
+                  <Badge key={label} tone={getCostTone(label)}>
                     {label}
                   </Badge>
                 ))}
@@ -84,10 +92,13 @@ export default function ResourceCard({
         <Button
           isPrimary={false}
           type="button"
-          onClick={() => window.open(resource.url, "_blank", "noopener,noreferrer")}
+          className="gap-2"
+          onClick={() =>
+            window.open(resource.url, "_blank", "noopener,noreferrer")
+          }
         >
-          Open resource
-          <ExternalLink className="size-5" aria-hidden />
+          <span>Open resource</span>
+          <ExternalLink className="size-4" aria-hidden />
         </Button>
       </div>
     </Card>

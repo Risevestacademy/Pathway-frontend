@@ -1,4 +1,9 @@
-export type ResourceKind = "article" | "course" | "documentation" | "video";
+export type ResourceKind =
+  | "article"
+  | "course"
+  | "documentation"
+  | "interactive"
+  | "video";
 
 export interface Resource {
   id: string;

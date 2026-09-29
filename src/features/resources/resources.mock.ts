@@ -7,12 +7,13 @@ export const mockResources: Resource[] = [
     provider: "MDN Web Docs",
     kind: "documentation",
     url: "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Structuring_content",
+    costLabel: "Course: free",
   },
   {
     id: "r-fcc-web",
     title: "Responsive Web Design",
     provider: "freeCodeCamp",
-    kind: "course",
+    kind: "interactive",
     url: "https://www.freecodecamp.org/learn/2022/responsive-web-design/",
     costLabel: "Course: free",
     certificationLabel: "Certification: free",
@@ -23,6 +24,7 @@ export const mockResources: Resource[] = [
     provider: "W3C Web Accessibility Initiative",
     kind: "video",
     url: "https://www.w3.org/WAI/videos/standards-and-benefits/",
+    costLabel: "Course: cost unknown",
   },
   {
     id: "r-css-course",
@@ -30,12 +32,13 @@ export const mockResources: Resource[] = [
     provider: "web.dev",
     kind: "course",
     url: "https://web.dev/learn/css",
+    costLabel: "Course: paid",
   },
   {
     id: "r-grid-game",
     title: "Grid Garden",
     provider: "Codepip",
-    kind: "course",
+    kind: "interactive",
     url: "https://cssgridgarden.com/",
   },
   {
@@ -44,6 +47,7 @@ export const mockResources: Resource[] = [
     provider: "MDN Web Docs",
     kind: "documentation",
     url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide",
+    costLabel: "Course: free",
   },
   {
     id: "r-meta-cert",
@@ -51,6 +55,8 @@ export const mockResources: Resource[] = [
     provider: "Meta",
     kind: "course",
     url: "https://www.coursera.org/learn/introduction-to-front-end-development",
+    costLabel: "Course: free",
+    certificationLabel: "Certification: paid · $49/month",
   },
   {
     id: "r-react-docs",
@@ -58,5 +64,6 @@ export const mockResources: Resource[] = [
     provider: "React",
     kind: "documentation",
     url: "https://react.dev/learn",
+    costLabel: "Course: free",
   },
 ];
