@@ -8,6 +8,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Badge } from "../../../components/ui/Badge";
+import { Button } from "../../../components/ui/Button";
 import { Card } from "../../../components/ui/Card";
 import type { Resource } from "../resources.types";
 
@@ -80,15 +81,14 @@ export default function ResourceCard({
           <Flag className="size-4" aria-hidden />
           Report an issue with this resource
         </a>
-        <a
-          href={resource.url}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center justify-center gap-2 rounded-md border-[0.5px] border-grey-200 bg-grey-50 px-5 py-3 text-base font-medium text-grey-500 shadow-sm transition-colors hover:bg-grey-100 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+        <Button
+          isPrimary={false}
+          type="button"
+          onClick={() => window.open(resource.url, "_blank", "noopener,noreferrer")}
         >
           Open resource
           <ExternalLink className="size-5" aria-hidden />
-        </a>
+        </Button>
       </div>
     </Card>
   );
