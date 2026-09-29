@@ -1,4 +1,14 @@
-import { ExternalLink, Flag, Sparkles } from "lucide-react";
+import {
+  BookOpen,
+  ExternalLink,
+  FileText,
+  Flag,
+  GraduationCap,
+  Video,
+  type LucideIcon,
+} from "lucide-react";
+import { Badge } from "../../../components/ui/Badge";
+import { Card } from "../../../components/ui/Card";
 import type { Resource } from "../resources.types";
 
 interface ResourceCardProps {
@@ -12,19 +22,31 @@ export default function ResourceCard({
   careerId,
   stepId,
 }: ResourceCardProps) {
+  const icons: Record<Resource["kind"], LucideIcon> = {
+    article: FileText,
+    course: GraduationCap,
+    documentation: BookOpen,
+    video: Video,
+  };
+  const Icon = icons[resource.kind];
+  const costTone = resource.costLabel?.toLowerCase().includes("free")
+    ? "success"
+    : resource.costLabel?.toLowerCase().includes("paid")
+      ? "warning"
+      : "unavailable";
   const reportSubject = encodeURIComponent(`Resource issue: ${resource.title}`);
   const reportBody = encodeURIComponent(
     `Career: ${careerId}\nStep: ${stepId}\nResource: ${resource.title} (${resource.id})`,
   );
 
   return (
-    <article className="rounded-lg border border-line bg-surface p-6 shadow-card">
+    <Card className="p-6">
       <div className="flex items-start gap-5">
         <div
           className="grid size-14 shrink-0 place-items-center rounded-lg bg-surface-muted text-ink-muted"
           aria-hidden
         >
-          <Sparkles className="size-6" />
+          <Icon className="size-6" />
         </div>
 
         <div className="min-w-0 flex-1">
@@ -38,12 +60,12 @@ export default function ResourceCard({
               {[resource.costLabel, resource.certificationLabel]
                 .filter((label): label is string => Boolean(label))
                 .map((label) => (
-                  <span
+                  <Badge
                     key={label}
-                    className="rounded-pill bg-success-50 px-3 py-1 text-sm font-medium text-success-700"
+                    tone={costTone}
                   >
                     {label}
-                  </span>
+                  </Badge>
                 ))}
             </div>
           )}
@@ -68,6 +90,6 @@ export default function ResourceCard({
           <ExternalLink className="size-5" aria-hidden />
         </a>
       </div>
-    </article>
+    </Card>
   );
 }

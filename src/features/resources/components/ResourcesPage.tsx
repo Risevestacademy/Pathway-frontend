@@ -2,22 +2,26 @@ import { Link } from "@tanstack/react-router";
 import { ChevronLeft, SearchX } from "lucide-react";
 import RoadmapPage from "../../pathway/components/RoadmapPage";
 import StateMessage from "../../../components/StateMessage";
-import { getRoadmap, getStepContext } from "../../pathway/pathway.utils";
 import ResourceCard from "./ResourceCard";
-import { getResources } from "../resources.utils";
+import type { RoadmapLookup } from "../../pathway/pathway.types";
+import type { getStepContext } from "../../pathway/pathway.utils";
+import type { Resource } from "../resources.types";
 
 interface ResourcesPageProps {
   careerId: string;
   stepId: string;
+  result: RoadmapLookup;
+  context: ReturnType<typeof getStepContext>;
+  resources: Resource[];
 }
 
 export default function ResourcesPage({
   careerId,
   stepId,
+  result,
+  context,
+  resources,
 }: ResourcesPageProps) {
-  const result = getRoadmap(careerId);
-  const context = getStepContext(result?.roadmap?.steps ?? [], stepId);
-
   if (!result || !context) {
     return (
       <RoadmapPage>
@@ -29,8 +33,6 @@ export default function ResourcesPage({
       </RoadmapPage>
     );
   }
-
-  const resources = getResources(context.step.resourceIds);
 
   return (
     <RoadmapPage>
@@ -52,16 +54,17 @@ export default function ResourcesPage({
       </p>
 
       {resources.length > 0 ? (
-        <div className="mt-8 grid gap-4">
+        <ul className="mt-8 grid gap-4">
           {resources.map((resource) => (
-            <ResourceCard
-              key={resource.id}
-              resource={resource}
-              careerId={careerId}
-              stepId={stepId}
-            />
+            <li key={resource.id}>
+              <ResourceCard
+                resource={resource}
+                careerId={careerId}
+                stepId={stepId}
+              />
+            </li>
           ))}
-        </div>
+        </ul>
       ) : (
         <p className="mt-8 rounded-md border border-dashed border-line-strong p-4 text-center text-sm text-ink-muted">
           Learning resources for this step are coming soon.
