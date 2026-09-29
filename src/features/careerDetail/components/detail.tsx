@@ -71,8 +71,9 @@ export default function Detail({ career }: { career: Career }) {
             <LinkButton
               to="/careers/$careerId/roadmap"
               params={{ careerId: career.id }}
-              target="_blank"
-              rel="noopener noreferrer"
+              /* Removes the default behavior of opening the link in a new tab, allowing users to navigate within the same tab. */
+              // target="_blank"
+              // rel="noopener noreferrer"
             >
               View roadmap
             </LinkButton>

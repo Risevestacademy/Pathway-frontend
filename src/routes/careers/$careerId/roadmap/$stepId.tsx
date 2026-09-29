@@ -1,4 +1,10 @@
-import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import {
+  Link,
+  Outlet,
+  createFileRoute,
+  useMatch,
+  useNavigate,
+} from "@tanstack/react-router";
 import {
   ArrowLeft,
   ArrowRight,
@@ -36,6 +42,14 @@ function StepRoute() {
   const { careerId } = Route.useParams();
   const { totalSteps, context } = Route.useLoaderData();
   const navigate = useNavigate();
+  const resourcesMatch = useMatch({
+    from: "/careers/$careerId/roadmap/$stepId/resources",
+    shouldThrow: false,
+  });
+
+  if (resourcesMatch) {
+    return <Outlet />;
+  }
 
   if (!context) {
     return (
@@ -90,7 +104,10 @@ function StepRoute() {
             text-sm text-ink
           "
         >
-          <Lock className="mt-0.5 size-4 shrink-0 text-warning-700" aria-hidden />
+          <Lock
+            className="mt-0.5 size-4 shrink-0 text-warning-700"
+            aria-hidden
+          />
           <p>
             <span className="font-semibold">
               Complete step {required.number} first.
@@ -132,9 +149,9 @@ function StepRoute() {
 
       <div className="mt-8">
         {step.resourceIds.length > 0 ? (
-          //TODO: Change to the step resources route (FR-04) when it exists
-          <a
-            href="#"
+          <Link
+            to="/careers/$careerId/roadmap/$stepId/resources"
+            params={{ careerId, stepId: step.stepId }}
             className="
               flex w-full items-center justify-center gap-2
               rounded px-4 py-3
@@ -146,7 +163,7 @@ function StepRoute() {
           >
             <BookOpen className="size-5" aria-hidden />
             View resources ({step.resourceIds.length})
-          </a>
+          </Link>
         ) : (
           <p
             className="
