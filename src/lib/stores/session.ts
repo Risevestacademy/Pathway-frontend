@@ -5,10 +5,10 @@ import type { CareerLevel } from "../../types/career.types";
 interface SessionState {
   level: CareerLevel | null;
   skills: string[];
-  interests: string[];
+  interest: string | null;
   setLevel: (level: CareerLevel) => void;
   setSkills: (skills: string[]) => void;
-  setInterests: (interests: string[]) => void;
+  setInterest: (interest: string | null) => void;
   clearOptional: () => void;
 }
 
@@ -17,11 +17,11 @@ export const useSession = create<SessionState>()(
     (set) => ({
       level: null,
       skills: [],
-      interests: [],
+      interest: null,
       setLevel: (level) => set({ level }),
       setSkills: (skills) => set({ skills }),
-      setInterests: (interests) => set({ interests }),
-      clearOptional: () => set({ skills: [], interests: [] }),
+      setInterest: (interest) => set({ interest }),
+      clearOptional: () => set({ skills: [], interest: null }),
     }),
     {
       name: "pathway-onboarding-session",
@@ -30,6 +30,5 @@ export const useSession = create<SessionState>()(
   ),
 );
 
-export const hasOptionalInput = (
-  state: Pick<SessionState, "skills" | "interests">,
-) => state.skills.length > 0 || state.interests.length > 0;
+export const hasOptionalInput = (state: Pick<SessionState, "skills" | "interest">) =>
+  state.skills.length > 0 || state.interest !== null;

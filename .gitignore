@@ -31,3 +31,5 @@ pnpm-lock.yaml
 pnpm-workspace.yaml
 
 routeTree.gen.ts
+
+tree.txt
