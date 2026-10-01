@@ -1,8 +1,12 @@
-import { careers } from "../../data/careers.mock";
-import type { Career } from "../../types/career.types";
+import { api } from "./axios";
+import type { CareerListItem, ApiTargetLevel } from "../../features/catalog/catelog.types";
 
-export async function fetchCareers(): Promise<{ data: Career[] }> {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve({ data: careers }), 800); // 800ms fake delay
-  });
+export interface FetchCareersParams {
+  level?: ApiTargetLevel;
+  interest?: string;
+}
+
+export async function fetchCareers(params: FetchCareersParams): Promise<CareerListItem[]> {
+  const { data } = await api.get<CareerListItem[]>("/careers", { params });
+  return data;
 }
