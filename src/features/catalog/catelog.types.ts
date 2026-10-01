@@ -5,5 +5,5 @@ export interface SessionProfile {
   education: { degree: string; field: string };
   experience: { years: string; internships: string };
   skills: string[];
-  interests: string[];
+  interest: string | null;
 }

@@ -6,9 +6,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Button } from '../../../components/ui/Button';
 import { useSession } from '../../../lib/stores/session';
 import { cn } from '../../../lib/utils';
+import { useFields } from '../hooks/useFields';
 
-const SUGGESTED_INTERESTS = ['Frontend development', 'Data science', 'Product management', 'Design', 'Marketing', 'Research'];
 const SUGGESTED_SKILLS = ['JavaScript', 'Python', 'SQL', 'Excel', 'Design', 'Communication'];
+const NO_INTEREST = 'none';
 
 const selectTriggerClass =
   'cursor-pointer h-[42px]! w-full justify-between pr-3 text-left text-[15px] bg-surface-muted text-ink ' +
@@ -19,24 +20,25 @@ const selectTriggerClass =
 export default function AboutYou() {
   const profile = useSession();
   const navigate = useNavigate();
+  const fields = useFields();
 
   const [draft, setDraft] = useState({
     education: { degree: '', field: '' },
     experience: { years: '', internships: '' },
     skills: profile.skills || [],
-    interests: profile.interests || []
+    interest: profile.interest
   });
 
   const submit = () => {
     profile.setSkills(draft.skills);
-    profile.setInterests(draft.interests);
+    profile.setInterest(draft.interest);
     navigate({ to: '/careers' });
   };
 
   const hasInput =
   draft.education.degree || draft.education.field ||
   draft.experience.years || draft.experience.internships ||
-  draft.skills.length > 0 || draft.interests.length > 0;
+  draft.skills.length > 0 || draft.interest !== null;
 
   const skip = () => {
     profile.clearOptional();
@@ -122,13 +124,32 @@ export default function AboutYou() {
           />
         </Field>
 
-        <Field label="Career interests">
-          <ChipCombobox
-            values={draft.interests}
-            suggestions={SUGGESTED_INTERESTS}
-            onChange={(interests) => setDraft({ ...draft, interests })}
-            placeholder="Add an interest"
-          />
+        <Field label="Career interest">
+          <Select
+            value={draft.interest ?? ''}
+            onValueChange={(v) => setDraft({ ...draft, interest: v === NO_INTEREST ? null : v })}
+            disabled={!fields.data}
+          >
+            <SelectTrigger className={selectTriggerClass}>
+              <SelectValue
+                placeholder={fields.isPending ? 'Loading fields…' : fields.isError ? 'Couldn’t load fields' : 'Pick a field'}
+              />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={NO_INTEREST} className="h-9 rounded-sm px-2.5 text-[15px]">No preference</SelectItem>
+              {fields.data?.map((f) => (
+                <SelectItem key={f.slug} value={f.slug} className="h-9 rounded-sm px-2.5 text-[15px]">{f.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {fields.isError && (
+            <p className="mt-2 text-sm text-ink-muted">
+              We couldn’t load fields.{' '}
+              <button onClick={() => fields.refetch()} className="font-medium text-brand-700 hover:underline cursor-pointer">
+                Try again
+              </button>
+            </p>
+          )}
         </Field>
       </div>
 

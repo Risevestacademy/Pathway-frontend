@@ -1,17 +1,11 @@
-import type { Career, CareerLevel } from "../../types/career.types";
+import type { ApiCareerLevel, CareerLevel } from "../../types/career.types";
 
-export function filterPublished(careers: Career[]): Career[] {
-  return careers.filter((c) => c.status === "published");
-}
+const API_LEVELS: Record<CareerLevel, ApiCareerLevel> = {
+  "university-student": "STUDENT",
+  "recent-graduate": "RECENT_GRAD",
+  "early-career": "EARLY_CAREER",
+};
 
-export function filterByTags(careers: Career[], terms: string[]): Career[] {
-  if (terms.length === 0) return careers;
-  const lowerTerms = terms.map((t) => t.toLowerCase());
-  return careers.filter((c) =>
-    c.tags.some((tag) => lowerTerms.includes(tag.toLowerCase())),
-  );
-}
-
-export function isLevelFit(career: Career, level: CareerLevel | null): boolean {
-  return level ? career.levels.includes(level) : false;
+export function toApiLevel(level: CareerLevel | null): ApiCareerLevel | undefined {
+  return level ? API_LEVELS[level] : undefined;
 }

@@ -1,5 +1,6 @@
-import { ArrowRight, SlidersHorizontal, Sparkles } from "lucide-react";
+import { ArrowRight, SlidersHorizontal } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import clsx from "clsx";
 import { Button } from "../../../components/ui/Button";
 import { Card } from "../../../components/ui/Card";
 import { Badge } from "../../../components/ui/Badge";
@@ -7,19 +8,27 @@ import { Skeleton } from "../../../components/ui/Skeleton";
 import { StateMessage } from "../../../components/ui/StateMessage";
 import {
   CAREER_LEVELS,
-  type Career,
-  type CareerLevel,
+  type CareerSummary,
 } from "../../../types/career.types";
-import { hasOptionalInput, useSession } from "../../../lib/stores/session";
+import { hasActiveFilter, useSession } from "../../../lib/stores/session";
 import { useCareers } from "../hooks/useCareers";
+import { useFields } from "../hooks/useFields";
 import { LevelSwitcher } from "./LevelSwitcher";
-import { filterPublished, filterByTags, isLevelFit } from "../catalog.utils";
+import { toApiLevel } from "../catalog.utils";
 
 export default function Catalogue() {
   const profile = useSession();
-  const { level, setLevel, skills, interests, clearOptional } = profile;
-  const filtered = hasOptionalInput(profile);
-  const { data, isLoading, isError, refetch } = useCareers();
+  const { level, setLevel, interest, setInterest } = profile;
+  const filtered = hasActiveFilter(profile);
+  const { data, isPending, isError, isPlaceholderData, refetch } = useCareers({
+    level: toApiLevel(level),
+    interest: interest ?? undefined,
+  });
+  const { data: fields } = useFields();
+
+  const interestLabel = fields?.find((f) => f.slug === interest)?.name ?? interest;
+  const levelLabel = CAREER_LEVELS.find((l) => l.id === level)?.label;
+  const clearInterest = () => setInterest(null);
 
   return (
     <main className="px-page-mobile sm:px-page-tablet lg:px-page-desktop xl:px-page-wide py-8">
@@ -40,11 +49,7 @@ export default function Catalogue() {
         <div className="mb-6 flex flex-wrap items-center gap-2 rounded-lg border border-brand-100 bg-brand-50/60 p-3">
           <SlidersHorizontal className="size-4 text-brand-700" />
           <span className="text-sm text-ink-muted">Showing matches for</span>
-          {[...interests, ...skills].map((t) => (
-            <Badge key={t} tone="brand">
-              {t}
-            </Badge>
-          ))}
+          <Badge tone="brand">{interestLabel}</Badge>
           <div className="ml-auto flex gap-3">
             <Link
               to="/careers/onboarding/about"
@@ -53,7 +58,7 @@ export default function Catalogue() {
               Edit
             </Link>
             <button
-              onClick={clearOptional}
+              onClick={clearInterest}
               className="text-sm font-medium text-brand-700 hover:underline cursor-pointer"
             >
               Clear
@@ -62,9 +67,9 @@ export default function Catalogue() {
         </div>
       )}
 
-      {isLoading && <LoadingGrid />}
-
-      {isError && (
+      {isPending ? (
+        <LoadingGrid />
+      ) : isError ? (
         <StateMessage
           kind="error"
           title="We couldn’t load careers"
@@ -75,77 +80,74 @@ export default function Catalogue() {
             </Button>
           }
         />
-      )}
-
-      {!isLoading && !isError && (
-        <Results
-          careers={data?.data || []}
-          level={level}
-          skills={skills}
-          interests={interests}
-          clearFilters={clearOptional}
-          levelLabel={CAREER_LEVELS.find((l) => l.id === level)?.label}
-        />
+      ) : (
+        <div
+          aria-busy={isPlaceholderData}
+          className={clsx(
+            "transition-opacity",
+            isPlaceholderData && "pointer-events-none opacity-60",
+          )}
+        >
+          <Results
+            careers={data}
+            interestLabel={filtered ? interestLabel : null}
+            levelLabel={levelLabel}
+            clearInterest={clearInterest}
+          />
+        </div>
       )}
     </main>
   );
 }
 
 interface ResultsProps {
-  careers: Career[];
-  level: string | null;
-  skills: string[];
-  interests: string[];
-  clearFilters: () => void;
+  careers: CareerSummary[];
+  interestLabel: string | null;
   levelLabel?: string;
+  clearInterest: () => void;
 }
 
 function Results({
   careers,
-  level,
-  skills,
-  interests,
-  clearFilters,
+  interestLabel,
   levelLabel,
+  clearInterest,
 }: ResultsProps) {
   if (careers.length === 0) {
+    if (interestLabel) {
+      return (
+        <StateMessage
+          kind="no-match"
+          title="No careers match your interest"
+          body={
+            levelLabel
+              ? `We don’t have ${interestLabel} careers for ${levelLabel.toLowerCase()}s yet. Try another level, or clear your interest to see everything.`
+              : `We don’t have ${interestLabel} careers yet. Clear your interest to see everything.`
+          }
+          action={
+            <Button onClick={clearInterest} className="cursor-pointer">
+              Clear interest
+            </Button>
+          }
+        />
+      );
+    }
+
+    if (levelLabel) {
+      return (
+        <StateMessage
+          kind="no-match"
+          title={`No careers for ${levelLabel.toLowerCase()}s yet`}
+          body="Try another level above. We're adding careers to the catalogue regularly."
+        />
+      );
+    }
+
     return (
       <StateMessage
         kind="empty"
         title="No careers available yet"
         body="We're adding careers to the catalogue. Check back soon."
-      />
-    );
-  }
-
-  const publishedCareers = filterPublished(careers);
-
-  if (publishedCareers.length === 0) {
-    return (
-      <StateMessage
-        kind="empty"
-        title="No careers available yet"
-        body="We're adding careers to the catalogue. Check back soon."
-      />
-    );
-  }
-
-  const filtered = skills.length > 0 || interests.length > 0;
-  const displayedCareers = filtered
-    ? filterByTags(publishedCareers, [...interests, ...skills])
-    : publishedCareers;
-
-  if (displayedCareers.length === 0) {
-    return (
-      <StateMessage
-        kind="no-match"
-        title="No careers match your filters"
-        body="Try removing some interests or skills, or clear filters to see the full catalogue."
-        action={
-          <Button onClick={clearFilters} className="cursor-pointer">
-            Clear filters
-          </Button>
-        }
       />
     );
   }
@@ -153,44 +155,31 @@ function Results({
   return (
     <>
       <p className="mb-3 text-sm text-ink-subtle" aria-live="polite">
-        {displayedCareers.length}{" "}
-        {displayedCareers.length === 1 ? "career" : "careers"}
+        {careers.length} {careers.length === 1 ? "career" : "careers"}
       </p>
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4">
-        {displayedCareers.map((c) => {
-          const levelFit = isLevelFit(c, level as CareerLevel | null);
-
-          return (
-            <li key={c.id}>
-              <a
-                href={`/careers/${c.id}`}
-                className="group block h-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-lg"
-              >
-                <Card className="flex h-full flex-col p-5 transition-shadow hover:shadow-raised">
-                  {levelFit && levelLabel && (
-                    <Badge
-                      tone="accent"
-                      icon={<Sparkles className="size-3 text-accent-600" />}
-                      className="mb-3 self-start"
-                    >
-                      Good fit for {levelLabel.toLowerCase()}s
-                    </Badge>
-                  )}
-                  <h2 className="font-display text-base font-semibold text-ink">
-                    {c.title}
-                  </h2>
-                  <p className="mt-1 flex-1 text-sm text-ink-muted">
-                    {c.description}
-                  </p>
-                  <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-700">
-                    View career{" "}
-                    <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
-                  </span>
-                </Card>
-              </a>
-            </li>
-          );
-        })}
+        {careers.map((c) => (
+          <li key={c.id}>
+            <Link
+              to="/careers/$careerId"
+              params={{ careerId: c.slug }}
+              className="group block h-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-lg"
+            >
+              <Card className="flex h-full flex-col p-5 transition-shadow hover:shadow-raised">
+                <h2 className="font-display text-base font-semibold text-ink">
+                  {c.title}
+                </h2>
+                <p className="mt-1 flex-1 text-sm text-ink-muted">
+                  {c.shortDescription}
+                </p>
+                <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-700">
+                  View career{" "}
+                  <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </Card>
+            </Link>
+          </li>
+        ))}
       </ul>
     </>
   );
