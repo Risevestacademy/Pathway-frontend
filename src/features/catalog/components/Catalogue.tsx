@@ -1,4 +1,4 @@
-import { ArrowRight, SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import clsx from "clsx";
 import { Button } from "../../../components/ui/Button";
@@ -6,15 +6,12 @@ import { Card } from "../../../components/ui/Card";
 import { Badge } from "../../../components/ui/Badge";
 import { Skeleton } from "../../../components/ui/Skeleton";
 import { StateMessage } from "../../../components/ui/StateMessage";
-import {
-  CAREER_LEVELS,
-  type CareerSummary,
-} from "../../../types/career.types";
+import { CAREER_LEVELS } from "../../../types/career.types";
+import { toApiLevel, type CareerListItem } from "../catelog.types";
 import { hasActiveFilter, useSession } from "../../../lib/stores/session";
 import { useCareers } from "../hooks/useCareers";
 import { useFields } from "../hooks/useFields";
 import { LevelSwitcher } from "./LevelSwitcher";
-import { toApiLevel } from "../catalog.utils";
 
 export default function Catalogue() {
   const profile = useSession();
@@ -34,7 +31,7 @@ export default function Catalogue() {
     <main className="px-page-mobile sm:px-page-tablet lg:px-page-desktop xl:px-page-wide py-8">
       <div className="mb-6 flex flex-col gap-4 md:mb-8 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-semibold tracking-tight md:text-3xl">
+          <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
             Explore careers
           </h1>
           <p className="mt-1 text-ink-muted">
@@ -101,7 +98,7 @@ export default function Catalogue() {
 }
 
 interface ResultsProps {
-  careers: CareerSummary[];
+  careers: CareerListItem[];
   interestLabel: string | null;
   levelLabel?: string;
   clearInterest: () => void;
@@ -172,10 +169,6 @@ function Results({
                 <p className="mt-1 flex-1 text-sm text-ink-muted">
                   {c.shortDescription}
                 </p>
-                <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-700">
-                  View career{" "}
-                  <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
-                </span>
               </Card>
             </Link>
           </li>
@@ -195,7 +188,6 @@ function LoadingGrid() {
             <Skeleton className="h-5 w-2/3" />
             <Skeleton className="mt-3 h-3.5 w-full" />
             <Skeleton className="mt-2 h-3.5 w-4/5" />
-            <Skeleton className="mt-5 h-3.5 w-24" />
           </Card>
         ))}
       </div>

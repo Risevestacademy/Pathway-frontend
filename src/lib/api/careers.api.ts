@@ -1,26 +1,18 @@
 import { api } from "./axios";
-import type {
-  ApiCareerLevel,
-  CareerField,
-  CareerSummary,
-} from "../../types/career.types";
+import type { ApiTargetLevel, CareerField, CareerListItem } from "../../features/catalog/catelog.types";
 
-export interface CareerFilters {
-  level?: ApiCareerLevel;
+export interface FetchCareersParams {
+  level?: ApiTargetLevel;
   /** Field slug, e.g. "software-engineering". */
   interest?: string;
 }
 
-export async function fetchCareers(
-  filters: CareerFilters = {},
-): Promise<CareerSummary[]> {
-  const { data } = await api.get<CareerSummary[]>("/api/v1/careers", {
-    params: filters,
-  });
+export async function fetchCareers(params: FetchCareersParams): Promise<CareerListItem[]> {
+  const { data } = await api.get<CareerListItem[]>("/careers", { params });
   return data;
 }
 
 export async function fetchFields(): Promise<CareerField[]> {
-  const { data } = await api.get<CareerField[]>("/api/v1/fields");
+  const { data } = await api.get<CareerField[]>("/fields");
   return data;
 }

@@ -1,20 +1,26 @@
-import { ChevronLeft, Check, Plus, X } from 'lucide-react';
-import { useRef, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
+import { Check, ChevronDown } from 'lucide-react';
 import { useNavigate, Link } from '@tanstack/react-router';
-import { Popover, PopoverAnchor, PopoverContent } from '../../../components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '../../../components/ui/popover';
 import { Button } from '../../../components/ui/Button';
 import { useSession } from '../../../lib/stores/session';
-import { cn } from '../../../lib/utils';
 import { useFields } from '../hooks/useFields';
 
-const SUGGESTED_SKILLS = ['JavaScript', 'Python', 'SQL', 'Excel', 'Design', 'Communication'];
+const SKILL_OPTIONS = ['JavaScript', 'Python', 'SQL', 'Excel', 'Design', 'Communication'];
 const NO_INTEREST = 'none';
 
 const selectTriggerClass =
-  'cursor-pointer h-[42px]! w-full justify-between pr-3 text-left text-[15px] bg-surface-muted text-ink ' +
+  'cursor-pointer h-10.5! w-full justify-between pr-3 text-left text-[15px] bg-surface-muted text-ink ' +
   'data-placeholder:text-ink-placeholder ' +
   'focus-visible:border-brand-500 focus-visible:ring-3 focus-visible:ring-brand-500/15 ' +
+  'data-[state=open]:border-brand-500 data-[state=open]:ring-3 data-[state=open]:ring-brand-500/15';
+
+const whiteSelectTriggerClass =
+  'cursor-pointer h-10.5! w-full justify-between px-3.5 text-left text-[15px] bg-surface text-ink ' +
+  'border border-line rounded-md shadow-sm transition-colors hover:border-line-strong ' +
+  'data-placeholder:text-ink-placeholder ' +
+  'focus-visible:border-brand-500 focus-visible:ring-3 focus-visible:ring-brand-500/15 focus-visible:outline-none ' +
   'data-[state=open]:border-brand-500 data-[state=open]:ring-3 data-[state=open]:ring-brand-500/15';
 
 export default function AboutYou() {
@@ -26,7 +32,7 @@ export default function AboutYou() {
     education: { degree: '', field: '' },
     experience: { years: '', internships: '' },
     skills: profile.skills || [],
-    interest: profile.interest
+    interest: profile.interest,
   });
 
   const submit = () => {
@@ -35,15 +41,18 @@ export default function AboutYou() {
     navigate({ to: '/careers' });
   };
 
-  const hasInput =
-  draft.education.degree || draft.education.field ||
-  draft.experience.years || draft.experience.internships ||
-  draft.skills.length > 0 || draft.interest !== null;
-
   const skip = () => {
     profile.clearOptional();
     navigate({ to: '/careers' });
   };
+
+  const hasInput =
+    draft.education.degree ||
+    draft.education.field ||
+    draft.experience.years ||
+    draft.experience.internships ||
+    draft.skills.length > 0 ||
+    draft.interest;
 
   return (
     <main className="max-w-2xl mx-auto px-4 py-8">
@@ -51,12 +60,13 @@ export default function AboutYou() {
         to="/careers/onboarding"
         className="inline-flex items-center gap-1 text-sm font-medium text-brand-700 hover:underline mb-6 cursor-pointer"
       >
-        <ChevronLeft className="size-4" aria-hidden="true" />
-        Back
+        &larr; Back
       </Link>
       <p className="mb-2 text-sm font-medium text-brand-700">Step 2 of 2 · Optional</p>
-      <h1 className="font-display text-2xl font-semibold tracking-tight md:text-3xl">Tell us a bit more</h1>
-      <p className="mt-1 mb-8 text-ink-muted">Add any of these to see careers that fit you best — or skip to browse everything.</p>
+      <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">Tell us a bit more</h1>
+      <p className="mt-1 mb-8 text-ink-muted">
+        Add any of these to see careers that fit you best — or skip to browse everything.
+      </p>
 
       <div className="grid gap-6">
         <Field label="Education">
@@ -69,8 +79,10 @@ export default function AboutYou() {
                 <SelectValue placeholder="Highest qualification" />
               </SelectTrigger>
               <SelectContent>
-                {['Secondary school', 'Diploma / OND', 'Bachelor’s (in progress)', 'Bachelor’s', 'Master’s', 'Other'].map(opt => (
-                  <SelectItem key={opt} value={opt} className="h-9 rounded-sm px-2.5 text-[15px]">{opt}</SelectItem>
+                {['Secondary school', 'Diploma / OND', "Bachelor's (in progress)", "Bachelor's", "Master's", 'Other'].map((opt) => (
+                  <SelectItem key={opt} value={opt} className="h-9 rounded-sm px-2.5 text-[15px]">
+                    {opt}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -79,7 +91,7 @@ export default function AboutYou() {
               value={draft.education.field}
               onChange={(e) => setDraft({ ...draft, education: { ...draft.education, field: e.target.value } })}
               placeholder="Field of study, e.g. Economics"
-              className="flex w-full items-center rounded-md border border-line bg-surface px-3.5 h-[42px] text-[15px] placeholder:text-ink-placeholder shadow-sm transition-colors hover:border-line-strong focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15"
+              className="flex w-full items-center rounded-md border border-line bg-surface px-3.5 h-10.5 text-[15px] placeholder:text-ink-placeholder shadow-sm transition-colors hover:border-line-strong focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15"
             />
           </div>
         </Field>
@@ -94,8 +106,10 @@ export default function AboutYou() {
                 <SelectValue placeholder="Years of work" />
               </SelectTrigger>
               <SelectContent>
-                {['None yet', 'Less than 1 year', '1–2 years', '3–5 years'].map(opt => (
-                  <SelectItem key={opt} value={opt} className="h-9 rounded-sm px-2.5 text-[15px]">{opt}</SelectItem>
+                {['None yet', 'Less than 1 year', '1–2 years', '3–5 years'].map((opt) => (
+                  <SelectItem key={opt} value={opt} className="h-9 rounded-sm px-2.5 text-[15px]">
+                    {opt}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -107,8 +121,10 @@ export default function AboutYou() {
                 <SelectValue placeholder="Internships" />
               </SelectTrigger>
               <SelectContent>
-                {['None', '1', '2', '3 or more'].map(opt => (
-                  <SelectItem key={opt} value={opt} className="h-9 rounded-sm px-2.5 text-[15px]">{opt}</SelectItem>
+                {['None', '1', '2', '3 or more'].map((opt) => (
+                  <SelectItem key={opt} value={opt} className="h-9 rounded-sm px-2.5 text-[15px]">
+                    {opt}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -116,11 +132,11 @@ export default function AboutYou() {
         </Field>
 
         <Field label="Skills">
-          <ChipCombobox
+          <MultiSelect
             values={draft.skills}
-            suggestions={SUGGESTED_SKILLS}
+            options={SKILL_OPTIONS}
+            placeholder="Select skills"
             onChange={(skills) => setDraft({ ...draft, skills })}
-            placeholder="Add a skill"
           />
         </Field>
 
@@ -130,7 +146,7 @@ export default function AboutYou() {
             onValueChange={(v) => setDraft({ ...draft, interest: v === NO_INTEREST ? null : v })}
             disabled={!fields.data}
           >
-            <SelectTrigger className={selectTriggerClass}>
+            <SelectTrigger className={whiteSelectTriggerClass}>
               <SelectValue
                 placeholder={fields.isPending ? 'Loading fields…' : fields.isError ? 'Couldn’t load fields' : 'Pick a field'}
               />
@@ -154,8 +170,12 @@ export default function AboutYou() {
       </div>
 
       <div className="sticky bottom-0 -mx-4 mt-8 flex flex-col-reverse gap-3 border-t border-line bg-canvas px-4 py-4 sm:static sm:mx-0 sm:flex-row sm:justify-end sm:border-0 sm:bg-transparent sm:px-0">
-        <Button isPrimary={false} size="lg" onClick={skip} className="w-full sm:w-auto">Skip for now</Button>
-        <Button size="lg" onClick={submit} disabled={!hasInput} className="w-full sm:w-auto">Show my careers</Button>
+        <Button isPrimary={false} size="lg" onClick={skip} className="w-full sm:w-auto">
+          Skip for now
+        </Button>
+        <Button size="lg" onClick={submit} disabled={!hasInput} className="w-full sm:w-auto">
+          Show my careers
+        </Button>
       </div>
     </main>
   );
@@ -170,116 +190,55 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-interface ChipComboboxProps {
+function MultiSelect({
+  values,
+  options,
+  placeholder,
+  onChange,
+}: {
   values: string[];
-  suggestions: string[];
-  onChange: (v: string[]) => void;
+  options: string[];
   placeholder: string;
-}
-
-function ChipCombobox({ values, suggestions, onChange, placeholder }: ChipComboboxProps) {
-  const [text, setText] = useState('');
-  const [open, setOpen] = useState(false);
-  const anchorRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const has = (v: string) => values.some((x) => x.toLowerCase() === v.toLowerCase());
-  const add = (v: string) => {
-    const t = v.trim();
-    if (t && !has(t)) onChange([...values, t]);
-    setText('');
-    inputRef.current?.focus();
+  onChange: (v: string[]) => void;
+}) {
+  const toggle = (option: string) => {
+    onChange(
+      values.includes(option)
+        ? values.filter((v) => v !== option)
+        : [...values, option]
+    );
   };
 
-  const q = text.trim().toLowerCase();
-  const matches = suggestions.filter((s) => !q || s.toLowerCase().includes(q));
-  const canAddCustom = !!q && !suggestions.some((s) => s.toLowerCase() === q) && !has(q);
-
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverAnchor asChild>
-        <div
-          ref={anchorRef}
-          onClick={() => inputRef.current?.focus()}
-          className={cn(
-            'flex w-full min-h-[42px] cursor-text flex-wrap items-center gap-1.5 rounded-md border border-input bg-surface px-2 py-1.5 text-[15px] shadow-sm transition-colors focus-visible:outline-none',
-            open && 'border-brand-500 ring-2 ring-brand-500/15'
-          )}
-        >
-          {values.map((v) => (
-            <span key={v} className="inline-flex items-center gap-1 rounded-sm bg-brand-50 py-0.5 pr-0.5 pl-2 text-[15px] text-brand-800">
-              {v}
-              <button
-                aria-label={`Remove ${v}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onChange(values.filter((x) => x !== v));
-                }}
-                className="grid size-5 place-items-center rounded-sm hover:bg-brand-100 cursor-pointer"
-              >
-                <X className="size-3" />
-              </button>
-            </span>
-          ))}
-          <input
-            ref={inputRef}
-            role="combobox"
-            aria-expanded={open}
-            className="h-7 min-w-32 flex-1 bg-transparent px-2 text-[15px] placeholder:text-ink-placeholder focus:outline-none"
-            value={text}
-            placeholder={placeholder}
-            onFocus={() => setOpen(true)}
-            onChange={(e) => {
-              setText(e.target.value);
-              setOpen(true);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ',') {
-                e.preventDefault();
-                add(text);
-              } else if (e.key === 'Backspace' && !text && values.length) {
-                onChange(values.slice(0, -1));
-              }
-            }}
-          />
-        </div>
-      </PopoverAnchor>
+    <Popover>
+      <PopoverTrigger className={`flex items-center ${whiteSelectTriggerClass}`}>
+        <span className={`truncate text-left ${values.length === 0 ? 'text-ink-placeholder' : ''}`}>
+          {values.length > 0 ? values.join(', ') : placeholder}
+        </span>
+        <ChevronDown className="size-4 shrink-0 opacity-50 ml-2" />
+      </PopoverTrigger>
       <PopoverContent
+        className="w-[--radix-popover-trigger-width] min-w-48 p-1 bg-surface rounded-md border border-line shadow-md"
         align="start"
-        sideOffset={6}
-        onOpenAutoFocus={(e) => e.preventDefault()}
-        onInteractOutside={(e) => {
-          if (anchorRef.current?.contains(e.target as Node)) e.preventDefault();
-        }}
-        className="w-[var(--radix-popover-trigger-width)] gap-0 rounded-md border border-line p-1 shadow-raised ring-0"
       >
-        <p className="px-2.5 pt-1.5 pb-1 text-xs font-medium text-ink-subtle">{q ? 'Matches' : 'Suggestions'}</p>
-        <ul role="listbox" className="grid">
-          {matches.map((s) => {
-            const selected = has(s);
+        <div className="flex flex-col gap-0.5">
+          {options.map((option) => {
+            const selected = values.includes(option);
             return (
-              <li key={s}>
-                <button
-                  role="option"
-                  aria-selected={selected}
-                  onClick={() => (selected ? onChange(values.filter((x) => x.toLowerCase() !== s.toLowerCase())) : add(s))}
-                  className="flex h-10 w-full items-center justify-between rounded-sm px-2.5 text-left text-[15px] hover:bg-brand-50 hover:text-brand-800 cursor-pointer"
-                >
-                  {s}
-                  {selected && <Check className="size-4 text-brand-600" />}
-                </button>
-              </li>
+              <button
+                key={option}
+                type="button"
+                onClick={() => toggle(option)}
+                className={`flex h-9 w-full items-center justify-between rounded-sm px-2.5 text-[15px] transition-colors cursor-pointer text-left hover:bg-surface-muted ${
+                  selected ? 'font-medium text-ink' : 'text-ink'
+                }`}
+              >
+                <span>{option}</span>
+                {selected && <Check className="size-4 text-brand-600" />}
+              </button>
             );
           })}
-          {canAddCustom && (
-            <li>
-              <button onClick={() => add(text)} className="flex h-10 w-full items-center gap-2 rounded-sm px-2.5 text-left text-[15px] text-brand-700 hover:bg-brand-50 cursor-pointer">
-                <Plus className="size-4" /> Add "{text.trim()}"
-              </button>
-            </li>
-          )}
-          {matches.length === 0 && !canAddCustom && <li className="px-2.5 py-2 text-[15px] text-ink-subtle">Already added</li>}
-        </ul>
+        </div>
       </PopoverContent>
     </Popover>
   );

@@ -89,21 +89,3 @@ export interface Career {
   roadmapId: string | null;
   stats: Statistic[];
 }
-
-/** Level values accepted by the careers API. */
-export type ApiCareerLevel = "STUDENT" | "RECENT_GRAD" | "EARLY_CAREER";
-
-/** A published career as returned by GET /api/v1/careers. */
-export interface CareerSummary {
-  id: string;
-  slug: string;
-  title: string;
-  shortDescription: string;
-}
-
-/** A career field as returned by GET /api/v1/fields. */
-export interface CareerField {
-  id: string;
-  name: string;
-  slug: string;
-}
