@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { toApiLevel } from "./catelog.types";
+import { toApiLevel } from "./catalog.types";
 
 describe("toApiLevel", () => {
   it("maps each session level to the API enum", () => {

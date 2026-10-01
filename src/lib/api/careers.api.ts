@@ -1,5 +1,5 @@
 import { api } from "./axios";
-import type { ApiTargetLevel, CareerField, CareerListItem } from "../../features/catalog/catelog.types";
+import type { ApiTargetLevel, CareerField, CareerListItem } from "../../features/catalog/catalog.types";
 
 export interface FetchCareersParams {
   level?: ApiTargetLevel;

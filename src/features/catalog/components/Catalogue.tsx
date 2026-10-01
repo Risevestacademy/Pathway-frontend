@@ -7,7 +7,7 @@ import { Badge } from "../../../components/ui/Badge";
 import { Skeleton } from "../../../components/ui/Skeleton";
 import { StateMessage } from "../../../components/ui/StateMessage";
 import { CAREER_LEVELS } from "../../../types/career.types";
-import { toApiLevel, type CareerListItem } from "../catelog.types";
+import { toApiLevel, type CareerListItem } from "../catalog.types";
 import { hasActiveFilter, useSession } from "../../../lib/stores/session";
 import { useCareers } from "../hooks/useCareers";
 import { useFields } from "../hooks/useFields";
