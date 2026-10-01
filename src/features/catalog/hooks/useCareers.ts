@@ -1,16 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
-import { fetchCareers } from "../../../lib/api/careers.api";
-import type { ApiTargetLevel } from "../catelog.types";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { fetchCareers, type FetchCareersParams } from "../../../lib/api/careers.api";
 
-interface UseCareersParams {
-  level?: ApiTargetLevel;
-  interest?: string;
-}
-
-export function useCareers(params: UseCareersParams) {
+export function useCareers(params: FetchCareersParams) {
   return useQuery({
     queryKey: ["careers", params],
     queryFn: () => fetchCareers(params),
+    placeholderData: keepPreviousData,
     staleTime: 15 * 60 * 1000,
     refetchOnWindowFocus: false,
   });

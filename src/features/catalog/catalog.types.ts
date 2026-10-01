@@ -5,9 +5,10 @@ export interface SessionProfile {
   education: { degree: string; field: string };
   experience: { years: string; internships: string };
   skills: string[];
-  interests: string[];
+  interest: string | null;
 }
 
+/** A published career as returned by GET /careers. */
 export interface CareerListItem {
   id: string;
   slug: string;
@@ -15,14 +16,14 @@ export interface CareerListItem {
   shortDescription: string;
 }
 
-export type ApiTargetLevel = "STUDENT" | "RECENT_GRAD" | "EARLY_CAREER";
+/** A career field as returned by GET /fields. */
+export interface CareerField {
+  id: string;
+  name: string;
+  slug: string;
+}
 
-export const CAREER_FIELDS: { name: string; slug: string }[] = [
-  { name: "Software Engineering", slug: "software-engineering" },
-  { name: "Data & Analytics", slug: "data-analytics" },
-  { name: "Design", slug: "design" },
-  { name: "Cloud & Infrastructure", slug: "cloud-infrastructure" },
-];
+export type ApiTargetLevel = "STUDENT" | "RECENT_GRAD" | "EARLY_CAREER";
 
 const LEVEL_TO_API: Record<CareerLevel, ApiTargetLevel> = {
   "university-student": "STUDENT",

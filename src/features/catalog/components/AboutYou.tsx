@@ -5,9 +5,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Popover, PopoverContent, PopoverTrigger } from '../../../components/ui/popover';
 import { Button } from '../../../components/ui/Button';
 import { useSession } from '../../../lib/stores/session';
-import { CAREER_FIELDS } from '../catelog.types';
+import { useFields } from '../hooks/useFields';
 
 const SKILL_OPTIONS = ['JavaScript', 'Python', 'SQL', 'Excel', 'Design', 'Communication'];
+const NO_INTEREST = 'none';
 
 const selectTriggerClass =
   'cursor-pointer h-10.5! w-full justify-between pr-3 text-left text-[15px] bg-surface-muted text-ink ' +
@@ -25,6 +26,7 @@ const whiteSelectTriggerClass =
 export default function AboutYou() {
   const profile = useSession();
   const navigate = useNavigate();
+  const fields = useFields();
 
   const [draft, setDraft] = useState({
     education: { degree: '', field: '' },
@@ -141,19 +143,29 @@ export default function AboutYou() {
         <Field label="Career interest">
           <Select
             value={draft.interest ?? ''}
-            onValueChange={(v) => setDraft({ ...draft, interest: v })}
+            onValueChange={(v) => setDraft({ ...draft, interest: v === NO_INTEREST ? null : v })}
+            disabled={!fields.data}
           >
             <SelectTrigger className={whiteSelectTriggerClass}>
-              <SelectValue placeholder="Pick a field" />
+              <SelectValue
+                placeholder={fields.isPending ? 'Loading fields…' : fields.isError ? 'Couldn’t load fields' : 'Pick a field'}
+              />
             </SelectTrigger>
             <SelectContent>
-              {CAREER_FIELDS.map((f) => (
-                <SelectItem key={f.slug} value={f.slug} className="h-9 rounded-sm px-2.5 text-[15px]">
-                  {f.name}
-                </SelectItem>
+              <SelectItem value={NO_INTEREST} className="h-9 rounded-sm px-2.5 text-[15px]">No preference</SelectItem>
+              {fields.data?.map((f) => (
+                <SelectItem key={f.slug} value={f.slug} className="h-9 rounded-sm px-2.5 text-[15px]">{f.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
+          {fields.isError && (
+            <p className="mt-2 text-sm text-ink-muted">
+              We couldn’t load fields.{' '}
+              <button onClick={() => fields.refetch()} className="font-medium text-brand-700 hover:underline cursor-pointer">
+                Try again
+              </button>
+            </p>
+          )}
         </Field>
       </div>
 
