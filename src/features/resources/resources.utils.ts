@@ -1,4 +1,4 @@
--import { mockResources } from "./resources.mock";
+import { mockResources } from "./resources.mock";
 import type { PathwayResourceDto, PathwayResourceType } from "../../lib/api/pathways.api";
 import type { Resource } from "./resources.types";
 
