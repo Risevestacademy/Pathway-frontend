@@ -59,8 +59,6 @@ export default function ResourcesPage({
             <li key={resource.id}>
               <ResourceCard
                 resource={resource}
-                careerId={careerId}
-                stepId={stepId}
               />
             </li>
           ))}

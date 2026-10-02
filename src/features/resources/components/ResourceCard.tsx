@@ -1,6 +1,7 @@
 import {
   CheckCircle2,
   BookOpen,
+  X,
   ExternalLink,
   FileText,
   Flag,
@@ -18,8 +19,6 @@ import type { Resource } from "../resources.types";
 
 interface ResourceCardProps {
   resource: Resource;
-  careerId: string;
-  stepId: string;
 }
 
 export default function ResourceCard({
@@ -69,11 +68,7 @@ export default function ResourceCard({
     if (!isReportOpen) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setIsReportOpen(false);
-        setReason("");
-        setDetails("");
-      }
+      if (event.key === "Escape") closeReport();
     };
 
     document.addEventListener("keydown", handleKeyDown);
@@ -132,12 +127,10 @@ export default function ResourceCard({
               </span>
             </>
           ) : (
-            <>
+            <span className="flex items-center gap-2 hover:underline">
               <Flag className="size-4" aria-hidden />
-              <span className="hover:underline">
-                Report an issue with this resource
-              </span>
-            </>
+              Report an issue with this resource
+            </span>
           )}
         </button>
         <a
@@ -201,25 +194,25 @@ export default function ResourceCard({
               }}
             >
               <fieldset className="mt-6 grid gap-2">
-                <legend className="sr-only">
-                  What is wrong with this resource?
-                </legend>
-                {reportReasons.map((reportReason) => (
-                  <label
-                    key={reportReason}
-                    className="flex cursor-pointer items-center gap-4 rounded-lg border border-line px-4 py-4 text-base text-ink hover:border-brand-300"
-                  >
-                    <input
-                      type="radio"
-                      name={`report-reason-${resource.id}`}
-                      value={reportReason}
-                      checked={reason === reportReason}
-                      onChange={(event) => setReason(event.target.value)}
-                      className="size-4 accent-brand-600"
-                    />
-                    {reportReason}
-                  </label>
-                ))}
+              <legend className="sr-only">
+                What is wrong with this resource?
+              </legend>
+              {reportReasons.map((reportReason) => (
+                <label
+                  key={reportReason}
+                  className="flex cursor-pointer items-center gap-4 rounded-lg border border-line px-4 py-4 text-base text-ink hover:border-brand-300"
+                >
+                  <input
+                    type="radio"
+                    name={`report-reason-${resource.id}`}
+                    value={reportReason}
+                    checked={reason === reportReason}
+                    onChange={(event) => setReason(event.target.value)}
+                    className="size-4 accent-brand-600"
+                  />
+                  {reportReason}
+                </label>
+              ))}
               </fieldset>
 
               <textarea
