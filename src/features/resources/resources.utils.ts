@@ -1,6 +1,14 @@
-import { mockResources } from "./resources.mock";
-import type { PathwayResourceDto } from "../../lib/api/pathways.api";
+
+import type { PathwayResourceDto, PathwayResourceType } from "../../lib/api/pathways.api";
 import type { Resource } from "./resources.types";
+
+const resourceKindMap: Record<PathwayResourceType, Resource["kind"]> = {
+ COURSE: "course",
+ CERTIFICATION: "certification",
+ ARTICLE: "article",
+ VIDEO: "video",
+ BOOK: "book",
+};
 
 export function getResources(
   resourceIds: string[],
@@ -18,7 +26,7 @@ export function mapPathwayResource(resource: PathwayResourceDto): Resource {
     id: resource.id,
     title: resource.title,
     provider: resource.provider,
-    kind: resource.type.toLowerCase() as Resource["kind"],
+    kind: resourceKindMap[resource.type],
     url: resource.url,
     costLabel:
       resource.costStatus === "UNKNOWN"
