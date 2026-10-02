@@ -1,5 +1,6 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { fetchCareers, type FetchCareersParams } from "../../../lib/api/careers.api";
+import { fetchCareers } from "../../../lib/api/careers.api";
+import type { FetchCareersParams } from "../../careerDetail/career.types";
 
 export function useCareers(params: FetchCareersParams) {
   return useQuery({

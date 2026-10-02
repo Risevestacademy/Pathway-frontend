@@ -159,7 +159,7 @@ function Results({
           <li key={c.id}>
             <Link
               to="/careers/$careerId"
-              params={{ careerId: c.slug }}
+              params={{ careerId: c.id }}
               className="group block h-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-lg"
             >
               <Card className="flex h-full flex-col p-5 transition-shadow hover:shadow-raised">
