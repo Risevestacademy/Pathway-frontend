@@ -12,7 +12,7 @@ import {
 import { Badge } from "../../../components/ui/Badge";
 import { Button } from "../../../components/ui/Button";
 import { Card } from "../../../components/ui/Card";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Resource } from "../resources.types";
 
 interface ResourceCardProps {
@@ -52,9 +52,26 @@ export default function ResourceCard({ resource }: ResourceCardProps) {
     "Something else",
   ];
 
+  const closeReport = () => {
+    setIsReportOpen(false);
+    setReason("");
+    setDetails("");
+  };
+
+  useEffect(() => {
+    if (!isReportOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeReport();
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isReportOpen]);
+
   const submitReport = () => {
     if (!reason) return;
-    setIsReportOpen(false);
+    closeReport();
     setReportSubmitted(true);
   };
 
@@ -110,24 +127,30 @@ export default function ResourceCard({ resource }: ResourceCardProps) {
             </span>
           )}
         </button>
-        <Button
-          isPrimary={false}
-          type="button"
-          className="gap-2"
-          onClick={() =>
-            window.open(resource.url, "_blank", "noopener,noreferrer")
-          }
+        <a
+          href={resource.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="
+            inline-flex items-center justify-center gap-2
+            rounded-md border-[0.5px] border-grey-200 bg-grey-50
+            px-4 py-2 text-sm font-sans font-semibold text-grey-500
+            inset-shadow-secondary-btn transition-[box-shadow,transform,background-color,color] duration-100
+            hover:bg-[color-mix(in_oklab,var(--color-grey-50),var(--color-grey-100)_50%)] hover:text-ink
+            active:translate-y-[2px] active:inset-shadow-secondary-btn-pressed
+            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2
+          "
         >
           <span>Open resource</span>
           <ExternalLink className="size-4" aria-hidden />
-        </Button>
+        </a>
       </div>
       {isReportOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6"
           role="presentation"
           onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setIsReportOpen(false);
+            if (event.target === event.currentTarget) closeReport();
           }}
         >
           <div
@@ -151,14 +174,20 @@ export default function ResourceCard({ resource }: ResourceCardProps) {
               <button
                 type="button"
                 aria-label="Close report dialog"
-                onClick={() => setIsReportOpen(false)}
+                onClick={closeReport}
                 className="rounded-md p-1 text-ink hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
               >
                 <X className="size-5" aria-hidden />
               </button>
             </div>
 
-            <fieldset className="mt-6 grid gap-2">
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                submitReport();
+              }}
+            >
+              <fieldset className="mt-6 grid gap-2">
               <legend className="sr-only">
                 What is wrong with this resource?
               </legend>
@@ -178,27 +207,28 @@ export default function ResourceCard({ resource }: ResourceCardProps) {
                   {reportReason}
                 </label>
               ))}
-            </fieldset>
+              </fieldset>
 
-            <textarea
-              value={details}
-              onChange={(event) => setDetails(event.target.value)}
-              placeholder="Add details (optional)"
-              rows={4}
-              className="mt-4 w-full resize-y rounded-lg border border-line bg-surface px-4 py-3 text-base placeholder:text-ink-placeholder focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15"
-            />
-            <p className="mt-4 text-sm text-ink-muted">
-              The resource stays available while our team reviews your report.
-            </p>
+              <textarea
+                value={details}
+                onChange={(event) => setDetails(event.target.value)}
+                placeholder="Add details (optional)"
+                rows={4}
+                className="mt-4 w-full resize-y rounded-lg border border-line bg-surface px-4 py-3 text-base placeholder:text-ink-placeholder focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15"
+              />
+              <p className="mt-4 text-sm text-ink-muted">
+                The resource stays available while our team reviews your report.
+              </p>
 
-            <div className="mt-6 flex justify-end gap-3">
-              <Button isPrimary={false} onClick={() => setIsReportOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={submitReport} disabled={!reason}>
-                Send report
-              </Button>
-            </div>
+              <div className="mt-6 flex justify-end gap-3">
+                <Button isPrimary={false} type="button" onClick={closeReport}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={!reason}>
+                  Send report
+                </Button>
+              </div>
+            </form>
           </div>
         </div>
       )}
