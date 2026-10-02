@@ -4,7 +4,8 @@ export type ResourceKind =
   | "documentation"
   | "interactive"
   | "video"
-  | "book";
+  | "book"
+  | "certification";
 
 export interface Resource {
   id: string;
