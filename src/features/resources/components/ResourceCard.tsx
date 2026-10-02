@@ -1,7 +1,6 @@
 import {
   CheckCircle2,
   BookOpen,
-  X,
   ExternalLink,
   FileText,
   Flag,
