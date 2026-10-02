@@ -22,13 +22,15 @@ import StateMessage from "../../../../components/StateMessage";
 import StepEstimate from "../../../../features/pathway/components/StepEstimate";
 import StepSection from "../../../../features/pathway/components/StepSection";
 import {
-  getRoadmap,
   getStepContext,
+  mapPathwayToRoadmap,
 } from "../../../../features/pathway/pathway.utils";
+import { fetchCareerPathway } from "../../../../lib/api/pathways.api";
 
 export const Route = createFileRoute("/careers/$careerId/roadmap/$stepId")({
-  loader: ({ params }) => {
-    const result = getRoadmap(params.careerId);
+  loader: async ({ params }) => {
+    const { pathway } = await fetchCareerPathway(params.careerId);
+    const result = mapPathwayToRoadmap(pathway);
     const steps = result?.roadmap?.steps ?? [];
     return {
       totalSteps: steps.length,

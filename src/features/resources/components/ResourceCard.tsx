@@ -1,12 +1,14 @@
 import {
   CheckCircle2,
   BookOpen,
-  X,
+  Award,
   ExternalLink,
   FileText,
   Flag,
   MonitorPlay,
   Sparkles,
+  BookMarked,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import { Badge } from "../../../components/ui/Badge";
@@ -19,7 +21,9 @@ interface ResourceCardProps {
   resource: Resource;
 }
 
-export default function ResourceCard({ resource }: ResourceCardProps) {
+export default function ResourceCard({
+  resource,
+}: ResourceCardProps) {
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [reportSubmitted, setReportSubmitted] = useState(false);
   const [reason, setReason] = useState("");
@@ -30,6 +34,8 @@ export default function ResourceCard({ resource }: ResourceCardProps) {
     documentation: FileText,
     interactive: Sparkles,
     video: MonitorPlay,
+    book: BookMarked,
+    certification: Award,
   };
   const kindLabels: Record<Resource["kind"], string> = {
     article: "Article",
@@ -37,6 +43,8 @@ export default function ResourceCard({ resource }: ResourceCardProps) {
     documentation: "Docs",
     interactive: "Interactive",
     video: "Video",
+    book: "Book",
+    certification: "Certification",
   };
   const Icon = icons[resource.kind];
   const getCostTone = (label: string) => {
