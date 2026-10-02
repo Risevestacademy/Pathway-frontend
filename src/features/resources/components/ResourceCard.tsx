@@ -1,6 +1,7 @@
 import {
   CheckCircle2,
   BookOpen,
+  Award,
   ExternalLink,
   FileText,
   Flag,
@@ -34,6 +35,7 @@ export default function ResourceCard({
     interactive: Sparkles,
     video: MonitorPlay,
     book: BookMarked,
+    certification: Award,
   };
   const kindLabels: Record<Resource["kind"], string> = {
     article: "Article",
@@ -42,6 +44,7 @@ export default function ResourceCard({
     interactive: "Interactive",
     video: "Video",
     book: "Book",
+    certification: "Certification",
   };
   const Icon = icons[resource.kind];
   const getCostTone = (label: string) => {
