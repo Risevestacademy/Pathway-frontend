@@ -78,7 +78,7 @@ function outlookStats(outlook: ApiCareerOutlook): Statistic[] {
       outlook.type === "SALARY" ? "Salary information" : "Career outlook",
   };
 
-  if (outlook.type === "SALARY") {
+  if (outlook.type === "SALARY" && outlook.currency) {
     stats.push({
       ...meta,
       kind: "salary-median",
@@ -114,21 +114,27 @@ function outlookStats(outlook: ApiCareerOutlook): Statistic[] {
   }
 
   if (outlook.baseValue || outlook.projectedValue || outlook.growthPercent) {
+    let series: { label: string; value: number }[] | undefined;
+    if (
+      outlook.baseYear !== null &&
+      outlook.baseValue !== null &&
+      outlook.projectedYear !== null &&
+      outlook.projectedValue !== null
+    ) {
+      series = [
+        { label: String(outlook.baseYear), value: outlook.baseValue },
+        {
+          label: `${outlook.projectedYear} (projected)`,
+          value: outlook.projectedValue,
+        },
+      ];
+    }
     stats.push({
       ...meta,
       id: `${outlook.id}-projection`,
       kind: "employment-projection",
       value: numberOrNull(outlook.growthPercent),
-      series:
-        outlook.baseYear && outlook.projectedYear
-          ? [
-              { label: String(outlook.baseYear), value: outlook.baseValue },
-              {
-                label: `${outlook.projectedYear} (projected)`,
-                value: outlook.projectedValue,
-              },
-            ]
-          : undefined,
+      series,
       seriesUnit: "employment",
       meaning: "Projected employment growth",
     });
