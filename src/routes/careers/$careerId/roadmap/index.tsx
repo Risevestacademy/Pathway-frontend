@@ -4,11 +4,15 @@ import { Button } from "../../../../components/ui/Button";
 import RoadmapPage from "../../../../features/pathway/components/RoadmapPage";
 import RoadmapStepList from "../../../../features/pathway/components/RoadmapStepList";
 import StateMessage from "../../../../components/StateMessage";
-import { getRoadmap } from "../../../../features/pathway/pathway.utils";
+import { mapPathwayToRoadmap } from "../../../../features/pathway/pathway.utils";
+import { fetchCareerPathway } from "../../../../lib/api/pathways.api";
 import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/careers/$careerId/roadmap/")({
-  loader: ({ params }) => getRoadmap(params.careerId),
+  loader: async ({ params }) => {
+    const { pathway } = await fetchCareerPathway(params.careerId);
+    return mapPathwayToRoadmap(pathway);
+  },
   component: RoadmapRoute,
 });
 

@@ -1,4 +1,5 @@
 import { mockResources } from "./resources.mock";
+import type { PathwayResourceDto } from "../../lib/api/pathways.api";
 import type { Resource } from "./resources.types";
 
 export function getResources(
@@ -10,4 +11,21 @@ export function getResources(
     const resource = resourcesById.get(resourceId);
     return resource ? [resource] : [];
   });
+}
+
+export function mapPathwayResource(resource: PathwayResourceDto): Resource {
+  return {
+    id: resource.id,
+    title: resource.title,
+    provider: resource.provider,
+    kind: resource.type.toLowerCase() as Resource["kind"],
+    url: resource.url,
+    costLabel:
+      resource.costStatus === "UNKNOWN"
+        ? "Cost unknown"
+        : `Course: ${resource.costStatus.toLowerCase()}`,
+    certificationLabel: resource.certificationCost
+      ? `Certification: ${resource.certificationCost}`
+      : undefined,
+  };
 }

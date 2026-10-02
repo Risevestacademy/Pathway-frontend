@@ -1,4 +1,5 @@
 import { mockCareers, mockRoadmaps } from "./pathway.mock";
+import type { CareerPathwayDto } from "../../lib/api/pathways.api";
 import type {
   RoadmapCareer,
   RoadmapLookup,
@@ -53,5 +54,34 @@ export function getStepContext(steps: RoadmapStep[], stepId: string) {
       requiredIndex === -1
         ? undefined
         : { step: steps[requiredIndex], number: requiredIndex + 1 },
+  };
+}
+
+export function mapPathwayToRoadmap(
+  pathway: CareerPathwayDto["pathway"],
+): RoadmapLookup {
+  return {
+    career: {
+      id: pathway.careerId,
+      title: pathway.title,
+      status: "published",
+      roadmapId: pathway.id,
+    },
+    roadmap: {
+      id: pathway.id,
+      careerId: pathway.careerId,
+      title: pathway.title,
+      steps: pathway.steps
+        .slice()
+        .sort((a, b) => a.order - b.order)
+        .map((step) => ({
+          stepId: step.id,
+          title: step.title,
+          learningObjective: step.learningObjective,
+          prerequisites: step.prerequisites ? [step.prerequisites] : [],
+          expectedEvidence: step.expectedActivity,
+          resourceIds: step.resources.map((resource) => resource.id),
+        })),
+    },
   };
 }
