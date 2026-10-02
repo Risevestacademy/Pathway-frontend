@@ -69,7 +69,7 @@ export default function Detail({ career }: { career: Career }) {
           </div>
           {career.roadmapId && (
             <LinkButton
-              to="/careers/$careerId/pathway"
+              to="/careers/$careerId/roadmap"
               params={{ careerId: career.id }}
               /* Removes the default behavior of opening the link in a new tab, allowing users to navigate within the same tab. */
               // target="_blank"
