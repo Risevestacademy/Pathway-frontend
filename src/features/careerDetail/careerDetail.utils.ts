@@ -135,7 +135,9 @@ function outlookStats(outlook: ApiCareerOutlook): Statistic[] {
       kind: "employment-projection",
       value: numberOrNull(outlook.growthPercent),
       series,
-      seriesUnit: "employment",
+      // The API sends no unit; BLS publishes employment projections in
+      // thousands. Swap for an API-provided unit once backend adds one.
+      seriesUnit: "thousand jobs",
       meaning: "Projected employment growth",
     });
   }
