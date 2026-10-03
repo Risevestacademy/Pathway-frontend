@@ -15,7 +15,7 @@ import { LevelSwitcher } from "./LevelSwitcher";
 
 export default function Catalogue() {
   const profile = useSession();
-  const { level, setLevel, interest, setInterest } = profile;
+  const { level, setLevel, interest, setInterest, clearFilters } = profile;
   const filtered = hasActiveFilter(profile);
   const { data, isPending, isError, isPlaceholderData, refetch } = useCareers({
     level: toApiLevel(level),
@@ -89,7 +89,7 @@ export default function Catalogue() {
             careers={data}
             interestLabel={filtered ? interestLabel : null}
             levelLabel={levelLabel}
-            clearInterest={clearInterest}
+            clearFilters={clearFilters}
           />
         </div>
       )}
@@ -101,31 +101,33 @@ interface ResultsProps {
   careers: CareerListItem[];
   interestLabel: string | null;
   levelLabel?: string;
-  clearInterest: () => void;
+  clearFilters: () => void;
 }
 
 function Results({
   careers,
   interestLabel,
   levelLabel,
-  clearInterest,
+  clearFilters,
 }: ResultsProps) {
   if (careers.length === 0) {
+    const seeAll = (
+      <Button onClick={clearFilters} className="cursor-pointer">
+        Clear filters
+      </Button>
+    );
+
     if (interestLabel) {
       return (
         <StateMessage
           kind="no-match"
-          title="No careers match your interest"
+          title="No careers match your filters"
           body={
             levelLabel
-              ? `We don’t have ${interestLabel} careers for ${levelLabel.toLowerCase()}s yet. Try another level, or clear your interest to see everything.`
-              : `We don’t have ${interestLabel} careers yet. Clear your interest to see everything.`
+              ? `We don’t have ${interestLabel} careers for ${levelLabel.toLowerCase()}s yet. Try another level, or clear filters to see the full catalogue.`
+              : `We don’t have ${interestLabel} careers yet. Clear filters to see the full catalogue.`
           }
-          action={
-            <Button onClick={clearInterest} className="cursor-pointer">
-              Clear interest
-            </Button>
-          }
+          action={seeAll}
         />
       );
     }
@@ -135,7 +137,8 @@ function Results({
         <StateMessage
           kind="no-match"
           title={`No careers for ${levelLabel.toLowerCase()}s yet`}
-          body="Try another level above. We're adding careers to the catalogue regularly."
+          body="Try another level above, or clear filters to see the full catalogue."
+          action={seeAll}
         />
       );
     }

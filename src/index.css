@@ -70,6 +70,7 @@
   --color-grey-200: #d2d2d2; /* auth: secondary button bottom border */
   --color-grey-300: #c8c8c8; /* auth: input placeholder */
   --color-grey-500: #767676; /* auth: subtitle / secondary button text */
+  --color-grey-600: #5e5e5e; /* app shell: side nav footer text */
   --color-grey-900: #181818; /* auth: wordmark / near-black text */
 
   /* Surfaces & ink */
@@ -116,7 +117,8 @@
   --radius-pill: 999px;
 
   /* Layout sizing */
-  --spacing-navbar: 4rem; /* 64px navbar height */
+  --spacing-sidebar: 12.875rem; /* 206px app-shell side nav (hifi Dashboard.png) */
+  --spacing-shell-inset: 0.8125rem; /* 13px gap above/right of the content panel */
   --spacing-page-mobile: 1rem; /* 16px */
   --spacing-page-tablet: 1.5rem; /* 24px */
   --spacing-page-desktop: 3.5rem; /* 56px */

@@ -11,12 +11,6 @@ const SKILL_OPTIONS = ['JavaScript', 'Python', 'SQL', 'Excel', 'Design', 'Commun
 const NO_INTEREST = 'none';
 
 const selectTriggerClass =
-  'cursor-pointer h-10.5! w-full justify-between pr-3 text-left text-[15px] bg-surface-muted text-ink ' +
-  'data-placeholder:text-ink-placeholder ' +
-  'focus-visible:border-brand-500 focus-visible:ring-3 focus-visible:ring-brand-500/15 ' +
-  'data-[state=open]:border-brand-500 data-[state=open]:ring-3 data-[state=open]:ring-brand-500/15';
-
-const whiteSelectTriggerClass =
   'cursor-pointer h-10.5! w-full justify-between px-3.5 text-left text-[15px] bg-surface text-ink ' +
   'border border-line rounded-md shadow-sm transition-colors hover:border-line-strong ' +
   'data-placeholder:text-ink-placeholder ' +
@@ -146,7 +140,7 @@ export default function AboutYou() {
             onValueChange={(v) => setDraft({ ...draft, interest: v === NO_INTEREST ? null : v })}
             disabled={!fields.data}
           >
-            <SelectTrigger className={whiteSelectTriggerClass}>
+            <SelectTrigger className={selectTriggerClass}>
               <SelectValue
                 placeholder={fields.isPending ? 'Loading fields…' : fields.isError ? 'Couldn’t load fields' : 'Pick a field'}
               />
@@ -211,7 +205,7 @@ function MultiSelect({
 
   return (
     <Popover>
-      <PopoverTrigger className={`flex items-center ${whiteSelectTriggerClass}`}>
+      <PopoverTrigger className={`flex items-center ${selectTriggerClass}`}>
         <span className={`truncate text-left ${values.length === 0 ? 'text-ink-placeholder' : ''}`}>
           {values.length > 0 ? values.join(', ') : placeholder}
         </span>
