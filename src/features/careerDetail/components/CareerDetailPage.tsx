@@ -6,7 +6,7 @@ export default function CareerDetailPage({
   children: ReactNode;
 }) {
   return (
-    <main className="flex min-h-screen flex-col bg-canvas">
+    <main className="flex flex-1 flex-col">
       <div
         className="
           mx-auto w-full max-w-3xl

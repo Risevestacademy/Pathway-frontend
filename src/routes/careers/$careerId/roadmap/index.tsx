@@ -5,14 +5,18 @@ import RoadmapPage from "../../../../features/pathway/components/RoadmapPage";
 import RoadmapStepList from "../../../../features/pathway/components/RoadmapStepList";
 import StateMessage from "../../../../components/StateMessage";
 import { mapPathwayToRoadmap } from "../../../../features/pathway/pathway.utils";
-import { fetchCareerPathway } from "../../../../lib/api/pathways.api";
+import RoadmapError from "../../../../features/pathway/components/RoadmapError";
+import RoadmapSkeleton from "../../../../features/pathway/components/RoadmapSkeleton";
+import { fetchPathwayOrNull } from "../../../../lib/api/pathways.api";
 import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/careers/$careerId/roadmap/")({
   loader: async ({ params }) => {
-    const { pathway } = await fetchCareerPathway(params.careerId);
-    return mapPathwayToRoadmap(pathway);
+    const pathway = await fetchPathwayOrNull(params.careerId);
+    return pathway ? mapPathwayToRoadmap(pathway) : null;
   },
+  pendingComponent: RoadmapSkeleton,
+  errorComponent: RoadmapError,
   component: RoadmapRoute,
 });
 

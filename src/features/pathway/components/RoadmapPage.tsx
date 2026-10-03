@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 export default function RoadmapPage({ children }: { children: ReactNode }) {
   return (
-    <main className="flex min-h-screen flex-col bg-canvas">
+    <main className="flex flex-1 flex-col">
       <div
         className="
           mx-auto w-full max-w-3xl
