@@ -129,6 +129,7 @@
   --shadow-raised:
     0 4px 12px rgb(16 16 29 / 0.08), 0 2px 4px rgb(16 16 29 / 0.04);
   --shadow-overlay: 0 20px 48px rgb(16 16 29 / 0.18);
+  --shadow-panel: 0 4px 8px rgb(0 0 0 / 0.04);
 
   /* Btn Shadow*/
 
@@ -265,4 +266,58 @@
   html {
     @apply font-sans;
   }
+}
+
+@utility text-heading {
+  font-size: 1.5rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.24px;
+}
+
+@utility text-body-lg {
+  font-size: 1.125rem;
+  line-height: 1.5rem;
+  font-weight: 500;
+  letter-spacing: -0.18px;
+}
+
+@utility text-body-md {
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 500;
+  letter-spacing: -0.16px;
+}
+
+@utility text-body-md-bold {
+  font-size: 1rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+}
+
+@utility text-body-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  letter-spacing: -0.14px;
+}
+
+@utility focus-ring {
+  @apply focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none;
+}
+
+@utility field-control {
+  @apply rounded-lg border-[1.33px] border-grey-50 bg-surface px-3.5 py-2 transition-colors hover:border-grey-100 motion-reduce:transition-none;
+
+  &:focus-visible,
+  &:has(:focus-visible) {
+    @apply border-brand-500 ring-3 ring-brand-500/15 outline-none;
+  }
+}
+
+@utility text-body-lg-bold {
+  font-size: 1.125rem;
+  line-height: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.18px;
 }

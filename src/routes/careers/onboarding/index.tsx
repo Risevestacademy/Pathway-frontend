@@ -16,9 +16,5 @@ function OnboardingIndex() {
     }
   };
 
-  return (
-    <main>
-      <LevelSelect onContinue={handleContinue} />
-    </main>
-  );
+  return <LevelSelect onContinue={handleContinue} />;
 }

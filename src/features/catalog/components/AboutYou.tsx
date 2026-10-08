@@ -1,239 +1,228 @@
-import { useState, type ReactNode } from 'react';
-import { Check, ChevronDown } from 'lucide-react';
-import { useNavigate, Link } from '@tanstack/react-router';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
-import { Popover, PopoverContent, PopoverTrigger } from '../../../components/ui/popover';
-import { Button } from '../../../components/ui/Button';
-import { useSession } from '../../../lib/stores/session';
-import { useFields } from '../hooks/useFields';
+import { useState, type ReactNode } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { Button } from "@/components/ui/Button";
+import { useSession } from "@/lib/stores/session";
+import { useFields } from "../hooks/useFields";
+import { HelperText } from "./HelperText";
+import { OnboardingLayout, StepDots, StepHeader } from "./OnboardingLayout";
+import { OnboardingSelect } from "./OnboardingSelect";
+import { SkillsInput } from "./SkillsInput";
 
-const SKILL_OPTIONS = ['JavaScript', 'Python', 'SQL', 'Excel', 'Design', 'Communication'];
-const NO_INTEREST = 'none';
+type AnswerKey = "degree" | "fieldOfStudy" | "yearsOfWork" | "internships";
 
-const selectTriggerClass =
-  'cursor-pointer h-10.5! w-full justify-between px-3.5 text-left text-[15px] bg-surface text-ink ' +
-  'border border-line rounded-md shadow-sm transition-colors hover:border-line-strong ' +
-  'data-placeholder:text-ink-placeholder ' +
-  'focus-visible:border-brand-500 focus-visible:ring-3 focus-visible:ring-brand-500/15 focus-visible:outline-none ' +
-  'data-[state=open]:border-brand-500 data-[state=open]:ring-3 data-[state=open]:ring-brand-500/15';
+interface SelectConfig {
+  key: AnswerKey;
+  label?: string;
+  placeholder: string;
+  options: string[];
+  className?: string;
+}
+
+const SELECT_ROWS: { title: string; selects: SelectConfig[] }[] = [
+  {
+    title: "Education",
+    selects: [
+      {
+        key: "degree",
+        placeholder: "Degree",
+        options: [
+          "Secondary school",
+          "Diploma / OND",
+          "Bachelor's (in progress)",
+          "Bachelor's",
+          "Master's",
+          "Other",
+        ],
+        className: "w-[151px] shrink-0",
+      },
+      {
+        key: "fieldOfStudy",
+        label: "Field of study",
+        placeholder: "Field of study, e.g. Engineering",
+        options: [
+          "Computer Science",
+          "Engineering",
+          "Business",
+          "Economics",
+          "Health Sciences",
+          "Law",
+          "Arts and Humanities",
+          "Social Sciences",
+          "Natural Sciences",
+          "Other",
+        ],
+      },
+    ],
+  },
+  {
+    title: "Experience",
+    selects: [
+      {
+        key: "yearsOfWork",
+        placeholder: "Years of work",
+        options: ["None yet", "Less than 1 year", "1–2 years", "3–5 years"],
+      },
+      {
+        key: "internships",
+        placeholder: "Internships",
+        options: ["None", "1", "2", "3 or more"],
+      },
+    ],
+  },
+];
+
+const EMPTY_ANSWERS: Record<AnswerKey, string> = {
+  degree: "",
+  fieldOfStudy: "",
+  yearsOfWork: "",
+  internships: "",
+};
+
+const SKILL_OPTIONS = [
+  "JavaScript",
+  "Python",
+  "SQL",
+  "Excel",
+  "Design",
+  "Communication",
+];
+const MAX_SKILLS = 5;
+const NO_INTEREST = "none";
+const LABEL_CLASS = "text-body-lg-bold text-ink";
+
+const toOptions = (items: string[]) =>
+  items.map((item) => ({ value: item, label: item }));
 
 export default function AboutYou() {
   const profile = useSession();
   const navigate = useNavigate();
   const fields = useFields();
 
-  const [draft, setDraft] = useState({
-    education: { degree: '', field: '' },
-    experience: { years: '', internships: '' },
-    skills: profile.skills || [],
-    interest: profile.interest,
-  });
+  const [answers, setAnswers] = useState(EMPTY_ANSWERS);
+  const [skills, setSkills] = useState<string[]>(profile.skills);
+  const [interest, setInterest] = useState<string | null>(profile.interest);
+
+  const hasInput =
+    Object.values(answers).some(Boolean) || skills.length > 0 || !!interest;
 
   const submit = () => {
-    profile.setSkills(draft.skills);
-    profile.setInterest(draft.interest);
-    navigate({ to: '/careers' });
+    profile.setSkills(skills);
+    profile.setInterest(interest);
+    navigate({ to: "/careers" });
   };
 
   const skip = () => {
     profile.clearOptional();
-    navigate({ to: '/careers' });
+    navigate({ to: "/careers" });
   };
 
-  const hasInput =
-    draft.education.degree ||
-    draft.education.field ||
-    draft.experience.years ||
-    draft.experience.internships ||
-    draft.skills.length > 0 ||
-    draft.interest;
+  const interestOptions = [
+    { value: NO_INTEREST, label: "No preference" },
+    ...(fields.data ?? []).map((f) => ({ value: f.slug, label: f.name })),
+  ];
+
+  const interestPlaceholder = fields.isPending
+    ? "Loading fields…"
+    : fields.isError
+      ? "Couldn’t load fields"
+      : "Add an interest";
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-8">
-      <Link
-        to="/careers/onboarding"
-        className="inline-flex items-center gap-1 text-sm font-medium text-brand-700 hover:underline mb-6 cursor-pointer"
-      >
-        &larr; Back
-      </Link>
-      <p className="mb-2 text-sm font-medium text-brand-700">Step 2 of 2 · Optional</p>
-      <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">Tell us a bit more</h1>
-      <p className="mt-1 mb-8 text-ink-muted">
-        Add any of these to see careers that fit you best — or skip to browse everything.
-      </p>
+    <OnboardingLayout step={2}>
+      <StepHeader
+        step={2}
+        titleId="about-heading"
+        title="Tell us a bit more..."
+        description="Add any of these to see careers that fit you best, or skip to browse everything."
+      />
 
-      <div className="grid gap-6">
-        <Field label="Education">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Select
-              value={draft.education.degree}
-              onValueChange={(v) => setDraft({ ...draft, education: { ...draft.education, degree: v } })}
-            >
-              <SelectTrigger className={selectTriggerClass}>
-                <SelectValue placeholder="Highest qualification" />
-              </SelectTrigger>
-              <SelectContent>
-                {['Secondary school', 'Diploma / OND', "Bachelor's (in progress)", "Bachelor's", "Master's", 'Other'].map((opt) => (
-                  <SelectItem key={opt} value={opt} className="h-9 rounded-sm px-2.5 text-[15px]">
-                    {opt}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <input
-              type="text"
-              value={draft.education.field}
-              onChange={(e) => setDraft({ ...draft, education: { ...draft.education, field: e.target.value } })}
-              placeholder="Field of study, e.g. Economics"
-              className="flex w-full items-center rounded-md border border-line bg-surface px-3.5 h-10.5 text-[15px] placeholder:text-ink-placeholder shadow-sm transition-colors hover:border-line-strong focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15"
-            />
-          </div>
-        </Field>
-
-        <Field label="Experience">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Select
-              value={draft.experience.years}
-              onValueChange={(v) => setDraft({ ...draft, experience: { ...draft.experience, years: v } })}
-            >
-              <SelectTrigger className={selectTriggerClass}>
-                <SelectValue placeholder="Years of work" />
-              </SelectTrigger>
-              <SelectContent>
-                {['None yet', 'Less than 1 year', '1–2 years', '3–5 years'].map((opt) => (
-                  <SelectItem key={opt} value={opt} className="h-9 rounded-sm px-2.5 text-[15px]">
-                    {opt}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select
-              value={draft.experience.internships}
-              onValueChange={(v) => setDraft({ ...draft, experience: { ...draft.experience, internships: v } })}
-            >
-              <SelectTrigger className={selectTriggerClass}>
-                <SelectValue placeholder="Internships" />
-              </SelectTrigger>
-              <SelectContent>
-                {['None', '1', '2', '3 or more'].map((opt) => (
-                  <SelectItem key={opt} value={opt} className="h-9 rounded-sm px-2.5 text-[15px]">
-                    {opt}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </Field>
+      <div className="flex flex-col gap-4">
+        {SELECT_ROWS.map(({ title, selects }) => (
+          <Field key={title} label={title}>
+            <div className="flex gap-1">
+              {selects.map(({ key, label, placeholder, options, className }) => (
+                <OnboardingSelect
+                  key={key}
+                  label={label}
+                  placeholder={placeholder}
+                  value={answers[key]}
+                  onValueChange={(value) =>
+                    setAnswers((prev) => ({ ...prev, [key]: value }))
+                  }
+                  options={toOptions(options)}
+                  className={className ?? "min-w-0 flex-1"}
+                />
+              ))}
+            </div>
+          </Field>
+        ))}
 
         <Field label="Skills">
-          <MultiSelect
-            values={draft.skills}
+          <SkillsInput
+            values={skills}
             options={SKILL_OPTIONS}
-            placeholder="Select skills"
-            onChange={(skills) => setDraft({ ...draft, skills })}
+            max={MAX_SKILLS}
+            onChange={setSkills}
           />
         </Field>
 
-        <Field label="Career interest">
-          <Select
-            value={draft.interest ?? ''}
-            onValueChange={(v) => setDraft({ ...draft, interest: v === NO_INTEREST ? null : v })}
-            disabled={!fields.data}
+        <div>
+          <label
+            htmlFor="career-interest"
+            className={`${LABEL_CLASS} flex items-baseline gap-2`}
           >
-            <SelectTrigger className={selectTriggerClass}>
-              <SelectValue
-                placeholder={fields.isPending ? 'Loading fields…' : fields.isError ? 'Couldn’t load fields' : 'Pick a field'}
-              />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={NO_INTEREST} className="h-9 rounded-sm px-2.5 text-[15px]">No preference</SelectItem>
-              {fields.data?.map((f) => (
-                <SelectItem key={f.slug} value={f.slug} className="h-9 rounded-sm px-2.5 text-[15px]">{f.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {fields.isError && (
-            <p className="mt-2 text-sm text-ink-muted">
-              We couldn’t load fields.{' '}
-              <button onClick={() => fields.refetch()} className="font-medium text-brand-700 hover:underline cursor-pointer">
+            Career interests
+            <span className="font-medium text-[#ADADAD]">Optional</span>
+          </label>
+          <div className="mt-2">
+            <OnboardingSelect
+              id="career-interest"
+              className="w-full"
+              placeholder={interestPlaceholder}
+              value={interest ?? ""}
+              onValueChange={(v) => setInterest(v === NO_INTEREST ? null : v)}
+              options={interestOptions}
+              disabled={!fields.data}
+            />
+          </div>
+          {fields.isError ? (
+            <HelperText role="alert" className="mt-1">
+              We couldn’t load fields.{" "}
+              <button
+                type="button"
+                onClick={() => fields.refetch()}
+                className="focus-ring cursor-pointer font-semibold text-brand-600 underline"
+              >
                 Try again
               </button>
-            </p>
+            </HelperText>
+          ) : (
+            <HelperText className="mt-1">Pick one interest for now</HelperText>
           )}
-        </Field>
+        </div>
       </div>
 
-      <div className="sticky bottom-0 -mx-4 mt-8 flex flex-col-reverse gap-3 border-t border-line bg-canvas px-4 py-4 sm:static sm:mx-0 sm:flex-row sm:justify-end sm:border-0 sm:bg-transparent sm:px-0">
-        <Button isPrimary={false} size="lg" onClick={skip} className="w-full sm:w-auto">
+      <div className="mt-6 flex items-stretch gap-2">
+        <Button isPrimary={false} size="lg" onClick={skip} className="flex-1">
           Skip for now
         </Button>
-        <Button size="lg" onClick={submit} disabled={!hasInput} className="w-full sm:w-auto">
-          Show my careers
+        <Button size="lg" onClick={submit} disabled={!hasInput} className="flex-1">
+          Show careers
         </Button>
       </div>
-    </main>
+
+      <div className="mt-3">
+        <StepDots step={2} />
+      </div>
+    </OnboardingLayout>
   );
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <fieldset>
-      <legend className="mb-2 text-sm font-medium">{label}</legend>
-      {children}
+      <legend className={LABEL_CLASS}>{label}</legend>
+      <div className="mt-2">{children}</div>
     </fieldset>
-  );
-}
-
-function MultiSelect({
-  values,
-  options,
-  placeholder,
-  onChange,
-}: {
-  values: string[];
-  options: string[];
-  placeholder: string;
-  onChange: (v: string[]) => void;
-}) {
-  const toggle = (option: string) => {
-    onChange(
-      values.includes(option)
-        ? values.filter((v) => v !== option)
-        : [...values, option]
-    );
-  };
-
-  return (
-    <Popover>
-      <PopoverTrigger className={`flex items-center ${selectTriggerClass}`}>
-        <span className={`truncate text-left ${values.length === 0 ? 'text-ink-placeholder' : ''}`}>
-          {values.length > 0 ? values.join(', ') : placeholder}
-        </span>
-        <ChevronDown className="size-4 shrink-0 opacity-50 ml-2" />
-      </PopoverTrigger>
-      <PopoverContent
-        className="w-[--radix-popover-trigger-width] min-w-48 p-1 bg-surface rounded-md border border-line shadow-md"
-        align="start"
-      >
-        <div className="flex flex-col gap-0.5">
-          {options.map((option) => {
-            const selected = values.includes(option);
-            return (
-              <button
-                key={option}
-                type="button"
-                onClick={() => toggle(option)}
-                className={`flex h-9 w-full items-center justify-between rounded-sm px-2.5 text-[15px] transition-colors cursor-pointer text-left hover:bg-surface-muted ${
-                  selected ? 'font-medium text-ink' : 'text-ink'
-                }`}
-              >
-                <span>{option}</span>
-                {selected && <Check className="size-4 text-brand-600" />}
-              </button>
-            );
-          })}
-        </div>
-      </PopoverContent>
-    </Popover>
   );
 }
