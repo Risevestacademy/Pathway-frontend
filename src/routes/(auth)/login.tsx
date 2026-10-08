@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { loginSearchSchema } from "../../lib/validation/auth.schema";
-import { normalizeRedirect } from "../../lib/utils/route.util";
+import LoginForm from "../../features/auth/components/LoginForm";
+import { useLogin } from "../../features/auth/hooks/useLogin";
 
 export const Route = createFileRoute("/(auth)/login")({
   validateSearch: loginSearchSchema,
@@ -9,20 +10,22 @@ export const Route = createFileRoute("/(auth)/login")({
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const { redirect } = Route.useSearch();
+  const login = useLogin();
 
-  const handleLogin = async () => {
-    // login logic here
+  const handleLogin = async ({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }) => {
+    await login.mutateAsync({ email, password });
 
     await navigate({
-      to: normalizeRedirect(redirect),
+      to: "/careers",
       replace: true,
     });
   };
 
-  return (
-    <button type="button" onClick={handleLogin}>
-      Log in
-    </button>
-  );
+  return <LoginForm onSubmit={handleLogin} />;
 }
