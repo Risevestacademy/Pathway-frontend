@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as authSignupRouteImport } from './routes/(auth)/signup'
 import { Route as ProtectedProgressRouteImport } from './routes/_protected/progress'
 import { Route as CareersIndexRouteImport } from './routes/careers/index'
 import { Route as CareersCareerIdIndexRouteImport } from './routes/careers/$careerId/index'
@@ -33,6 +34,11 @@ const ProtectedRoute = ProtectedRouteImport.update({
 const authLoginRoute = authLoginRouteImport.update({
   id: '/(auth)/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authSignupRoute = authSignupRouteImport.update({
+  id: '/(auth)/signup',
+  path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProtectedProgressRoute = ProtectedProgressRouteImport.update({
@@ -82,6 +88,7 @@ const CareersCareerIdRoadmapStepIdResourcesRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof authLoginRoute
+  '/signup': typeof authSignupRoute
   '/progress': typeof ProtectedProgressRoute
   '/careers/': typeof CareersIndexRoute
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof authLoginRoute
+  '/signup': typeof authSignupRoute
   '/progress': typeof ProtectedProgressRoute
   '/careers': typeof CareersIndexRoute
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_protected': typeof ProtectedRouteWithChildren
   '/(auth)/login': typeof authLoginRoute
+  '/(auth)/signup': typeof authSignupRoute
   '/_protected/progress': typeof ProtectedProgressRoute
   '/careers/': typeof CareersIndexRoute
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
@@ -122,6 +131,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/signup'
     | '/progress'
     | '/careers/'
     | '/careers/onboarding/about'
@@ -134,6 +144,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/signup'
     | '/progress'
     | '/careers'
     | '/careers/onboarding/about'
@@ -147,6 +158,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_protected'
     | '/(auth)/login'
+    | '/(auth)/signup'
     | '/_protected/progress'
     | '/careers/'
     | '/careers/onboarding/about'
@@ -161,6 +173,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ProtectedRoute: typeof ProtectedRouteWithChildren
   authLoginRoute: typeof authLoginRoute
+  authSignupRoute: typeof authSignupRoute
   CareersIndexRoute: typeof CareersIndexRoute
   CareersOnboardingAboutRoute: typeof CareersOnboardingAboutRoute
   CareersCareerIdIndexRoute: typeof CareersCareerIdIndexRoute
@@ -190,6 +203,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof authLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/signup': {
+      id: '/(auth)/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof authSignupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_protected/progress': {
@@ -282,6 +302,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ProtectedRoute: ProtectedRouteWithChildren,
   authLoginRoute: authLoginRoute,
+  authSignupRoute: authSignupRoute,
   CareersIndexRoute: CareersIndexRoute,
   CareersOnboardingAboutRoute: CareersOnboardingAboutRoute,
   CareersCareerIdIndexRoute: CareersCareerIdIndexRoute,

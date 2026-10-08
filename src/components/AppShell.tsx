@@ -4,17 +4,30 @@ import deskSupplies from "../assets/images/desk-supplies.png";
 
 const logo = "/brand-logo-lavender.svg";
 
-const PLAIN_SIDEBAR_ROUTES = ["/careers/onboarding", "/login"];
+const PLAIN_SIDEBAR_ROUTES = ["/careers/onboarding", "/login", "/signup"];
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const showIllustration = !PLAIN_SIDEBAR_ROUTES.some((route) =>
     pathname.startsWith(route),
   );
+  const isAuthRoute = pathname === "/login" || pathname === "/signup";
 
   return (
-    <div className="min-h-svh bg-grey-50 flex justify-center">
-      <div className="flex w-full max-w-[2560px] flex-col bg-brand-50 shadow-2xl border-x border-grey-100 lg:flex-row">
+    <div
+      className={
+        isAuthRoute
+          ? "h-svh overflow-hidden bg-grey-50 flex justify-center"
+          : "min-h-svh bg-grey-50 flex justify-center"
+      }
+    >
+      <div
+        className={
+          isAuthRoute
+            ? "flex h-full w-full max-w-[2560px] overflow-hidden bg-brand-50 shadow-2xl border-x border-grey-100 lg:flex-row"
+            : "flex w-full max-w-[2560px] flex-col bg-brand-50 shadow-2xl border-x border-grey-100 lg:flex-row"
+        }
+      >
         <aside
           className="
             flex h-14 shrink-0 items-center px-page-mobile sm:px-page-tablet
@@ -51,12 +64,11 @@ export default function AppShell({ children }: { children: ReactNode }) {
         </aside>
 
         <div
-          className="
-            relative z-10 flex flex-1 flex-col overflow-clip
-            rounded-t-2xl bg-surface
-            lg:mt-shell-inset lg:mr-shell-inset lg:rounded-tr-md
-            border border-grey-50 shadow-panel
-          "
+          className={
+            isAuthRoute
+              ? "relative z-10 flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-hidden rounded-t-2xl bg-surface lg:mt-shell-inset lg:mr-shell-inset lg:h-[calc(100%-var(--spacing-shell-inset))] lg:rounded-tr-md border border-grey-50 shadow-panel"
+              : "relative z-10 flex min-h-0 min-w-0 flex-1 flex-col overflow-clip rounded-t-2xl bg-surface lg:mt-shell-inset lg:mr-shell-inset lg:rounded-tr-md border border-grey-50 shadow-panel"
+          }
         >
           {children}
         </div>
