@@ -1,11 +1,36 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import clsx from "clsx";
 import { Link } from "@tanstack/react-router";
 import type { LinkComponentProps } from "@tanstack/react-router";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
+
+type Size = "default" | "lg";
+
+type StyleOptions = {
+  isPrimary: boolean;
+  size: Size;
+  className: string;
+};
+
+function buttonStyles({ isPrimary, size, className }: StyleOptions) {
+  return clsx(
+    "inline-flex items-center justify-center gap-2 rounded-[16px]",
+    "cursor-pointer font-sans leading-5 font-semibold",
+    "transition-[transform,background-color,opacity] duration-150 motion-reduce:transition-none",
+    "focus-ring focus-visible:ring-offset-2",
+    "not-disabled:active:translate-y-[2px] not-disabled:active:border-b-2",
+    "disabled:cursor-not-allowed disabled:opacity-50",
+    size === "lg" ? "px-4 py-3 text-base" : "px-4 py-2 text-sm",
+    isPrimary
+      ? "border-b-4 border-brand-700 bg-brand-600 text-white not-disabled:hover:bg-[color-mix(in_oklab,var(--color-brand-600),var(--color-brand-700)_25%)]"
+      : "border border-b-4 border-grey-100 bg-surface text-grey-600 not-disabled:hover:bg-grey-50",
+    className,
+  );
+}
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
   isPrimary?: boolean;
-  size?: "default" | "lg";
+  size?: Size;
 };
 
 export function Button({
@@ -16,28 +41,10 @@ export function Button({
   type = "button",
   ...props
 }: ButtonProps) {
-  const variantClasses = isPrimary
-    ? `bg-brand-600 text-white hover:bg-[color-mix(in_oklab,var(--color-brand-600),var(--color-brand-700)_25%)] inset-shadow-primary-btn active:inset-shadow-primary-btn-pressed`
-    : `border-[0.5px] border-grey-200 bg-grey-50 text-grey-500 hover:text-ink hover:bg-[color-mix(in_oklab,var(--color-grey-50),var(--color-grey-100)_50%)] inset-shadow-secondary-btn active:inset-shadow-secondary-btn-pressed`;
-  const sizeClasses =
-    size === "lg" ? "px-6 py-3 text-base" : "px-4 py-2 text-sm";
-
   return (
     <button
       type={type}
-      className={`
-        inline-flex items-center justify-center
-        rounded-md font-sans font-semibold
-        cursor-pointer
-        transition-[box-shadow,transform,background-color,color] duration-100
-        motion-reduce:transition-none
-        active:translate-y-[2px]
-        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2
-        disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-brand-600
-        ${sizeClasses}
-        ${variantClasses}
-        ${className}
-      `}
+      className={buttonStyles({ isPrimary, size, className })}
       {...props}
     >
       {children}
@@ -47,7 +54,7 @@ export function Button({
 
 type LinkButtonProps = LinkComponentProps<"a"> & {
   isPrimary?: boolean;
-  size?: "default" | "lg";
+  size?: Size;
 };
 
 export function LinkButton({
@@ -58,28 +65,10 @@ export function LinkButton({
   className = "",
   ...props
 }: LinkButtonProps) {
-  const variantClasses = isPrimary
-    ? `bg-brand-600 text-white hover:bg-[color-mix(in_oklab,var(--color-brand-600),var(--color-brand-700)_25%)] inset-shadow-primary-btn active:inset-shadow-primary-btn-pressed`
-    : `border-[0.5px] border-grey-200 bg-grey-50 text-grey-500 hover:text-ink hover:bg-[color-mix(in_oklab,var(--color-grey-50),var(--color-grey-100)_50%)] inset-shadow-secondary-btn active:inset-shadow-secondary-btn-pressed`;
-  const sizeClasses =
-    size === "lg" ? "px-6 py-3 text-base" : "px-4 py-2 text-sm";
-
   return (
     <Link
       to={to}
-      className={`
-        inline-flex items-center justify-center
-        rounded-md font-sans font-semibold
-        cursor-pointer
-        transition-[box-shadow,transform,background-color,color] duration-100
-        motion-reduce:transition-none
-        active:translate-y-[2px]
-        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2
-        disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-brand-600
-        ${sizeClasses}
-        ${variantClasses}
-        ${className}
-      `}
+      className={buttonStyles({ isPrimary, size, className })}
       {...props}
     >
       {children}
