@@ -13,7 +13,7 @@ export default function EmailSentComponent({
   email: string;
 }) {
   return (
-    <div className="w-93.75 flex flex-col gap-6 items-center text-center font-display">
+    <div className="w-93.75 flex flex-col gap-6 items-center text-center font-display animate-in fade-in slide-in-from-bottom-3 duration-500 ease-out motion-reduce:animate-none">
       <div className="flex flex-col gap-4 items-center">
         <img src={mailBox} />
         <h1 className="text-heading">Check your email!</h1>

@@ -1,13 +1,9 @@
 import celebrateIcon from "@/assets/icons/celebrate.svg";
-import { Button } from "@/components/ui/Button";
+import { LinkButton } from "@/components/ui/Button";
 
-export default function PasswordChanged({
-  setisPasswordChanged,
-}: {
-  setisPasswordChanged: (changed: boolean) => void;
-}) {
+export default function PasswordChanged() {
   return (
-    <div className="w-93.75 flex flex-col items-center text-center font-display">
+    <div className="w-93.75 flex flex-col items-center text-center font-display animate-in fade-in slide-in-from-bottom-3 duration-500 ease-out motion-reduce:animate-none">
       <img src={celebrateIcon} />
       <div className="flex flex-col gap-2 pt-4 pb-7">
         <h1 className="text-heading">Password Reset!</h1>
@@ -16,13 +12,9 @@ export default function PasswordChanged({
         </p>
       </div>
 
-      <Button
-        type="submit"
-        className="w-full"
-        onClick={() => setisPasswordChanged(true)}
-      >
+      <LinkButton to="/" className="w-full">
         Continue
-      </Button>
+      </LinkButton>
     </div>
   );
 }

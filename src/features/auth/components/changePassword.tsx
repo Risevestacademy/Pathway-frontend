@@ -12,7 +12,7 @@ export default function ChangePasswordComponent() {
   return (
     <div className="flex w-full h-full items-center justify-center">
       {isPasswordChanged ? (
-        <PasswordChanged setisPasswordChanged={setIsPasswordChanged} />
+        <PasswordChanged />
       ) : (
         <InputPassword
           setisPasswordChanged={setIsPasswordChanged}

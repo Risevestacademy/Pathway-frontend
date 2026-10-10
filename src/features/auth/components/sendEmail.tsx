@@ -48,7 +48,7 @@ export default function SendEmailComponent({
   };
 
   return (
-    <div className="w-93.75 flex flex-col items-center text-center font-display">
+    <div className="w-93.75 flex flex-col items-center text-center font-display animate-in fade-in slide-in-from-bottom-3 duration-500 ease-out motion-reduce:animate-none">
       <img src={keyIcon} />
       <div className="flex flex-col gap-2 pt-4 pb-7">
         <h1 className="text-heading">Reset Password</h1>
