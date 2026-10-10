@@ -29,3 +29,14 @@ async function hydrateAuth(): Promise<void> {
     useAuthStore.getState().finishHydrating();
   }
 }
+
+export async function passwordResetRequest(email: string): Promise<void> {
+  try {
+    await api.post("/auth/password-reset/request", {
+      email,
+    });
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
+    throw error;
+  }
+}
