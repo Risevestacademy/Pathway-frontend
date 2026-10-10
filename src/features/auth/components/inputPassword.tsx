@@ -7,14 +7,17 @@ import { useConfirmResetPassword } from "../hooks/useResetPassword";
 
 export default function InputPassword({
   setisPasswordChanged,
+  token = "",
 }: {
   setisPasswordChanged: (changed: boolean) => void;
+  token: string | undefined;
 }) {
   const [password1, setPassword1] = useState("");
   const [password2, setPassword2] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [error, setError] = useState<string[]>([]);
+
   const { mutate: confirmResetPassword, isPending } = useConfirmResetPassword();
 
   const handleChange1 = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,7 +55,7 @@ export default function InputPassword({
 
     setError([]);
     confirmResetPassword(
-      { newPassword: password1, token: "your_token_here" },
+      { newPassword: password1, token },
       {
         onError: (error) => {
           setError(
