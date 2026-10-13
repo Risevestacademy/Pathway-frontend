@@ -34,3 +34,24 @@ const LEVEL_TO_API: Record<CareerLevel, ApiTargetLevel> = {
 export function toApiLevel(level: CareerLevel | null): ApiTargetLevel | undefined {
   return level ? LEVEL_TO_API[level] : undefined;
 }
+
+/** One dropdown choice from GET /onboarding/options. */
+export interface OnboardingOption {
+  value: string;
+  label: string;
+}
+
+export interface OnboardingSkill {
+  id: string;
+  name: string;
+  description: string | null;
+}
+
+/** Everything the onboarding screens need, from GET /onboarding/options. */
+export interface OnboardingOptions {
+  educationLevels: OnboardingOption[];
+  internshipOptions: OnboardingOption[];
+  experienceOptions: OnboardingOption[];
+  skills: OnboardingSkill[];
+  fields: CareerField[];
+}
