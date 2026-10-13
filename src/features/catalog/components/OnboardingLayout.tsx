@@ -20,7 +20,7 @@ export function OnboardingLayout({
 }) {
   return (
     <main className="flex flex-1">
-      <div className="flex flex-1 items-center justify-center px-page-mobile py-6 sm:px-page-tablet">
+      <div className="flex min-w-0 flex-1 items-center justify-center px-page-mobile py-6 sm:px-page-tablet">
         <div className="w-full max-w-116.25 animate-in fade-in slide-in-from-bottom-3 duration-500 ease-out motion-reduce:animate-none">
           {children}
         </div>

@@ -220,7 +220,7 @@ export default function AboutYou() {
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <fieldset>
+    <fieldset className="min-w-0">
       <legend className={LABEL_CLASS}>{label}</legend>
       <div className="mt-2">{children}</div>
     </fieldset>
