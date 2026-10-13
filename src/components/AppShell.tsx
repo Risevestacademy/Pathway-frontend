@@ -3,6 +3,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import deskSupplies from "../assets/images/desk-supplies.png";
 
 const logo = "/brand-logo-lavender.svg";
+const logoIcon = "/favicon.svg";
 
 const PLAIN_SIDEBAR_ROUTES = ["/careers/onboarding", "/login"];
 
@@ -18,7 +19,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
         <aside
           className="
             flex h-14 shrink-0 items-center px-page-mobile sm:px-page-tablet
-            lg:sticky lg:top-0 lg:h-svh lg:w-sidebar
+            lg:sticky lg:top-0 lg:h-svh lg:w-rail wide:w-sidebar
             lg:flex-col lg:items-start lg:justify-between lg:px-6 lg:pt-10 lg:pb-8
           "
         >
@@ -30,7 +31,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
               draggable={false}
               className="
                 pointer-events-none absolute bottom-0 left-0 hidden h-[min(819px,85svh)] w-auto select-none
-                lg:block
+                wide:block
                 animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out
                 motion-reduce:animate-none
               "
@@ -42,10 +43,11 @@ export default function AppShell({ children }: { children: ReactNode }) {
             aria-label="Pathway home"
             className="relative inline-flex rounded cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-brand-50"
           >
-            <img className="h-6.5 w-auto" src={logo} alt="Pathway" />
+            <img className="h-6.5 w-auto lg:hidden wide:block" src={logo} alt="Pathway" />
+            <img className="hidden size-6 lg:block wide:hidden" src={logoIcon} alt="" />
           </Link>
 
-          <p className="relative hidden text-sm text-grey-600 lg:block">
+          <p className="relative hidden text-sm text-grey-600 wide:block">
             ©{new Date().getFullYear()} Pathway
           </p>
         </aside>
