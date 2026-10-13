@@ -1,131 +1,56 @@
 import { useState, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { AddRegular, CloseRegular } from "@mingcute/react/core-regular";
 import { Button } from "@/components/ui/Button";
-import { useSession } from "@/lib/stores/session";
-import { useFields } from "../hooks/useFields";
+import { MAX_EXPERIENCE_ENTRIES, useSession } from "@/lib/stores/session";
+import type { OnboardingOption } from "../catalog.types";
+import { useOnboardingOptions } from "../hooks/useOnboardingOptions";
+import { FIELD_OF_STUDY_OPTIONS, JOB_TYPE_OPTIONS } from "../onboarding.mock";
 import { HelperText } from "./HelperText";
 import { OnboardingLayout, StepDots, StepHeader } from "./OnboardingLayout";
 import { OnboardingSelect } from "./OnboardingSelect";
 import { SkillsInput } from "./SkillsInput";
 
-type AnswerKey = "degree" | "fieldOfStudy" | "yearsOfWork" | "internships";
-
-interface SelectConfig {
-  key: AnswerKey;
-  label?: string;
-  placeholder: string;
-  options: string[];
-  className?: string;
-}
-
-const SELECT_ROWS: { title: string; selects: SelectConfig[] }[] = [
-  {
-    title: "Education",
-    selects: [
-      {
-        key: "degree",
-        placeholder: "Degree",
-        options: [
-          "Secondary school",
-          "Diploma / OND",
-          "Bachelor's (in progress)",
-          "Bachelor's",
-          "Master's",
-          "Other",
-        ],
-        className: "w-[151px] shrink-0",
-      },
-      {
-        key: "fieldOfStudy",
-        label: "Field of study",
-        placeholder: "Field of study, e.g. Engineering",
-        options: [
-          "Computer Science",
-          "Engineering",
-          "Business",
-          "Economics",
-          "Health Sciences",
-          "Law",
-          "Arts and Humanities",
-          "Social Sciences",
-          "Natural Sciences",
-          "Other",
-        ],
-      },
-    ],
-  },
-  {
-    title: "Experience",
-    selects: [
-      {
-        key: "yearsOfWork",
-        placeholder: "Years of work",
-        options: ["None yet", "Less than 1 year", "1–2 years", "3–5 years"],
-      },
-      {
-        key: "internships",
-        placeholder: "Internships",
-        options: ["None", "1", "2", "3 or more"],
-      },
-    ],
-  },
-];
-
-const EMPTY_ANSWERS: Record<AnswerKey, string> = {
-  degree: "",
-  fieldOfStudy: "",
-  yearsOfWork: "",
-  internships: "",
-};
-
-const SKILL_OPTIONS = [
-  "JavaScript",
-  "Python",
-  "SQL",
-  "Excel",
-  "Design",
-  "Communication",
-];
 const MAX_SKILLS = 5;
 const NO_INTEREST = "none";
 const LABEL_CLASS = "text-body-lg-bold text-ink";
-
-const toOptions = (items: string[]) =>
-  items.map((item) => ({ value: item, label: item }));
+const EMPTY_OPTIONS: OnboardingOption[] = [];
 
 export default function AboutYou() {
   const profile = useSession();
   const navigate = useNavigate();
-  const fields = useFields();
+  const options = useOnboardingOptions();
+  const [cvNoticeVisible, setCvNoticeVisible] = useState(false);
 
-  const [answers, setAnswers] = useState(EMPTY_ANSWERS);
-  const [skills, setSkills] = useState<string[]>(profile.skills);
-  const [interest, setInterest] = useState<string | null>(profile.interest);
-
-  const hasInput =
-    Object.values(answers).some(Boolean) || skills.length > 0 || !!interest;
-
-  const submit = () => {
-    profile.setSkills(skills);
-    profile.setInterest(interest);
-    navigate({ to: "/careers" });
-  };
+  const data = options.data;
+  const ready = Boolean(data);
+  const skillOptions = (data?.skills ?? []).map((skill) => ({
+    value: skill.id,
+    label: skill.name,
+  }));
+  const interestOptions = [
+    { value: NO_INTEREST, label: "No preference" },
+    ...(data?.fields ?? []).map((field) => ({
+      value: field.slug,
+      label: field.name,
+    })),
+  ];
+  const interestPlaceholder = options.isPending
+    ? "Loading fields…"
+    : options.isError
+      ? "Couldn’t load fields"
+      : "Pick a field you are interested in";
+  const atMaxExperience = profile.experience.length >= MAX_EXPERIENCE_ENTRIES;
+  const hasSeveralEntries = profile.experience.length > 1;
 
   const skip = () => {
     profile.clearOptional();
     navigate({ to: "/careers" });
   };
 
-  const interestOptions = [
-    { value: NO_INTEREST, label: "No preference" },
-    ...(fields.data ?? []).map((f) => ({ value: f.slug, label: f.name })),
-  ];
-
-  const interestPlaceholder = fields.isPending
-    ? "Loading fields…"
-    : fields.isError
-      ? "Couldn’t load fields"
-      : "Add an interest";
+  const next = () => {
+    navigate({ to: "/careers" });
+  };
 
   return (
     <OnboardingLayout step={2}>
@@ -136,33 +61,49 @@ export default function AboutYou() {
         description="Add any of these to see careers that fit you best, or skip to browse everything."
       />
 
-      <div className="flex flex-col gap-4">
-        {SELECT_ROWS.map(({ title, selects }) => (
-          <Field key={title} label={title}>
-            <div className="flex gap-1">
-              {selects.map(({ key, label, placeholder, options, className }) => (
-                <OnboardingSelect
-                  key={key}
-                  label={label}
-                  placeholder={placeholder}
-                  value={answers[key]}
-                  onValueChange={(value) =>
-                    setAnswers((prev) => ({ ...prev, [key]: value }))
-                  }
-                  options={toOptions(options)}
-                  className={className ?? "min-w-0 flex-1"}
-                />
-              ))}
-            </div>
-          </Field>
-        ))}
+      {options.isError && (
+        <HelperText role="alert" className="mb-4">
+          We couldn’t load the options.{" "}
+          <button
+            type="button"
+            onClick={() => options.refetch()}
+            className="focus-ring cursor-pointer font-semibold text-brand-600 underline"
+          >
+            Try again
+          </button>
+        </HelperText>
+      )}
+
+      <div className="flex flex-col gap-4" aria-busy={options.isPending}>
+        <Field label="Education">
+          <div className="flex gap-1">
+            <OnboardingSelect
+              label="Degree"
+              placeholder="Degree"
+              value={profile.degree ?? ""}
+              onValueChange={profile.setDegree}
+              options={data?.educationLevels ?? EMPTY_OPTIONS}
+              disabled={!ready}
+              className="w-[151px] shrink-0"
+            />
+            <OnboardingSelect
+              label="Field of study"
+              placeholder="Field of study, e.g. Engineering"
+              value={profile.fieldOfStudy ?? ""}
+              onValueChange={profile.setFieldOfStudy}
+              options={FIELD_OF_STUDY_OPTIONS}
+              className="min-w-0 flex-1"
+            />
+          </div>
+        </Field>
 
         <Field label="Skills">
           <SkillsInput
-            values={skills}
-            options={SKILL_OPTIONS}
+            values={profile.skills}
+            options={skillOptions}
             max={MAX_SKILLS}
-            onChange={setSkills}
+            onChange={profile.setSkills}
+            disabled={!ready}
           />
         </Field>
 
@@ -172,32 +113,103 @@ export default function AboutYou() {
             className={`${LABEL_CLASS} flex items-baseline gap-2`}
           >
             Career interests
-            <span className="font-medium text-[#ADADAD]">Optional</span>
+            <span className="text-body-sm font-semibold text-ink-muted">
+              (Optional)
+            </span>
           </label>
           <div className="mt-2">
             <OnboardingSelect
               id="career-interest"
               className="w-full"
               placeholder={interestPlaceholder}
-              value={interest ?? ""}
-              onValueChange={(v) => setInterest(v === NO_INTEREST ? null : v)}
+              value={profile.interest ?? ""}
+              onValueChange={(value) =>
+                profile.setInterest(value === NO_INTEREST ? null : value)
+              }
               options={interestOptions}
-              disabled={!fields.data}
+              disabled={!ready}
             />
           </div>
-          {fields.isError ? (
-            <HelperText role="alert" className="mt-1">
-              We couldn’t load fields.{" "}
+        </div>
+
+        <div role="group" aria-labelledby="experience-heading">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span id="experience-heading" className={LABEL_CLASS}>
+                Experience
+              </span>
               <button
                 type="button"
-                onClick={() => fields.refetch()}
-                className="focus-ring cursor-pointer font-semibold text-brand-600 underline"
+                onClick={() => setCvNoticeVisible(true)}
+                className="focus-ring cursor-pointer rounded-xs text-body-sm font-medium text-brand-600 underline hover:text-brand-700"
               >
-                Try again
+                import cv
               </button>
+            </div>
+            <button
+              type="button"
+              aria-label="Add another experience"
+              onClick={profile.addExperience}
+              disabled={atMaxExperience}
+              className="focus-ring inline-flex cursor-pointer items-center justify-center rounded-[4px] border border-b-4 border-grey-50 p-1 text-ink-muted hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <AddRegular size={16} aria-hidden />
+            </button>
+          </div>
+
+          <div role="status">
+            {cvNoticeVisible && (
+              <HelperText className="mt-1">
+                CV import isn’t available yet. You can add your experience
+                below.
+              </HelperText>
+            )}
+          </div>
+
+          <div className="mt-2 flex flex-col gap-1">
+            {profile.experience.map((entry, index) => {
+              const suffix = hasSeveralEntries ? `, entry ${index + 1}` : "";
+              return (
+                <div key={index} className="flex gap-1">
+                  <OnboardingSelect
+                    label={`Years of work${suffix}`}
+                    placeholder="Years of work"
+                    value={entry.years ?? ""}
+                    onValueChange={(years) =>
+                      profile.updateExperience(index, { years })
+                    }
+                    options={data?.experienceOptions ?? EMPTY_OPTIONS}
+                    disabled={!ready}
+                    className="min-w-0 flex-1"
+                  />
+                  <OnboardingSelect
+                    label={`Job type${suffix}`}
+                    placeholder="Job type"
+                    value={entry.jobType ?? ""}
+                    onValueChange={(jobType) =>
+                      profile.updateExperience(index, { jobType })
+                    }
+                    options={JOB_TYPE_OPTIONS}
+                    className="min-w-0 flex-1"
+                  />
+                  {hasSeveralEntries && (
+                    <button
+                      type="button"
+                      aria-label={`Remove experience entry ${index + 1}`}
+                      onClick={() => profile.removeExperience(index)}
+                      className="focus-ring grid size-10.5 shrink-0 cursor-pointer place-items-center rounded-lg border-[1.33px] border-grey-50 text-ink-muted hover:border-grey-100 hover:text-ink"
+                    >
+                      <CloseRegular size={16} aria-hidden />
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          {atMaxExperience && (
+            <HelperText className="mt-1">
+              You can add up to {MAX_EXPERIENCE_ENTRIES} experiences
             </HelperText>
-          ) : (
-            <HelperText className="mt-1">Pick one interest for now</HelperText>
           )}
         </div>
       </div>
@@ -206,8 +218,8 @@ export default function AboutYou() {
         <Button isPrimary={false} size="lg" onClick={skip} className="flex-1">
           Skip for now
         </Button>
-        <Button size="lg" onClick={submit} disabled={!hasInput} className="flex-1">
-          Show careers
+        <Button size="lg" onClick={next} className="flex-1">
+          Next
         </Button>
       </div>
 
