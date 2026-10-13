@@ -15,7 +15,7 @@ export default function EmailSentComponent({
   return (
     <div className="w-93.75 flex flex-col gap-6 items-center text-center font-display animate-in fade-in slide-in-from-bottom-3 duration-500 ease-out motion-reduce:animate-none">
       <div className="flex flex-col gap-4 items-center">
-        <img src={mailBox} />
+        <img alt="mail box icon" src={mailBox} />
         <h1 className="text-heading">Check your email!</h1>
       </div>
       <div className="flex flex-col gap-4 items-center">
@@ -32,7 +32,7 @@ export default function EmailSentComponent({
             setIsEmailSent(false);
           }}
         >
-          <img src={repeatIcon} />
+          <img alt="repeat icon" src={repeatIcon} />
           <span>Change email address</span>
         </a>
       </div>
@@ -42,9 +42,23 @@ export default function EmailSentComponent({
         onClick={() => setIsEmailSent(false)}
         isPrimary={false}
       >
-        <img src={arrowsLeft} />
+        <img alt="arrow left icon" src={arrowsLeft} />
         <span>Go back</span>
       </Button>
+
+      <p className="text-body-md text-grey-500">
+        Haven't received a mail?{" "}
+        <a
+          href=""
+          className="font-semibold text-brand-600 hover:text-brand-700"
+          onClick={(e) => {
+            e.preventDefault();
+            setIsEmailSent(false);
+          }}
+        >
+          Resend email
+        </a>
+      </p>
     </div>
   );
 }

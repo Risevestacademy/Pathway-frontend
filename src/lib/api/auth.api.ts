@@ -42,14 +42,9 @@ async function hydrateAuth(): Promise<void> {
 }
 
 export async function passwordResetRequest(email: string): Promise<void> {
-  try {
-    await api.post("/auth/password-reset/request", {
-      email,
-    });
-  } catch (error) {
-    console.error("Error sending password reset email:", error);
-    throw error;
-  }
+  await api.post("/auth/password-reset/request", {
+    email,
+  });
 }
 
 export async function passwordResetConfirm(
@@ -62,7 +57,6 @@ export async function passwordResetConfirm(
       token,
     });
   } catch (error) {
-    console.error("Error confirming password reset:", error);
     if (axios.isAxiosError(error)) {
       if (error.response?.data?.error === "VALIDATION_ERROR") {
         const messages = Object.values(
