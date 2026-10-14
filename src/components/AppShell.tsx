@@ -4,7 +4,12 @@ import deskSupplies from "../assets/images/desk-supplies.png";
 
 const logo = "/brand-logo-lavender.svg";
 
-const PLAIN_SIDEBAR_ROUTES = ["/careers/onboarding", "/login"];
+const PLAIN_SIDEBAR_ROUTES = [
+  "/careers/onboarding",
+  "/login",
+  "/reset-password",
+  "/reset-password/reset",
+];
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
