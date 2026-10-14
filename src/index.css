@@ -117,8 +117,12 @@
   --radius-pill: 999px;
 
   /* Layout sizing */
-  --spacing-sidebar: 12.875rem; /* 206px app-shell side nav, "wide" variant (hifi Dashboard.png) */
-  --spacing-sidebar-slim: 4.5rem; /* 72px app-shell side nav, default "slim" variant (hifi Discover, 1440 frame) */
+  --spacing-sidebar: 12.875rem; /* 206px full app-shell side nav (hifi Dashboard.png) */
+  --spacing-sidebar-slim: 4.5rem; /* 72px app-shell rail (hifi Discover, 1440 frame) */
+
+  /* Above the 1440px Figma frame the default app shell swaps its rail for the
+   * full sidebar. Pending designer confirmation for wider screens. */
+  --breakpoint-shell: 90.0625rem; /* 1441px */
   --spacing-shell-inset: 0.8125rem; /* 13px gap above/right of the content panel */
   --spacing-page-mobile: 1rem; /* 16px */
   --spacing-page-tablet: 1.5rem; /* 24px */

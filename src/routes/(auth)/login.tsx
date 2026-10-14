@@ -3,6 +3,7 @@ import { loginSearchSchema } from "../../lib/validation/auth.schema";
 import { normalizeRedirect } from "../../lib/utils/route.util";
 
 export const Route = createFileRoute("/(auth)/login")({
+  staticData: { shellVariant: "wide" },
   validateSearch: loginSearchSchema,
   component: RouteComponent,
 });
