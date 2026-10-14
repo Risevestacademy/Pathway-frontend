@@ -27,16 +27,17 @@ export function SkillsInput({
 }: SkillsInputProps) {
   const [open, setOpen] = useState(false);
   const helperId = useId();
-  const atLimit = values.length >= max;
-
-  const labelOf = (value: string) =>
+    const labelOf = (value: string) =>
     options.find((option) => option.value === value)?.label;
 
+  const shown = values.filter((value) => labelOf(value) !== undefined);
+  const atLimit = shown.length >= max;
+
   const toggle = (value: string) => {
-    if (values.includes(value)) {
-      onChange(values.filter((v) => v !== value));
+    if (shown.includes(value)) {
+      onChange(shown.filter((v) => v !== value));
     } else if (!atLimit) {
-      onChange([...values, value]);
+      onChange([...shown, value]);
     }
   };
 
@@ -50,7 +51,7 @@ export function SkillsInput({
               disabled && "opacity-50",
             )}
           >
-            {values.map((value) => {
+            {shown.map((value) => {
               const label = labelOf(value);
               if (!label) return null;
               return (
@@ -79,7 +80,7 @@ export function SkillsInput({
                 aria-describedby={helperId}
                 className="min-h-6 min-w-24 flex-1 cursor-pointer text-left text-body-md text-ink-muted focus-visible:outline-none disabled:cursor-not-allowed"
               >
-                {values.length === 0 ? "Select skills" : ""}
+                {shown.length === 0 ? "Select skills" : ""}
               </button>
             </PopoverTrigger>
           </div>
@@ -91,7 +92,7 @@ export function SkillsInput({
           className="max-h-72 w-(--radix-popover-trigger-width)! gap-0! overflow-y-auto rounded-lg border border-grey-50 bg-surface p-1! shadow-raised"
         >
           {options.map((option) => {
-            const selected = values.includes(option.value);
+            const selected = shown.includes(option.value);
             return (
               <button
                 key={option.value}

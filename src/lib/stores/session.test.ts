@@ -16,7 +16,7 @@ beforeEach(() => {
 describe("experience entries", () => {
   it("starts with one empty entry", () => {
     expect(useSession.getState().experience).toEqual([
-      { years: null, jobType: null },
+      { id: expect.any(String), years: null, jobType: null },
     ]);
   });
 
@@ -33,8 +33,20 @@ describe("experience entries", () => {
     useSession.getState().addExperience();
     useSession.getState().updateExperience(1, { years: "ONE_TO_TWO" });
     expect(useSession.getState().experience).toEqual([
-      { years: null, jobType: null },
-      { years: "ONE_TO_TWO", jobType: null },
+      { id: expect.any(String), years: null, jobType: null },
+      { id: expect.any(String), years: "ONE_TO_TWO", jobType: null },
+    ]);
+  });
+
+    it("keeps the other entry's id and values when an earlier entry is removed", () => {
+    useSession.getState().addExperience();
+    useSession.getState().updateExperience(1, { years: "ONE_TO_TWO" });
+    const secondId = useSession.getState().experience[1].id;
+
+    useSession.getState().removeExperience(0);
+
+    expect(useSession.getState().experience).toEqual([
+      { id: secondId, years: "ONE_TO_TWO", jobType: null },
     ]);
   });
 

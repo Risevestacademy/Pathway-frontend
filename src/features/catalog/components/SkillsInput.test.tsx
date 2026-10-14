@@ -31,6 +31,23 @@ describe("SkillsInput", () => {
     expect(onChange).toHaveBeenCalledWith(["b"]);
   });
 
+  it("does not count saved values that are not in the options toward the limit", () => {
+    render(
+      <SkillsInput values={["x", "y", "z"]} options={options} max={3} onChange={vi.fn()} />,
+    );
+    expect(screen.getByText("You can add up to 3 skills")).toBeTruthy();
+  });
+
+  it("drops saved values that are not in the options when a skill is removed", async () => {
+    const onChange = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <SkillsInput values={["a", "gone"]} options={options} max={5} onChange={onChange} />,
+    );
+    await user.click(screen.getByRole("button", { name: "Remove Figma" }));
+    expect(onChange).toHaveBeenCalledWith([]);
+  });
+
   it("explains how many skills can be added", () => {
     render(
       <SkillsInput values={["a"]} options={options} max={5} onChange={vi.fn()} />,

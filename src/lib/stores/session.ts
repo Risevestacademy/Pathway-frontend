@@ -5,9 +5,18 @@ import type { CareerLevel } from "../../types/career.types";
 export const MAX_EXPERIENCE_ENTRIES = 3;
 
 export interface ExperienceEntry {
+  id: string;
   years: string | null;
   jobType: string | null;
 }
+
+let experienceCounter = 0;
+
+const createExperienceEntry = (): ExperienceEntry => ({
+  id: `experience-${Date.now().toString(36)}-${experienceCounter++}`,
+  years: null,
+  jobType: null,
+});
 
 interface SessionAnswers {
   level: CareerLevel | null;
@@ -43,7 +52,7 @@ const createEmptyOptional = (): Omit<SessionAnswers, "level"> => ({
   fieldOfStudy: null,
   skills: [],
   interest: null,
-  experience: [{ years: null, jobType: null }],
+  experience: [createExperienceEntry()],
   strengths: [],
   goal: null,
   timeCommitment: null,
@@ -64,10 +73,7 @@ export const useSession = create<SessionState>()(
           state.experience.length >= MAX_EXPERIENCE_ENTRIES
             ? state
             : {
-                experience: [
-                  ...state.experience,
-                  { years: null, jobType: null },
-                ],
+                experience: [...state.experience, createExperienceEntry()]
               },
         ),
       updateExperience: (index, patch) =>
@@ -93,7 +99,7 @@ export const useSession = create<SessionState>()(
     {
       name: "pathway-onboarding-session",
       storage: createJSONStorage(() => sessionStorage),
-      version: 2,
+      version: 3,
       migrate: (persisted, version) => {
         const old = (persisted ?? {}) as Partial<SessionState>;
         return {

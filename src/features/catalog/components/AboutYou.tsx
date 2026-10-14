@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { AddRegular, CloseRegular } from "@mingcute/react/core-regular";
 import { Button } from "@/components/ui/Button";
@@ -21,6 +21,7 @@ export default function AboutYou() {
   const navigate = useNavigate();
   const options = useOnboardingOptions();
   const [cvNoticeVisible, setCvNoticeVisible] = useState(false);
+  const experienceRef = useRef<HTMLDivElement>(null);
 
   const data = options.data;
   const ready = Boolean(data);
@@ -50,6 +51,11 @@ export default function AboutYou() {
 
   const next = () => {
     navigate({ to: "/careers/onboarding/goals" });
+  };
+
+  const removeEntry = (index: number) => {
+    profile.removeExperience(index);
+    experienceRef.current?.focus();
   };
 
   return (
@@ -132,7 +138,13 @@ export default function AboutYou() {
           </div>
         </div>
 
-        <div role="group" aria-labelledby="experience-heading">
+        <div
+          ref={experienceRef}
+          tabIndex={-1}
+          role="group"
+          aria-labelledby="experience-heading"
+          className="focus-ring rounded-lg"
+        >
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <span id="experience-heading" className={LABEL_CLASS}>
@@ -170,7 +182,7 @@ export default function AboutYou() {
             {profile.experience.map((entry, index) => {
               const suffix = hasSeveralEntries ? `, entry ${index + 1}` : "";
               return (
-                <div key={index} className="flex gap-1">
+                <div key={entry.id} className="flex gap-1">
                   <OnboardingSelect
                     label={`Years of work${suffix}`}
                     placeholder="Years of work"
@@ -196,7 +208,7 @@ export default function AboutYou() {
                     <button
                       type="button"
                       aria-label={`Remove experience entry ${index + 1}`}
-                      onClick={() => profile.removeExperience(index)}
+                      onClick={() => removeEntry(index)}
                       className="focus-ring grid size-10.5 shrink-0 cursor-pointer place-items-center rounded-lg border-[1.33px] border-grey-50 text-ink-muted hover:border-grey-100 hover:text-ink"
                     >
                       <CloseRegular size={16} aria-hidden />

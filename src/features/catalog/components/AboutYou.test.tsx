@@ -62,7 +62,7 @@ describe("AboutYou", () => {
     expect(screen.getByText("You can add up to 3 experiences")).toBeTruthy();
   });
 
-  it("removes an experience row", async () => {
+  it("removes an experience row and moves focus to the experience group", async () => {
     const user = userEvent.setup();
     render(<AboutYou />);
 
@@ -74,6 +74,9 @@ describe("AboutYou", () => {
     );
 
     expect(useSession.getState().experience).toHaveLength(1);
+    expect(document.activeElement).toBe(
+      screen.getByRole("group", { name: "Experience" }),
+    );
   });
 
   it("shows a message when import cv is clicked", async () => {
