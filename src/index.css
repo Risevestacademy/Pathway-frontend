@@ -117,9 +117,12 @@
   --radius-pill: 999px;
 
   /* Layout sizing */
-  --spacing-sidebar: 12.875rem; /* 206px app-shell side nav (hifi Dashboard.png) */
-  --breakpoint-wide: 90.0625rem; /* full sidebar above this width */
-  --spacing-rail: 4.5rem; /* 72px narrow side rail */
+  --spacing-sidebar: 12.875rem; /* 206px full app-shell side nav (hifi Dashboard.png) */
+  --spacing-sidebar-slim: 4.5rem; /* 72px app-shell rail (hifi Discover, 1440 frame) */
+
+  /* Above the 1440px Figma frame the default app shell swaps its rail for the
+   * full sidebar. Pending designer confirmation for wider screens. */
+  --breakpoint-shell: 90.0625rem; /* 1441px */
   --spacing-shell-inset: 0.8125rem; /* 13px gap above/right of the content panel */
   --spacing-page-mobile: 1rem; /* 16px */
   --spacing-page-tablet: 1.5rem; /* 24px */
@@ -146,8 +149,7 @@
   --animate-roadmap-connector: roadmap-connector 500ms linear both;
   --animate-roadmap-node: roadmap-node 360ms cubic-bezier(0.34, 1.56, 0.64, 1)
     both;
-  --animate-roadmap-card: roadmap-card 420ms cubic-bezier(0.22, 1, 0.36, 1)
-    both;
+  --animate-roadmap-card: roadmap-card 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
 
   @keyframes roadmap-connector {
     from {

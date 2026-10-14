@@ -3,7 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { AddRegular, CloseRegular } from "@mingcute/react/core-regular";
 import { Button } from "@/components/ui/Button";
 import { MAX_EXPERIENCE_ENTRIES, useSession } from "@/lib/stores/session";
-import type { OnboardingOption } from "../catalog.types";
+import { NO_INTEREST, type OnboardingOption } from "../catalog.types";
 import { useOnboardingOptions } from "../hooks/useOnboardingOptions";
 import { FIELD_OF_STUDY_OPTIONS, JOB_TYPE_OPTIONS } from "../onboarding.mock";
 import { HelperText } from "./HelperText";
@@ -12,7 +12,6 @@ import { OnboardingSelect } from "./OnboardingSelect";
 import { SkillsInput } from "./SkillsInput";
 
 const MAX_SKILLS = 5;
-const NO_INTEREST = "none";
 const LABEL_CLASS = "text-body-lg-bold text-ink";
 const EMPTY_OPTIONS: OnboardingOption[] = [];
 

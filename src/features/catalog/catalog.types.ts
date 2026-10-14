@@ -35,6 +35,9 @@ export function toApiLevel(level: CareerLevel | null): ApiTargetLevel | undefine
   return level ? LEVEL_TO_API[level] : undefined;
 }
 
+/** Select value for "no interest", since Radix Select can't use an empty value. */
+export const NO_INTEREST = "none";
+
 /** One dropdown choice from GET /onboarding/options. */
 export interface OnboardingOption {
   value: string;
