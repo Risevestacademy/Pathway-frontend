@@ -6,6 +6,7 @@ import { useState } from "react";
 import { PasswordResetError } from "@/lib/api/auth.api";
 import { validatePasswordMatch } from "@/lib/validation/auth.schema";
 import { useConfirmResetPassword } from "../hooks/useResetPassword";
+import { Link } from "@tanstack/react-router";
 
 export default function InputPassword({
   setisPasswordChanged,
@@ -78,7 +79,7 @@ export default function InputPassword({
 
   return (
     <div className="w-93.75 flex flex-col items-center text-center font-display animate-in fade-in slide-in-from-bottom-3 duration-500 ease-out motion-reduce:animate-none">
-      <img alt="input icon" src={inputIcon} />
+      <img alt="" src={inputIcon} />
       <div className="flex flex-col gap-2 pt-4 pb-7">
         <h1 className="text-heading">Reset Password</h1>
         <p className="text-body-md text-grey-500">
@@ -94,7 +95,8 @@ export default function InputPassword({
               name="password"
               placeholder="Password"
               onChange={handleChange1}
-              className="w-full px-3.5 py-2 pr-11 border border-grey-50 rounded-lg text-body-md placeholder:text-grey-300 focus:outline-none focus:border-brand-600"
+              autoComplete="new-password"
+              className="w-full px-3.5 py-2 pr-11 border border-grey-50 rounded-lg text-body-md focus:outline-none focus:border-brand-600"
             />
             <button
               type="button"
@@ -117,7 +119,8 @@ export default function InputPassword({
                 name="confirm-password"
                 placeholder="Confirm password"
                 onChange={handleChange2}
-                className="w-full px-3.5 py-2 pr-11 border border-grey-50 rounded-lg text-body-md placeholder:text-grey-300 focus:outline-none focus:border-brand-600"
+                autoComplete="new-password"
+                className="w-full px-3.5 py-2 pr-11 border border-grey-50 rounded-lg text-body-md focus:outline-none focus:border-brand-600"
               />
               <button
                 type="button"
@@ -161,12 +164,12 @@ export default function InputPassword({
         </form>
         <p className="text-body-md text-grey-500">
           Need to request another mail?{" "}
-          <a
-            href="/reset-password"
+          <Link
+            to="/reset-password"
             className="font-semibold text-brand-600 hover:text-brand-700"
           >
             Request email
-          </a>
+          </Link>
         </p>
       </div>
     </div>

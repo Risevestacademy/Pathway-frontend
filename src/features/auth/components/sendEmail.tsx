@@ -49,7 +49,7 @@ export default function SendEmailComponent({
 
   return (
     <div className="w-93.75 flex flex-col items-center text-center font-display animate-in fade-in slide-in-from-bottom-3 duration-500 ease-out motion-reduce:animate-none">
-      <img alt="key icon" src={keyIcon} />
+      <img alt="" src={keyIcon} />
       <div className="flex flex-col gap-2 pt-4 pb-7">
         <h1 className="text-heading">Reset Password</h1>
         <p className="text-body-md text-grey-500">
@@ -71,7 +71,7 @@ export default function SendEmailComponent({
               onChange={handleChange}
               value={email}
               className={cn(
-                "px-3.5 py-2 border border-grey-50 rounded-lg text-body-md placeholder:text-grey-300 focus:outline-none focus:border-brand-600",
+                "px-3.5 py-2 border border-grey-50 rounded-lg text-body-md focus:outline-none focus:border-brand-600",
                 error && "border-danger-600",
               )}
             />
