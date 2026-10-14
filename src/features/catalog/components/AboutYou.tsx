@@ -49,7 +49,7 @@ export default function AboutYou() {
   };
 
   const next = () => {
-    navigate({ to: "/careers" });
+    navigate({ to: "/careers/onboarding/goals" });
   };
 
   return (
