@@ -93,17 +93,17 @@ export default function InputPassword({
             <input
               type={showPassword ? "text" : "password"}
               name="password"
+              aria-label="Password"
               placeholder="Password"
               onChange={handleChange1}
               autoComplete="new-password"
-              className="w-full px-3.5 py-2 pr-11 border border-grey-50 rounded-lg text-body-md focus:outline-none focus:border-brand-600"
+              className="w-full px-3.5 py-2 pr-11 border border-grey-50 rounded-lg text-body-md placeholder:text-ink-muted focus:outline-none focus:border-brand-600"
             />
             <button
               type="button"
               aria-label={showPassword ? "Hide password" : "Show password"}
-              aria-pressed={showPassword}
               onClick={() => setShowPassword((visible) => !visible)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-grey-500 hover:text-grey-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 rounded"
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-grey-500 hover:text-grey-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 rounded"
             >
               {showPassword ? (
                 <EyeOff size={20} aria-hidden="true" />
@@ -117,10 +117,11 @@ export default function InputPassword({
               <input
                 type={showConfirmation ? "text" : "password"}
                 name="confirm-password"
+                aria-label="Confirm password"
                 placeholder="Confirm password"
                 onChange={handleChange2}
                 autoComplete="new-password"
-                className="w-full px-3.5 py-2 pr-11 border border-grey-50 rounded-lg text-body-md focus:outline-none focus:border-brand-600"
+                className="w-full px-3.5 py-2 pr-11 border border-grey-50 rounded-lg text-body-md placeholder:text-ink-muted focus:outline-none focus:border-brand-600"
               />
               <button
                 type="button"
@@ -129,9 +130,8 @@ export default function InputPassword({
                     ? "Hide confirmed password"
                     : "Show confirmed password"
                 }
-                aria-pressed={showConfirmation}
                 onClick={() => setShowConfirmation((visible) => !visible)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-grey-500 hover:text-grey-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 rounded"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-grey-500 hover:text-grey-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 rounded"
               >
                 {showConfirmation ? (
                   <EyeOff size={20} aria-hidden="true" />

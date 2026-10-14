@@ -14,7 +14,12 @@ export default function EmailSentComponent({
   setEmail: (email: string) => void;
   email: string;
 }) {
-  const { mutate: resetPassword, isPending } = useResetPassword();
+  const {
+    mutate: resetPassword,
+    isError,
+    isPending,
+    isSuccess,
+  } = useResetPassword();
 
   return (
     <div className="w-93.75 flex flex-col gap-6 items-center text-center font-display animate-in fade-in slide-in-from-bottom-3 duration-500 ease-out motion-reduce:animate-none">
@@ -27,18 +32,17 @@ export default function EmailSentComponent({
         <p className="text-body-lg text-2xl text-grey-900 underline decoration-dotted decoration-grey-300 underline-offset-[11%]">
           {email.toLowerCase()}{" "}
         </p>
-        <a
-          href=""
+        <button
+          type="button"
           className="flex gap-0.5 items-center text-brand-600 hover:text-brand-700"
-          onClick={(e) => {
-            e.preventDefault();
+          onClick={() => {
             setEmail("");
             setIsEmailSent(false);
           }}
         >
           <img alt="" src={repeatIcon} />
           <span>Change email address</span>
-        </a>
+        </button>
       </div>
       <Button
         type="button"
@@ -52,13 +56,11 @@ export default function EmailSentComponent({
 
       <p className="text-body-md text-grey-500">
         Haven't received a mail?{" "}
-        <a
-          href=""
-          aria-disabled={isPending}
-          className="font-semibold text-brand-600 hover:text-brand-700"
-          onClick={(e) => {
-            e.preventDefault();
-            if (isPending) return;
+        <button
+          type="button"
+          disabled={isPending}
+          className="font-semibold text-brand-600 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-70"
+          onClick={() => {
             resetPassword(email);
           }}
         >
@@ -70,8 +72,18 @@ export default function EmailSentComponent({
           ) : (
             "Resend email"
           )}
-        </a>
+        </button>
       </p>
+      {isSuccess && (
+        <p role="status" className="text-body-md text-brand-600">
+          Email sent again
+        </p>
+      )}
+      {isError && (
+        <p role="alert" className="text-body-md text-danger-600">
+          We couldn&apos;t resend the email. Please try again.
+        </p>
+      )}
     </div>
   );
 }

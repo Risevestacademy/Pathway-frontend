@@ -67,11 +67,13 @@ export default function SendEmailComponent({
             <input
               type="email"
               name="email"
+              aria-label="Email address"
               placeholder="Email address"
               onChange={handleChange}
               value={email}
+              autoComplete="email"
               className={cn(
-                "px-3.5 py-2 border border-grey-50 rounded-lg text-body-md focus:outline-none focus:border-brand-600",
+                "px-3.5 py-2 border border-grey-50 rounded-lg text-body-md placeholder:text-ink-muted focus:outline-none focus:border-brand-600",
                 error && "border-danger-600",
               )}
             />
