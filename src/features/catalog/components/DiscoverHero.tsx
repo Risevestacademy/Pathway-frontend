@@ -13,7 +13,7 @@ export function DiscoverHero({ pathwayCount }: DiscoverHeroProps) {
       className="
         relative overflow-hidden rounded-2xl border border-line
         bg-linear-to-r from-surface from-45% to-brand-100
-        p-6 sm:p-10 lg:px-14 lg:py-14
+        p-6 sm:p-10
       "
     >
       <img
@@ -38,7 +38,7 @@ export function DiscoverHero({ pathwayCount }: DiscoverHeroProps) {
         </p>
 
         {pathwayCount !== null && (
-          <dl className="mt-8">
+          <dl className="mt-6">
             <dt className="text-body-md text-ink-muted">Pathways</dt>
             <dd className="mt-1 font-display text-2xl text-ink">
               {pathwayCount === undefined ? (

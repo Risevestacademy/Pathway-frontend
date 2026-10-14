@@ -34,7 +34,7 @@ export default function AppShell({ children, variant = "slim" }: AppShellProps) 
             "lg:sticky lg:top-0 lg:h-svh lg:flex-col",
             isWide
               ? "lg:w-sidebar lg:items-start lg:justify-between lg:px-6 lg:pt-10 lg:pb-8"
-              : "lg:w-sidebar-slim lg:items-center lg:px-0 lg:pt-13",
+              : "lg:w-sidebar-slim lg:items-center lg:px-0 lg:pt-10",
           )}
         >
           {showIllustration && (
@@ -66,7 +66,7 @@ export default function AppShell({ children, variant = "slim" }: AppShellProps) 
             />
             {!isWide && (
               <img
-                className="hidden size-8 lg:block"
+                className="hidden size-6 lg:block"
                 src={logoMark}
                 alt="Pathway"
               />

@@ -6,50 +6,90 @@ import { Button } from "../../../components/ui/Button";
 import { Card } from "../../../components/ui/Card";
 import { Skeleton } from "../../../components/ui/Skeleton";
 import { StateMessage } from "../../../components/ui/StateMessage";
-import { CAREER_LEVELS } from "../../../types/career.types";
-import { toApiLevel, type CareerListItem } from "../catalog.types";
+import { CAREER_LEVELS, type CareerLevel } from "../../../types/career.types";
+import { NO_INTEREST, type CareerListItem } from "../catalog.types";
+import {
+  getCatalogueFilters,
+  getCatalogueTabs,
+  resolveView,
+  type CatalogueView,
+} from "../catalog.utils";
 import { useSession } from "../../../lib/stores/session";
 import { useCareers } from "../hooks/useCareers";
 import { useFields } from "../hooks/useFields";
-import { CatalogueTabs, type CatalogueTab } from "./CatalogueTabs";
+import { CatalogueEmptyState } from "./CatalogueEmptyState";
+import { CatalogueTabs } from "./CatalogueTabs";
 import { DiscoverHero } from "./DiscoverHero";
-
-type View = "recommended" | "level" | "all";
+import { FilterSelect } from "./FilterSelect";
 
 export default function Catalogue() {
-  const { level, interest } = useSession();
+  const { level, interest, setLevel, setInterest } = useSession();
   const levelLabel = CAREER_LEVELS.find((l) => l.id === level)?.label;
 
-  const tabs = [
-    interest && { id: "recommended", label: "Recommended" },
-    levelLabel && { id: "level", label: levelLabel },
-    { id: "all", label: "All" },
-  ].filter(Boolean) as CatalogueTab<View>[];
+  const tabs = getCatalogueTabs(levelLabel, interest !== null);
+  const [selectedView, setSelectedView] = useState<CatalogueView>(tabs[0].id);
+  const view = resolveView(selectedView, tabs);
 
-  const [view, setView] = useState<View>(tabs[0].id);
-
-  const { data, isPending, isError, isPlaceholderData, refetch } = useCareers({
-    level: view === "all" ? undefined : toApiLevel(level),
-    interest: view === "recommended" ? (interest ?? undefined) : undefined,
-  });
+  const { data, isPending, isError, isPlaceholderData, refetch } = useCareers(
+    getCatalogueFilters(view, level, interest),
+  );
+  // Same query as the "All" view, so it's shared from cache.
   const allCareers = useCareers({});
-  const { data: fields } = useFields();
+  const fields = useFields();
 
-  const interestLabel = fields?.find((f) => f.slug === interest)?.name ?? interest;
+  const interestLabel =
+    fields.data?.find((f) => f.slug === interest)?.name ?? interest;
+
+  // Changing a filter jumps to the most specific view it now affects.
+  const changeLevel = (next: string) => {
+    setLevel(next as CareerLevel);
+    setSelectedView(interest ? "recommended" : "level");
+  };
+  const changeInterest = (next: string) => {
+    const nextInterest = next === NO_INTEREST ? null : next;
+    setInterest(nextInterest);
+    setSelectedView(nextInterest ? "recommended" : "level");
+  };
 
   return (
-    <main className="flex flex-1 flex-col px-page-mobile py-6 sm:px-page-tablet lg:px-10 lg:py-10">
+    <main className="flex flex-1 flex-col px-page-mobile py-6 sm:px-page-tablet lg:p-8">
       <DiscoverHero
         pathwayCount={allCareers.isError ? null : allCareers.data?.length}
       />
 
-      {tabs.length > 1 && (
-        <div className="mt-8">
-          <CatalogueTabs tabs={tabs} value={view} onChange={setView} />
-        </div>
-      )}
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+        <CatalogueTabs tabs={tabs} value={view} onChange={setSelectedView} />
 
-      <div className="mt-8">
+        <div
+          role="group"
+          aria-label="Change your filters"
+          className="flex flex-wrap items-center gap-2"
+        >
+          <FilterSelect
+            label="Level"
+            placeholder="Choose"
+            value={level ?? ""}
+            onValueChange={changeLevel}
+            options={CAREER_LEVELS.map((l) => ({ value: l.id, label: l.label }))}
+          />
+          <FilterSelect
+            label="Interest"
+            placeholder="Any field"
+            value={interest ?? ""}
+            onValueChange={changeInterest}
+            disabled={!fields.data}
+            options={[
+              { value: NO_INTEREST, label: "Any field" },
+              ...(fields.data ?? []).map((f) => ({
+                value: f.slug,
+                label: f.name,
+              })),
+            ]}
+          />
+        </div>
+      </div>
+
+      <div className="mt-6">
         {isPending ? (
           <LoadingGrid />
         ) : isError ? (
@@ -67,13 +107,16 @@ export default function Catalogue() {
               isPlaceholderData && "pointer-events-none opacity-60",
             )}
           >
-            <Results
-              careers={data}
-              view={view}
-              interestLabel={interestLabel}
-              levelLabel={levelLabel}
-              showAll={() => setView("all")}
-            />
+            {data.length === 0 ? (
+              <CatalogueEmptyState
+                view={view}
+                interestLabel={interestLabel}
+                levelLabel={levelLabel}
+                onShowAll={() => setSelectedView("all")}
+              />
+            ) : (
+              <CareerGrid careers={data} />
+            )}
           </div>
         )}
       </div>
@@ -81,65 +124,13 @@ export default function Catalogue() {
   );
 }
 
-interface ResultsProps {
-  careers: CareerListItem[];
-  view: View;
-  interestLabel: string | null;
-  levelLabel?: string;
-  showAll: () => void;
-}
-
-function Results({
-  careers,
-  view,
-  interestLabel,
-  levelLabel,
-  showAll,
-}: ResultsProps) {
-  if (careers.length === 0) {
-    const seeAll = <Button onClick={showAll}>See all careers</Button>;
-
-    if (view === "recommended") {
-      return (
-        <StateMessage
-          kind="no-match"
-          title="No careers match your interest yet"
-          body={
-            levelLabel
-              ? `We don’t have ${interestLabel} careers for ${levelLabel.toLowerCase()}s yet. See all careers to browse the full catalogue.`
-              : `We don’t have ${interestLabel} careers yet. See all careers to browse the full catalogue.`
-          }
-          action={seeAll}
-        />
-      );
-    }
-
-    if (view === "level" && levelLabel) {
-      return (
-        <StateMessage
-          kind="no-match"
-          title={`No careers for ${levelLabel.toLowerCase()}s yet`}
-          body="We're adding careers to the catalogue regularly. See all careers to browse the full catalogue."
-          action={seeAll}
-        />
-      );
-    }
-
-    return (
-      <StateMessage
-        kind="empty"
-        title="No careers available yet"
-        body="We're adding careers to the catalogue. Check back soon."
-      />
-    );
-  }
-
+function CareerGrid({ careers }: { careers: CareerListItem[] }) {
   return (
     <>
       <p className="sr-only" aria-live="polite">
         {careers.length} {careers.length === 1 ? "career" : "careers"}
       </p>
-      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
         {careers.map((c) => (
           <li key={c.id}>
             <CareerCard career={c} />
@@ -157,7 +148,7 @@ function CareerCard({ career }: { career: CareerListItem }) {
       params={{ careerId: career.id }}
       className="group block h-full cursor-pointer rounded-lg focus-ring focus-visible:ring-offset-2"
     >
-      <Card className="flex h-full flex-col p-6 transition-shadow group-hover:shadow-raised motion-reduce:transition-none lg:p-8">
+      <Card className="flex h-full flex-col p-6 transition-shadow group-hover:shadow-raised motion-reduce:transition-none">
         <h2 className="font-display text-body-lg-bold text-ink">{career.title}</h2>
         <p className="mt-2 flex-1 text-body-md text-ink-muted">
           {career.shortDescription}
@@ -178,10 +169,10 @@ function CareerCard({ career }: { career: CareerListItem }) {
 function LoadingGrid() {
   return (
     <div role="status" aria-label="Loading careers">
-      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }, (_, i) => (
           <li key={i}>
-            <Card className="p-6 lg:p-8">
+            <Card className="p-6">
               <Skeleton className="h-5 w-2/3" />
               <Skeleton className="mt-4 h-4 w-full" />
               <Skeleton className="mt-2 h-4 w-4/5" />
