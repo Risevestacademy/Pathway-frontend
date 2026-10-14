@@ -34,3 +34,6 @@ const LEVEL_TO_API: Record<CareerLevel, ApiTargetLevel> = {
 export function toApiLevel(level: CareerLevel | null): ApiTargetLevel | undefined {
   return level ? LEVEL_TO_API[level] : undefined;
 }
+
+/** Select value for "no interest", since Radix Select can't use an empty value. */
+export const NO_INTEREST = "none";

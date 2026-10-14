@@ -11,8 +11,6 @@ interface SessionState {
   setSkills: (skills: string[]) => void;
   setInterest: (interest: string | null) => void;
   clearOptional: () => void;
-  /** Drops level and interest so the full catalogue shows. */
-  clearFilters: () => void;
 }
 
 export const useSession = create<SessionState>()(
@@ -25,7 +23,6 @@ export const useSession = create<SessionState>()(
       setSkills: (skills) => set({ skills }),
       setInterest: (interest) => set({ interest }),
       clearOptional: () => set({ skills: [], interest: null }),
-      clearFilters: () => set({ level: null, interest: null }),
     }),
     {
       name: "pathway-onboarding-session",
@@ -39,6 +36,3 @@ export const useSession = create<SessionState>()(
     },
   ),
 );
-
-export const hasActiveFilter = (state: Pick<SessionState, "interest">) =>
-  state.interest !== null;

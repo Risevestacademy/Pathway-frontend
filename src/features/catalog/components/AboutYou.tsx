@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/Button";
 import { useSession } from "@/lib/stores/session";
+import { NO_INTEREST } from "../catalog.types";
 import { useFields } from "../hooks/useFields";
 import { HelperText } from "./HelperText";
 import { OnboardingLayout, StepDots, StepHeader } from "./OnboardingLayout";
@@ -87,7 +88,6 @@ const SKILL_OPTIONS = [
   "Communication",
 ];
 const MAX_SKILLS = 5;
-const NO_INTEREST = "none";
 const LABEL_CLASS = "text-body-lg-bold text-ink";
 
 const toOptions = (items: string[]) =>
