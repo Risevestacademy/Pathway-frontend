@@ -44,12 +44,15 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    const isRefreshCall = originalRequest?.url === "/auth/refresh";
+    const isAuthRequest =
+      originalRequest?.url === "/auth/refresh" ||
+      originalRequest?.url === "/auth/login" ||
+      originalRequest?.url === "/auth/register";
     if (
       !originalRequest ||
       error.response?.status !== 401 ||
       originalRequest._retry ||
-      isRefreshCall
+      isAuthRequest
     ) {
       return Promise.reject(error);
     }

@@ -1,9 +1,17 @@
 import { api, refreshAccessToken } from "./axios";
-import { useAuthStore } from "../stores/authStore";
+import {
+  selectIsAuthenticated,
+  useAuthStore,
+} from "../stores/authStore";
+import { isAxiosError } from "axios";
 
 export interface RegisterCredentials {
   email: string;
   password: string;
+}
+
+export interface SignupCredentials extends RegisterCredentials {
+  fullName: string;
 }
 
 export interface AuthUser {
@@ -32,8 +40,35 @@ export class InvalidCredentialsError extends Error {
   }
 }
 
+function getAuthRequestError(error: unknown, fallbackMessage: string): Error {
+  if (!isAxiosError(error)) {
+    return new Error(fallbackMessage);
+  }
+
+  switch (error.response?.status) {
+    case 400:
+      return new Error("Please check your details and try again.");
+    case 401:
+      return new InvalidCredentialsError();
+    case 409:
+      return new EmailAlreadyRegisteredError();
+    case 429:
+      return new Error("Too many attempts. Please wait a moment and try again.");
+    case 500:
+    case 502:
+    case 503:
+      return new Error("Something went wrong on our side. Please try again.");
+    default:
+      return new Error(
+        error.response
+          ? "We couldn't complete your request. Please try again."
+          : "We couldn't reach the server. Check your connection and try again.",
+      );
+  }
+}
+
 export async function registerUser(
-  credentials: RegisterCredentials,
+  credentials: SignupCredentials,
 ): Promise<RegisterResponse> {
   try {
     const { data } = await api.post<RegisterResponse | { data: RegisterResponse }>(
@@ -43,19 +78,7 @@ export async function registerUser(
 
     return "data" in data ? data.data : data;
   } catch (error) {
-    if (
-      error &&
-      typeof error === "object" &&
-      "response" in error &&
-      error.response &&
-      typeof error.response === "object" &&
-      "status" in error.response &&
-      error.response.status === 409
-    ) {
-      throw new EmailAlreadyRegisteredError();
-    }
-
-    throw error;
+    throw getAuthRequestError(error, "We couldn't create your account. Please try again.");
   }
 }
 
@@ -70,25 +93,32 @@ export async function loginUser(
 
     return "data" in data ? data.data : data;
   } catch (error) {
-    if (
-      error &&
-      typeof error === "object" &&
-      "response" in error &&
-      error.response &&
-      typeof error.response === "object" &&
-      "status" in error.response &&
-      error.response.status === 401
-    ) {
-      throw new InvalidCredentialsError();
-    }
+    throw getAuthRequestError(error, "We couldn't log you in. Please try again.");
+  }
+}
 
-    throw error;
+export async function loginWithGoogle(idToken: string): Promise<RegisterResponse> {
+  try {
+    const { data } = await api.post<
+      RegisterResponse | { data: RegisterResponse }
+    >("/auth/google", { idToken });
+
+    return "data" in data ? data.data : data;
+  } catch (error) {
+    throw getAuthRequestError(
+      error,
+      "We couldn't sign you in with Google. Please try again.",
+    );
   }
 }
 
 let hydrationPromise: Promise<void> | null = null;
 
 export function ensureAuthHydrated(): Promise<void> {
+  if (selectIsAuthenticated(useAuthStore.getState())) {
+    return Promise.resolve();
+  }
+
   if (hydrationPromise) {
     return hydrationPromise;
   }

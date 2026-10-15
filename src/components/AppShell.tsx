@@ -4,7 +4,7 @@ import deskSupplies from "../assets/images/desk-supplies.png";
 
 const logo = "/brand-logo-lavender.svg";
 
-const PLAIN_SIDEBAR_ROUTES = ["/careers/onboarding", "/login", "/signup"];
+const PLAIN_SIDEBAR_ROUTES = ["/careers/onboarding"];
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -24,7 +24,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
       <div
         className={
           isAuthRoute
-            ? "flex h-full w-full max-w-[2560px] overflow-hidden bg-brand-50 shadow-2xl border-x border-grey-100 lg:flex-row"
+            ? "flex h-full w-full max-w-[2560px] flex-col overflow-hidden bg-brand-50 shadow-2xl border-x border-grey-100 lg:flex-row"
             : "flex w-full max-w-[2560px] flex-col bg-brand-50 shadow-2xl border-x border-grey-100 lg:flex-row"
         }
       >
