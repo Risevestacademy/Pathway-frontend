@@ -42,6 +42,8 @@ const authLoginRoute = authLoginRouteImport.update({
 const authSignupRoute = authSignupRouteImport.update({
   id: '/(auth)/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const authResetPasswordRoute = authResetPasswordRouteImport.update({
   id: '/(auth)/reset-password',
   path: '/reset-password',
@@ -243,10 +245,12 @@ declare module '@tanstack/react-router' {
       parentRoute: typeof rootRouteImport
     }
     '/(auth)/signup': {
-      id: '/(auth)/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof authSignupRouteImport
+  id: '/(auth)/signup',
+  path: '/signup',
+  fullPath: '/signup',
+  preLoaderRoute: typeof authSignupRouteImport,
+  parentRoute: typeof rootRouteImport,
+},
     '/(auth)/reset-password': {
       id: '/(auth)/reset-password'
       path: '/reset-password'
@@ -373,3 +377,4 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
