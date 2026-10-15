@@ -7,6 +7,7 @@ import { loginWithGoogle } from "../../lib/api/auth.api";
 import { useAuthStore } from "../../lib/stores/authStore";
 
 export const Route = createFileRoute("/(auth)/login")({
+  staticData: { shellVariant: "wide" },
   validateSearch: loginSearchSchema,
   component: RouteComponent,
 });

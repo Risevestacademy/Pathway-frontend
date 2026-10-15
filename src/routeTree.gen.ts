@@ -13,11 +13,14 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as authSignupRouteImport } from './routes/(auth)/signup'
+import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-password'
 import { Route as ProtectedProgressRouteImport } from './routes/_protected/progress'
 import { Route as CareersIndexRouteImport } from './routes/careers/index'
+import { Route as authResetPasswordResetRouteImport } from './routes/(auth)/reset-password_.reset'
 import { Route as CareersCareerIdIndexRouteImport } from './routes/careers/$careerId/index'
 import { Route as CareersOnboardingIndexRouteImport } from './routes/careers/onboarding/index'
 import { Route as CareersOnboardingAboutRouteImport } from './routes/careers/onboarding/about'
+import { Route as CareersOnboardingGoalsRouteImport } from './routes/careers/onboarding/goals'
 import { Route as CareersCareerIdRoadmapIndexRouteImport } from './routes/careers/$careerId/roadmap/index'
 import { Route as CareersCareerIdRoadmapStepIdRouteImport } from './routes/careers/$careerId/roadmap/$stepId'
 import { Route as CareersCareerIdRoadmapStepIdResourcesRouteImport } from './routes/careers/$careerId/roadmap/$stepId/resources'
@@ -39,6 +42,9 @@ const authLoginRoute = authLoginRouteImport.update({
 const authSignupRoute = authSignupRouteImport.update({
   id: '/(auth)/signup',
   path: '/signup',
+const authResetPasswordRoute = authResetPasswordRouteImport.update({
+  id: '/(auth)/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProtectedProgressRoute = ProtectedProgressRouteImport.update({
@@ -49,6 +55,11 @@ const ProtectedProgressRoute = ProtectedProgressRouteImport.update({
 const CareersIndexRoute = CareersIndexRouteImport.update({
   id: '/careers/',
   path: '/careers/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authResetPasswordResetRoute = authResetPasswordResetRouteImport.update({
+  id: '/(auth)/reset-password_/reset',
+  path: '/reset-password/reset',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CareersCareerIdIndexRoute = CareersCareerIdIndexRouteImport.update({
@@ -64,6 +75,11 @@ const CareersOnboardingIndexRoute = CareersOnboardingIndexRouteImport.update({
 const CareersOnboardingAboutRoute = CareersOnboardingAboutRouteImport.update({
   id: '/careers/onboarding/about',
   path: '/careers/onboarding/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareersOnboardingGoalsRoute = CareersOnboardingGoalsRouteImport.update({
+  id: '/careers/onboarding/goals',
+  path: '/careers/onboarding/goals',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CareersCareerIdRoadmapIndexRoute =
@@ -89,9 +105,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof authLoginRoute
   '/signup': typeof authSignupRoute
+  '/reset-password': typeof authResetPasswordRoute
   '/progress': typeof ProtectedProgressRoute
   '/careers/': typeof CareersIndexRoute
+  '/reset-password/reset': typeof authResetPasswordResetRoute
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
+  '/careers/onboarding/goals': typeof CareersOnboardingGoalsRoute
   '/careers/$careerId/': typeof CareersCareerIdIndexRoute
   '/careers/onboarding/': typeof CareersOnboardingIndexRoute
   '/careers/$careerId/roadmap/$stepId': typeof CareersCareerIdRoadmapStepIdRouteWithChildren
@@ -102,9 +121,12 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof authLoginRoute
   '/signup': typeof authSignupRoute
+  '/reset-password': typeof authResetPasswordRoute
   '/progress': typeof ProtectedProgressRoute
   '/careers': typeof CareersIndexRoute
+  '/reset-password/reset': typeof authResetPasswordResetRoute
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
+  '/careers/onboarding/goals': typeof CareersOnboardingGoalsRoute
   '/careers/$careerId': typeof CareersCareerIdIndexRoute
   '/careers/onboarding': typeof CareersOnboardingIndexRoute
   '/careers/$careerId/roadmap/$stepId': typeof CareersCareerIdRoadmapStepIdRouteWithChildren
@@ -117,9 +139,12 @@ export interface FileRoutesById {
   '/_protected': typeof ProtectedRouteWithChildren
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/signup': typeof authSignupRoute
+  '/(auth)/reset-password': typeof authResetPasswordRoute
   '/_protected/progress': typeof ProtectedProgressRoute
   '/careers/': typeof CareersIndexRoute
+  '/(auth)/reset-password_/reset': typeof authResetPasswordResetRoute
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
+  '/careers/onboarding/goals': typeof CareersOnboardingGoalsRoute
   '/careers/$careerId/': typeof CareersCareerIdIndexRoute
   '/careers/onboarding/': typeof CareersOnboardingIndexRoute
   '/careers/$careerId/roadmap/$stepId': typeof CareersCareerIdRoadmapStepIdRouteWithChildren
@@ -132,9 +157,12 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/signup'
+    | '/reset-password'
     | '/progress'
     | '/careers/'
+    | '/reset-password/reset'
     | '/careers/onboarding/about'
+    | '/careers/onboarding/goals'
     | '/careers/$careerId/'
     | '/careers/onboarding/'
     | '/careers/$careerId/roadmap/$stepId'
@@ -145,9 +173,12 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/signup'
+    | '/reset-password'
     | '/progress'
     | '/careers'
+    | '/reset-password/reset'
     | '/careers/onboarding/about'
+    | '/careers/onboarding/goals'
     | '/careers/$careerId'
     | '/careers/onboarding'
     | '/careers/$careerId/roadmap/$stepId'
@@ -159,9 +190,12 @@ export interface FileRouteTypes {
     | '/_protected'
     | '/(auth)/login'
     | '/(auth)/signup'
+    | '/(auth)/reset-password'
     | '/_protected/progress'
     | '/careers/'
+    | '/(auth)/reset-password_/reset'
     | '/careers/onboarding/about'
+    | '/careers/onboarding/goals'
     | '/careers/$careerId/'
     | '/careers/onboarding/'
     | '/careers/$careerId/roadmap/$stepId'
@@ -174,8 +208,11 @@ export interface RootRouteChildren {
   ProtectedRoute: typeof ProtectedRouteWithChildren
   authLoginRoute: typeof authLoginRoute
   authSignupRoute: typeof authSignupRoute
+  authResetPasswordRoute: typeof authResetPasswordRoute
   CareersIndexRoute: typeof CareersIndexRoute
+  authResetPasswordResetRoute: typeof authResetPasswordResetRoute
   CareersOnboardingAboutRoute: typeof CareersOnboardingAboutRoute
+  CareersOnboardingGoalsRoute: typeof CareersOnboardingGoalsRoute
   CareersCareerIdIndexRoute: typeof CareersCareerIdIndexRoute
   CareersOnboardingIndexRoute: typeof CareersOnboardingIndexRoute
   CareersCareerIdRoadmapStepIdRoute: typeof CareersCareerIdRoadmapStepIdRouteWithChildren
@@ -210,6 +247,11 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof authSignupRouteImport
+    '/(auth)/reset-password': {
+      id: '/(auth)/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof authResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_protected/progress': {
@@ -224,6 +266,13 @@ declare module '@tanstack/react-router' {
       path: '/careers'
       fullPath: '/careers/'
       preLoaderRoute: typeof CareersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/reset-password_/reset': {
+      id: '/(auth)/reset-password_/reset'
+      path: '/reset-password/reset'
+      fullPath: '/reset-password/reset'
+      preLoaderRoute: typeof authResetPasswordResetRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/careers/$careerId/': {
@@ -245,6 +294,13 @@ declare module '@tanstack/react-router' {
       path: '/careers/onboarding/about'
       fullPath: '/careers/onboarding/about'
       preLoaderRoute: typeof CareersOnboardingAboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers/onboarding/goals': {
+      id: '/careers/onboarding/goals'
+      path: '/careers/onboarding/goals'
+      fullPath: '/careers/onboarding/goals'
+      preLoaderRoute: typeof CareersOnboardingGoalsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/careers/$careerId/roadmap/': {
@@ -303,8 +359,11 @@ const rootRouteChildren: RootRouteChildren = {
   ProtectedRoute: ProtectedRouteWithChildren,
   authLoginRoute: authLoginRoute,
   authSignupRoute: authSignupRoute,
+  authResetPasswordRoute: authResetPasswordRoute,
   CareersIndexRoute: CareersIndexRoute,
+  authResetPasswordResetRoute: authResetPasswordResetRoute,
   CareersOnboardingAboutRoute: CareersOnboardingAboutRoute,
+  CareersOnboardingGoalsRoute: CareersOnboardingGoalsRoute,
   CareersCareerIdIndexRoute: CareersCareerIdIndexRoute,
   CareersOnboardingIndexRoute: CareersOnboardingIndexRoute,
   CareersCareerIdRoadmapStepIdRoute:

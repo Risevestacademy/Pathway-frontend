@@ -4,6 +4,8 @@ import {
   useAuthStore,
 } from "../stores/authStore";
 import { isAxiosError } from "axios";
+import axios from "axios";
+
 
 export interface RegisterCredentials {
   email: string;
@@ -114,6 +116,16 @@ export async function loginWithGoogle(idToken: string): Promise<RegisterResponse
 
 let hydrationPromise: Promise<void> | null = null;
 
+export class PasswordResetError extends Error {
+  readonly messages: string[];
+
+  constructor(messages: string[], cause: unknown) {
+    super(messages.join(", "), { cause });
+    this.name = "PasswordResetError";
+    this.messages = messages;
+  }
+}
+
 export function ensureAuthHydrated(): Promise<void> {
   if (selectIsAuthenticated(useAuthStore.getState())) {
     return Promise.resolve();
@@ -139,5 +151,41 @@ async function hydrateAuth(): Promise<void> {
     hydrationPromise = null;
   } finally {
     useAuthStore.getState().finishHydrating();
+  }
+}
+
+export async function passwordResetRequest(email: string): Promise<void> {
+  await api.post("/auth/password-reset/request", {
+    email,
+  });
+}
+
+export async function passwordResetConfirm(
+  newPassword: string,
+  token: string,
+): Promise<void> {
+  try {
+    await api.post("/auth/password-reset/confirm", {
+      newPassword,
+      token,
+    });
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.data?.error === "VALIDATION_ERROR") {
+        const messages = Object.values(
+          error.response?.data?.fields ?? {},
+        ).filter((message): message is string => typeof message === "string");
+        throw new PasswordResetError(
+          messages.length > 0 ? messages : ["Failed to reset password"],
+          error,
+        );
+      } else {
+        throw new PasswordResetError(
+          [error.response?.data?.message || "Failed to reset password"],
+          error,
+        );
+      }
+    }
+    throw error;
   }
 }
