@@ -8,6 +8,8 @@ import { useNavigate, Link } from "@tanstack/react-router";
 import Detail from "@/features/careerDetail/components/detail";
 import DetailSkeleton from "@/features/careerDetail/components/detailSkeleton";
 import { useCareer } from "@/features/careerDetail/hooks/useCareer";
+// import { DiscoverHero } from "@/features/catalog/components/DiscoverHero";
+import { DetailHero } from "@/features/careerDetail/components/detailHero";
 
 export const Route = createFileRoute("/careers/$careerId/")({
   pendingComponent: DetailSkeleton,
@@ -64,6 +66,8 @@ function CareerDetailRoute() {
         <ChevronLeft className="size-4" aria-hidden />
         All Careers
       </Link>
+
+      <DetailHero career={result} />
 
       <Detail career={result} />
     </CareerDetailPage>

@@ -9,7 +9,7 @@ export default function CareerDetailPage({
     <main className="flex flex-1 flex-col">
       <div
         className="
-          mx-auto w-full max-w-3xl
+          mx-auto w-full md:px-8
           px-page-mobile pt-6 pb-16
           sm:px-page-tablet
           lg:pt-10
