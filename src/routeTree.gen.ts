@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as authSignupRouteImport } from './routes/(auth)/signup'
 import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-password'
 import { Route as ProtectedProgressRouteImport } from './routes/_protected/progress'
 import { Route as CareersIndexRouteImport } from './routes/careers/index'
@@ -36,6 +37,11 @@ const ProtectedRoute = ProtectedRouteImport.update({
 const authLoginRoute = authLoginRouteImport.update({
   id: '/(auth)/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authSignupRoute = authSignupRouteImport.update({
+  id: '/(auth)/signup',
+  path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const authResetPasswordRoute = authResetPasswordRouteImport.update({
@@ -100,6 +106,7 @@ const CareersCareerIdRoadmapStepIdResourcesRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof authLoginRoute
+  '/signup': typeof authSignupRoute
   '/reset-password': typeof authResetPasswordRoute
   '/progress': typeof ProtectedProgressRoute
   '/careers/': typeof CareersIndexRoute
@@ -115,6 +122,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof authLoginRoute
+  '/signup': typeof authSignupRoute
   '/reset-password': typeof authResetPasswordRoute
   '/progress': typeof ProtectedProgressRoute
   '/careers': typeof CareersIndexRoute
@@ -132,6 +140,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_protected': typeof ProtectedRouteWithChildren
   '/(auth)/login': typeof authLoginRoute
+  '/(auth)/signup': typeof authSignupRoute
   '/(auth)/reset-password': typeof authResetPasswordRoute
   '/_protected/progress': typeof ProtectedProgressRoute
   '/careers/': typeof CareersIndexRoute
@@ -149,6 +158,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/signup'
     | '/reset-password'
     | '/progress'
     | '/careers/'
@@ -164,6 +174,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/signup'
     | '/reset-password'
     | '/progress'
     | '/careers'
@@ -180,6 +191,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_protected'
     | '/(auth)/login'
+    | '/(auth)/signup'
     | '/(auth)/reset-password'
     | '/_protected/progress'
     | '/careers/'
@@ -197,6 +209,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ProtectedRoute: typeof ProtectedRouteWithChildren
   authLoginRoute: typeof authLoginRoute
+  authSignupRoute: typeof authSignupRoute
   authResetPasswordRoute: typeof authResetPasswordRoute
   CareersIndexRoute: typeof CareersIndexRoute
   authResetPasswordResetRoute: typeof authResetPasswordResetRoute
@@ -231,6 +244,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(auth)/signup': {
+  id: '/(auth)/signup',
+  path: '/signup',
+  fullPath: '/signup',
+  preLoaderRoute: typeof authSignupRouteImport,
+  parentRoute: typeof rootRouteImport,
+},
     '/(auth)/reset-password': {
       id: '/(auth)/reset-password'
       path: '/reset-password'
@@ -342,6 +362,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ProtectedRoute: ProtectedRouteWithChildren,
   authLoginRoute: authLoginRoute,
+  authSignupRoute: authSignupRoute,
   authResetPasswordRoute: authResetPasswordRoute,
   CareersIndexRoute: CareersIndexRoute,
   authResetPasswordResetRoute: authResetPasswordResetRoute,
@@ -356,3 +377,4 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
