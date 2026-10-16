@@ -35,9 +35,9 @@ export default function Detail({ career }: { career: Career }) {
         </Section>
       </Card>
 
-      <Card className="p-6">
+      <section>
         {/* 3. Entry considerations */}
-        <Section className="mt-10" n={3} title="How people get into it">
+        <Section n={3} title="How people get into it">
           <dl className="grid gap-3">
             {career.entryConsiderations.map((e) => (
               <Card key={e.label} className="p-4">
@@ -47,7 +47,7 @@ export default function Detail({ career }: { career: Career }) {
             ))}
           </dl>
         </Section>
-      </Card>
+      </section>
 
       {/* 4. Linked roadmap */}
       {/* <Section n={4} title="Roadmap">
