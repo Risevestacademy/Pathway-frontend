@@ -7,6 +7,7 @@ import { getRatingsForSkill, getRatingTrend } from "../rating.utils";
 import { RATING_LABELS } from "../skillCheck.mock";
 import type { RatingValue, SkillRating } from "../skillCheck.types";
 import { RatingOption } from "./RatingOption";
+import { Tag } from "./Tag";
 
 type Choice = RatingValue | "NOT_SURE";
 
@@ -21,6 +22,7 @@ export function RateSkillsDialog({
   open,
   careerId,
   title = "Rate your skills",
+  tag,
   skills,
   onClose,
   onSaved,
@@ -28,6 +30,7 @@ export function RateSkillsDialog({
   open: boolean;
   careerId: string;
   title?: string;
+  tag?: string;
   skills: RatableSkill[];
   onClose: () => void;
   onSaved?: () => void;
@@ -40,6 +43,7 @@ export function RateSkillsDialog({
       className="max-w-140"
       description="Optional. This is your own view of your skill, not a test or a certification."
     >
+      {open && tag && <Tag tone="success" className="-mb-2 px-2 font-medium">{tag}</Tag>}
       {open && (
         <RateForm
           careerId={careerId}

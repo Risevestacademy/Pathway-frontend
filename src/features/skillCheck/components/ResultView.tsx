@@ -442,8 +442,8 @@ function SettledPanel({
             <ArrowRightRegular aria-hidden className="size-5" />
           </SkillLink>
         ) : (
-          <SkillLink to="/careers">
-            Explore careers
+          <SkillLink to="/skill-check/$careerId/roadmap" params={{ careerId: career.careerId }}>
+            Go to roadmap
             <ArrowRightRegular aria-hidden className="size-5" />
           </SkillLink>
         )}
