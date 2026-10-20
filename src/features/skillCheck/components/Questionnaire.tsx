@@ -1,7 +1,7 @@
 import { ArrowRightRegular } from "@mingcute/react/core-regular";
 import { useNavigate } from "@tanstack/react-router";
-import { useRef, useState } from "react";
-import { Button } from "../../../components/ui/Button";
+import { useState } from "react";
+import { SkillButton } from "./SkillButton";
 import {
   useCompleteSkillCheck,
   useSaveSkillCheckDraft,
@@ -43,7 +43,6 @@ export function Questionnaire({
   const [savedOpen, setSavedOpen] = useState(false);
   const save = useSaveSkillCheckDraft(career.careerId);
   const complete = useCompleteSkillCheck(career.careerId);
-  const headingRef = useRef<HTMLDivElement>(null);
 
   const areaIndex = Math.max(
     0,
@@ -73,7 +72,8 @@ export function Questionnaire({
   const goToArea = (nextAreaId: string) => {
     setAreaId(nextAreaId);
     save.mutate({ draft: answers, areaId: nextAreaId });
-    headingRef.current?.scrollIntoView({ block: "start" });
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
   };
 
   const handleContinue = async () => {
@@ -107,7 +107,7 @@ export function Questionnaire({
   return (
     <>
       <BackLink />
-      <div ref={headingRef} className="scroll-mt-6">
+      <div>
         <PageHeading
           eyebrow={`${career.name} · Area ${areaIndex + 1} of ${groups.length}`}
           title={group.area.name}
@@ -117,7 +117,10 @@ export function Questionnaire({
 
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start">
         <AreaNav groups={groups} answers={answers} activeAreaId={group.area.id} onSelect={goToArea} />
-        <div className="flex min-w-0 flex-1 flex-col gap-3">
+        <div
+          key={group.area.id}
+          className="flex min-w-0 flex-1 flex-col gap-3 animate-in fade-in duration-300 ease-out motion-reduce:animate-none"
+        >
           <ul className="overflow-hidden rounded-xl border border-grey-100 bg-surface">
             {group.skills.map((skill) => (
               <li
@@ -158,14 +161,14 @@ export function Questionnaire({
               ? "We could not finish your skill check. Your answers are still on this page."
               : "Your latest answer is not saved yet."}
           </span>
-          <Button
+          <SkillButton
             isPrimary={false}
             onClick={() =>
               complete.isError ? void handleContinue() : save.mutate({ draft: answers, areaId })
             }
           >
             Try again
-          </Button>
+          </SkillButton>
         </div>
       )}
 
@@ -178,22 +181,20 @@ export function Questionnaire({
               : ` · ${remainingInArea} left in this area`)}
         </p>
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Button
+          <SkillButton
             isPrimary={false}
-            size="lg"
             disabled={save.isPending || complete.isPending}
             onClick={() => void handleSaveAndExit()}
           >
             Save and exit
-          </Button>
-          <Button
-            size="lg"
+          </SkillButton>
+          <SkillButton
             disabled={!canAdvance || save.isPending || complete.isPending}
             onClick={() => void handleContinue()}
           >
             {isLastArea ? (complete.isPending ? "Saving result" : "See my result") : "Continue"}
             <ArrowRightRegular aria-hidden className="size-5" />
-          </Button>
+          </SkillButton>
         </div>
       </div>
 

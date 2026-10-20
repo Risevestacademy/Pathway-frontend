@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button } from "../../../components/ui/Button";
+import { SkillButton } from "./SkillButton";
 import { Modal } from "../../../components/ui/Modal";
 import { useSkillRatings } from "../hooks/useSkillCheck";
 import { useSaveSkillRating } from "../hooks/useSkillCheckActions";
@@ -37,7 +37,8 @@ export function RateSkillsDialog({
       open={open}
       onClose={onClose}
       title={title}
-      description="Optional. This is your own view, not a test. You can skip it."
+      className="max-w-140"
+      description="Optional. This is your own view of your skill, not a test or a certification."
     >
       {open && (
         <RateForm
@@ -105,15 +106,18 @@ function RateForm({
                   key={value}
                   name={name}
                   value={String(value)}
-                  label={`${value} · ${RATING_LABELS[value]}`}
+                  prefix={`${value}:`}
+                  label={RATING_LABELS[value]}
                   checked={choices[skill.id] === value}
                   onSelect={() => setChoices((prev) => ({ ...prev, [skill.id]: value }))}
                 />
               ))}
+              <div aria-hidden className="h-px bg-grey-100" />
               <RatingOption
                 name={name}
                 value="NOT_SURE"
-                label="Not sure"
+                prefix="Not sure:"
+                label="I would rather not rate this one"
                 checked={choices[skill.id] === "NOT_SURE"}
                 onSelect={() => setChoices((prev) => ({ ...prev, [skill.id]: "NOT_SURE" }))}
               />
@@ -130,16 +134,15 @@ function RateForm({
         </p>
       )}
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-        <Button isPrimary={false} size="lg" onClick={onClose} disabled={save.isPending}>
+        <SkillButton isPrimary={false} onClick={onClose} disabled={save.isPending}>
           Skip
-        </Button>
-        <Button
-          size="lg"
+        </SkillButton>
+        <SkillButton
           onClick={() => void submit()}
           disabled={chosen.length === 0 || save.isPending}
         >
           {save.isPending ? "Saving" : "Save rating"}
-        </Button>
+        </SkillButton>
       </div>
     </>
   );

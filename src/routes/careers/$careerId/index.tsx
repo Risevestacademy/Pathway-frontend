@@ -11,6 +11,7 @@ import { useCareer } from "@/features/careerDetail/hooks/useCareer";
 // import { DiscoverHero } from "@/features/catalog/components/DiscoverHero";
 import { DetailHero } from "@/features/careerDetail/components/detailHero";
 import { SkillGapEntry } from "@/features/skillCheck/components/SkillGapEntry";
+import { hasSkillCheck } from "@/features/skillCheck/careerMatch";
 
 export const Route = createFileRoute("/careers/$careerId/")({
   pendingComponent: DetailSkeleton,
@@ -70,13 +71,20 @@ function CareerDetailRoute() {
 
       <DetailHero career={result} />
 
-      <SkillGapEntry
-        title={result.title}
-        roadmapId={result.roadmapId}
-        careerId={result.id}
-      />
-
-      <Detail career={result} />
+      <div
+        className={
+          hasSkillCheck(result.title)
+            ? "mt-3 grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_384px]"
+            : undefined
+        }
+      >
+        <SkillGapEntry
+          title={result.title}
+          roadmapId={result.roadmapId}
+          careerId={result.id}
+        />
+        <Detail career={result} />
+      </div>
     </CareerDetailPage>
   );
 }

@@ -7,3 +7,7 @@ export function findSkillCheckCareerByTitle(title: string): SkillCheckCareer | n
   const key = normalise(title);
   return SKILL_CHECK_CAREERS.find((career) => normalise(career.name) === key) ?? null;
 }
+
+export function hasSkillCheck(title: string): boolean {
+  return findSkillCheckCareerByTitle(title)?.reviewed === true;
+}

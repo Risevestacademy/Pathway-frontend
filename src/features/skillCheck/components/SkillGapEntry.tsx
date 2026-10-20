@@ -1,12 +1,12 @@
+import { ArrowRightRegular } from "@mingcute/react/core-regular";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Button, LinkButton } from "../../../components/ui/Button";
-import { Card } from "../../../components/ui/Card";
 import { Modal } from "../../../components/ui/Modal";
 import { selectIsAuthenticated, useAuthStore } from "../../../lib/stores/authStore";
 import { findSkillCheckCareerByTitle } from "../careerMatch";
 import { ESTIMATED_MINUTES } from "../skillCheck.copy";
 import { SignInPromptDialog } from "./SignInPromptDialog";
+import { SkillButton, SkillLink } from "./SkillButton";
 
 export function SkillGapEntry({
   title,
@@ -30,50 +30,51 @@ export function SkillGapEntry({
 
   return (
     <>
-      <Card
+      <aside
         aria-labelledby="skill-gap-title"
-        className="mt-3 flex flex-col gap-4 bg-brand-50/50 p-5 sm:flex-row sm:items-center"
+        className="order-first flex flex-col gap-4 rounded-xl border border-brand-100 bg-brand-50 p-6 lg:order-last"
       >
-        <div className="flex-1">
-          <h2 id="skill-gap-title" className="font-semibold">
-            Check your skill gap
-          </h2>
-          <p className="text-sm text-ink-muted">
-            Mark the skills you already have and we suggest where to start. About{" "}
-            {ESTIMATED_MINUTES} minutes, self-reported.
-          </p>
-        </div>
-        <Button onClick={() => (signedIn ? setAskOpen(true) : setSignInOpen(true))}>
+        <h2 id="skill-gap-title" className="font-display text-2xl leading-6 font-medium text-ink">
+          Check your skill gap
+        </h2>
+        <p className="text-base leading-5 text-grey-600">
+          Spot your skills and gaps. Optional, based on your answers.
+        </p>
+        <SkillButton onClick={() => (signedIn ? setAskOpen(true) : setSignInOpen(true))}>
           Check skill gap
-        </Button>
-      </Card>
+          <ArrowRightRegular aria-hidden className="size-5" />
+        </SkillButton>
+        <p className="text-sm leading-5 text-grey-600">
+          Takes about {ESTIMATED_MINUTES} mins.{signedIn ? "" : " Sign up to save your results."}
+        </p>
+      </aside>
 
       <Modal
         open={askOpen}
         onClose={() => setAskOpen(false)}
         title={`Check your skills for ${title}?`}
-        description="Your answers suggest a starting step. You can skip this and start at step 1."
+        description="Optional. Find your starting point or skip to step 1."
         className="max-w-130"
       >
         <div className="flex flex-col gap-3 sm:flex-row">
           {roadmapId ? (
-            <LinkButton
+            <SkillLink
               isPrimary={false}
-              size="lg"
               className="flex-1"
               to="/careers/$careerId/roadmap"
               params={{ careerId }}
             >
               Skip, start at step 1
-            </LinkButton>
+            </SkillLink>
           ) : (
-            <Button isPrimary={false} size="lg" className="flex-1" onClick={() => setAskOpen(false)}>
+            <SkillButton isPrimary={false} className="flex-1" onClick={() => setAskOpen(false)}>
               Not now
-            </Button>
+            </SkillButton>
           )}
-          <Button size="lg" className="flex-1" onClick={() => void goCheck()}>
+          <SkillButton className="flex-1" onClick={() => void goCheck()}>
             Check my skills
-          </Button>
+            <ArrowRightRegular aria-hidden className="size-5" />
+          </SkillButton>
         </div>
       </Modal>
 

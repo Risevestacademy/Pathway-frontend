@@ -1,6 +1,4 @@
 import { ArrowRightRegular } from "@mingcute/react/core-regular";
-import { Link } from "@tanstack/react-router";
-import { Button } from "../../../components/ui/Button";
 import { TrackIcon } from "../../../components/TrackIcon";
 import {
   ESTIMATED_MINUTES,
@@ -10,13 +8,24 @@ import {
 } from "../skillCheck.copy";
 import { countAnswered, countAnswers } from "../skillCheck.utils";
 import type {
+  SkillAnswerMap,
   SkillCheckCareer,
   SkillCheckCareerSummary,
   SkillCheckRecord,
 } from "../skillCheck.types";
 import { InfoNote } from "./InfoNote";
+import { SkillButton, SkillLink } from "./SkillButton";
 import { StepNumberList } from "./StepNumberList";
 import { Tag } from "./Tag";
+
+const cardClass =
+  "flex min-w-0 flex-col gap-4 rounded-[28px] border border-grey-100 bg-surface p-5 sm:p-6";
+
+function sameAnswers(a: SkillAnswerMap | null, b: SkillAnswerMap | null): boolean {
+  if (!a || !b) return false;
+  const keys = Object.keys({ ...a, ...b });
+  return keys.every((key) => a[key] === b[key]);
+}
 
 export function ActiveCareerCard({
   summary,
@@ -36,23 +45,33 @@ export function ActiveCareerCard({
   const hasDraft = !hasResult && draftAnswered > 0;
 
   return (
-    <section
-      aria-labelledby="active-career-title"
-      className="flex min-w-0 flex-col gap-4 rounded-3xl border border-grey-100 bg-surface p-5 sm:p-6"
-    >
+    <section aria-labelledby="active-career-title" className={cardClass}>
       <div className="flex items-center gap-2">
         <TrackIcon icon={summary.icon} size={40} />
-        <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-          <h2
-            id="active-career-title"
-            className="font-display text-2xl leading-7 font-medium text-ink"
-          >
-            {summary.name}
-          </h2>
-          {hasResult ? (
-            <Tag tone="success">Result saved</Tag>
-          ) : (
-            summary.isActive && <Tag tone="brand">Active pathway</Tag>
+        <div className="flex min-w-0 flex-col gap-1">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+            <h2
+              id="active-career-title"
+              className="font-display text-2xl leading-[1.2] font-medium tracking-[-0.01em] text-ink"
+            >
+              {summary.name}
+            </h2>
+            {hasResult ? (
+              <Tag tone="success" className="px-1.5 font-medium">
+                Result saved
+              </Tag>
+            ) : (
+              summary.isActive && (
+                <Tag tone="brand" className="px-1.5 font-medium">
+                  Active pathway
+                </Tag>
+              )
+            )}
+          </div>
+          {hasResult && record?.completedAt && (
+            <p className="text-xs leading-4 text-grey-600">
+              Last checked {formatCheckedDate(record.completedAt)}.
+            </p>
           )}
         </div>
       </div>
@@ -63,13 +82,13 @@ export function ActiveCareerCard({
         <>
           <StepNumberList steps={HOW_IT_WORKS_STEPS} />
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button size="lg" className="flex-1" onClick={hasDraft ? onStart : onShowHow}>
+            <SkillButton className="flex-1" onClick={hasDraft ? onStart : onShowHow}>
               {hasDraft ? "Continue skill check" : "Start skill check"}
               <ArrowRightRegular aria-hidden className="size-5" />
-            </Button>
-            <Button isPrimary={false} size="lg" className="flex-1" onClick={onShowHow}>
+            </SkillButton>
+            <SkillButton isPrimary={false} className="flex-1" onClick={onShowHow}>
               How it works
-            </Button>
+            </SkillButton>
           </div>
           <InfoNote>
             {hasDraft
@@ -92,33 +111,45 @@ function ResultSummary({
   onStart: () => void;
 }) {
   const counts = countAnswers(career.skills, record.answers);
-  const hasDraft = record.draft !== null;
+  const retakeStarted =
+    record.draft !== null && !sameAnswers(record.draft, record.answers);
 
   return (
     <>
-      <p className="-mt-3 text-sm leading-4 text-grey-500">
-        Last checked {formatCheckedDate(record.completedAt ?? "")}.
-      </p>
-      <div className="rounded-2xl border border-grey-50">
-        <dl className="flex gap-6 p-4">
+      <div className="flex flex-col gap-4 rounded-2xl border border-grey-50 bg-surface py-4">
+        <dl className="flex gap-6 px-6">
           <SummaryCount value={counts.have} label="Have" />
+          <span aria-hidden className="w-px self-stretch bg-grey-100" />
           <SummaryCount value={counts.notYet} label="Not yet" />
+          <span aria-hidden className="w-px self-stretch bg-grey-100" />
           <SummaryCount value={counts.notSure} label="Not sure" />
         </dl>
-        <div className="flex flex-wrap items-center gap-2 border-t border-grey-50 px-4 py-4 text-base leading-5 text-grey-600">
+        <div className="h-px bg-grey-100" />
+        <div className="flex flex-wrap items-center gap-2 px-6 text-sm leading-5 text-grey-600">
           <span>Your starting point</span>
           {record.startingPoint ? (
-            <Tag tone="brand">{describeStartingPoint(record.startingPoint)}</Tag>
+            <Tag tone="brand" className="font-medium">
+              {describeStartingPoint(record.startingPoint)}
+            </Tag>
           ) : (
-            <Tag tone="warning">Not chosen yet</Tag>
+            <Tag tone="warning" className="font-medium">
+              Not chosen yet
+            </Tag>
           )}
         </div>
       </div>
       <div className="flex flex-col gap-3 sm:flex-row">
-        <ViewResultLink careerId={career.careerId} />
-        <Button isPrimary={false} size="lg" className="flex-1" onClick={onStart}>
-          {hasDraft ? "Continue retake" : "Retake skill check"}
-        </Button>
+        <SkillLink
+          to="/skill-check/$careerId/result"
+          params={{ careerId: career.careerId }}
+          className="flex-1"
+        >
+          View result
+          <ArrowRightRegular aria-hidden className="size-5" />
+        </SkillLink>
+        <SkillButton isPrimary={false} className="flex-1" onClick={onStart}>
+          {retakeStarted ? "Continue retake" : "Retake skill check"}
+        </SkillButton>
       </div>
       <InfoNote>
         Retaking never changes your completed steps or your starting point. You choose
@@ -131,21 +162,8 @@ function ResultSummary({
 function SummaryCount({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <dd className="text-lg leading-6 font-semibold text-ink">{value}</dd>
+      <dd className="text-xl leading-6 font-medium text-ink">{value}</dd>
       <dt className="text-sm leading-4 text-grey-600">{label}</dt>
     </div>
-  );
-}
-
-function ViewResultLink({ careerId }: { careerId: string }) {
-  return (
-    <Link
-      to="/skill-check/$careerId/result"
-      params={{ careerId }}
-      className="focus-ring inline-flex flex-1 items-center justify-center gap-2 rounded-[16px] border-b-4 border-brand-700 bg-brand-600 px-4 py-3 text-base leading-5 font-semibold text-white transition-colors hover:bg-brand-700 motion-reduce:transition-none"
-    >
-      View result
-      <ArrowRightRegular aria-hidden className="size-5" />
-    </Link>
   );
 }

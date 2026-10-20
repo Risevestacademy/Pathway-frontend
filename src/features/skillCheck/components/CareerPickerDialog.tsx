@@ -1,6 +1,6 @@
 import { ArrowRightRegular } from "@mingcute/react/core-regular";
 import { useState } from "react";
-import { Button } from "../../../components/ui/Button";
+import { SkillButton } from "./SkillButton";
 import { Modal } from "../../../components/ui/Modal";
 import type { SkillCheckCareerSummary } from "../skillCheck.types";
 import { CareerPicker } from "./CareerPicker";
@@ -34,18 +34,17 @@ export function CareerPickerDialog({
         pathway.
       </p>
       <div className="flex gap-3">
-        <Button isPrimary={false} size="lg" className="flex-1" onClick={onClose}>
+        <SkillButton isPrimary={false} className="flex-1" onClick={onClose}>
           Cancel
-        </Button>
-        <Button
-          size="lg"
+        </SkillButton>
+        <SkillButton
           className="flex-1"
           disabled={!selected}
           onClick={() => selected && onConfirm(selected)}
         >
           Check this career
           <ArrowRightRegular aria-hidden className="size-5" />
-        </Button>
+        </SkillButton>
       </div>
     </Modal>
   );

@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Button } from "../../../components/ui/Button";
+import { SkillButton } from "./SkillButton";
 import { StateMessage } from "../../../components/ui/StateMessage";
 import { Skeleton } from "../../../components/ui/Skeleton";
 import {
@@ -16,6 +16,7 @@ import { HowItWorksCard } from "./HowItWorksCard";
 import { HowItWorksDialog } from "./HowItWorksDialog";
 import { OtherCareersCard } from "./OtherCareersCard";
 import { PageHeading } from "./PageHeading";
+import { BackLink } from "./BackLink";
 import { SkillCheckTabs } from "./SkillCheckTabs";
 
 export function SkillCheckHub() {
@@ -57,7 +58,7 @@ export function SkillCheckHub() {
           kind="error"
           title="We could not load your skill check"
           body="Check your connection and try again."
-          action={<Button onClick={() => void careersQuery.refetch()}>Try again</Button>}
+          action={<SkillButton onClick={() => void careersQuery.refetch()}>Try again</SkillButton>}
         />
       </>
     );
@@ -71,7 +72,7 @@ export function SkillCheckHub() {
         <div
           role="status"
           aria-label="Loading your skill check"
-          className="grid gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]"
+          className="grid gap-3 lg:grid-cols-[minmax(0,5fr)_minmax(0,3fr)]"
         >
           <Skeleton className="h-80 rounded-3xl" />
           <Skeleton className="h-80 rounded-3xl" />
@@ -90,30 +91,37 @@ export function SkillCheckHub() {
           title="We could not load your skill check"
           body="Check your connection and try again."
           action={
-            <Button
+            <SkillButton
               onClick={() => {
                 void careerQuery.refetch();
                 void recordQuery.refetch();
               }}
             >
               Try again
-            </Button>
+            </SkillButton>
           }
         />
       </>
     );
   }
 
+  const showsResult = Boolean(active && recordQuery.data?.completedAt);
   const others = careers.filter((career) => !career.isActive);
   const firstReviewed = careers.find((career) => career.reviewed)?.careerId ?? null;
   const exploredId = explored ?? firstReviewed;
 
   return (
     <>
-      <SkillCheckTabs />
+      {showsResult ? <BackLink fallbackTo="/careers" /> : <SkillCheckTabs />}
       {heading}
 
-      <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+      <div
+        className={
+          active && careerQuery.data
+            ? "grid items-start gap-3 lg:grid-cols-[minmax(0,5fr)_minmax(0,3fr)]"
+            : "grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_384px]"
+        }
+      >
         {active && careerQuery.data ? (
           <>
             <ActiveCareerCard

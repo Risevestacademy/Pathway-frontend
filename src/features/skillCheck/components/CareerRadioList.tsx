@@ -28,10 +28,10 @@ export function CareerRadioList({
           <label
             key={career.careerId}
             className={clsx(
-              "relative flex cursor-pointer items-center justify-between gap-3 rounded-xl border px-4 py-3 transition-colors motion-reduce:transition-none",
+              "relative flex cursor-pointer items-center justify-between gap-3 rounded-[10px] border px-4 py-3 transition-colors duration-200 ease-out motion-reduce:transition-none",
               "has-focus-visible:ring-2 has-focus-visible:ring-brand-500",
               selected
-                ? "border-brand-500 bg-brand-50"
+                ? "border-brand-600 bg-brand-50"
                 : "border-grey-100 bg-surface hover:bg-grey-50",
             )}
           >
@@ -61,7 +61,7 @@ export function CareerRadioList({
               </span>
             </span>
             <span className="flex shrink-0 items-center gap-2">
-              {career.isActive && <Tag tone="brand">Active pathway</Tag>}
+              {career.isActive && <Tag tone="brand" className="font-medium">Active pathway</Tag>}
               {!career.isActive && <ReviewTag reviewed={career.reviewed} />}
             </span>
           </label>

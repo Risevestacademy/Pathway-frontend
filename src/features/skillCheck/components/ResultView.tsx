@@ -1,16 +1,12 @@
 import { ArrowRightRegular } from "@mingcute/react/core-regular";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Button } from "../../../components/ui/Button";
+import { useRealCareerId } from "../hooks/useRealCareer";
 import {
   useResolveStartingPoint,
   useSwitchActiveCareer,
 } from "../hooks/useSkillCheckActions";
-import {
-  capitalise,
-  describeStartingPoint,
-  pluralise,
-} from "../skillCheck.copy";
+import { capitalise, describeStartingPoint, pluralise } from "../skillCheck.copy";
 import {
   formatNameList,
   formatStepRange,
@@ -28,6 +24,7 @@ import { BackLink } from "./BackLink";
 import { PageHeading } from "./PageHeading";
 import { RateSkillsDialog } from "./RateSkillsDialog";
 import type { RatableSkill } from "./RateSkillsDialog";
+import { SkillButton, SkillLink } from "./SkillButton";
 import { SwitchPathwayDialog } from "./SwitchPathwayDialog";
 import { Tag } from "./Tag";
 import type { TagTone } from "./Tag";
@@ -87,10 +84,7 @@ export function ResultView({
     if (!pending) return;
     try {
       await switchCareer.mutateAsync(career.careerId);
-      await finish(
-        pending,
-        `Pathway switched. You will start at step ${pending.stepOrder}.`,
-      );
+      await finish(pending, `Pathway switched. You will start at step ${pending.stepOrder}.`);
       setConfirmOpen(false);
     } catch {
       return;
@@ -120,6 +114,7 @@ export function ResultView({
     <>
       <BackLink />
       <PageHeading
+        spacious
         eyebrow={eyebrow}
         title={isRetakeChange ? "Your answers changed" : "Here is where you stand"}
         description={
@@ -132,12 +127,9 @@ export function ResultView({
       {savedMessage && (
         <p
           role="status"
-          className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-success-600/30 bg-success-50 px-4 py-3 text-sm leading-5 text-success-700"
+          className="rounded-xl border border-success-600/30 bg-success-50 px-4 py-3 text-sm leading-5 text-success-700"
         >
-          <span>{savedMessage}</span>
-          <Link to="/skill-check" className="focus-ring rounded font-medium underline">
-            Back to Skill check
-          </Link>
+          {savedMessage}
         </p>
       )}
 
@@ -150,9 +142,9 @@ export function ResultView({
         </p>
       )}
 
-      <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <div className="flex min-w-0 flex-col gap-3">
-          <div className="grid grid-cols-3 gap-3">
+      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_384px]">
+        <div className="flex min-w-0 flex-col gap-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <CountCard
               tone="success"
               tag="Have"
@@ -175,9 +167,9 @@ export function ResultView({
 
           <section
             aria-labelledby="gaps-title"
-            className="overflow-hidden rounded-2xl border border-grey-100 bg-surface"
+            className="overflow-hidden rounded-xl border border-grey-100 bg-surface"
           >
-            <div className="flex flex-col gap-0.5 bg-brand-50 px-5 py-4">
+            <div className="flex flex-col gap-0.5 bg-brand-50 px-6 py-5">
               <h2 id="gaps-title" className="font-display text-xl leading-6 font-medium text-ink">
                 {isRetakeChange ? "Remaining skill gaps, in roadmap order" : "Skill gaps, in roadmap order"}
               </h2>
@@ -186,7 +178,7 @@ export function ResultView({
               </p>
             </div>
             {result.gaps.length === 0 ? (
-              <p className="border-t border-grey-100 px-5 py-4 text-base leading-5 text-grey-600">
+              <p className="border-t border-grey-100 px-6 py-4 text-base leading-5 text-grey-600">
                 No gaps found. You marked every skill as Have.
               </p>
             ) : (
@@ -194,7 +186,7 @@ export function ResultView({
                 {result.gaps.map((gap, index) => (
                   <li
                     key={gap.skill.id}
-                    className="flex items-start gap-3 border-t border-grey-100 px-5 py-4"
+                    className="flex items-start gap-4 border-t border-grey-100 px-6 py-4"
                   >
                     <span
                       aria-hidden
@@ -219,7 +211,7 @@ export function ResultView({
                           setRating({ id: gap.skill.id, name: gap.skill.name });
                           setRatingOpen(true);
                         }}
-                        className="focus-ring w-fit cursor-pointer rounded text-sm leading-5 font-medium text-grey-600 underline hover:text-ink"
+                        className="focus-ring w-fit cursor-pointer rounded text-sm leading-5 text-grey-600 underline transition-colors duration-200 hover:text-ink motion-reduce:transition-none"
                       >
                         <span aria-hidden>Rate this skill</span>
                         <span className="sr-only">{`Rate ${gap.skill.name}`}</span>
@@ -234,7 +226,7 @@ export function ResultView({
 
         <aside
           aria-label="Your starting point"
-          className="flex min-w-0 flex-col gap-4 rounded-3xl border border-brand-100 bg-brand-50 p-5 sm:p-6"
+          className="flex min-w-0 flex-col gap-4 rounded-xl border border-brand-100 bg-brand-50 p-6 lg:sticky lg:top-32"
         >
           {decisionOpen && suggestion ? (
             <SuggestionPanel
@@ -244,6 +236,7 @@ export function ResultView({
               reason={describeReason(
                 suggestion.reasonSkills.map((skill) => skill.name),
                 suggestion.coveredStepOrders,
+                isRetakeChange,
               )}
               isRetakeChange={isRetakeChange}
               otherActiveName={otherActive?.name ?? null}
@@ -294,9 +287,12 @@ export function ResultView({
   );
 }
 
-function describeReason(names: string[], coveredStepOrders: number[]): string {
+function describeReason(names: string[], coveredStepOrders: number[], retake: boolean): string {
   if (names.length === 0) {
     return "Why: this is the first step linked to a skill you marked Not yet or Not sure.";
+  }
+  if (retake) {
+    return `Why: you now marked ${formatNameList(names)} as Have.`;
   }
   return `Why: you marked ${formatNameList(names)} as Have, and ${formatStepRange(coveredStepOrders)} cover${coveredStepOrders.length === 1 ? "s" : ""} ${names.length === 1 ? "it" : "those"}.`;
 }
@@ -313,9 +309,9 @@ function CountCard({
   label: string;
 }) {
   return (
-    <div className="flex min-w-0 flex-col gap-2 rounded-2xl border border-grey-100 bg-surface p-4">
+    <div className="flex min-w-0 flex-col gap-2 rounded-xl border border-grey-100 bg-surface p-5">
       <Tag tone={tone}>{tag}</Tag>
-      <p className="text-3xl leading-9 font-semibold text-ink tabular-nums">{value}</p>
+      <p className="text-4xl leading-10 font-medium text-ink tabular-nums">{value}</p>
       <p className="text-sm leading-5 text-grey-600">{label}</p>
     </div>
   );
@@ -362,15 +358,15 @@ function SuggestionPanel({
   return (
     <>
       {isRetakeChange && current && currentStep && (
-        <div className="rounded-xl border border-grey-100 bg-surface px-4 py-3">
-          <p className="text-sm leading-4 text-grey-600">Current starting point</p>
+        <div className="flex flex-col gap-1 rounded-xl border border-grey-50 bg-surface px-4 py-3 shadow-[0_4px_8px_rgba(0,0,0,0.04)]">
+          <p className="text-sm leading-5 text-grey-600">Current starting point</p>
           <p className="text-base leading-5 font-medium text-ink">
             Step {current.stepOrder} · {currentStep.title}
           </p>
         </div>
       )}
       <div className="flex flex-col gap-3">
-        <Tag tone="brand" className="bg-brand-100">
+        <Tag tone="brand" className="font-medium">
           {isRetakeChange ? "New suggestion" : "Suggestion based on your answers"}
         </Tag>
         <h2 className="font-display text-xl leading-6 font-medium text-ink">
@@ -379,19 +375,19 @@ function SuggestionPanel({
         <p className="text-base leading-5 text-grey-600">{reason}</p>
       </div>
       <div className="flex flex-col gap-3">
-        <Button size="lg" disabled={busy} onClick={onAccept}>
+        <SkillButton disabled={busy} onClick={onAccept}>
           {isRetakeChange ? `Accept step ${stepOrder}` : `${verb} step ${stepOrder}`}
           <ArrowRightRegular aria-hidden className="size-5" />
-        </Button>
+        </SkillButton>
         {isRetakeChange && current ? (
-          <Button isPrimary={false} size="lg" disabled={busy} onClick={onKeep}>
+          <SkillButton isPrimary={false} disabled={busy} onClick={onKeep}>
             Keep step {current.stepOrder}
-          </Button>
+          </SkillButton>
         ) : (
           stepOrder !== 1 && (
-            <Button isPrimary={false} size="lg" disabled={busy} onClick={onDecline}>
+            <SkillButton isPrimary={false} disabled={busy} onClick={onDecline}>
               {verb} step 1
-            </Button>
+            </SkillButton>
           )
         )}
       </div>
@@ -407,7 +403,7 @@ function SuggestionPanel({
           type="button"
           disabled={busy}
           onClick={onSaveAndStay}
-          className="focus-ring w-fit cursor-pointer rounded text-sm leading-5 font-medium text-brand-600 hover:underline disabled:opacity-50"
+          className="focus-ring w-fit cursor-pointer rounded text-sm leading-5 font-medium text-brand-600 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
         >
           Save result, stay on my pathway
         </button>
@@ -425,19 +421,37 @@ function SettledPanel({
 }) {
   const step = getStep(career, startingPoint.stepOrder);
   const note = earlierNote(career, startingPoint.stepOrder);
+  const realId = useRealCareerId(career.name);
+
   return (
-    <div className="flex flex-col gap-3">
-      <Tag tone="brand" className="bg-brand-100">
-        Your starting point
-      </Tag>
-      <h2 className="font-display text-xl leading-6 font-medium text-ink">
-        Step {startingPoint.stepOrder}, {step?.title}
-      </h2>
-      <p className="text-sm leading-5 text-grey-600">
-        {describeStartingPoint(startingPoint)}
-      </p>
-      {note && <p className="text-sm leading-5 text-grey-600">{note}</p>}
-    </div>
+    <>
+      <div className="flex flex-col gap-3">
+        <Tag tone="brand" className="font-medium">
+          Your starting point
+        </Tag>
+        <h2 className="font-display text-xl leading-6 font-medium text-ink">
+          Step {startingPoint.stepOrder}, {step?.title}
+        </h2>
+        <p className="text-sm leading-5 text-grey-600">{describeStartingPoint(startingPoint)}</p>
+        {note && <p className="text-sm leading-5 text-grey-600">{note}</p>}
+      </div>
+      <div className="flex flex-col gap-3">
+        {realId ? (
+          <SkillLink to="/careers/$careerId/roadmap" params={{ careerId: realId }}>
+            Go to roadmap
+            <ArrowRightRegular aria-hidden className="size-5" />
+          </SkillLink>
+        ) : (
+          <SkillLink to="/careers">
+            Explore careers
+            <ArrowRightRegular aria-hidden className="size-5" />
+          </SkillLink>
+        )}
+        <SkillLink to="/skill-check" isPrimary={false}>
+          Back to Skill check
+        </SkillLink>
+      </div>
+    </>
   );
 }
 
@@ -450,11 +464,10 @@ function NoGapPanel({ busy, onStart }: { busy: boolean; onStart: () => void }) {
       <p className="text-base leading-5 text-grey-600">
         There is no gap to start from. You can still begin at step 1 and move at your own pace.
       </p>
-      <Button size="lg" disabled={busy} onClick={onStart}>
+      <SkillButton disabled={busy} onClick={onStart}>
         Start at step 1
         <ArrowRightRegular aria-hidden className="size-5" />
-      </Button>
+      </SkillButton>
     </div>
   );
 }
-

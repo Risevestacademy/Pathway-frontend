@@ -1,6 +1,6 @@
 import { Search2Regular } from "@mingcute/react/core-regular";
 import { useId, useState } from "react";
-import { Button } from "../../../components/ui/Button";
+import { SkillButton } from "./SkillButton";
 import type { SkillCheckCareerSummary } from "../skillCheck.types";
 import { CareerRadioList } from "./CareerRadioList";
 
@@ -49,9 +49,9 @@ export function CareerPicker({
           <p className="text-base leading-5 text-grey-600">
             No careers match &ldquo;{query.trim()}&rdquo;.
           </p>
-          <Button isPrimary={false} onClick={() => setQuery("")}>
+          <SkillButton isPrimary={false} onClick={() => setQuery("")}>
             Clear search
-          </Button>
+          </SkillButton>
         </div>
       ) : groupHeadings ? (
         <>

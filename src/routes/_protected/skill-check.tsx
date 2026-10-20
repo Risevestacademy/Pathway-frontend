@@ -1,4 +1,4 @@
-import { Outlet, createFileRoute } from "@tanstack/react-router";
+import { Outlet, createFileRoute, useRouterState } from "@tanstack/react-router";
 import AppTopNav from "../../components/AppTopNav";
 
 export const Route = createFileRoute("/_protected/skill-check")({
@@ -6,12 +6,18 @@ export const Route = createFileRoute("/_protected/skill-check")({
 });
 
 function SkillCheckLayout() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
   return (
-    <div className="min-h-dvh bg-grey-50">
+    <>
       <AppTopNav />
-      <main className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        <Outlet />
+      <main className="flex flex-1 flex-col px-page-mobile pt-6 pb-10 sm:px-page-tablet lg:px-8 lg:pt-8">
+        <div
+          key={pathname}
+          className="flex flex-col gap-6 animate-in fade-in duration-300 ease-out motion-reduce:animate-none"
+        >
+          <Outlet />
+        </div>
       </main>
-    </div>
+    </>
   );
 }

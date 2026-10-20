@@ -1,4 +1,4 @@
-import { Button } from "../../../components/ui/Button";
+import { SkillButton } from "./SkillButton";
 import { Modal } from "../../../components/ui/Modal";
 
 export function SwitchPathwayDialog({
@@ -36,12 +36,12 @@ export function SwitchPathwayDialog({
         </p>
       )}
       <div className="flex gap-3">
-        <Button isPrimary={false} size="lg" className="flex-1" onClick={onCancel}>
+        <SkillButton isPrimary={false} className="flex-1" onClick={onCancel}>
           Cancel
-        </Button>
-        <Button size="lg" className="flex-1" disabled={pending} onClick={onConfirm}>
+        </SkillButton>
+        <SkillButton className="flex-1" disabled={pending} onClick={onConfirm}>
           {pending ? "Switching" : "Switch pathway"}
-        </Button>
+        </SkillButton>
       </div>
     </Modal>
   );

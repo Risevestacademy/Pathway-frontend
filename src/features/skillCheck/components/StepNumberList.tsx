@@ -1,6 +1,6 @@
 export function StepNumberList({ steps }: { steps: string[] }) {
   return (
-    <ol className="flex flex-col gap-4 rounded-2xl border border-grey-50 p-4">
+    <ol className="flex flex-col gap-4 rounded-2xl border border-grey-50 bg-surface p-4">
       {steps.map((step, index) => (
         <li key={step} className="flex items-center gap-3">
           <span

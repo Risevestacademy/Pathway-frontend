@@ -43,12 +43,12 @@ describe("RateSkillsDialog", () => {
   it("offers 0 to 5 plus a separate Not sure option", () => {
     setup();
     expect(screen.getAllByRole("radio")).toHaveLength(7);
-    expect(screen.getByRole("radio", { name: "Not sure" })).toBeTruthy();
+    expect(screen.getByRole("radio", { name: /^Not sure/u })).toBeTruthy();
   });
 
   it("saves the chosen rating and closes", async () => {
     const { onClose, onSaved } = setup();
-    await userEvent.click(screen.getByRole("radio", { name: /^3 /u }));
+    await userEvent.click(screen.getByRole("radio", { name: /^3:/u }));
     await userEvent.click(screen.getByRole("button", { name: "Save rating" }));
     await waitFor(() => expect(onSaved).toHaveBeenCalled());
     expect(onClose).toHaveBeenCalled();
