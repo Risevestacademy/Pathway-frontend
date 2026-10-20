@@ -26,6 +26,8 @@ import type {
 } from "../skillCheck.types";
 import { BackLink } from "./BackLink";
 import { PageHeading } from "./PageHeading";
+import { RateSkillsDialog } from "./RateSkillsDialog";
+import type { RatableSkill } from "./RateSkillsDialog";
 import { SwitchPathwayDialog } from "./SwitchPathwayDialog";
 import { Tag } from "./Tag";
 import type { TagTone } from "./Tag";
@@ -53,6 +55,8 @@ export function ResultView({
   const [pending, setPending] = useState<StartingPoint | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
+  const [rating, setRating] = useState<RatableSkill | null>(null);
+  const [ratingOpen, setRatingOpen] = useState(false);
 
   const eyebrow = isRetakeChange
     ? `${career.name} · Retake`
@@ -209,6 +213,17 @@ export function ResultView({
                       <p className="text-sm leading-5 font-medium text-brand-600">
                         Step {gap.step.order} · {gap.step.title}
                       </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setRating({ id: gap.skill.id, name: gap.skill.name });
+                          setRatingOpen(true);
+                        }}
+                        className="focus-ring w-fit cursor-pointer rounded text-sm leading-5 font-medium text-grey-600 underline hover:text-ink"
+                      >
+                        <span aria-hidden>Rate this skill</span>
+                        <span className="sr-only">{`Rate ${gap.skill.name}`}</span>
+                      </button>
                     </div>
                   </li>
                 ))}
@@ -258,6 +273,14 @@ export function ResultView({
         </aside>
       </div>
 
+      <RateSkillsDialog
+        open={ratingOpen}
+        careerId={career.careerId}
+        title={rating ? `Rate ${rating.name}` : "Rate your skills"}
+        skills={rating ? [rating] : []}
+        onClose={() => setRatingOpen(false)}
+        onSaved={() => setSavedMessage("Rating saved. It is your own view of this skill.")}
+      />
       <SwitchPathwayDialog
         open={confirmOpen}
         targetName={career.name}

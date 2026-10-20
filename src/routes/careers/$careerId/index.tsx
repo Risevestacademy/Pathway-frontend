@@ -10,6 +10,7 @@ import DetailSkeleton from "@/features/careerDetail/components/detailSkeleton";
 import { useCareer } from "@/features/careerDetail/hooks/useCareer";
 // import { DiscoverHero } from "@/features/catalog/components/DiscoverHero";
 import { DetailHero } from "@/features/careerDetail/components/detailHero";
+import { SkillGapEntry } from "@/features/skillCheck/components/SkillGapEntry";
 
 export const Route = createFileRoute("/careers/$careerId/")({
   pendingComponent: DetailSkeleton,
@@ -68,6 +69,12 @@ function CareerDetailRoute() {
       </Link>
 
       <DetailHero career={result} />
+
+      <SkillGapEntry
+        title={result.title}
+        roadmapId={result.roadmapId}
+        careerId={result.id}
+      />
 
       <Detail career={result} />
     </CareerDetailPage>
