@@ -9,10 +9,10 @@ interface AuthLayoutProps {
 
 export default function AuthLayout({ children, variant }: AuthLayoutProps) {
   return (
-    <div className="auth-page-flex ">
-      <section className="auth-form-panel">
+    <div className="auth-page-flex">
+      <main className="auth-form-panel">
         <div className="w-full max-w-sm py-2 sm:py-0">{children}</div>
-      </section>
+      </main>
 
       <aside className="auth-art-panel" aria-hidden="true">
         <img

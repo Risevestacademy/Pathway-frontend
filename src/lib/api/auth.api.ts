@@ -1,11 +1,6 @@
-import { api, refreshAccessToken } from "./axios";
-import {
-  selectIsAuthenticated,
-  useAuthStore,
-} from "../stores/authStore";
 import { isAxiosError } from "axios";
-import axios from "axios";
-
+import { api, refreshAccessToken } from "./axios";
+import { selectIsAuthenticated, useAuthStore } from "../stores/authStore";
 
 export interface RegisterCredentials {
   email: string;
@@ -23,8 +18,13 @@ export interface AuthUser {
 }
 
 export interface RegisterResponse {
+  message: string;
+  email: string;
+}
+
+export interface AuthResponse {
   accessToken: string;
-  refreshToken: string;
+  refreshToken?: string;
   user: AuthUser;
 }
 
@@ -37,7 +37,7 @@ export class EmailAlreadyRegisteredError extends Error {
 
 export class InvalidCredentialsError extends Error {
   constructor() {
-    super("Invalid email or password.");
+    super("Invalid email or password, or your email hasn't been verified yet.");
     this.name = "InvalidCredentialsError";
   }
 }
@@ -69,6 +69,31 @@ function getAuthRequestError(error: unknown, fallbackMessage: string): Error {
   }
 }
 
+function getGoogleAuthError(error: unknown): Error {
+  if (!isAxiosError(error)) {
+    return new Error("We couldn't sign you in with Google. Please try again.");
+  }
+
+  switch (error.response?.status) {
+    case 400:
+      return new Error("Google sign-in could not be completed. Please try again.");
+    case 401:
+      return new Error("Google sign-in was not accepted. Please try again.");
+    case 429:
+      return new Error("Too many attempts. Please wait a moment and try again.");
+    case 500:
+    case 502:
+    case 503:
+      return new Error("Something went wrong on our side. Please try again.");
+    default:
+      return new Error(
+        error.response
+          ? "We couldn't complete Google sign-in. Please try again."
+          : "We couldn't reach the server. Check your connection and try again.",
+      );
+  }
+}
+
 export async function registerUser(
   credentials: SignupCredentials,
 ): Promise<RegisterResponse> {
@@ -86,9 +111,9 @@ export async function registerUser(
 
 export async function loginUser(
   credentials: RegisterCredentials,
-): Promise<RegisterResponse> {
+): Promise<AuthResponse> {
   try {
-    const { data } = await api.post<RegisterResponse | { data: RegisterResponse }>(
+    const { data } = await api.post<AuthResponse | { data: AuthResponse }>(
       "/auth/login",
       credentials,
     );
@@ -99,18 +124,62 @@ export async function loginUser(
   }
 }
 
-export async function loginWithGoogle(idToken: string): Promise<RegisterResponse> {
+export async function loginWithGoogle(idToken: string): Promise<AuthResponse> {
   try {
-    const { data } = await api.post<
-      RegisterResponse | { data: RegisterResponse }
-    >("/auth/google", { idToken });
+    const { data } = await api.post<AuthResponse | { data: AuthResponse }>(
+      "/auth/google",
+      { idToken },
+    );
 
     return "data" in data ? data.data : data;
   } catch (error) {
+    throw getGoogleAuthError(error);
+  }
+}
+
+export async function verifyEmail(
+  email: string,
+  otp: string,
+): Promise<AuthResponse> {
+  try {
+    const { data } = await api.post<AuthResponse | { data: AuthResponse }>(
+      "/auth/verify-email",
+      { email, otp },
+    );
+
+    return "data" in data ? data.data : data;
+  } catch (error) {
+    if (isAxiosError(error) && error.response?.status === 400) {
+      throw new Error("That code is invalid or has expired. Request a new one.");
+    }
     throw getAuthRequestError(
       error,
-      "We couldn't sign you in with Google. Please try again.",
+      "We couldn't verify your email. Please try again.",
     );
+  }
+}
+
+export async function resendVerification(email: string): Promise<void> {
+  try {
+    await api.post("/auth/resend-verification", { email });
+  } catch (error) {
+    throw getAuthRequestError(
+      error,
+      "We couldn't resend the code. Please try again.",
+    );
+  }
+}
+
+/** Ends a session started with a token that was never stored (e.g. a probe login). */
+export async function logoutWithToken(accessToken: string): Promise<void> {
+  try {
+    await api.post(
+      "/auth/logout",
+      {},
+      { headers: { Authorization: `Bearer ${accessToken}` } },
+    );
+  } catch {
+    // Best effort: the caller only wants the session gone.
   }
 }
 
@@ -170,7 +239,7 @@ export async function passwordResetConfirm(
       token,
     });
   } catch (error) {
-    if (axios.isAxiosError(error)) {
+    if (isAxiosError(error)) {
       if (error.response?.data?.error === "VALIDATION_ERROR") {
         const messages = Object.values(
           error.response?.data?.fields ?? {},

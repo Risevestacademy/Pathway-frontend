@@ -8,6 +8,8 @@ const logoMark = "/favicon.svg";
 
 const PLAIN_SIDEBAR_ROUTES = [
   "/careers/onboarding",
+  "/login",
+  "/signup",
   "/reset-password",
   "/reset-password/reset",
 ];

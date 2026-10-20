@@ -11,7 +11,16 @@ interface GoogleAccountsId {
     client_id: string;
     callback: (response: GoogleCredentialResponse) => void;
   }) => void;
-  prompt: () => void;
+  prompt: (
+    momentListener?: (notification: {
+      isNotDisplayed: () => boolean;
+      isSkippedMoment: () => boolean;
+      isDismissedMoment: () => boolean;
+      getNotDisplayedReason?: () => string;
+      getSkippedReason?: () => string;
+      getDismissedReason?: () => string;
+    }) => void,
+  ) => void;
 }
 
 interface GoogleApi {
@@ -85,7 +94,18 @@ export default function AuthGoogleButton({
         }
       },
     });
-    google.accounts.id.prompt();
+    google.accounts.id.prompt((notification) => {
+      if (
+        notification.isNotDisplayed() ||
+        notification.isSkippedMoment() ||
+        notification.isDismissedMoment()
+      ) {
+        setIsLoading(false);
+        setErrorMessage(
+          "Google sign-in was not completed. Please try again.",
+        );
+      }
+    });
   };
 
   return (

@@ -30,7 +30,7 @@ export default function LoginForm({
 
     try {
       await onSubmit({
-        email: String(formData.get("email") ?? ""),
+        email: String(formData.get("email") ?? "").trim(),
         password: String(formData.get("password") ?? ""),
       });
     } catch (error) {
@@ -62,7 +62,7 @@ export default function LoginForm({
             {errorMessage}
           </p>
         )}
-        <Link to="/login" className="inline-block text-xs font-semibold text-brand-600 hover:underline">Forgot Password?</Link>
+        <Link to="/reset-password" className="inline-block text-xs font-semibold text-brand-600 hover:underline">Forgot Password?</Link>
         <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
           {isSubmitting ? "Logging in..." : "Log in"}
         </Button>

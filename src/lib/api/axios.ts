@@ -47,7 +47,8 @@ api.interceptors.response.use(
     const isAuthRequest =
       originalRequest?.url === "/auth/refresh" ||
       originalRequest?.url === "/auth/login" ||
-      originalRequest?.url === "/auth/register";
+      originalRequest?.url === "/auth/register" ||
+      originalRequest?.url === "/auth/google";
     if (
       !originalRequest ||
       error.response?.status !== 401 ||

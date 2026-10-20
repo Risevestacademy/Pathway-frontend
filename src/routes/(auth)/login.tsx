@@ -1,14 +1,23 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { redirect } from "@tanstack/react-router";
 import { loginSearchSchema } from "../../lib/validation/auth.schema";
 import LoginForm from "../../features/auth/components/LoginForm";
 import { useLogin } from "../../features/auth/hooks/useLogin";
 import { normalizeRedirect } from "../../lib/utils/route.util";
 import { loginWithGoogle } from "../../lib/api/auth.api";
 import { useAuthStore } from "../../lib/stores/authStore";
+import { ensureAuthHydrated } from "../../lib/api/auth.api";
+import { selectIsAuthenticated } from "../../lib/stores/authStore";
 
 export const Route = createFileRoute("/(auth)/login")({
   staticData: { shellVariant: "wide" },
   validateSearch: loginSearchSchema,
+  beforeLoad: async () => {
+    await ensureAuthHydrated();
+    if (selectIsAuthenticated(useAuthStore.getState())) {
+      throw redirect({ to: "/careers" });
+    }
+  },
   component: RouteComponent,
 });
 

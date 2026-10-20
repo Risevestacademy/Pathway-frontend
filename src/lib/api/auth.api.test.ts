@@ -5,7 +5,9 @@ import {
   EmailAlreadyRegisteredError,
   InvalidCredentialsError,
   loginUser,
+  loginWithGoogle,
   registerUser,
+  verifyEmail,
 } from "./auth.api";
 
 const server = setupServer();
@@ -48,5 +50,83 @@ describe("auth API", () => {
         password: "Password123!",
       }),
     ).rejects.toBeInstanceOf(EmailAlreadyRegisteredError);
+  });
+
+  it("shows a server-side message for 500 responses", async () => {
+    server.use(
+      http.post("*/auth/login", () => HttpResponse.json({}, { status: 500 })),
+    );
+
+    await expect(
+      loginUser({ email: "user@example.com", password: "Password123!" }),
+    ).rejects.toThrow("Something went wrong on our side. Please try again.");
+  });
+
+  it("shows a connection message on network errors", async () => {
+    server.use(http.post("*/auth/login", () => HttpResponse.error()));
+
+    await expect(
+      loginUser({ email: "user@example.com", password: "Password123!" }),
+    ).rejects.toThrow("We couldn't reach the server");
+  });
+
+  it("does not refresh or show the password error when Google sign-in fails", async () => {
+    let refreshCallCount = 0;
+
+    server.use(
+      http.post("*/auth/google", () => HttpResponse.json({}, { status: 401 })),
+      http.post("*/auth/refresh", () => {
+        refreshCallCount += 1;
+        return HttpResponse.json({ data: { accessToken: "fresh-token" } });
+      }),
+    );
+
+    const error = await loginWithGoogle("id-token").catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(Error);
+    expect(error).not.toBeInstanceOf(InvalidCredentialsError);
+    expect(refreshCallCount).toBe(0);
+  });
+
+  it("registers without expecting tokens and returns the verification email", async () => {
+    server.use(
+      http.post("*/auth/register", () =>
+        HttpResponse.json(
+          { message: "Verification code sent", email: "user@example.com" },
+          { status: 201 },
+        ),
+      ),
+    );
+
+    await expect(
+      registerUser({
+        fullName: "Ada Obi",
+        email: "user@example.com",
+        password: "Password123!",
+      }),
+    ).resolves.toEqual({
+      message: "Verification code sent",
+      email: "user@example.com",
+    });
+  });
+
+  it("verifies an email and returns the session, or explains a bad code", async () => {
+    server.use(
+      http.post("*/auth/verify-email", async ({ request }) => {
+        const { otp } = (await request.json()) as { otp: string };
+        return otp === "123456"
+          ? HttpResponse.json({
+              accessToken: "token",
+              user: { id: "1", email: "user@example.com", role: "user" },
+            })
+          : HttpResponse.json({}, { status: 400 });
+      }),
+    );
+
+    await expect(verifyEmail("user@example.com", "123456")).resolves.toMatchObject(
+      { accessToken: "token" },
+    );
+    await expect(verifyEmail("user@example.com", "000000")).rejects.toThrow(
+      "invalid or has expired",
+    );
   });
 });

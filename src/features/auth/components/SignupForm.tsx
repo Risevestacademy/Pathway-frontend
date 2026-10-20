@@ -31,8 +31,8 @@ export default function SignupForm({
 
     try {
       await onSubmit({
-        fullName: String(formData.get("name") ?? ""),
-        email: String(formData.get("email") ?? ""),
+        fullName: String(formData.get("fullName") ?? ""),
+        email: String(formData.get("email") ?? "").trim(),
         password: String(formData.get("password") ?? ""),
       });
     } catch (error) {
@@ -59,15 +59,15 @@ export default function SignupForm({
         >
           Create an account
         </h1>
-        <label htmlFor="name" className="sr-only">
-          Name
+        <label htmlFor="fullName" className="sr-only">
+          Full name
         </label>
         <input
-          id="name"
-          name="name"
+          id="fullName"
+          name="fullName"
           type="text"
           required
-          placeholder="Full Name"
+          placeholder="Full name"
           className="auth-input"
           autoComplete="name"
         />
@@ -113,6 +113,14 @@ export default function SignupForm({
         {errorMessage && (
           <p role="alert" className="text-sm text-red-600">
             {errorMessage}
+            {errorMessage.includes("already registered") && (
+              <>
+                {" "}
+                <Link to="/login" className="font-semibold underline">
+                  Log in instead
+                </Link>
+              </>
+            )}
           </p>
         )}
         <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
