@@ -78,7 +78,7 @@ export interface SkillCheckResult {
   suggestion: StartSuggestion | null;
 }
 
-export type StartingPointSource = "ACCEPTED" | "DECLINED";
+export type StartingPointSource = "ACCEPTED" | "DECLINED" | "DEFAULT";
 
 export interface StartingPoint {
   stepOrder: number;
