@@ -82,6 +82,8 @@ export interface Career {
   title: string;
   description: string;
   levels: CareerLevel[];
+  interest?: string | null;
+  level?: CareerLevel | null;
   tags: string[];
   roleSummary: string;
   workActivities: string[];

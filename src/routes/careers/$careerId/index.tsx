@@ -8,6 +8,8 @@ import { useNavigate, Link } from "@tanstack/react-router";
 import Detail from "@/features/careerDetail/components/detail";
 import DetailSkeleton from "@/features/careerDetail/components/detailSkeleton";
 import { useCareer } from "@/features/careerDetail/hooks/useCareer";
+import { analytics } from "@/lib/monitoring/events";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/careers/$careerId/")({
   pendingComponent: DetailSkeleton,
@@ -18,6 +20,17 @@ function CareerDetailRoute() {
   const { careerId } = Route.useParams();
   const { data: result, isPending, isError, refetch } = useCareer(careerId);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!result) return;
+
+    analytics.trackFeature.careerViewed(
+      result.id,
+      result.title,
+      result.interest ?? "",
+      result.level ?? "",
+    );
+  }, [result]);
 
   if (isPending) return <DetailSkeleton />;
 
