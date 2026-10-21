@@ -40,7 +40,7 @@ export default function LevelSelect({ onContinue }: LevelSelectProps) {
                 "has-focus-visible:ring-2 has-focus-visible:ring-brand-500 has-focus-visible:ring-offset-2",
                 active
                   ? "border-transparent border-b-brand-400 bg-brand-50"
-                  : "border-grey-50 hover:bg-surface-muted",
+                  : "border-grey-50 hover:border-brand-300 hover:border-b hover:bg-brand-50 hover:pb-4.75",
               )}
             >
               <input
