@@ -17,7 +17,7 @@ export function AreaNav({
   return (
     <nav
       aria-label="Skill areas"
-      className="min-w-0 rounded-[18px] border border-grey-100 bg-surface p-3 lg:w-75 lg:shrink-0"
+      className="min-w-0 rounded-[18px] border border-grey-100 bg-surface p-3 lg:w-[300px] lg:shrink-0"
     >
       <ul className="flex gap-2 overflow-x-auto lg:flex-col lg:overflow-visible">
         {groups.map(({ area, skills }) => {
@@ -30,7 +30,7 @@ export function AreaNav({
                 aria-current={isActive ? "true" : undefined}
                 onClick={() => onSelect(area.id)}
                 className={clsx(
-                  "focus-ring flex h-10 w-full cursor-pointer items-center justify-between gap-4 rounded-xl px-3 py-2.5 text-left text-sm leading-5 transition-colors duration-200 ease-out motion-reduce:transition-none",
+                  "focus-ring flex h-10 w-full cursor-pointer items-center justify-between gap-4 rounded-lg px-3 py-2.5 text-left text-sm leading-5 transition-colors duration-200 ease-out motion-reduce:transition-none",
                   isActive
                     ? "bg-brand-100 text-brand-700"
                     : "bg-canvas text-ink hover:bg-grey-100",

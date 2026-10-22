@@ -2,6 +2,8 @@ import { ArrowRightRegular } from "@mingcute/react/core-regular";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useRealCareerId } from "../hooks/useRealCareer";
+import { useSkillRatings } from "../hooks/useSkillCheck";
+import { getRatingsForSkill } from "../rating.utils";
 import {
   useResolveStartingPoint,
   useSwitchActiveCareer,
@@ -47,6 +49,7 @@ export function ResultView({
   const isFirstDecision = record.startingPoint === null;
   const decisionOpen = isRetakeChange || (isFirstDecision && suggestion !== null);
 
+  const ratings = useSkillRatings().data ?? [];
   const resolve = useResolveStartingPoint(career.careerId);
   const switchCareer = useSwitchActiveCareer();
   const [pending, setPending] = useState<StartingPoint | null>(null);
@@ -127,7 +130,7 @@ export function ResultView({
       {savedMessage && (
         <p
           role="status"
-          className="rounded-xl border border-success-600/30 bg-success-50 px-4 py-3 text-sm leading-5 text-success-700"
+          className="rounded-lg border border-success-600/30 bg-success-50 px-4 py-3 text-sm leading-5 text-success-700"
         >
           {savedMessage}
         </p>
@@ -136,7 +139,7 @@ export function ResultView({
       {failed && (
         <p
           role="alert"
-          className="rounded-xl border border-danger-600/30 bg-danger-50 px-4 py-3 text-sm leading-5 text-danger-700"
+          className="rounded-lg border border-danger-600/30 bg-danger-50 px-4 py-3 text-sm leading-5 text-danger-700"
         >
           That did not save. Nothing was changed, so you can try again.
         </p>
@@ -167,7 +170,7 @@ export function ResultView({
 
           <section
             aria-labelledby="gaps-title"
-            className="overflow-hidden rounded-xl border border-grey-100 bg-surface"
+            className="overflow-hidden rounded-[20px] border border-grey-100 bg-surface"
           >
             <div className="flex flex-col gap-0.5 bg-brand-50 px-6 py-5">
               <h2 id="gaps-title" className="font-display text-xl leading-6 font-medium text-ink">
@@ -183,7 +186,14 @@ export function ResultView({
               </p>
             ) : (
               <ol>
-                {result.gaps.map((gap, index) => (
+                {result.gaps.map((gap, index) => {
+                  const latest = getRatingsForSkill(ratings, career.careerId, gap.skill.id).at(-1);
+                  const ratedLabel = latest
+                    ? latest.value === "NOT_SURE"
+                      ? "Your rating: not sure"
+                      : `Your rating: ${latest.value} of 5`
+                    : null;
+                  return (
                   <li
                     key={gap.skill.id}
                     className="flex items-start gap-4 border-t border-grey-100 px-6 py-4"
@@ -213,12 +223,16 @@ export function ResultView({
                         }}
                         className="focus-ring w-fit cursor-pointer rounded text-sm leading-5 text-grey-600 underline transition-colors duration-200 hover:text-ink motion-reduce:transition-none"
                       >
-                        <span aria-hidden>Rate this skill</span>
-                        <span className="sr-only">{`Rate ${gap.skill.name}`}</span>
+                        <span aria-hidden>{ratedLabel ? "Update rating" : "Rate this skill"}</span>
+                        <span className="sr-only">{`${ratedLabel ? "Update rating for" : "Rate"} ${gap.skill.name}`}</span>
                       </button>
+                      {ratedLabel && (
+                        <p className="text-sm leading-5 text-grey-600">{ratedLabel}</p>
+                      )}
                     </div>
                   </li>
-                ))}
+                  );
+                })}
               </ol>
             )}
           </section>
@@ -226,7 +240,7 @@ export function ResultView({
 
         <aside
           aria-label="Your starting point"
-          className="flex min-w-0 flex-col gap-4 rounded-xl border border-brand-100 bg-brand-50 p-6 lg:sticky lg:top-32"
+          className="flex min-w-0 flex-col gap-4 rounded-[20px] border border-brand-100 bg-brand-50 p-6 lg:sticky lg:top-32"
         >
           {decisionOpen && suggestion ? (
             <SuggestionPanel
@@ -309,7 +323,7 @@ function CountCard({
   label: string;
 }) {
   return (
-    <div className="flex min-w-0 flex-col gap-2 rounded-xl border border-grey-100 bg-surface p-5">
+    <div className="flex min-w-0 flex-col gap-2 rounded-[20px] border border-grey-100 bg-surface p-5">
       <Tag tone={tone}>{tag}</Tag>
       <p className="text-4xl leading-10 font-medium text-ink tabular-nums">{value}</p>
       <p className="text-sm leading-5 text-grey-600">{label}</p>
@@ -358,7 +372,7 @@ function SuggestionPanel({
   return (
     <>
       {isRetakeChange && current && currentStep && (
-        <div className="flex flex-col gap-1 rounded-xl border border-grey-50 bg-surface px-4 py-3 shadow-[0_4px_8px_rgba(0,0,0,0.04)]">
+        <div className="flex flex-col gap-1 rounded-lg border border-grey-50 bg-surface px-4 py-3 shadow-[0_4px_8px_rgba(0,0,0,0.04)]">
           <p className="text-sm leading-5 text-grey-600">Current starting point</p>
           <p className="text-base leading-5 font-medium text-ink">
             Step {current.stepOrder} · {currentStep.title}

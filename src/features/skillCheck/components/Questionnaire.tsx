@@ -121,7 +121,7 @@ export function Questionnaire({
           key={group.area.id}
           className="flex min-w-0 flex-1 flex-col gap-3 animate-in fade-in duration-300 ease-out motion-reduce:animate-none"
         >
-          <ul className="overflow-hidden rounded-xl border border-grey-100 bg-surface">
+          <ul className="overflow-hidden rounded-lg border border-grey-100 bg-surface">
             {group.skills.map((skill) => (
               <li
                 key={skill.id}
@@ -154,7 +154,7 @@ export function Questionnaire({
       {failed && (
         <div
           role="alert"
-          className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-danger-600/30 bg-danger-50 px-4 py-3 text-sm leading-5 text-danger-700"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-danger-600/30 bg-danger-50 px-4 py-3 text-sm leading-5 text-danger-700"
         >
           <span>
             {complete.isError

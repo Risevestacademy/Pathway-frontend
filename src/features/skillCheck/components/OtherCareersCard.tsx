@@ -15,7 +15,7 @@ export function OtherCareersCard({
   return (
     <section
       aria-labelledby="other-careers-title"
-      className="flex min-w-0 flex-col gap-4 rounded-3xl border border-grey-100 bg-surface p-5 sm:p-6"
+      className="flex min-w-0 flex-col gap-4 rounded-[28px] border border-grey-100 bg-surface p-5 sm:p-6"
     >
       <h2 id="other-careers-title" className="font-display text-xl leading-6 font-medium text-ink">
         Check a different career
@@ -26,7 +26,7 @@ export function OtherCareersCard({
             <button
               type="button"
               onClick={() => onSelect(career)}
-              className="focus-ring flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-grey-100 bg-surface p-2 text-left transition-colors duration-200 ease-out hover:bg-grey-50 motion-reduce:transition-none"
+              className="focus-ring flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg border border-grey-100 bg-surface p-2 text-left transition-colors duration-200 ease-out hover:bg-grey-50 motion-reduce:transition-none"
             >
               <span className="flex min-w-0 items-center gap-2">
                 <TrackIcon icon={career.icon} size={32} />

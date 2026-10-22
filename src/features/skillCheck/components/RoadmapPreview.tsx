@@ -1,16 +1,17 @@
 import { ArrowRightRegular, CheckRegular } from "@mingcute/react/core-regular";
-import clsx from "clsx";
-import { useState } from "react";
 import { Link } from "@tanstack/react-router";
+import clsx from "clsx";
+import { ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { StateMessage } from "../../../components/ui/StateMessage";
 import { useCompletedSteps, useSetStepComplete } from "../hooks/useRoadmapPreview";
 import { getRoadmapPreviewState } from "../roadmapPreview.utils";
-import { buildGaps, getStep } from "../skillCheck.utils";
+import { buildGaps, formatNameList, getStep } from "../skillCheck.utils";
 import type { SkillCheckCareer, SkillCheckRecord, SkillCheckStep } from "../skillCheck.types";
 import { PageHeading } from "./PageHeading";
 import { RateSkillsDialog } from "./RateSkillsDialog";
 import { SkillButton } from "./SkillButton";
 import { Tag } from "./Tag";
-import { StateMessage } from "../../../components/ui/StateMessage";
 
 export function RoadmapPreview({
   career,
@@ -27,9 +28,8 @@ export function RoadmapPreview({
   const startOrder = record.startingPoint?.stepOrder ?? 1;
   const completed = completedQuery.data ?? [];
   const state = getRoadmapPreviewState(career, startOrder, completed);
-  const gapSteps = new Set(
-    buildGaps(career, record.answers ?? {}).map((gap) => gap.step.order),
-  );
+  const gaps = buildGaps(career, record.answers ?? {});
+  const gapSteps = new Set(gaps.map((gap) => gap.step.order));
   const total = career.steps.length;
   const allDone = total > 0 && state.completedCount === total;
 
@@ -64,6 +64,9 @@ export function RoadmapPreview({
   const ratableSkills = ratingStep
     ? career.skills.filter((skill) => skill.stepOrder === ratingStep.order)
     : [];
+  const nextGapNames = nextStep
+    ? gaps.filter((gap) => gap.step.order === nextStep.order).map((gap) => gap.skill.name)
+    : [];
 
   function complete(step: SkillCheckStep) {
     setComplete.mutate(
@@ -81,43 +84,46 @@ export function RoadmapPreview({
   return (
     <div className="flex flex-col gap-6">
       <PageHeading
-        title={`${career.name} roadmap`}
+        spacious
+        title={career.name}
         description={`${state.completedCount} of ${total} steps complete`}
       />
       {record.startingPoint && (
         <section
           aria-label="Your starting point"
-          className="flex flex-col gap-4 rounded-2xl border border-brand-100 bg-brand-50 p-5 sm:flex-row sm:items-center sm:justify-between"
+          className="flex flex-col gap-4 rounded-lg border border-brand-100 bg-brand-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
         >
-          <div className="flex min-w-0 flex-col gap-1">
-            <h2 className="font-display text-xl leading-6 font-medium text-ink">
+          <div className="flex min-w-0 flex-col">
+            <h2 className="font-display text-base leading-6 font-medium text-ink">
               You are starting at step {startOrder}
             </h2>
             <p className="text-sm leading-5 text-grey-600">
               {record.startingPoint.source === "ACCEPTED"
                 ? "Suggested from your skill check, based on what you told us. "
                 : ""}
-              {startOrder > 1
-                ? `Steps 1${startOrder > 2 ? ` to ${startOrder - 1}` : ""} stay open and incomplete until you complete them.`
-                : "You are beginning at the first step."}
+              {startOrder > 2
+                ? `Steps 1 to ${startOrder - 1} stay open and incomplete until you complete them.`
+                : startOrder === 2
+                  ? "Step 1 stays open and incomplete until you complete it."
+                  : "You are beginning at the first step."}
             </p>
           </div>
           <Link
             to="/skill-check/$careerId/result"
             params={{ careerId: career.careerId }}
-            className="focus-ring w-fit shrink-0 rounded-lg border border-b-4 border-grey-100 bg-surface px-4 py-2 text-base leading-5 font-medium text-grey-600 transition-colors duration-200 ease-out hover:bg-grey-50 motion-reduce:transition-none"
+            className="focus-ring w-fit shrink-0 rounded text-sm leading-5 font-medium text-brand-600 hover:underline"
           >
             Change starting point
           </Link>
         </section>
       )}
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,500px)]">
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_500px]">
         {allDone || !nextStep ? (
-          <section className="flex flex-col gap-3 rounded-3xl border border-grey-100 bg-surface p-6 sm:p-8">
+          <section className="flex flex-col gap-4 rounded-[24px] border-[1.5px] border-brand-600 bg-surface p-6 sm:p-8">
             <Tag tone="success" className="font-medium">
               All steps complete
             </Tag>
-            <h2 className="font-display text-2xl leading-8 font-medium text-ink">
+            <h2 className="font-display text-[32px] leading-10 font-medium text-ink">
               You finished the {career.name} roadmap
             </h2>
             <p className="text-base leading-6 text-grey-600">
@@ -125,7 +131,7 @@ export function RoadmapPreview({
             </p>
             <Link
               to="/skill-check"
-              className="focus-ring w-fit rounded text-base font-medium text-brand-600 hover:underline"
+              className="focus-ring w-fit rounded text-sm leading-5 font-medium text-brand-600 hover:underline"
             >
               Back to Skill check
             </Link>
@@ -133,44 +139,50 @@ export function RoadmapPreview({
         ) : (
           <section
             aria-labelledby="up-next-title"
-            className="flex flex-col gap-6 rounded-3xl bg-surface p-6 outline-[1.5px] -outline-offset-1 outline-accent-600 sm:p-8"
+            className="flex flex-col gap-4 rounded-[24px] border-[1.5px] border-brand-600 bg-surface p-6 sm:p-8"
           >
-            <div className="flex flex-col gap-3">
-              <p className="text-sm leading-4 font-medium tracking-wide text-grey-600">
-                UP NEXT · STEP {nextStep.order}
-              </p>
-              <h2
-                id="up-next-title"
-                className="font-display text-2xl leading-8 font-medium text-ink"
-              >
-                {nextStep.title}
-              </h2>
-              <ul className="flex flex-wrap gap-2">
-                {nextStep.order === startOrder && (
-                  <li>
-                    <Tag tone="brand" className="font-medium">
-                      Start here
-                    </Tag>
-                  </li>
-                )}
+            <p className="text-[13px] leading-none font-medium text-brand-600 uppercase">
+              Up next · Step {nextStep.order}
+            </p>
+            <h2
+              id="up-next-title"
+              className="font-display text-[32px] leading-10 font-medium text-ink"
+            >
+              {nextStep.title}
+            </h2>
+            <ul className="flex flex-wrap gap-2">
+              {nextStep.order === startOrder && (
                 <li>
-                  <Tag tone="neutral">Next step</Tag>
+                  <Tag tone="brand" className="font-medium">
+                    Start here
+                  </Tag>
                 </li>
-                {gapSteps.has(nextStep.order) && (
-                  <li>
-                    <Tag tone="warning">Gap</Tag>
-                  </li>
-                )}
-              </ul>
-              {gapSteps.has(nextStep.order) && (
-                <p className="text-base leading-6 text-grey-600">
-                  Why this step: your check showed a gap here
-                  {nextStep.order < total
-                    ? `, and steps ${nextStep.order + 1} to ${total} build on it.`
-                    : "."}
-                </p>
               )}
-            </div>
+              <li>
+                <Tag tone="info">Next step</Tag>
+              </li>
+              {gapSteps.has(nextStep.order) && (
+                <li>
+                  <Tag tone="warning">Gap</Tag>
+                </li>
+              )}
+            </ul>
+            {nextGapNames.length > 0 && (
+              <p className="text-base leading-5 text-grey-600">
+                The skills your skill check flagged as a gap here: {formatNameList(nextGapNames)}.
+              </p>
+            )}
+            {gapSteps.has(nextStep.order) && (
+              <p className="text-sm leading-5 text-grey-500">
+                Why this step:{" "}
+                {nextStep.order === startOrder
+                  ? "it is the first topic where your check showed a gap"
+                  : "your check showed a gap here"}
+                {nextStep.order < total
+                  ? `, and steps ${nextStep.order + 1} to ${total} build on it.`
+                  : "."}
+              </p>
+            )}
             <div className="flex flex-col gap-2">
               <SkillButton
                 disabled={setComplete.isPending}
@@ -190,24 +202,24 @@ export function RoadmapPreview({
         )}
         <aside
           aria-labelledby="all-steps-title"
-          className="flex flex-col gap-4 rounded-3xl border border-grey-100 bg-surface p-5 lg:sticky lg:top-32"
+          className="flex flex-col overflow-hidden rounded-[24px] border border-grey-100 bg-surface lg:sticky lg:top-32"
         >
-          <div className="flex items-baseline justify-between gap-3">
-            <h2 id="all-steps-title" className="font-display text-lg leading-6 font-medium text-ink">
+          <div className="flex items-baseline justify-between gap-3 px-4 pt-4 pb-3">
+            <h2 id="all-steps-title" className="font-display text-base leading-6 font-medium text-ink">
               All steps
             </h2>
             <p className="text-sm leading-5 text-grey-600">
               {state.completedCount} of {total} complete
             </p>
           </div>
-          <ol className="flex flex-col gap-2">
+          <ol className="flex flex-col">
             {state.earlierOpen.length > 0 && (
-              <li className="flex flex-col gap-2">
+              <li>
                 <button
                   type="button"
                   aria-expanded={showEarlier}
                   onClick={() => setShowEarlier((value) => !value)}
-                  className="focus-ring flex min-h-12 w-full cursor-pointer items-center justify-between gap-3 rounded-xl bg-grey-50 px-4 py-3 text-left text-sm leading-5 text-grey-600 transition-colors duration-200 ease-out hover:bg-grey-100 motion-reduce:transition-none"
+                  className="focus-ring flex min-h-[52px] w-full cursor-pointer items-center justify-between gap-3 px-4 py-3 text-left text-sm leading-5 text-grey-600 transition-colors duration-200 ease-out hover:bg-grey-50 motion-reduce:transition-none"
                 >
                   <span>
                     {state.earlierOpen.length} earlier step
@@ -218,14 +230,9 @@ export function RoadmapPreview({
                   </span>
                 </button>
                 {showEarlier && (
-                  <ol className="flex flex-col gap-2 animate-in fade-in duration-200 motion-reduce:animate-none">
+                  <ol className="flex flex-col animate-in fade-in duration-200 motion-reduce:animate-none">
                     {state.earlierOpen.map((step) => (
-                      <StepRow
-                        key={step.order}
-                        step={step}
-                        done={false}
-                        current={false}
-                      />
+                      <StepRow key={step.order} step={step} done={false} current={false} />
                     ))}
                   </ol>
                 )}
@@ -246,7 +253,11 @@ export function RoadmapPreview({
         open={ratingStep !== null}
         careerId={career.careerId}
         tag={ratingStep ? `Step ${ratingStep.order} complete` : undefined}
-        title={ratingStep ? `${getStep(career, ratingStep.order)?.title}: how confident are you?` : undefined}
+        title={
+          ratingStep
+            ? `${getStep(career, ratingStep.order)?.title}: how confident are you?`
+            : undefined
+        }
         skills={ratableSkills}
         onClose={() => setRatingStep(null)}
       />
@@ -267,25 +278,24 @@ function StepRow({
     <li
       aria-current={current ? "step" : undefined}
       className={clsx(
-        "flex min-h-12 items-center gap-3 rounded-xl px-4 py-3 transition-colors duration-200 ease-out motion-reduce:transition-none",
-        current ? "bg-accent-50" : "bg-surface",
+        "flex items-center gap-3 px-4 py-4 transition-colors duration-200 ease-out motion-reduce:transition-none",
+        current ? "bg-brand-50" : "bg-surface",
       )}
     >
       <span
         aria-hidden
         className={clsx(
-          "grid size-7 shrink-0 place-items-center rounded-lg border-2 text-sm leading-5 font-medium",
-          done
-            ? "border-brand-500 bg-brand-500 text-white"
-            : current
-              ? "border-accent-600 text-ink"
-              : "border-grey-100 text-grey-600",
+          "grid size-7 shrink-0 place-items-center rounded-md border-2 text-brand-600",
+          current || done ? "border-brand-600" : "border-grey-200",
         )}
       >
-        {done ? <CheckRegular className="size-4" /> : step.order}
+        {done && <CheckRegular className="size-4" />}
       </span>
-      <span className="min-w-0 flex-1 text-base leading-5 font-medium text-ink">{step.title}</span>
-      {done && <span className="sr-only">Complete</span>}
+      <span className="min-w-0 flex-1 text-base leading-5 font-medium text-ink">
+        {step.order}. {step.title}
+        {done && <span className="sr-only"> (complete)</span>}
+      </span>
+      <ChevronRight aria-hidden className="size-4 shrink-0 text-grey-500" />
     </li>
   );
 }

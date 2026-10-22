@@ -14,7 +14,7 @@ export function InfoNote({
       className={clsx(
         "flex items-start gap-1 text-sm leading-5",
         boxed
-          ? "rounded-xl border border-grey-100 bg-grey-50 px-4 py-3 text-grey-600"
+          ? "rounded-lg border border-grey-100 bg-grey-50 px-4 py-3 text-grey-600"
           : "text-grey-500",
       )}
     >

@@ -10,6 +10,8 @@ interface ModalProps {
   children?: ReactNode;
   className?: string;
   compact?: boolean;
+  eyebrow?: ReactNode;
+  tight?: boolean;
 }
 
 export function Modal({
@@ -20,6 +22,8 @@ export function Modal({
   children,
   className,
   compact = false,
+  eyebrow,
+  tight = false,
 }: ModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -44,8 +48,8 @@ export function Modal({
       onClose={onClose}
       onClick={handleBackdropClick}
       className={clsx(
-        "m-auto max-h-[calc(100svh-2rem)] w-[calc(100%-2rem)] max-w-150 overflow-y-auto",
-        "rounded-3xl border border-grey-100 bg-surface p-0 text-ink",
+        "m-auto max-h-[calc(100svh-2rem)] w-[calc(100%-2rem)] max-w-[600px] overflow-y-auto",
+        "rounded-[24px] border border-grey-100 bg-surface p-0 text-ink",
         !compact && "shadow-[0_12px_32px_rgba(0,0,0,0.16)]",
         "backdrop:bg-black/50",
         "open:animate-in open:fade-in open:zoom-in-95 open:duration-200 open:ease-out motion-reduce:open:animate-none",
@@ -53,14 +57,19 @@ export function Modal({
       )}
     >
       <div className={clsx("flex flex-col gap-4", compact ? "p-6" : "p-8")}>
-        <h2 id={titleId} className="font-display text-2xl leading-7 font-medium">
-          {title}
-        </h2>
-        {description && (
-          <p id={descriptionId} className="text-base leading-5 text-grey-600">
-            {description}
-          </p>
-        )}
+        <div className="flex flex-col gap-4">
+          {eyebrow}
+          <div className={clsx("flex flex-col", tight ? "gap-2" : "gap-4")}>
+            <h2 id={titleId} className="font-display text-2xl leading-7 font-medium">
+              {title}
+            </h2>
+            {description && (
+              <p id={descriptionId} className="text-base leading-5 text-grey-600">
+                {description}
+              </p>
+            )}
+          </div>
+        </div>
         {children}
       </div>
     </dialog>

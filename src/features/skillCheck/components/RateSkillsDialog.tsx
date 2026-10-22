@@ -40,10 +40,17 @@ export function RateSkillsDialog({
       open={open}
       onClose={onClose}
       title={title}
-      className="max-w-140"
+      className="max-w-[560px]"
       description="Optional. This is your own view of your skill, not a test or a certification."
+      tight
+      eyebrow={
+        tag ? (
+          <Tag tone="success" className="font-medium">
+            {tag}
+          </Tag>
+        ) : undefined
+      }
     >
-      {open && tag && <Tag tone="success" className="-mb-2 px-2 font-medium">{tag}</Tag>}
       {open && (
         <RateForm
           careerId={careerId}
@@ -132,16 +139,22 @@ function RateForm({
       {failed && (
         <p
           role="alert"
-          className="rounded-xl border border-danger-600/30 bg-danger-50 px-4 py-3 text-sm leading-5 text-danger-700"
+          className="rounded-lg border border-danger-600/30 bg-danger-50 px-4 py-3 text-sm leading-5 text-danger-700"
         >
           Your rating did not save. Try again, or skip for now.
         </p>
       )}
-      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-        <SkillButton isPrimary={false} onClick={onClose} disabled={save.isPending}>
+      <div className="flex flex-col-reverse gap-3 sm:flex-row">
+        <SkillButton
+          isPrimary={false}
+          className="sm:flex-1"
+          onClick={onClose}
+          disabled={save.isPending}
+        >
           Skip
         </SkillButton>
         <SkillButton
+          className="sm:flex-1"
           onClick={() => void submit()}
           disabled={chosen.length === 0 || save.isPending}
         >

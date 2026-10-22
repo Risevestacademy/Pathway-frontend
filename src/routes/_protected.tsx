@@ -4,6 +4,8 @@ import { ensureAuthHydrated } from "../lib/api/auth.api";
 
 export const Route = createFileRoute("/_protected")({
   beforeLoad: async ({ location }) => {
+    if (import.meta.env.DEV) return;
+
     await ensureAuthHydrated();
     const isAuthenticated = selectIsAuthenticated(useAuthStore.getState());
 

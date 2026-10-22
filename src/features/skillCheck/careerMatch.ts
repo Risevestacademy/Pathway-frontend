@@ -1,7 +1,11 @@
 import { SKILL_CHECK_CAREERS } from "./skillCheck.mock";
 import type { SkillCheckCareer } from "./skillCheck.types";
 
-const normalise = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
+const normalise = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/engineering|engineer|development|developer/g, "dev")
+    .replace(/[^a-z0-9]/g, "");
 
 export function findSkillCheckCareerByTitle(title: string): SkillCheckCareer | null {
   const key = normalise(title);

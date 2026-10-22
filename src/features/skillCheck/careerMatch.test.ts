@@ -7,6 +7,11 @@ describe("findSkillCheckCareerByTitle", () => {
     expect(findSkillCheckCareerByTitle("ux designer")?.careerId).toBe("ux-designer");
   });
 
+  it("treats engineer and developer as the same word", () => {
+    expect(findSkillCheckCareerByTitle("Frontend Engineer")?.careerId).toBe("frontend-developer");
+    expect(findSkillCheckCareerByTitle("Backend Engineering")?.careerId).toBe("backend-developer");
+  });
+
   it("returns null for a career with no skill list", () => {
     expect(findSkillCheckCareerByTitle("Marine Biologist")).toBeNull();
   });
