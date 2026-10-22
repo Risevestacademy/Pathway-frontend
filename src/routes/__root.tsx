@@ -1,6 +1,7 @@
 import { createRootRoute, Link } from "@tanstack/react-router";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import * as Sentry from "@sentry/react";
+import { isAxiosError } from "axios";
 import { useEffect } from "react";
 import RootLayout from "../RootLayout";
 import AppShell from "../components/AppShell";
@@ -18,7 +19,9 @@ const NotFound = () => (
 
 const RouteError = ({ error, reset }: ErrorComponentProps) => {
   useEffect(() => {
-    Sentry.captureException(error);
+    if (!isAxiosError(error)) {
+      Sentry.captureException(error);
+    }
   }, [error]);
 
   return (

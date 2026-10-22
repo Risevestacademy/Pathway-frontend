@@ -9,6 +9,8 @@ import RoadmapError from "../../../../features/pathway/components/RoadmapError";
 import RoadmapSkeleton from "../../../../features/pathway/components/RoadmapSkeleton";
 import { fetchPathwayOrNull } from "../../../../lib/api/pathways.api";
 import { Link } from "@tanstack/react-router";
+import { analytics } from "@/lib/monitoring/events";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/careers/$careerId/roadmap/")({
   loader: async ({ params }) => {
@@ -22,6 +24,16 @@ export const Route = createFileRoute("/careers/$careerId/roadmap/")({
 
 function RoadmapRoute() {
   const result = Route.useLoaderData();
+  useEffect(() => {
+    if (!result || !result.roadmap) return;
+
+    analytics.trackFeature.roadmapViewed(
+      result.roadmap.id,
+      result.career.id,
+      result.career.title,
+    );
+  }, [result]);
+
   const navigate = useNavigate();
 
   const homeAction = (
