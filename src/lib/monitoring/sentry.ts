@@ -43,3 +43,22 @@ export function setSentryUser(userId: string) {
 export function clearSentryUser() {
   Sentry.setUser(null);
 }
+
+export function captureApiError(
+  error: unknown,
+  context: {
+    method?: string;
+    url?: string;
+    status?: number;
+    category: string;
+  },
+) {
+  Sentry.withScope((scope) => {
+    scope.setTag("error.category", context.category);
+    if (context.status !== undefined) {
+      scope.setTag("http.status_code", String(context.status));
+    }
+    scope.setContext("request", context);
+    Sentry.captureException(error);
+  });
+}

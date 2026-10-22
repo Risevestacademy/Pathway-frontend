@@ -12,6 +12,8 @@ import { useCareer } from "@/features/careerDetail/hooks/useCareer";
 import { DetailHero } from "@/features/careerDetail/components/detailHero";
 import { analytics } from "@/lib/monitoring/events";
 import { useEffect } from "react";
+import * as Sentry from "@sentry/react";
+import { isAxiosError } from "axios";
 
 export const Route = createFileRoute("/careers/$careerId/")({
   pendingComponent: DetailSkeleton,
@@ -20,7 +22,13 @@ export const Route = createFileRoute("/careers/$careerId/")({
 
 function CareerDetailRoute() {
   const { careerId } = Route.useParams();
-  const { data: result, isPending, isError, refetch } = useCareer(careerId);
+  const {
+    data: result,
+    isPending,
+    isError,
+    error,
+    refetch,
+  } = useCareer(careerId);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,6 +41,12 @@ function CareerDetailRoute() {
       result.level ?? "",
     );
   }, [result]);
+
+  useEffect(() => {
+    if (isError && !isAxiosError(error)) {
+      Sentry.captureException(error);
+    }
+  }, [error, isError]);
 
   if (isPending) return <DetailSkeleton />;
 

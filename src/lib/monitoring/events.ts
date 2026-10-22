@@ -17,6 +17,14 @@ export interface CustomEvents {
     interest: string;
     level: string;
   };
+
+  resource_opened: {
+    resource_id: string;
+    title: string;
+    provider: string;
+    kind: string;
+    timestamp: string;
+  };
 }
 
 export interface UserTraits {
@@ -77,6 +85,21 @@ export const analytics = {
         timestamp: new Date().toISOString(),
         interest: interest ?? "",
         level: level ?? "",
+      });
+    },
+
+    resourceOpened: (
+      resource_id: string,
+      title: string,
+      provider: string,
+      kind: string,
+    ) => {
+      analytics.track("resource_opened", {
+        resource_id,
+        title,
+        provider,
+        kind,
+        timestamp: new Date().toISOString(),
       });
     },
   },

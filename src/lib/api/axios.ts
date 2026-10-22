@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useAuthStore } from "../stores/authStore";
+import { captureApiError } from "../monitoring/sentry";
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -33,6 +34,16 @@ api.interceptors.response.use(
       originalRequest._retry ||
       isRefreshCall
     ) {
+      captureApiError(error, {
+        category: error.response
+          ? "http_error"
+          : error.code === "ECONNABORTED" || error.code === "ETIMEDOUT"
+            ? "timeout"
+            : "network_error",
+        method: originalRequest?.method?.toUpperCase(),
+        url: originalRequest?.url,
+        status: error.response?.status,
+      });
       return Promise.reject(error);
     }
 
