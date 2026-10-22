@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import clsx from "clsx";
 import { useActiveCareerId } from "../hooks/useSkillCheck";
 
@@ -10,11 +10,16 @@ const disabledTab = clsx(
 
 export function SkillCheckTabs() {
   const activeCareerId = useActiveCareerId().data;
+  const onRoadmap = useRouterState({ select: (state) => state.location.pathname.endsWith("/roadmap") });
   return (
     <nav aria-label="My Pathway sections" className="mb-4">
       <ul className="flex flex-wrap gap-2">
         <li>
-          {activeCareerId ? (
+          {onRoadmap ? (
+            <span aria-current="page" className={clsx(tabBase, "bg-brand-100 text-brand-700")}>
+              Roadmap
+            </span>
+          ) : activeCareerId ? (
             <Link
               to="/skill-check/$careerId/roadmap"
               params={{ careerId: activeCareerId }}
@@ -33,9 +38,21 @@ export function SkillCheckTabs() {
           )}
         </li>
         <li>
-          <span aria-current="page" className={clsx(tabBase, "bg-brand-100 text-brand-700")}>
-            Skill Check
-          </span>
+          {onRoadmap ? (
+            <Link
+              to="/skill-check"
+              className={clsx(
+                tabBase,
+                "focus-ring border border-grey-50 bg-surface text-grey-600 transition-colors duration-200 ease-out hover:bg-grey-50 motion-reduce:transition-none",
+              )}
+            >
+              Skill Check
+            </Link>
+          ) : (
+            <span aria-current="page" className={clsx(tabBase, "bg-brand-100 text-brand-700")}>
+              Skill Check
+            </span>
+          )}
         </li>
         <li>
           <span aria-disabled="true" title="Coming soon" className={disabledTab}>

@@ -17,7 +17,6 @@ import { HowItWorksDialog } from "./HowItWorksDialog";
 import { OtherCareersCard } from "./OtherCareersCard";
 import { PageHeading } from "./PageHeading";
 import { BackLink } from "./BackLink";
-import { SkillCheckTabs } from "./SkillCheckTabs";
 
 export function SkillCheckHub() {
   const navigate = useNavigate();
@@ -67,15 +66,14 @@ export function SkillCheckHub() {
   if (!careers || (active && (careerQuery.isPending || recordQuery.isPending))) {
     return (
       <>
-        <SkillCheckTabs />
         {heading}
         <div
           role="status"
           aria-label="Loading your skill check"
           className="grid gap-3 lg:grid-cols-[minmax(0,5fr)_minmax(0,3fr)]"
         >
-          <Skeleton className="h-80 rounded-3xl" />
-          <Skeleton className="h-80 rounded-3xl" />
+          <Skeleton className="h-80 rounded-[28px]" />
+          <Skeleton className="h-80 rounded-[28px]" />
         </div>
       </>
     );
@@ -84,7 +82,6 @@ export function SkillCheckHub() {
   if (active && (careerQuery.isError || recordQuery.isError || !careerQuery.data)) {
     return (
       <>
-        <SkillCheckTabs />
         {heading}
         <StateMessage
           kind="error"
@@ -112,7 +109,7 @@ export function SkillCheckHub() {
 
   return (
     <>
-      {showsResult ? <BackLink fallbackTo="/careers" /> : <SkillCheckTabs />}
+      {showsResult && <BackLink fallbackTo="/careers" />}
       {heading}
 
       <div

@@ -16,8 +16,7 @@ export function useRealCareerId(title: string | null): string | null {
   );
 }
 
-export function useRealRoadmap(title: string | null) {
-  const careerId = useRealCareerId(title);
+export function useRoadmapSteps(careerId: string | null) {
   const query = useQuery({
     queryKey: ["real-roadmap", careerId],
     queryFn: async () => {
@@ -28,5 +27,10 @@ export function useRealRoadmap(title: string | null) {
     staleTime: 5 * 60 * 1000,
     retry: false,
   });
-  return { careerId, steps: query.data ?? [] };
+  return query.data ?? [];
+}
+
+export function useRealRoadmap(title: string | null) {
+  const careerId = useRealCareerId(title);
+  return { careerId, steps: useRoadmapSteps(careerId) };
 }

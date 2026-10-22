@@ -1,6 +1,6 @@
 import type { TrackIconKey } from "../features/skillCheck/skillCheck.types";
 
-type Variant = "small" | "medium" | "large";
+type Variant = "small" | "medium" | "large" | "header";
 
 const files = import.meta.glob("/src/assets/icons/tracks/*.svg", {
   eager: true,
@@ -18,7 +18,9 @@ for (const [path, url] of Object.entries(files)) {
     ? "small"
     : base.endsWith("medium")
       ? "medium"
-      : "large";
+      : base.endsWith("header")
+        ? "header"
+        : "large";
   const key = variant === "large" ? base : base.slice(0, -variant.length);
   registry[key] = { ...registry[key], [variant]: url };
 }
@@ -35,6 +37,12 @@ export function getTrackIconUrl(icon: TrackIconKey, size: number): string | unde
   return pickVariant(size)
     .map((variant) => variants[variant])
     .find(Boolean);
+}
+
+export function getTrackHeroUrl(icon: TrackIconKey): string | undefined {
+  const variants = registry[normalise(icon)];
+  if (!variants) return undefined;
+  return variants.header ?? variants.large ?? variants.medium ?? variants.small;
 }
 
 export function hasTrackIcon(icon: TrackIconKey): boolean {

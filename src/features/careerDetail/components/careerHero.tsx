@@ -1,7 +1,7 @@
 import { FlashRegular, MagicHatRegular } from "@mingcute/react/core-regular";
 import type { ReactNode } from "react";
 import heroCubes from "@/assets/images/discover-hero-cubes.svg";
-import { TrackIcon } from "@/components/TrackIcon";
+import { getTrackHeroUrl } from "@/components/trackIcons";
 import type { Career } from "@/types/career.types";
 import { Tag } from "@/features/skillCheck/components/Tag";
 import type { TrackIconKey } from "@/features/skillCheck/skillCheck.types";
@@ -10,6 +10,7 @@ import type { HeroStats } from "../careerHero.placeholders";
 export function CareerHero({
   career,
   icon,
+  tint,
   isActive,
   forStudents,
   stats,
@@ -17,14 +18,22 @@ export function CareerHero({
 }: {
   career: Career;
   icon: TrackIconKey | null;
+  tint?: string;
   isActive: boolean;
   forStudents: boolean;
   stats: HeroStats;
   children?: ReactNode;
 }) {
+  const iconUrl = icon ? getTrackHeroUrl(icon) : undefined;
+
   return (
     <section
       aria-labelledby="career-heading"
+      style={
+        iconUrl && tint
+          ? { background: `linear-gradient(90deg, #FFFFFF 0%, #FFFFFF 50.23%, ${tint} 100%)` }
+          : undefined
+      }
       className="relative flex flex-col gap-6 overflow-hidden rounded-[24px] border border-grey-100 bg-surface p-6 sm:p-10 lg:min-h-[262px] lg:justify-center"
     >
       <div className="relative flex flex-col gap-4 lg:max-w-[55%]">
@@ -60,11 +69,13 @@ export function CareerHero({
         {children}
       </div>
 
-      {icon ? (
-        <TrackIcon
-          icon={icon}
-          size={420}
-          className="pointer-events-none absolute -right-16 -bottom-28 hidden select-none lg:block"
+      {iconUrl ? (
+        <img
+          src={iconUrl}
+          alt=""
+          aria-hidden
+          draggable={false}
+          className="pointer-events-none absolute -top-8 -right-[88px] hidden h-[530.62px] w-[441.56px] max-w-none select-none lg:block xl:-top-12 xl:-right-[118px] xl:h-[707.4989013671875px] xl:w-[588.7459106445312px]"
         />
       ) : (
         <img

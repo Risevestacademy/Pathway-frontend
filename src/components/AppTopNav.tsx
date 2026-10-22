@@ -52,13 +52,14 @@ export default function AppTopNav() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const email = useAuthStore((state) => state.user?.email);
   const signedIn = useAuthStore(selectIsAuthenticated);
+  const visibleItems = signedIn ? NAV_ITEMS : NAV_ITEMS.filter((item) => item.to !== null);
   const initial = email?.trim().charAt(0).toUpperCase() ?? "";
 
   return (
     <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-grey-50 bg-surface px-page-mobile py-4 sm:px-page-tablet lg:px-8 lg:py-8">
       <nav aria-label="Main">
         <ul className="flex items-center gap-2 rounded-[10px] bg-grey-50 p-1">
-          {NAV_ITEMS.map((item, index) => {
+          {visibleItems.map((item, index) => {
             const isActive = item.match !== null && pathname.startsWith(item.match);
             const label = (
               <>

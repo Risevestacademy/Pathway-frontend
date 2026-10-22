@@ -1,5 +1,9 @@
 import { Outlet, createFileRoute, useRouterState } from "@tanstack/react-router";
 import AppTopNav from "../../components/AppTopNav";
+import { SkillCheckTabs } from "../../features/skillCheck/components/SkillCheckTabs";
+
+const isQuestionnaire = (pathname: string) =>
+  /^\/skill-check\/[^/]+\/?$/.test(pathname);
 
 export const Route = createFileRoute("/_protected/skill-check")({
   component: SkillCheckLayout,
@@ -15,6 +19,7 @@ function SkillCheckLayout() {
           key={pathname}
           className="flex flex-col gap-6 animate-in fade-in duration-300 ease-out motion-reduce:animate-none"
         >
+          {!isQuestionnaire(pathname) && <SkillCheckTabs />}
           <Outlet />
         </div>
       </main>

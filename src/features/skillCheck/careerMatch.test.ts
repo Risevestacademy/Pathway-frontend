@@ -19,6 +19,13 @@ describe("findSkillCheckCareerByTitle", () => {
     expect(findSkillCheckCareerByTitle("UI/UX Designer")?.careerId).toBe("ux-designer");
   });
 
+  it("matches the real API career titles", () => {
+    const ids = ["Backend Engineer", "Data Analyst", "Frontend Engineer", "QA Engineer", "UI/UX Designer"].map(
+      (title) => findSkillCheckCareerByTitle(title)?.careerId ?? null,
+    );
+    expect(ids).toEqual(["backend-developer", "data-analyst", "frontend-developer", null, "ux-designer"]);
+  });
+
   it("returns null for a career with no skill list", () => {
     expect(findSkillCheckCareerByTitle("Marine Biologist")).toBeNull();
   });

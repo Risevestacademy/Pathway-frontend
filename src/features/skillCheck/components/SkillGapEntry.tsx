@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Modal } from "../../../components/ui/Modal";
 import { selectIsAuthenticated, useAuthStore } from "../../../lib/stores/authStore";
 import { findSkillCheckCareerByTitle } from "../careerMatch";
+import { useRoadmapSteps } from "../hooks/useRealCareer";
 import { ESTIMATED_MINUTES } from "../skillCheck.copy";
 import { SignInPromptDialog } from "./SignInPromptDialog";
 import { SkillButton, SkillLink } from "./SkillButton";
@@ -22,6 +23,7 @@ export function SkillGapEntry({
   const navigate = useNavigate();
   const signedIn = useAuthStore(selectIsAuthenticated);
   const match = findSkillCheckCareerByTitle(title, slug);
+  const firstStep = useRoadmapSteps(roadmapId ? careerId : null)[0];
   const [askOpen, setAskOpen] = useState(false);
   const [signInOpen, setSignInOpen] = useState(false);
 
@@ -60,14 +62,25 @@ export function SkillGapEntry({
       >
         <div className="flex flex-col gap-3 sm:flex-row">
           {roadmapId ? (
-            <SkillLink
-              isPrimary={false}
-              className="flex-1"
-              to="/careers/$careerId/roadmap"
-              params={{ careerId }}
-            >
-              Skip, start at step 1
-            </SkillLink>
+            firstStep ? (
+              <SkillLink
+                isPrimary={false}
+                className="flex-1"
+                to="/careers/$careerId/roadmap/$stepId"
+                params={{ careerId, stepId: firstStep.stepId }}
+              >
+                Skip, start at step 1
+              </SkillLink>
+            ) : (
+              <SkillLink
+                isPrimary={false}
+                className="flex-1"
+                to="/careers/$careerId/roadmap"
+                params={{ careerId }}
+              >
+                Skip, start at step 1
+              </SkillLink>
+            )
           ) : (
             <SkillButton isPrimary={false} className="flex-1" onClick={() => setAskOpen(false)}>
               Not now
