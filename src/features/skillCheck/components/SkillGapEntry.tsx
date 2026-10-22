@@ -10,16 +10,18 @@ import { SkillButton, SkillLink } from "./SkillButton";
 
 export function SkillGapEntry({
   title,
+  slug,
   roadmapId,
   careerId,
 }: {
   title: string;
+  slug?: string;
   roadmapId: string | null;
   careerId: string;
 }) {
   const navigate = useNavigate();
   const signedIn = useAuthStore(selectIsAuthenticated);
-  const match = findSkillCheckCareerByTitle(title);
+  const match = findSkillCheckCareerByTitle(title, slug);
   const [askOpen, setAskOpen] = useState(false);
   const [signInOpen, setSignInOpen] = useState(false);
 
@@ -32,7 +34,7 @@ export function SkillGapEntry({
     <>
       <aside
         aria-labelledby="skill-gap-title"
-        className="order-first flex flex-col gap-4 rounded-xl border border-brand-100 bg-brand-50 p-6 lg:order-last"
+        className="order-first flex flex-col gap-4 rounded-[20px] border border-brand-100 bg-brand-50 p-6 lg:order-last"
       >
         <h2 id="skill-gap-title" className="font-display text-2xl leading-6 font-medium text-ink">
           Check your skill gap
@@ -54,7 +56,7 @@ export function SkillGapEntry({
         onClose={() => setAskOpen(false)}
         title={`Check your skills for ${title}?`}
         description="Optional. Find your starting point or skip to step 1."
-        className="max-w-130"
+        className="max-w-[520px]"
       >
         <div className="flex flex-col gap-3 sm:flex-row">
           {roadmapId ? (

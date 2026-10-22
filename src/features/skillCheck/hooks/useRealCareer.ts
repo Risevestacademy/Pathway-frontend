@@ -2,13 +2,18 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchPathwayOrNull } from "../../../lib/api/pathways.api";
 import { useCareers } from "../../catalog/hooks/useCareers";
 import { mapPathwayToRoadmap } from "../../pathway/pathway.utils";
-import { normaliseCareerTitle } from "../careerMatch";
+import { findSkillCheckCareerByTitle, matchesSkillCheckCareer } from "../careerMatch";
 
 export function useRealCareerId(title: string | null): string | null {
   const { data } = useCareers({});
   if (!title || !Array.isArray(data)) return null;
-  const key = normaliseCareerTitle(title);
-  return data.find((career) => normaliseCareerTitle(career.title) === key)?.id ?? null;
+  const skillCheckCareer = findSkillCheckCareerByTitle(title);
+  if (!skillCheckCareer) return null;
+  return (
+    data.find((career) =>
+      matchesSkillCheckCareer(skillCheckCareer, { title: career.title, slug: career.slug }),
+    )?.id ?? null
+  );
 }
 
 export function useRealRoadmap(title: string | null) {

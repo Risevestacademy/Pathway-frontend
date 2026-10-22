@@ -9,7 +9,7 @@ import {
   TelescopeRegular,
 } from "@mingcute/react/core-regular";
 import type { ComponentType, SVGProps } from "react";
-import { useAuthStore } from "../lib/stores/authStore";
+import { selectIsAuthenticated, useAuthStore } from "../lib/stores/authStore";
 import { MOCK_USER_STATS } from "./appTopNav.mock";
 import { NavIcon } from "./NavIcon";
 
@@ -51,6 +51,7 @@ const statBase = "flex items-center gap-1.5 whitespace-nowrap p-1.5 text-base le
 export default function AppTopNav() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const email = useAuthStore((state) => state.user?.email);
+  const signedIn = useAuthStore(selectIsAuthenticated);
   const initial = email?.trim().charAt(0).toUpperCase() ?? "";
 
   return (
@@ -103,34 +104,44 @@ export default function AppTopNav() {
         </ul>
       </nav>
 
-      <div className="flex items-center gap-3 lg:gap-2">
-        <ul className="hidden items-center gap-2 rounded-[10px] border border-grey-50 p-1 lg:flex">
-          <li aria-label={`${MOCK_USER_STATS.xp} XP`} className={statBase}>
-            <CompassRegular aria-hidden size={16} color="var(--color-brand-500)" className="shrink-0" />
-            {MOCK_USER_STATS.xp} XP
-          </li>
-          <li aria-hidden className="h-8 w-px bg-grey-100" />
-          <li aria-label={`${MOCK_USER_STATS.streakDays} day streak`} className={statBase}>
-            <FlameRegular aria-hidden size={16} color="#ff9845" className="shrink-0" />
-            {MOCK_USER_STATS.streakDays}
-          </li>
-        </ul>
-        {avatarUrl ? (
-          <img
-            src={avatarUrl}
-            alt=""
-            aria-hidden
-            className="size-10 shrink-0 rounded-full"
-          />
-        ) : (
-          <div
-            aria-hidden
-            className="grid size-10 shrink-0 place-items-center rounded-full bg-accent-500 text-base font-semibold text-grey-900"
-          >
-            {initial}
-          </div>
-        )}
-      </div>
+      {signedIn ? (
+        <div className="flex items-center gap-3 lg:gap-2">
+          <ul className="hidden items-center gap-2 rounded-[10px] border border-grey-50 p-1 lg:flex">
+            <li aria-label={`${MOCK_USER_STATS.xp} XP`} className={statBase}>
+              <CompassRegular aria-hidden size={16} color="var(--color-brand-500)" className="shrink-0" />
+              {MOCK_USER_STATS.xp} XP
+            </li>
+            <li aria-hidden className="h-8 w-px bg-grey-100" />
+            <li aria-label={`${MOCK_USER_STATS.streakDays} day streak`} className={statBase}>
+              <FlameRegular aria-hidden size={16} color="#ff9845" className="shrink-0" />
+              {MOCK_USER_STATS.streakDays}
+            </li>
+          </ul>
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt=""
+              aria-hidden
+              className="size-10 shrink-0 rounded-full"
+            />
+          ) : (
+            <div
+              aria-hidden
+              className="grid size-10 shrink-0 place-items-center rounded-full bg-accent-500 text-base font-semibold text-grey-900"
+            >
+              {initial}
+            </div>
+          )}
+        </div>
+      ) : (
+        <Link
+          to="/login"
+          search={{ redirect: pathname }}
+          className="focus-ring rounded-lg border border-b-4 border-grey-100 bg-surface px-4 py-2 text-base leading-5 font-medium whitespace-nowrap text-grey-600 transition-colors duration-200 ease-out hover:bg-grey-50 motion-reduce:transition-none"
+        >
+          Sign in
+        </Link>
+      )}
     </header>
   );
 }

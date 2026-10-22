@@ -161,6 +161,7 @@ export function toCareer(data: ApiCareerDetail): Career {
   const skills = data.skills.map((skill) => skill.name).join(", ");
   return {
     id: data.id,
+    slug: data.slug,
     status: status(data.status),
     title: data.title,
     description: data.description,

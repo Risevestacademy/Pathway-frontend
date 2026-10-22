@@ -12,6 +12,13 @@ describe("findSkillCheckCareerByTitle", () => {
     expect(findSkillCheckCareerByTitle("Backend Engineering")?.careerId).toBe("backend-developer");
   });
 
+  it("matches by slug or a known alternative title", () => {
+    expect(findSkillCheckCareerByTitle("Something else", "backend-developer")?.careerId).toBe(
+      "backend-developer",
+    );
+    expect(findSkillCheckCareerByTitle("UI/UX Designer")?.careerId).toBe("ux-designer");
+  });
+
   it("returns null for a career with no skill list", () => {
     expect(findSkillCheckCareerByTitle("Marine Biologist")).toBeNull();
   });

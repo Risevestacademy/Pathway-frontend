@@ -1,4 +1,4 @@
-import { useCanGoBack, useNavigate, useRouter } from "@tanstack/react-router";
+import { Link, useCanGoBack, useNavigate, useRouter } from "@tanstack/react-router";
 import { ChevronsLeft } from "lucide-react";
 
 const backClass =
@@ -7,13 +7,35 @@ const backClass =
 export function BackLink({
   label = "Back",
   fallbackTo = "/skill-check",
+  to,
+  careerId,
 }: {
   label?: string;
   fallbackTo?: "/skill-check" | "/careers";
+  to?: "/careers" | "/careers/$careerId";
+  careerId?: string;
 }) {
   const router = useRouter();
   const navigate = useNavigate();
   const canGoBack = useCanGoBack();
+
+  if (to === "/careers") {
+    return (
+      <Link to="/careers" className={backClass}>
+        <ChevronsLeft aria-hidden className="size-6" />
+        {label}
+      </Link>
+    );
+  }
+
+  if (to === "/careers/$careerId" && careerId) {
+    return (
+      <Link to="/careers/$careerId" params={{ careerId }} className={backClass}>
+        <ChevronsLeft aria-hidden className="size-6" />
+        {label}
+      </Link>
+    );
+  }
 
   return (
     <button

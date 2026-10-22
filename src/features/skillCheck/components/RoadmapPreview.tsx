@@ -244,13 +244,18 @@ export function RoadmapPreview({
                     {showEarlier ? "Hide" : "Show"}
                   </span>
                 </button>
-                {showEarlier && (
-                  <ol className="flex flex-col animate-in fade-in duration-200 motion-reduce:animate-none">
+                <div
+                  className={clsx(
+                    "grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none",
+                    showEarlier ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+                  )}
+                >
+                  <ol inert={!showEarlier} className="flex min-h-0 flex-col overflow-hidden">
                     {state.earlierOpen.map((step) => (
                       <StepRow key={step.order} step={step} done={false} current={false} />
                     ))}
                   </ol>
-                )}
+                </div>
               </li>
             )}
             {state.visibleSteps.map((step) => (
@@ -304,7 +309,9 @@ function StepRow({
           current || done ? "border-brand-600" : "border-grey-200",
         )}
       >
-        {done && <CheckRegular className="size-4" />}
+        {done && (
+          <CheckRegular className="size-4 animate-in zoom-in-50 duration-200 motion-reduce:animate-none" />
+        )}
       </span>
       <span className="min-w-0 flex-1 text-base leading-5 font-medium text-ink">
         {step.order}. {step.title}
