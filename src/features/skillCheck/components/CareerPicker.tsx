@@ -29,7 +29,7 @@ export function CareerPicker({
   return (
     <div className="flex flex-col gap-4">
       <div className="field-control flex items-center gap-2">
-        <Search2Regular aria-hidden className="size-5 shrink-0 text-grey-500" />
+        <Search2Regular aria-hidden color="var(--color-grey-500)" className="size-5 shrink-0" />
         <label htmlFor={searchId} className="sr-only">
           Search careers
         </label>

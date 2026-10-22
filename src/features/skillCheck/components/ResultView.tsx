@@ -1,7 +1,6 @@
 import { ArrowRightRegular } from "@mingcute/react/core-regular";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { useRealCareerId } from "../hooks/useRealCareer";
 import { useSkillRatings } from "../hooks/useSkillCheck";
 import { getRatingsForSkill } from "../rating.utils";
 import {
@@ -435,7 +434,6 @@ function SettledPanel({
 }) {
   const step = getStep(career, startingPoint.stepOrder);
   const note = earlierNote(career, startingPoint.stepOrder);
-  const realId = useRealCareerId(career.name);
 
   return (
     <>
@@ -450,17 +448,10 @@ function SettledPanel({
         {note && <p className="text-sm leading-5 text-grey-600">{note}</p>}
       </div>
       <div className="flex flex-col gap-3">
-        {realId ? (
-          <SkillLink to="/careers/$careerId/roadmap" params={{ careerId: realId }}>
-            Go to roadmap
-            <ArrowRightRegular aria-hidden className="size-5" />
-          </SkillLink>
-        ) : (
-          <SkillLink to="/skill-check/$careerId/roadmap" params={{ careerId: career.careerId }}>
-            Go to roadmap
-            <ArrowRightRegular aria-hidden className="size-5" />
-          </SkillLink>
-        )}
+        <SkillLink to="/skill-check/$careerId/roadmap" params={{ careerId: career.careerId }}>
+          Go to roadmap
+          <ArrowRightRegular aria-hidden className="size-5" />
+        </SkillLink>
         <SkillLink to="/skill-check" isPrimary={false}>
           Back to Skill check
         </SkillLink>

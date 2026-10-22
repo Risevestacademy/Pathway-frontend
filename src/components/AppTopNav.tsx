@@ -106,12 +106,12 @@ export default function AppTopNav() {
       <div className="flex items-center gap-3 lg:gap-2">
         <ul className="hidden items-center gap-2 rounded-[10px] border border-grey-50 p-1 lg:flex">
           <li aria-label={`${MOCK_USER_STATS.xp} XP`} className={statBase}>
-            <CompassRegular aria-hidden className="size-5 text-brand-500" />
+            <CompassRegular aria-hidden size={16} color="var(--color-brand-500)" className="shrink-0" />
             {MOCK_USER_STATS.xp} XP
           </li>
           <li aria-hidden className="h-8 w-px bg-grey-100" />
           <li aria-label={`${MOCK_USER_STATS.streakDays} day streak`} className={statBase}>
-            <FlameRegular aria-hidden className="size-5 text-[#ff9845]" />
+            <FlameRegular aria-hidden size={16} color="#ff9845" className="shrink-0" />
             {MOCK_USER_STATS.streakDays}
           </li>
         </ul>

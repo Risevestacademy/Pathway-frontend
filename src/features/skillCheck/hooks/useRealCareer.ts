@@ -1,10 +1,27 @@
+import { useQuery } from "@tanstack/react-query";
+import { fetchPathwayOrNull } from "../../../lib/api/pathways.api";
 import { useCareers } from "../../catalog/hooks/useCareers";
-
-const normalise = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
+import { mapPathwayToRoadmap } from "../../pathway/pathway.utils";
+import { normaliseCareerTitle } from "../careerMatch";
 
 export function useRealCareerId(title: string | null): string | null {
   const { data } = useCareers({});
-  if (!title || !data) return null;
-  const key = normalise(title);
-  return data.find((career) => normalise(career.title) === key)?.id ?? null;
+  if (!title || !Array.isArray(data)) return null;
+  const key = normaliseCareerTitle(title);
+  return data.find((career) => normaliseCareerTitle(career.title) === key)?.id ?? null;
+}
+
+export function useRealRoadmap(title: string | null) {
+  const careerId = useRealCareerId(title);
+  const query = useQuery({
+    queryKey: ["real-roadmap", careerId],
+    queryFn: async () => {
+      const pathway = await fetchPathwayOrNull(careerId as string);
+      return pathway ? (mapPathwayToRoadmap(pathway)?.roadmap?.steps ?? []) : [];
+    },
+    enabled: careerId !== null,
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  });
+  return { careerId, steps: query.data ?? [] };
 }

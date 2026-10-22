@@ -4,13 +4,14 @@ import clsx from "clsx";
 import { ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { StateMessage } from "../../../components/ui/StateMessage";
+import { useRealRoadmap } from "../hooks/useRealCareer";
 import { useCompletedSteps, useSetStepComplete } from "../hooks/useRoadmapPreview";
 import { getRoadmapPreviewState } from "../roadmapPreview.utils";
 import { buildGaps, formatNameList, getStep } from "../skillCheck.utils";
 import type { SkillCheckCareer, SkillCheckRecord, SkillCheckStep } from "../skillCheck.types";
 import { PageHeading } from "./PageHeading";
 import { RateSkillsDialog } from "./RateSkillsDialog";
-import { SkillButton } from "./SkillButton";
+import { SkillButton, SkillLink } from "./SkillButton";
 import { Tag } from "./Tag";
 
 export function RoadmapPreview({
@@ -24,6 +25,7 @@ export function RoadmapPreview({
   const setComplete = useSetStepComplete(career.careerId);
   const [ratingStep, setRatingStep] = useState<SkillCheckStep | null>(null);
   const [showEarlier, setShowEarlier] = useState(false);
+  const realRoadmap = useRealRoadmap(career.name);
 
   const startOrder = record.startingPoint?.stepOrder ?? 1;
   const completed = completedQuery.data ?? [];
@@ -67,6 +69,8 @@ export function RoadmapPreview({
   const nextGapNames = nextStep
     ? gaps.filter((gap) => gap.step.order === nextStep.order).map((gap) => gap.skill.name)
     : [];
+
+  const realStep = nextStep ? realRoadmap.steps[nextStep.order - 1] : undefined;
 
   function complete(step: SkillCheckStep) {
     setComplete.mutate(
@@ -184,14 +188,25 @@ export function RoadmapPreview({
               </p>
             )}
             <div className="flex flex-col gap-2">
-              <SkillButton
-                disabled={setComplete.isPending}
-                onClick={() => complete(nextStep)}
-                className="w-fit"
-              >
-                Mark step {nextStep.order} complete
-                <ArrowRightRegular aria-hidden className="size-5" />
-              </SkillButton>
+              <div className="flex flex-wrap gap-3">
+                {realStep && realRoadmap.careerId && (
+                  <SkillLink
+                    to="/careers/$careerId/roadmap/$stepId"
+                    params={{ careerId: realRoadmap.careerId, stepId: realStep.stepId }}
+                  >
+                    Open step {nextStep.order}
+                    <ArrowRightRegular aria-hidden className="size-5" />
+                  </SkillLink>
+                )}
+                <SkillButton
+                  isPrimary={!realStep}
+                  disabled={setComplete.isPending}
+                  onClick={() => complete(nextStep)}
+                >
+                  Mark step {nextStep.order} complete
+                  {!realStep && <ArrowRightRegular aria-hidden className="size-5" />}
+                </SkillButton>
+              </div>
               {setComplete.isError && (
                 <p role="alert" className="text-sm leading-5 text-danger-600">
                   We could not save that. Try again.
