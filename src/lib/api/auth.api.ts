@@ -150,7 +150,9 @@ export async function verifyEmail(
     return "data" in data ? data.data : data;
   } catch (error) {
     if (isAxiosError(error) && error.response?.status === 400) {
-      throw new Error("That code is invalid or has expired. Request a new one.");
+      throw new Error("That code is invalid or has expired. Request a new one.", {
+        cause: error,
+      });
     }
     throw getAuthRequestError(
       error,
