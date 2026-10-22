@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-password'
+import { Route as authSignupRouteImport } from './routes/(auth)/signup'
+import { Route as authVerifyEmailRouteImport } from './routes/(auth)/verify-email'
 import { Route as ProtectedProgressRouteImport } from './routes/_protected/progress'
 import { Route as CareersIndexRouteImport } from './routes/careers/index'
 import { Route as authResetPasswordResetRouteImport } from './routes/(auth)/reset-password_.reset'
@@ -41,6 +43,16 @@ const authLoginRoute = authLoginRouteImport.update({
 const authResetPasswordRoute = authResetPasswordRouteImport.update({
   id: '/(auth)/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authSignupRoute = authSignupRouteImport.update({
+  id: '/(auth)/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authVerifyEmailRoute = authVerifyEmailRouteImport.update({
+  id: '/(auth)/verify-email',
+  path: '/verify-email',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProtectedProgressRoute = ProtectedProgressRouteImport.update({
@@ -101,6 +113,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof authLoginRoute
   '/reset-password': typeof authResetPasswordRoute
+  '/signup': typeof authSignupRoute
+  '/verify-email': typeof authVerifyEmailRoute
   '/progress': typeof ProtectedProgressRoute
   '/careers/': typeof CareersIndexRoute
   '/reset-password/reset': typeof authResetPasswordResetRoute
@@ -116,6 +130,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof authLoginRoute
   '/reset-password': typeof authResetPasswordRoute
+  '/signup': typeof authSignupRoute
+  '/verify-email': typeof authVerifyEmailRoute
   '/progress': typeof ProtectedProgressRoute
   '/careers': typeof CareersIndexRoute
   '/reset-password/reset': typeof authResetPasswordResetRoute
@@ -133,6 +149,8 @@ export interface FileRoutesById {
   '/_protected': typeof ProtectedRouteWithChildren
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/reset-password': typeof authResetPasswordRoute
+  '/(auth)/signup': typeof authSignupRoute
+  '/(auth)/verify-email': typeof authVerifyEmailRoute
   '/_protected/progress': typeof ProtectedProgressRoute
   '/careers/': typeof CareersIndexRoute
   '/(auth)/reset-password_/reset': typeof authResetPasswordResetRoute
@@ -150,6 +168,8 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/reset-password'
+    | '/signup'
+    | '/verify-email'
     | '/progress'
     | '/careers/'
     | '/reset-password/reset'
@@ -165,6 +185,8 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/reset-password'
+    | '/signup'
+    | '/verify-email'
     | '/progress'
     | '/careers'
     | '/reset-password/reset'
@@ -181,6 +203,8 @@ export interface FileRouteTypes {
     | '/_protected'
     | '/(auth)/login'
     | '/(auth)/reset-password'
+    | '/(auth)/signup'
+    | '/(auth)/verify-email'
     | '/_protected/progress'
     | '/careers/'
     | '/(auth)/reset-password_/reset'
@@ -198,6 +222,8 @@ export interface RootRouteChildren {
   ProtectedRoute: typeof ProtectedRouteWithChildren
   authLoginRoute: typeof authLoginRoute
   authResetPasswordRoute: typeof authResetPasswordRoute
+  authSignupRoute: typeof authSignupRoute
+  authVerifyEmailRoute: typeof authVerifyEmailRoute
   CareersIndexRoute: typeof CareersIndexRoute
   authResetPasswordResetRoute: typeof authResetPasswordResetRoute
   CareersOnboardingAboutRoute: typeof CareersOnboardingAboutRoute
@@ -236,6 +262,20 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof authResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/signup': {
+      id: '/(auth)/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof authSignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/verify-email': {
+      id: '/(auth)/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof authVerifyEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_protected/progress': {
@@ -343,6 +383,8 @@ const rootRouteChildren: RootRouteChildren = {
   ProtectedRoute: ProtectedRouteWithChildren,
   authLoginRoute: authLoginRoute,
   authResetPasswordRoute: authResetPasswordRoute,
+  authSignupRoute: authSignupRoute,
+  authVerifyEmailRoute: authVerifyEmailRoute,
   CareersIndexRoute: CareersIndexRoute,
   authResetPasswordResetRoute: authResetPasswordResetRoute,
   CareersOnboardingAboutRoute: CareersOnboardingAboutRoute,

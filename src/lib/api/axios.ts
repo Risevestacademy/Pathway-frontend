@@ -7,6 +7,24 @@ export const api = axios.create({
   withCredentials: true,
 });
 
+interface RefreshResponse {
+  accessToken: string;
+}
+
+interface WrappedRefreshResponse {
+  data: RefreshResponse;
+}
+
+export async function refreshAccessToken(): Promise<string> {
+  const { data } = await api.post<RefreshResponse | WrappedRefreshResponse>(
+    "/auth/refresh",
+  );
+  const response = "data" in data ? data.data : data;
+
+  useAuthStore.getState().setAccessToken(response.accessToken);
+  return response.accessToken;
+}
+
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken;
   if (token) {
@@ -26,12 +44,16 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    const isRefreshCall = originalRequest?.url === "/auth/refresh";
+    const isAuthRequest =
+      originalRequest?.url === "/auth/refresh" ||
+      originalRequest?.url === "/auth/login" ||
+      originalRequest?.url === "/auth/register" ||
+      originalRequest?.url === "/auth/google";
     if (
       !originalRequest ||
       error.response?.status !== 401 ||
       originalRequest._retry ||
-      isRefreshCall
+      isAuthRequest
     ) {
       return Promise.reject(error);
     }
@@ -46,8 +68,7 @@ api.interceptors.response.use(
 
     isRefreshing = true;
     try {
-      const { data } = await api.post("/auth/refresh");
-      useAuthStore.getState().setAccessToken(data.data.accessToken);
+      await refreshAccessToken();
       pendingRequests.forEach(({ resolve }) => resolve(undefined));
       pendingRequests = [];
       return api(originalRequest);
