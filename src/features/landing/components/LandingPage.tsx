@@ -2,11 +2,13 @@ import { useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { ensureAuthHydrated } from "../../../lib/api/auth.api";
 import { selectIsAuthenticated, useAuthStore } from "../../../lib/stores/authStore";
-import { HERO } from "../landing.copy";
+import HeroSection from "./HeroSection";
+import LandingFooter from "./LandingFooter";
+import LandingNav from "./LandingNav";
 
 /**
- * Public landing page at `/`. Sections land in later commits; this is the
- * frame that owns the fonts, background and the signed-in redirect.
+ * Public landing page at `/`. Owns the landing type system, the sticky nav
+ * and the signed-in redirect; each section is its own component.
  */
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -25,14 +27,11 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-svh bg-white font-landing-body text-ink antialiased">
+      <LandingNav />
       <main>
-        <section className="mx-auto max-w-[1064px] px-page-mobile py-24 text-center">
-          <h1 className="font-landing-display text-5xl font-bold tracking-tight">
-            {HERO.headingStart} {HERO.headingEnd}
-          </h1>
-          <p className="mx-auto mt-6 max-w-[48ch] text-lg text-grey-500">{HERO.subtitle}</p>
-        </section>
+        <HeroSection />
       </main>
+      <LandingFooter />
     </div>
   );
 }
