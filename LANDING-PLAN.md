@@ -1,6 +1,6 @@
 # Landing page: technical plan
 
-Status: **approved 2026-10-23** with the decisions recorded in section 10. Nothing has been built yet; section 11 is the build order.
+Status: **built 2026-10-23** on branch `feat/landing-page` following the decisions in section 10 and the build order in section 11. Section 12 records where the implementation deviates from the text below.
 
 Sources analysed (all in `landing-page-assets/`):
 
@@ -323,3 +323,17 @@ Branch `feat/landing-page` off `dev`, one PR into `dev`. Each step below is one 
 4. **Folder stack**: sticky stack, inline folder shapes, chips, icon tiles.
 5. **FAQ + CTA**: Radix accordion, CTA card with keychain sway.
 6. **Responsive pass + reduced motion + tests**.
+
+---
+
+## 12. Implementation notes (what differs from the spec above)
+
+- **Signed-in redirect** (section 5): `beforeLoad` only does the synchronous auth check, so a cold backend never delays first paint. `LandingPage` finishes `ensureAuthHydrated()` in an effect and redirects to `/careers` once a session is known.
+- **Sticker card windows** (section 3.2): card *i* animates over `[0.15i, 0.15i + 0.3]` of `p` (not `0.18i`) and the progress range is 85% to 45% of the viewport, so all four cards are settled while the heading is still in view. Below `xl` (1280px) the cards sit in a 2-column grid (1 column under `sm`) instead of overlapping, because the 1064px overlap column does not fit at 1024.
+- **Folder shapes** (section 3.4): the tab strip is the export path's top 170 units drawn as an SVG that keeps its aspect ratio, so the tab scales with the folder width; the body is a plain div below it. Folder *i* is `507 + (3 - i) * 157` tall so every bottom edge lines up when stacked and the stack unsticks as one block. Below `lg` the step is 120px, the base height 480px, and the content wraps to a column.
+- **Headings** keep the export's line breaks as `\n` in `landing.copy.ts`, rendered with `whitespace-pre-line` from `sm`.
+- **Mobile nav**: a disclosure menu (hamburger) below `md` with the four links and Log in; Get Started stays visible at every width.
+- **CTA below lg**: the wave and keychain stack under the copy instead of being hidden.
+- **Fonts**: Sour Gummy is imported via `@fontsource-variable/sour-gummy/wght.css` (latin + latin-ext). Borscha and Neue Montreal are served as the original ttf/otf files.
+- **Tests**: the repo has no jest-dom, so component tests assert with `getByText` / `queryByText` null checks. Suite: copy shape, `scrollProgress` maths, `useInView` with a stubbed observer, FAQ single-open behaviour.
+- **Verification**: desktop positions were measured against the export (nav, H1, section headings and the first step card all within 15px); scroll states and drag were exercised with headless Chrome at 1440, 1280, 1024, 768 and 390.
