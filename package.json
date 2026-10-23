@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/sour-gummy": "^5.3.0",
     "@mingcute/react": "^3.0.2",
     "@posthog/react": "^1.11.1",
     "@sentry/react": "^10.75.0",
@@ -54,6 +55,7 @@
     "jsdom": "^29.1.1",
     "msw": "^2.15.0",
     "postcss": "^8.5.28",
+    "sharp": "^0.35.5",
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.69.0",

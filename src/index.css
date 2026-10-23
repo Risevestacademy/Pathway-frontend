@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+/* Landing page handwritten accent font (Sour Gummy, variable weight) */
+@import "@fontsource-variable/sour-gummy/wght.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -30,7 +32,69 @@
   font-display: swap;
 }
 
+/* Landing page families (static faces, see LANDING-PLAN.md section 2) */
+@font-face {
+  font-family: "Borscha";
+  src: url("./assets/fonts/Borscha-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Borscha";
+  src: url("./assets/fonts/Borscha-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Borscha";
+  src: url("./assets/fonts/Borscha-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Neue Montreal";
+  src: url("./assets/fonts/NeueMontreal-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Neue Montreal";
+  src: url("./assets/fonts/NeueMontreal-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme static {
+  /* Landing page only — never used inside the app shell. Values eyedropped
+   * from the landing page export (LANDING-PLAN.md section 2). */
+  --font-landing-display: "Borscha", "Google Sans Flex", ui-sans-serif, system-ui, sans-serif;
+  --font-landing-body: "Neue Montreal", "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --font-accent: "Sour Gummy Variable", "Comic Sans MS", cursive;
+
+  --color-landing-mint: #e5f9ef; /* how it works band */
+  --color-landing-mint-card: #ccf4df; /* how it works cards */
+  --color-landing-mint-fold: #99e8c0; /* folded corner of those cards */
+  --color-landing-sticker-blue: #e6f4ff;
+  --color-landing-sticker-cream: #fff8eb;
+  --color-landing-sticker-pink: #ffeaf4;
+  --color-landing-folder-peach: #feeee7;
+  --color-landing-folder-green: #f4faeb;
+  --color-landing-folder-green-line: #d8ecb6;
+  --color-landing-footer: #1d5036;
+  --color-landing-pink: #ff3193; /* hero briefcase squircle */
+  --color-landing-green: #00c660; /* hero send squircle */
+  --color-landing-yellow: #f2b53c; /* data analyst chips */
+  --color-landing-leaf: #7fb33a; /* ux researcher chips */
+
   /* Brand — Pathway purple. 500 is the logomark color (#9E67F7) and the
    * primary button fill in the design team's auth screen. Note: white text
    * on 500 is ~3.6:1 (below WCAG AA for normal text) — flagged to design. */
