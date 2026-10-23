@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { ensureAuthHydrated } from "../../../lib/api/auth.api";
 import { selectIsAuthenticated, useAuthStore } from "../../../lib/stores/authStore";
+import CareerFolderStack from "./CareerFolderStack";
 import HeroSection from "./HeroSection";
 import HowItWorksSection from "./HowItWorksSection";
 import LandingFooter from "./LandingFooter";
@@ -34,6 +35,7 @@ export default function LandingPage() {
         <HeroSection />
         <StickerCardsSection />
         <HowItWorksSection />
+        <CareerFolderStack />
       </main>
       <LandingFooter />
     </div>

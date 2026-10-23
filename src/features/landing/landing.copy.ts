@@ -92,8 +92,8 @@ export interface CareerFolder {
 }
 
 export const CAREERS_SECTION = {
-  heading: "Explore careers, mapped end to end.",
-  subtitle: "Career outlook, skills, roadmaps, and opportunities in one place.",
+  heading: "Explore careers,\nmapped end to end.",
+  subtitle: "Career outlook, skills, roadmaps, and\nopportunities in one place.",
   cta: "Explore careers",
 } as const;
 
