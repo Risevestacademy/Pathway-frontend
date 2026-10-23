@@ -1,10 +1,11 @@
 /**
  * Folder tab strips from the export (`Vector 19` to `Vector 22`, 1360 x 507).
- * Only the top 170px (tab + outer rounded corner) is drawn as SVG; the body
- * below is a plain div so the folder can be any height. The strip stretches
- * horizontally with the folder; strokes keep 1px via vector-effect.
+ * Only the top 170 units (tab + outer rounded corner) are drawn as SVG; the
+ * body below is a plain div so the folder can be any height. The strip keeps
+ * its aspect ratio, so the tab scales with the folder width; strokes stay 1px
+ * via vector-effect.
  */
-export const FOLDER_TAB_HEIGHT = 170;
+export const FOLDER_TAB_RATIO = 170 / 1360;
 
 const TABS = [
   {
@@ -29,15 +30,15 @@ const TABS = [
   },
 ] as const;
 
-export function FolderTab({ variant }: { variant: 0 | 1 | 2 | 3 | number }) {
+export function FolderTab({ variant }: { variant: number }) {
   const tab = TABS[variant % TABS.length];
   return (
     <svg
       aria-hidden
-      viewBox={`0 0 1360 ${FOLDER_TAB_HEIGHT}`}
-      preserveAspectRatio="none"
-      className="block w-full"
-      style={{ height: FOLDER_TAB_HEIGHT }}
+      viewBox="0 0 1360 170"
+      className="block h-auto w-full shrink-0"
+      // 1px overlap hides any sub-pixel seam against the body below.
+      style={{ marginBottom: -1 }}
     >
       <path d={tab.d} fill={tab.fill} stroke={tab.stroke} vectorEffect="non-scaling-stroke" />
     </svg>

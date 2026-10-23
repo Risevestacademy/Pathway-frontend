@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import type { CSSProperties } from "react";
 import { HERO } from "../landing.copy";
 import { container } from "../landing.styles";
 import { LandingLinkButton } from "./LandingButton";
@@ -12,9 +13,15 @@ import card3 from "@/assets/landing/hero-card-3.webp";
 
 /**
  * The three profile cards are pre-rotated exports. Positions are the 1440px
- * export coordinates relative to the 1440 x 470 stage that holds the cards
- * and the two cloud bands (stage top = export y 540).
+ * export coordinates on the 1440 x 470 stage that holds the cards and the two
+ * cloud bands (stage top = export y 540). The stage is a container-query
+ * context, so every value is expressed in cqw and the whole artboard scales
+ * with its width; below 900px it is cropped from the centre instead.
  */
+const STAGE_WIDTH = 1440;
+const STAGE_HEIGHT = 470;
+const cqw = (px: number) => `${((px / STAGE_WIDTH) * 100).toFixed(3)}cqw`;
+
 const CARDS = [
   { src: card3, width: 695, left: 285, top: 42, delay: "0ms" }, // back: Taiwo Talaricp
   { src: card2, width: 787, left: 326, top: 14, delay: "110ms" }, // middle: Ethel Chidera
@@ -60,31 +67,42 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* Stage: clouds + cards. Fixed 1440px artboard, centred and cropped on narrower screens. */}
-      <div aria-hidden className="relative mt-8 h-[470px] w-full overflow-hidden lg:mt-10">
-        <div className="absolute left-1/2 h-full w-[1440px] -translate-x-1/2">
-          <img
-            src={cloudBack}
-            alt=""
-            draggable={false}
-            className="absolute bottom-0 left-0 w-[1440px] max-w-none select-none"
-          />
-          {CARDS.map((card) => (
+      {/* Stage: clouds + cards. Scales with the viewport down to 900px, then crops from the centre. */}
+      <div aria-hidden className="relative mt-8 w-full overflow-hidden lg:mt-10">
+        <div
+          className="relative left-1/2 w-[max(100%,900px)] -translate-x-1/2 [container-type:inline-size]"
+        >
+          <div className="relative" style={{ height: cqw(STAGE_HEIGHT) }}>
             <img
-              key={card.src}
-              src={card.src}
+              src={cloudBack}
               alt=""
               draggable={false}
-              style={{ width: card.width, left: card.left, top: card.top, animationDelay: card.delay }}
-              className="absolute max-w-none select-none animate-landing-card-rise motion-reduce:animate-none"
+              className="absolute bottom-0 left-0 w-full max-w-none select-none"
             />
-          ))}
-          <img
-            src={cloudFront}
-            alt=""
-            draggable={false}
-            className="absolute bottom-0 left-0 w-[1440px] max-w-none select-none"
-          />
+            {CARDS.map((card) => (
+              <img
+                key={card.src}
+                src={card.src}
+                alt=""
+                draggable={false}
+                style={
+                  {
+                    width: cqw(card.width),
+                    left: cqw(card.left),
+                    top: cqw(card.top),
+                    animationDelay: card.delay,
+                  } as CSSProperties
+                }
+                className="absolute max-w-none select-none animate-landing-card-rise motion-reduce:animate-none"
+              />
+            ))}
+            <img
+              src={cloudFront}
+              alt=""
+              draggable={false}
+              className="absolute bottom-0 left-0 w-full max-w-none select-none"
+            />
+          </div>
         </div>
       </div>
     </section>

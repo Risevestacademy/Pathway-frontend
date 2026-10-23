@@ -2,17 +2,12 @@ import clsx from "clsx";
 import type { CSSProperties } from "react";
 import { CAREERS, CAREERS_SECTION, type CareerFolder, type CareerTone } from "../landing.copy";
 import { sectionHeading, sectionSubtitle } from "../landing.styles";
-import { FolderTab, FOLDER_TAB_HEIGHT } from "./FolderShape";
+import { FolderTab } from "./FolderShape";
 import { LandingLinkButton } from "./LandingButton";
 import iconFullstack from "@/assets/landing/career-fullstack.svg";
 import iconData from "@/assets/landing/career-data.svg";
 import iconUx from "@/assets/landing/career-ux.svg";
 import iconPm from "@/assets/landing/career-pm.svg";
-
-/** Export geometry at the 1440 frame. */
-const FOLDER_HEIGHT = 507;
-const STEP = 157; // vertical offset between stacked folders (uniform, per design)
-const NAV_CLEARANCE = 120; // nav bottom (96) + 24
 
 const ICONS: Record<CareerFolder["id"], string> = {
   fullstack: iconFullstack,
@@ -30,15 +25,21 @@ const TONES: Record<CareerTone, { body: string; tile: string; chip: string }> = 
 
 /**
  * Scroll-driven stacking folders, pure CSS. Each folder is `position: sticky`
- * with a top offset that grows by STEP, so the next one slides over the
+ * with a top offset that grows by `--step`, so the next one slides over the
  * previous one's body and leaves its tab showing (demo 0:23.5 to 0:32).
  * Earlier folders are taller by the same steps so that every folder's bottom
  * edge lines up once stacked: they unstick together and the finished stack
  * scrolls away as one block instead of peeling apart.
+ *
+ * Geometry (export, 1440 frame): folder 507 tall, 157px step, nav clearance
+ * 120. Smaller screens use a shorter step and a taller base so the wrapped
+ * content still fits; both live in CSS variables on the article.
  */
 export default function CareerFolderStack() {
+  const last = CAREERS.length - 1;
+
   return (
-    <section aria-labelledby="landing-careers-heading" className="bg-white pt-[130px]">
+    <section aria-labelledby="landing-careers-heading" className="bg-white pt-[100px] lg:pt-[130px]">
       <div className="px-page-mobile text-center">
         <h2
           id="landing-careers-heading"
@@ -54,60 +55,70 @@ export default function CareerFolderStack() {
       <div className="relative mt-[45px]">
         {CAREERS.map((career, index) => {
           const tone = TONES[career.tone];
-          const last = CAREERS.length - 1;
           return (
             <article
               key={career.id}
               aria-labelledby={`landing-career-${career.id}`}
               style={
                 {
-                  top: NAV_CLEARANCE + index * STEP,
-                  height: FOLDER_HEIGHT + (last - index) * STEP,
+                  top: `calc(var(--nav-clearance) + ${index} * var(--step))`,
+                  height: `calc(var(--folder-h) + ${last - index} * var(--step))`,
                 } as CSSProperties
               }
               className={clsx(
-                "sticky w-[calc(100%-80px)] max-w-[1360px]",
+                "sticky flex flex-col",
+                "[--nav-clearance:100px] [--step:120px] [--folder-h:480px]",
+                "lg:[--nav-clearance:120px] lg:[--step:157px] lg:[--folder-h:507px]",
+                "w-[calc(100%-24px)] max-w-[1360px] lg:w-[calc(100%-80px)]",
                 index % 2 === 1 ? "ml-auto" : "mr-auto",
               )}
             >
               <FolderTab variant={index} />
-              <div
-                style={{ top: FOLDER_TAB_HEIGHT }}
-                className={clsx("absolute inset-x-0 bottom-0", tone.body)}
-              />
-
-              <div className="absolute inset-x-[100px] top-[250px] flex items-center gap-10">
-                <div
-                  className={clsx("grid size-40 shrink-0 place-items-center rounded-[32px]", tone.tile)}
-                >
-                  <img src={ICONS[career.id]} alt="" aria-hidden draggable={false} className="size-[136px]" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h3
-                    id={`landing-career-${career.id}`}
-                    className="font-landing-body text-[32px] leading-tight font-medium text-ink"
+              <div className={clsx("relative flex-1 px-6 pt-8 sm:px-10 lg:px-[100px] lg:pt-20", tone.body)}>
+                <div className="flex flex-col items-start gap-6 lg:flex-row lg:items-center lg:gap-10">
+                  <div
+                    className={clsx(
+                      "grid size-24 shrink-0 place-items-center rounded-[20px] lg:size-40 lg:rounded-[32px]",
+                      tone.tile,
+                    )}
                   >
-                    {career.title}
-                  </h3>
-                  <p className="mt-2 font-landing-body text-lg text-grey-500">{career.description}</p>
-                  <ul className="mt-6 flex flex-wrap gap-2">
-                    {career.chips.map((chip) => (
-                      <li
-                        key={chip}
-                        className={clsx(
-                          "rounded-[10px] px-3 py-2 font-landing-body text-[15px] leading-none text-white",
-                          tone.chip,
-                        )}
-                      >
-                        {chip}
-                      </li>
-                    ))}
-                  </ul>
+                    <img
+                      src={ICONS[career.id]}
+                      alt=""
+                      aria-hidden
+                      draggable={false}
+                      className="size-[82px] lg:size-[136px]"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3
+                      id={`landing-career-${career.id}`}
+                      className="font-landing-body text-2xl leading-tight font-medium text-ink lg:text-[32px]"
+                    >
+                      {career.title}
+                    </h3>
+                    <p className="mt-2 font-landing-body text-base text-grey-500 lg:text-lg">
+                      {career.description}
+                    </p>
+                    <ul className="mt-5 flex flex-wrap gap-2 lg:mt-6">
+                      {career.chips.map((chip) => (
+                        <li
+                          key={chip}
+                          className={clsx(
+                            "rounded-[10px] px-3 py-2 font-landing-body text-[15px] leading-none text-white",
+                            tone.chip,
+                          )}
+                        >
+                          {chip}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <LandingLinkButton to="/careers" variant="secondary" className="shrink-0">
+                    {CAREERS_SECTION.cta}
+                    <span className="sr-only">: {career.title}</span>
+                  </LandingLinkButton>
                 </div>
-                <LandingLinkButton to="/careers" variant="secondary" className="shrink-0">
-                  {CAREERS_SECTION.cta}
-                  <span className="sr-only">: {career.title}</span>
-                </LandingLinkButton>
               </div>
             </article>
           );

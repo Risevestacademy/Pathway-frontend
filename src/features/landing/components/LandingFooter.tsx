@@ -1,13 +1,12 @@
 import clsx from "clsx";
 import { Link } from "@tanstack/react-router";
 import { InstagramRegular, LinkedinRegular, SocialXRegular } from "@mingcute/react/core-regular";
-import type { ComponentType, SVGProps } from "react";
 import { FOOTER } from "../landing.copy";
 import logoWhite from "@/assets/landing/logo-white.svg";
 import decorBook from "@/assets/landing/decor-book.webp";
 import decorPencils from "@/assets/landing/decor-pencils.webp";
 
-const SOCIAL_ICONS: Record<string, ComponentType<SVGProps<SVGSVGElement>>> = {
+const SOCIAL_ICONS: Record<string, typeof InstagramRegular> = {
   instagram: InstagramRegular,
   x: SocialXRegular,
   linkedin: LinkedinRegular,

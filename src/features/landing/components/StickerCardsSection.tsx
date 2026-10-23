@@ -33,7 +33,8 @@ const VISUALS: Record<StickerTone, Visual> = {
 /**
  * "Choosing a career" cards. Entry is scroll-scrubbed: the section writes its
  * progress to `--p`, each card derives its own window from `--i` (see the
- * `landing-scrub-card` utility in index.css).
+ * `landing-scrub-card` utility in index.css). From `xl` the cards overlap at
+ * the export's positions; below that they sit in a plain grid.
  */
 export default function StickerCardsSection() {
   const rowRef = useRef<HTMLDivElement>(null);
@@ -44,7 +45,7 @@ export default function StickerCardsSection() {
   return (
     <section
       aria-labelledby="landing-stickers-heading"
-      className="relative overflow-x-clip bg-white pt-[200px] pb-[170px]"
+      className="relative overflow-x-clip bg-white pt-[120px] pb-[100px] lg:pt-[200px] lg:pb-[170px]"
     >
       {/* Decor: green ruled note straddling the hero edge, notebook + pen bottom-left. */}
       <img
@@ -71,7 +72,11 @@ export default function StickerCardsSection() {
 
       <div
         ref={rowRef}
-        className="relative mx-auto mt-[60px] h-[500px] w-full max-w-[1064px]"
+        className={clsx(
+          "mx-auto mt-[60px] w-full max-w-[1064px]",
+          "grid grid-cols-1 gap-6 px-page-mobile sm:grid-cols-2 sm:px-page-tablet",
+          "xl:relative xl:block xl:h-[500px] xl:px-0",
+        )}
       >
         {STICKER_CARDS.map((card, index) => {
           const visual = VISUALS[card.id];
@@ -82,17 +87,18 @@ export default function StickerCardsSection() {
                 {
                   "--i": index,
                   "--tilt": visual.tilt,
-                  left: visual.left,
-                  top: visual.top,
+                  "--x": `${visual.left}px`,
+                  "--y": `${visual.top}px`,
                 } as CSSProperties
               }
               className={clsx(
-                "landing-scrub-card absolute h-[432px] w-[400px] overflow-hidden rounded-[40px] p-12",
+                "landing-scrub-card relative mx-auto w-full max-w-[400px] overflow-hidden rounded-[40px] p-10",
+                "aspect-[400/432] sm:mx-0 sm:max-w-none xl:absolute xl:top-(--y) xl:left-(--x) xl:mx-0 xl:h-[432px] xl:w-[400px] xl:p-12",
                 "shadow-[0_12px_32px_rgb(16_16_29/0.06)]",
                 visual.bg,
               )}
             >
-              <p className="relative z-10 max-w-[290px] font-landing-body text-[26px] leading-[1.15] font-medium tracking-[-0.01em] text-ink">
+              <p className="relative z-10 max-w-[290px] font-landing-body text-[22px] leading-[1.15] font-medium tracking-[-0.01em] text-ink xl:text-[26px]">
                 {card.copy}
               </p>
               <img
@@ -101,7 +107,7 @@ export default function StickerCardsSection() {
                 aria-hidden
                 draggable={false}
                 loading="lazy"
-                style={{ width: visual.width, right: visual.right, bottom: visual.bottom }}
+                style={{ width: `${(visual.width / 400) * 100}%`, right: visual.right, bottom: visual.bottom }}
                 className="pointer-events-none absolute max-w-none select-none"
               />
             </article>

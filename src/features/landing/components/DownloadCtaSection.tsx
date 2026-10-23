@@ -44,6 +44,7 @@ export default function DownloadCtaSection() {
             </div>
           </div>
 
+          {/* Desktop: graphic sits at the export's position on the right. */}
           <img
             src={wave}
             alt=""
@@ -62,6 +63,26 @@ export default function DownloadCtaSection() {
               inView ? "running" : "paused",
             )}
           />
+
+          {/* Below lg: the same graphic stacked under the copy, scaled with the card. */}
+          <div aria-hidden className="relative mt-10 h-[220px] overflow-hidden sm:h-[260px] lg:hidden">
+            <img
+              src={wave}
+              alt=""
+              draggable={false}
+              className="pointer-events-none absolute top-[70px] left-1/2 w-[438px] max-w-none -translate-x-1/2 select-none"
+            />
+            <img
+              src={keychain}
+              alt=""
+              draggable={false}
+              className={clsx(
+                "pointer-events-none absolute -top-10 left-1/2 h-[280px] w-auto max-w-none origin-top -translate-x-[40%] select-none",
+                "animate-landing-sway motion-reduce:animate-none",
+                inView ? "running" : "paused",
+              )}
+            />
+          </div>
         </div>
       </div>
     </section>
