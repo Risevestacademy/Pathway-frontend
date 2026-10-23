@@ -3,8 +3,10 @@ import { useNavigate } from "@tanstack/react-router";
 import { ensureAuthHydrated } from "../../../lib/api/auth.api";
 import { selectIsAuthenticated, useAuthStore } from "../../../lib/stores/authStore";
 import HeroSection from "./HeroSection";
+import HowItWorksSection from "./HowItWorksSection";
 import LandingFooter from "./LandingFooter";
 import LandingNav from "./LandingNav";
+import StickerCardsSection from "./StickerCardsSection";
 
 /**
  * Public landing page at `/`. Owns the landing type system, the sticky nav
@@ -30,6 +32,8 @@ export default function LandingPage() {
       <LandingNav />
       <main>
         <HeroSection />
+        <StickerCardsSection />
+        <HowItWorksSection />
       </main>
       <LandingFooter />
     </div>

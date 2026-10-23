@@ -409,6 +409,26 @@
   }
 }
 
+/* Landing page: scroll-scrubbed card entry. The section sets --p (0..1) via
+ * useScrollProgress; each card sets --i (index) and --tilt. Card i animates
+ * over the window [0.15i, 0.15i + 0.3] of --p, so the fourth card settles at
+ * 0.75. The short transitions smooth the steps between scroll frames. */
+@utility landing-scrub-card {
+  --c: clamp(0, calc((var(--p, 1) - var(--i, 0) * 0.15) / 0.3), 1);
+  opacity: var(--c);
+  translate: 0 calc((1 - var(--c)) * 120px);
+  rotate: calc(var(--c) * var(--tilt, 0deg));
+  transition:
+    opacity 120ms linear,
+    translate 120ms ease-out,
+    rotate 120ms ease-out;
+
+  @media (prefers-reduced-motion: reduce) {
+    --c: 1;
+    transition: none;
+  }
+}
+
 @utility text-body-lg-bold {
   font-size: 1.125rem;
   line-height: 1.5rem;

@@ -34,8 +34,9 @@ export interface StickerCard {
   copy: string;
 }
 
+/** Headings and step titles carry the export's line breaks as "\n"; render with `whitespace-pre-line`. */
 export const STICKER_SECTION = {
-  heading: "Choosing a career shouldn't feel like guessing.",
+  heading: "Choosing a career\nshouldn't feel like guessing.",
 } as const;
 
 export const STICKER_CARDS: readonly StickerCard[] = [
@@ -54,28 +55,28 @@ export interface Step {
 export const HOW_IT_WORKS = {
   anchor: "how-it-works",
   eyebrow: "How it works",
-  heading: "From “I'm not sure” to your first step.",
+  heading: "From “I'm not\nsure” to your first step.",
 } as const;
 
 export const STEPS: readonly Step[] = [
   {
     id: "tell-us",
-    title: "Tell us about you",
+    title: "Tell us\nabout you",
     body: "Your studies, skills and interests. About 3 minutes, and you can finish later.",
   },
   {
     id: "see-fit",
-    title: "See your fit",
+    title: "See\nyour fit",
     body: "Know how many key skills you already have for a career, and what's left to learn.",
   },
   {
     id: "roadmap",
-    title: "Follow your roadmap",
+    title: "Follow\nyour roadmap",
     body: "Stages and steps in order, with courses and certificates picked for each one.",
   },
   {
     id: "take-action",
-    title: "Take action",
+    title: "Take\naction",
     body: "Apply to internships, scholarships and more that match your pathway.",
   },
 ];
