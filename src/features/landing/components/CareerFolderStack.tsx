@@ -66,7 +66,12 @@ export default function CareerFolderStack() {
         className={clsx(
           "relative mt-[45px]",
           // Folder 0 rests `--nav` below the box top; pull the box up so it sits 45px under the heading pre-pin.
-          "md:mt-[calc(45px-var(--nav))] md:h-[calc(100svh+var(--pin))] motion-reduce:md:h-auto",
+          "md:mt-[calc(45px-var(--nav))] md:h-[calc(100svh+var(--pin))]",
+          // Reduced motion: no pin, just the finished stack as one viewport-tall block.
+          "motion-reduce:md:h-svh",
+          // Folders run `--tail` past the viewport bottom and the same space is reserved below the
+          // stack, so the last folder keeps showing body below its content as the stack scrolls away.
+          "md:mb-(--tail) [--tail:0px] md:[--tail:160px] lg:[--tail:240px]",
           "[--nav:100px] lg:[--nav:120px]",
           "[--step:clamp(80px,calc((100svh-560px)/3),157px)]",
         )}
@@ -87,7 +92,7 @@ export default function CareerFolderStack() {
                 }
                 className={clsx(
                   "relative flex w-full flex-col",
-                  "md:landing-pin-item md:absolute md:top-(--top) md:h-[calc(100svh-var(--top))]",
+                  "md:landing-pin-item md:absolute md:top-(--top) md:h-[calc(100svh-var(--top)+var(--tail))]",
                   // No max width: the alternating inset must stay 80px so a folder always covers the previous one's content.
                   "md:w-[calc(100%-24px)] lg:w-[calc(100%-80px)]",
                   index % 2 === 1 ? "md:right-0" : "md:left-0",
