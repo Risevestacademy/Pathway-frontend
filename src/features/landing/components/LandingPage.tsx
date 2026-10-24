@@ -31,7 +31,9 @@ export default function LandingPage() {
   }, [navigate]);
 
   return (
-    <div className="min-h-svh bg-white font-landing-body text-ink antialiased">
+    // flow-root stops the nav's top margin collapsing through this wrapper, which would push the
+    // white page down and expose the grey body above the nav.
+    <div className="flow-root min-h-svh bg-white font-landing-body text-ink antialiased">
       <LandingNav />
       <main>
         <HeroSection />

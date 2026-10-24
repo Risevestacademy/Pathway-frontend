@@ -54,6 +54,7 @@ const VECTOR = [
   { from: "AppleLogo.svg", to: "apple-logo.svg" },
   { from: "GooglePlayLogo.svg", to: "google-play-logo.svg" },
   { from: "Group.svg", to: "logo-mark-green.svg" },
+  { from: "Frame 2147226665.svg", to: "logo-nav.svg" },
 ];
 
 const kb = (bytes) => `${Math.round(bytes / 1024)} KB`;

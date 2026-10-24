@@ -5,8 +5,7 @@ import { ArrowRightRegular, CloseRegular, MenuRegular } from "@mingcute/react/co
 import { NAV_CTA, NAV_LINKS, type NavLink } from "../landing.copy";
 import { scrollToAnchor } from "../landing.utils";
 import { LandingLinkButton } from "./LandingButton";
-
-const logo = "/brand-logo-lavender.svg";
+import logo from "@/assets/landing/logo-nav.svg";
 
 const linkBase =
   "font-landing-body text-base font-medium leading-none transition-colors duration-150 motion-reduce:transition-none";
@@ -64,13 +63,13 @@ export default function LandingNav() {
       <div
         className={clsx(
           "mx-auto w-full max-w-[1064px]",
-          "rounded-xl border border-[#e7e8e9] bg-white/85 shadow-[0_8px_24px_rgb(16_16_29/0.06)]",
+          "rounded-xl border border-[#e7e8e9] bg-white/85",
           "backdrop-blur-md supports-[backdrop-filter]:bg-white/80",
         )}
       >
         <div className="flex h-14 items-center justify-between gap-4 pr-2 pl-5">
           <Link to="/" aria-label="Pathway home" className="focus-ring inline-flex shrink-0 rounded">
-            <img src={logo} alt="" className="h-[22px] w-auto" draggable={false} />
+            <img src={logo} alt="" className="h-5 w-auto" draggable={false} />
           </Link>
 
           <nav aria-label="Main" className="hidden md:block">
