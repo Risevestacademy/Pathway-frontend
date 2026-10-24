@@ -24,8 +24,8 @@ const gridBackground = {
 
 export default function LandingFooter() {
   return (
-    <footer className="relative mt-24 overflow-hidden bg-landing-footer pt-[90px] pb-16 text-white">
-      {/* Decor: red book top-left straddling the edge, pencils + pink paper on the right. */}
+    <footer className="relative mt-24 overflow-x-clip bg-landing-footer pt-[90px] pb-16 text-white">
+      {/* Decor: red book top-left straddling the edge (so it overlaps the white above), pencils + pink paper on the right. */}
       <img
         src={decorBook}
         alt=""

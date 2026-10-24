@@ -422,19 +422,21 @@
   }
 }
 
-/* Landing page: scroll-scrubbed card entry. The section sets --p (0..1) via
- * useScrollProgress; each card sets --i (index) and --tilt. Card i animates
- * over the window [0.15i, 0.15i + 0.3] of --p, so the fourth card settles at
- * 0.75. The short transitions smooth the steps between scroll frames. */
-@utility landing-scrub-card {
-  --c: clamp(0, calc((var(--p, 1) - var(--i, 0) * 0.15) / 0.3), 1);
-  opacity: var(--c);
-  translate: 0 calc((1 - var(--c)) * 120px);
+/* Landing page: pinned, scroll-scrubbed entries. A tall section holds a
+ * sticky 100svh box and writes its progress --p (0..1) via useScrollProgress
+ * ({ mode: "pinned" }). Each item sets --start (progress at which it begins)
+ * and --span (how much progress its slide takes) and rises from below the
+ * viewport to its resting place. --c is the item's own 0..1. The short
+ * transitions smooth the steps between scroll frames; `scale` is left free
+ * for hover effects. */
+@utility landing-pin-item {
+  --c: clamp(0, calc((var(--p, 1) - var(--start, 0)) / var(--span, 0.25)), 1);
+  translate: 0 calc((1 - var(--c)) * 100svh);
   rotate: calc(var(--c) * var(--tilt, 0deg));
   transition:
-    opacity 120ms linear,
     translate 120ms ease-out,
-    rotate 120ms ease-out;
+    rotate 120ms ease-out,
+    scale 200ms ease-out;
 
   @media (prefers-reduced-motion: reduce) {
     --c: 1;
