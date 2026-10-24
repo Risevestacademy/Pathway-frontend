@@ -1,7 +1,7 @@
 import clsx from "clsx";
 
-/** 1064px content column from the export, with the app's page gutters below it. */
-export const container = "mx-auto w-full max-w-[1064px] px-page-mobile sm:px-page-tablet lg:px-0";
+/** Content column: 1064px at the 1440 design width, scaling with the window above it (see --landing-w). */
+export const container = "landing-container";
 
 export const eyebrow = "font-accent text-lg font-medium text-grey-500";
 

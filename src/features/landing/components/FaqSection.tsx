@@ -11,7 +11,8 @@ import { container, eyebrow, sectionHeading } from "../landing.styles";
 export default function FaqSection() {
   return (
     <section aria-labelledby="landing-faq-heading" className="bg-white pt-[120px]">
-      <div className={clsx(container, "grid gap-10 lg:grid-cols-[540px_1fr] lg:gap-0")}>
+      {/* Question column starts at 540/1064 of the content width, as in the export. */}
+      <div className={clsx(container, "grid gap-10 lg:grid-cols-[50.75%_1fr] lg:gap-0")}>
         <div>
           <p className={eyebrow}>{FAQ_SECTION.eyebrow}</p>
           <h2 id="landing-faq-heading" className={clsx(sectionHeading, "mt-2 max-w-[400px]")}>

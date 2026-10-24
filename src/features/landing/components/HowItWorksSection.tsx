@@ -42,7 +42,8 @@ export default function HowItWorksSection() {
         aria-label="How it works, drag to see all steps"
         className="mt-10 cursor-grab overflow-hidden pt-10 pb-6 active:cursor-grabbing"
       >
-        <ol className="flex gap-5 pr-page-mobile pl-[max(var(--spacing-page-mobile),calc((100%-1064px)/2))]">
+        {/* The track starts on the content column's left edge and runs off the right of the screen. */}
+        <ol className="flex gap-5 pr-(--landing-gutter) pl-[calc((100%-var(--landing-w))/2)]">
           {STEPS.map((step, index) => (
             <li
               key={step.id}

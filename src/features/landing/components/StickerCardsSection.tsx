@@ -84,8 +84,8 @@ export default function StickerCardsSection() {
         <div
           className={clsx(
             "relative pt-[120px] pb-[100px]",
-            // Heading clears the sticky nav (120px) and, on tall viewports, sits 200px down as in the export.
-            "xl:sticky xl:top-0 xl:h-svh xl:pt-[clamp(120px,calc(100svh-760px),200px)] xl:pb-0",
+            // Heading clears the sticky nav (120px) and, on tall viewports, sits up to 200px down as in the export.
+            "xl:sticky xl:top-0 xl:h-svh xl:[--pt:clamp(120px,calc(100svh-860px),200px)] xl:pt-(--pt) xl:pb-0",
             "motion-reduce:xl:static",
           )}
         >
@@ -96,11 +96,15 @@ export default function StickerCardsSection() {
             {STICKER_SECTION.heading}
           </h2>
 
+          {/* From xl the row is a 1064 x 500 artboard scaled to the content column (capped so it
+              still fits the pinned viewport); everything inside is sized in design px * 100cqw / 1064. */}
           <div
             className={clsx(
-              "mx-auto mt-[60px] w-full max-w-[1064px]",
+              "mx-auto mt-[60px] w-full",
               "grid grid-cols-1 gap-6 px-page-mobile sm:grid-cols-2 sm:px-page-tablet",
-              "xl:relative xl:block xl:h-[500px] xl:px-0",
+              "xl:relative xl:block xl:aspect-[1064/500] xl:px-0 xl:[container-type:inline-size]",
+              // Grows with the column while the pinned viewport is tall enough, never below the design's 1064px.
+              "xl:w-[min(var(--landing-w),max(1064px,calc((100svh-var(--pt)-197px)*1064/500)))]",
             )}
           >
             {STICKER_CARDS.map((card, index) => {
@@ -113,19 +117,23 @@ export default function StickerCardsSection() {
                       "--start": START + index * GAP,
                       "--span": SPAN,
                       "--tilt": visual.tilt,
-                      "--x": `${visual.left}px`,
-                      "--y": `${visual.top}px`,
+                      "--x": visual.left,
+                      "--y": visual.top,
+                      "--r": visual.right,
+                      "--b": visual.bottom,
                     } as CSSProperties
                   }
                   className={clsx(
                     "relative mx-auto w-full max-w-[400px] overflow-hidden rounded-[40px] p-10",
                     "aspect-[400/432] sm:mx-0 sm:max-w-none",
-                    "xl:landing-pin-item xl:absolute xl:top-(--y) xl:left-(--x) xl:mx-0 xl:h-[432px] xl:w-[400px] xl:p-12",
+                    "xl:landing-pin-item xl:absolute xl:mx-0",
+                    "xl:top-[calc(var(--y)*100cqw/1064)] xl:left-[calc(var(--x)*100cqw/1064)]",
+                    "xl:w-[calc(400*100cqw/1064)] xl:rounded-[calc(40*100cqw/1064)] xl:p-[calc(48*100cqw/1064)]",
                     "shadow-[0_12px_32px_rgb(16_16_29/0.06)] hover:z-10 hover:[--tilt-k:0]",
                     visual.bg,
                   )}
                 >
-                  <p className="relative z-10 max-w-[290px] font-landing-body text-[22px] leading-[1.15] font-medium tracking-[-0.01em] text-ink xl:text-[26px]">
+                  <p className="relative z-10 max-w-[290px] font-landing-body text-[22px] leading-[1.15] font-medium tracking-[-0.01em] text-ink xl:max-w-[calc(290*100cqw/1064)] xl:text-[calc(26*100cqw/1064)]">
                     {card.copy}
                   </p>
                   <img
@@ -134,8 +142,8 @@ export default function StickerCardsSection() {
                     aria-hidden
                     draggable={false}
                     loading="lazy"
-                    style={{ width: `${(visual.width / 400) * 100}%`, right: visual.right, bottom: visual.bottom }}
-                    className="pointer-events-none absolute max-w-none select-none"
+                    style={{ width: `${(visual.width / 400) * 100}%` }}
+                    className="pointer-events-none absolute right-[calc(var(--r)*1px)] bottom-[calc(var(--b)*1px)] max-w-none select-none xl:right-[calc(var(--r)*100cqw/1064)] xl:bottom-[calc(var(--b)*100cqw/1064)]"
                   />
                 </article>
               );

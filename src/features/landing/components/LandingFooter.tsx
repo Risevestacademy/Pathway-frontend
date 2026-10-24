@@ -42,7 +42,7 @@ export default function LandingFooter() {
         />
       </div>
 
-      <div className="mx-auto w-full max-w-[1064px] px-page-mobile sm:px-page-tablet lg:px-0">
+      <div className="landing-container">
         {/* Grid frame (34 x 5 cells on desktop) with a solid block on top of it: the block is
             inset 2 columns left/right and 1 row top/bottom, so its border sits on grid lines. */}
         <div

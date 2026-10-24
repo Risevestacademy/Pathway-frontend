@@ -23,7 +23,12 @@ export default function DownloadCtaSection() {
       <div className={container}>
         <div
           ref={cardRef}
-          className="relative overflow-hidden rounded-[40px] border border-brand-300 bg-brand-50 px-6 py-12 sm:px-[54px] sm:py-[75px]"
+          // From lg the card is a size container: the graphic is placed in design px * 100cqw / 1064,
+          // and the card keeps at least the design's 1064 x 374 proportions, with the copy centred.
+          className={clsx(
+            "relative overflow-hidden rounded-[40px] border border-brand-300 bg-brand-50 px-6 py-12 sm:px-[54px] sm:py-[75px]",
+            "lg:flex lg:aspect-[1064/374] lg:flex-col lg:justify-center lg:[container-type:inline-size]",
+          )}
         >
           <div className="relative z-10 max-w-[520px]">
             <h2 id="landing-cta-heading" className={clsx(sectionHeading, "max-w-[420px]")}>
@@ -51,7 +56,7 @@ export default function DownloadCtaSection() {
             alt=""
             aria-hidden
             draggable={false}
-            className="pointer-events-none absolute top-[120px] left-[627px] hidden w-[438px] max-w-none select-none lg:block"
+            className="pointer-events-none absolute top-[calc(120*100cqw/1064)] left-[calc(627*100cqw/1064)] hidden w-[calc(438*100cqw/1064)] max-w-none select-none lg:block"
           />
           <img
             src={keychain}
@@ -59,7 +64,7 @@ export default function DownloadCtaSection() {
             aria-hidden
             draggable={false}
             className={clsx(
-              "pointer-events-none absolute -top-[183px] left-[692px] hidden w-[195px] max-w-none origin-top select-none lg:block",
+              "pointer-events-none absolute top-[calc(-183*100cqw/1064)] left-[calc(692*100cqw/1064)] hidden w-[calc(195*100cqw/1064)] max-w-none origin-top select-none lg:block",
               "animate-landing-sway motion-reduce:animate-none",
               inView ? "running" : "paused",
             )}

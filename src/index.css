@@ -328,6 +328,27 @@
   --radius-4xl: 32px;
 }
 
+/* Landing page content column. The design is a 1440 frame with a 1064px
+ * column (73.89%); the demo scales it with the window, so the column is the
+ * larger of 1064px and 73.89% of its container, and never wider than the
+ * container minus the page gutters on small screens. The % resolves where the
+ * variable is used, against that element's containing block. */
+:root {
+  --landing-gutter: var(--spacing-page-mobile);
+  --landing-w: max(min(1064px, 100% - 2 * var(--landing-gutter)), 73.89%);
+}
+
+@media (width >= 40rem) {
+  :root {
+    --landing-gutter: var(--spacing-page-tablet);
+  }
+}
+
+@utility landing-container {
+  margin-inline: auto;
+  width: var(--landing-w);
+}
+
 :root {
   --background: var(--color-canvas);
   --foreground: var(--color-ink);

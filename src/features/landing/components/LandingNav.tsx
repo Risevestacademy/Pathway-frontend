@@ -59,10 +59,10 @@ export default function LandingNav() {
   }, [open]);
 
   return (
-    <header className="sticky top-6 z-40 mt-6 px-page-mobile sm:px-page-tablet lg:top-10 lg:mt-10 lg:px-0">
+    <header className="sticky top-6 z-40 mt-6 lg:top-10 lg:mt-10">
       <div
         className={clsx(
-          "mx-auto w-full max-w-[1064px]",
+          "landing-container",
           "rounded-xl border border-[#e7e8e9] bg-white/85",
           "backdrop-blur-md supports-[backdrop-filter]:bg-white/80",
         )}
