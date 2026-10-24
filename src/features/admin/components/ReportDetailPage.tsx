@@ -1,29 +1,23 @@
-import { useState, type FormEvent } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { ChevronLeft } from "lucide-react";
+import { Badge } from "../../../components/ui/Badge";
 import { Button, LinkButton } from "../../../components/ui/Button";
-import { Dialog } from "../../../components/ui/Dialog";
 import { StateMessage } from "../../../components/ui/StateMessage";
-import { isValidUrl } from "../admin.editor";
-import { useAdminStore } from "../adminStore";
-import { useAdminCareers } from "../hooks/useAdminCareers";
+import { dayLabel, timeLabel } from "../admin.workflow";
 import {
-  REPORT_STATUS_LABEL,
-  REPORT_TYPE_LABEL,
-  dayLabel,
-  shortName,
-  timeLabel,
-  type ReportStatus,
-} from "../admin.workflow";
-import { formatDate } from "../admin.utils";
-import { Banner } from "./Banner";
-import { SelectField, TextAreaField, TextField } from "./FormFields";
+  FEEDBACK_STATUSES,
+  FEEDBACK_STATUS_LABEL,
+  FEEDBACK_STATUS_TONE,
+  feedbackStatusLabel,
+  humanize,
+  type FeedbackStatus,
+} from "../adminFeedback.types";
+import { useAdminFeedback, useUpdateFeedbackStatus } from "../hooks/useAdminFeedback";
+import { SelectField } from "./FormFields";
 
-const UNASSIGNED = "__none__";
-
-const STATUS_OPTIONS = (Object.keys(REPORT_STATUS_LABEL) as ReportStatus[]).map((value) => ({
+const STATUS_OPTIONS = FEEDBACK_STATUSES.map((value) => ({
   value,
-  label: REPORT_STATUS_LABEL[value],
+  label: FEEDBACK_STATUS_LABEL[value],
 }));
 
 function Card({
@@ -57,31 +51,35 @@ function ReadOnly({ label, value, multiline }: { label: string; value: string; m
 
 export function ReportDetailPage({ reportId }: { reportId: string }) {
   const navigate = useNavigate();
-  const report = useAdminStore((s) => s.reports.find((r) => r.id === reportId));
-  const members = useAdminStore((s) => s.members);
-  const updateReport = useAdminStore((s) => s.updateReport);
-  const closeReport = useAdminStore((s) => s.closeReport);
-  const { rows } = useAdminCareers();
-  const [replacing, setReplacing] = useState(false);
+  const { data, isPending, isError, refetch } = useAdminFeedback();
+  const update = useUpdateFeedbackStatus();
+  const report = data?.find((r) => r.id === reportId);
 
-  if (!report) {
+  if (isPending || isError || !report) {
     return (
       <main className="flex flex-1 flex-col gap-6 px-page-mobile py-6 sm:px-page-tablet lg:p-8">
         <BackButton />
-        <StateMessage kind="no-match" title="Report not found" body="Go back to the reports list." />
+        {isPending ? (
+          <StateMessage kind="loading" title="Loading report" />
+        ) : isError ? (
+          <StateMessage
+            kind="error"
+            title="Couldn’t load this report"
+            body="Check your connection and try again."
+            action={<Button onClick={() => void refetch()}>Try again</Button>}
+          />
+        ) : (
+          <StateMessage kind="no-match" title="Report not found" body="Go back to the reports list." />
+        )}
       </main>
     );
   }
 
-  // Learner reports carry the career's id; seed reports are matched by name.
-  const careerId = report.careerId ?? rows.find((r) => r.title === report.careerTitle)?.id ?? null;
-  const isLink = report.type === "link-problem";
-  const noun = isLink ? "link" : "resource";
-
-  const finish = (status: "fixed" | "not-an-issue") => {
-    closeReport(report.id, status);
-    void navigate({ to: "/admin/reports" });
-  };
+  const setStatus = (status: FeedbackStatus, thenLeave = false) =>
+    update.mutate(
+      { id: report.id, status },
+      { onSuccess: () => thenLeave && void navigate({ to: "/admin/reports" }) },
+    );
 
   return (
     <main className="flex flex-1 flex-col gap-6 px-page-mobile py-6 sm:px-page-tablet lg:p-8">
@@ -90,107 +88,60 @@ export function ReportDetailPage({ reportId }: { reportId: string }) {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-            {report.title}
+            {humanize(report.category)}
           </h1>
-          <p className="mt-2 text-ink-muted">
-            Reported {dayLabel(report.reportedAt).toLowerCase()}, {timeLabel(report.reportedAt)} ·{" "}
-            {report.resourceTitle}
+          <p className="mt-2 flex flex-wrap items-center gap-2 text-ink-muted">
+            Reported {dayLabel(report.createdAt).toLowerCase()}, {timeLabel(report.createdAt)} ·{" "}
+            {humanize(report.section)}
+            <Badge tone={FEEDBACK_STATUS_TONE[report.status] ?? "neutral"}>
+              {feedbackStatusLabel(report.status)}
+            </Badge>
           </p>
         </div>
         <div className="flex gap-3">
-          <Button isPrimary={false} onClick={() => finish("not-an-issue")}>
+          <Button isPrimary={false} disabled={update.isPending} onClick={() => setStatus("DISMISSED", true)}>
             Not an issue
           </Button>
-          <Button onClick={() => finish("fixed")}>Mark as fixed</Button>
+          <Button disabled={update.isPending} onClick={() => setStatus("RESOLVED", true)}>
+            Mark as fixed
+          </Button>
         </div>
       </div>
 
+      {update.isError && (
+        <p role="alert" className="text-sm text-danger-700">
+          Couldn’t update the status. Try again.
+        </p>
+      )}
+
       <div className="grid items-start gap-4 lg:grid-cols-2">
-        <Card
-          title="What the learner said"
-          subtitle={`Sent from the roadmap topic “${report.stepTitle}”`}
-        >
-          <ReadOnly label="Report type" value={REPORT_TYPE_LABEL[report.type]} />
-          <ReadOnly label="Message" value={report.message || "No message"} multiline />
-          <ReadOnly label="Career" value={report.careerTitle} />
+        <Card title="What the learner said" subtitle={`Sent from ${report.userEmail} on ${humanize(report.platform)}`}>
+          <ReadOnly label="Category" value={humanize(report.category)} />
+          <ReadOnly label="Message" value={report.description || "No message"} multiline />
+          <ReadOnly label="Section" value={humanize(report.section)} />
         </Card>
 
-        <Card
-          title="What to do"
-          subtitle={isLink ? "Fix the link or replace the resource" : "Check the resource and update it if needed"}
-        >
+        <Card title="What to do" subtitle="Update the status as you work through it">
           <SelectField
             label="Status"
-            value={report.status}
-            onChange={(status) => updateReport(report.id, { status })}
+            value={report.status as FeedbackStatus}
+            onChange={(status) => setStatus(status)}
             options={STATUS_OPTIONS}
           />
-          <SelectField
-            label="Assigned to"
-            value={report.assignedTo ?? UNASSIGNED}
-            onChange={(v) => updateReport(report.id, { assignedTo: v === UNASSIGNED ? null : v })}
-            options={[
-              { value: UNASSIGNED, label: "Unassigned" },
-              ...members
-                .filter((m) => m.lastActive)
-                .map((m) => ({ value: m.id, label: shortName(m.name) })),
-            ]}
-          />
-          <TextAreaField
-            label="Note for the team"
-            value={report.note}
-            onChange={(note) => updateReport(report.id, { note })}
-            placeholder="For example: replaced with the freeCodeCamp course"
-          />
-          <div className="flex flex-wrap gap-3">
-            {careerId && (
+          {report.careerId && (
+            <div className="flex flex-wrap gap-3">
               <LinkButton
                 isPrimary={false}
                 to="/admin/careers/$careerId"
-                params={{ careerId }}
+                params={{ careerId: report.careerId }}
                 search={{ tab: "Resources" }}
               >
                 Open resources
               </LinkButton>
-            )}
-            {isLink && (
-              <Button isPrimary={false} onClick={() => setReplacing(true)}>
-                Replace link
-              </Button>
-            )}
-          </div>
+            </div>
+          )}
         </Card>
       </div>
-
-      <Banner
-        tone="info"
-        title={
-          report.count > 1
-            ? `${report.count} learners reported this ${noun}`
-            : `1 learner reported this ${noun}`
-        }
-      >
-        {report.brokenCheckedOn
-          ? `The weekly link check also marked it broken on ${formatDate(report.brokenCheckedOn)}. `
-          : ""}
-        {report.count > 1
-          ? `Fixing it closes all ${report.count} reports.`
-          : "Fixing it closes this report."}
-      </Banner>
-
-      <ReplaceLinkDialog
-        open={replacing}
-        onClose={() => setReplacing(false)}
-        onSave={(url) => {
-          const { replaceResourceLink } = useAdminStore.getState();
-          if (careerId && report.resourceId) replaceResourceLink(careerId, report.resourceId, url);
-          updateReport(report.id, {
-            note: [report.note, `Link replaced with ${url}`].filter(Boolean).join("\n"),
-          });
-          setReplacing(false);
-          finish("fixed");
-        }}
-      />
     </main>
   );
 }
@@ -201,61 +152,5 @@ function BackButton() {
       <ChevronLeft className="size-4" aria-hidden />
       Back
     </LinkButton>
-  );
-}
-
-function ReplaceLinkDialog({
-  open,
-  onClose,
-  onSave,
-}: {
-  open: boolean;
-  onClose: () => void;
-  onSave: (url: string) => void;
-}) {
-  return (
-    <Dialog
-      open={open}
-      onOpenChange={(o) => !o && onClose()}
-      title="Replace link"
-      description="The new link is saved on the resource and this report is marked as fixed."
-    >
-      {open && <ReplaceLinkForm onSave={onSave} onClose={onClose} />}
-    </Dialog>
-  );
-}
-
-function ReplaceLinkForm({ onSave, onClose }: { onSave: (url: string) => void; onClose: () => void }) {
-  const [url, setUrl] = useState("");
-  const [attempted, setAttempted] = useState(false);
-  const error = !url.trim()
-    ? "Add the new link. Required."
-    : isValidUrl(url)
-      ? undefined
-      : "Enter a full link starting with https://";
-
-  const submit = (e: FormEvent) => {
-    e.preventDefault();
-    setAttempted(true);
-    if (!error) onSave(url.trim());
-  };
-
-  return (
-    <form onSubmit={submit} noValidate className="mt-6 flex flex-col gap-5">
-      <TextField
-        label="New link"
-        type="url"
-        value={url}
-        onChange={setUrl}
-        placeholder="https://"
-        error={attempted ? error : undefined}
-      />
-      <div className="flex gap-3">
-        <Button type="submit">Replace and mark fixed</Button>
-        <Button isPrimary={false} onClick={onClose}>
-          Cancel
-        </Button>
-      </div>
-    </form>
   );
 }

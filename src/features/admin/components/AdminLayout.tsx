@@ -11,7 +11,8 @@ import {
 } from "lucide-react";
 import avatar from "../../../assets/images/admin-avatar.png";
 import { useAdminStore } from "../adminStore";
-import { isOpenReport } from "../admin.workflow";
+import { isOpenFeedback } from "../adminFeedback.types";
+import { useAdminFeedback } from "../hooks/useAdminFeedback";
 
 const navClass =
   "inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium focus-ring";
@@ -28,7 +29,7 @@ function CountBadge({ count }: { count: number }) {
 
 export function AdminLayout() {
   const pendingReviews = useAdminStore((s) => s.reviews.filter((r) => r.status === "pending").length);
-  const openReports = useAdminStore((s) => s.reports.filter(isOpenReport).length);
+  const openReports = useAdminFeedback().data?.filter(isOpenFeedback).length ?? 0;
 
   return (
     <div className="flex flex-1 flex-col">
