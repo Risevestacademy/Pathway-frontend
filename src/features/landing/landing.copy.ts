@@ -187,5 +187,4 @@ export const FOOTER = {
     { id: "x", label: "Pathway on X", href: "#" },
     { id: "linkedin", label: "Pathway on LinkedIn", href: "#" },
   ],
-  signoff: "With love from Ethel, Chidera, Mufidat & Taiwo",
 } as const;

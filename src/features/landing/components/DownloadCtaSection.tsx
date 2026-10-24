@@ -23,7 +23,7 @@ export default function DownloadCtaSection() {
       <div className={container}>
         <div
           ref={cardRef}
-          className="relative overflow-hidden rounded-[40px] border border-brand-100 bg-brand-50 px-6 py-12 sm:px-[54px] sm:py-[75px]"
+          className="relative overflow-hidden rounded-[40px] border border-brand-300 bg-brand-50 px-6 py-12 sm:px-[54px] sm:py-[75px]"
         >
           <div className="relative z-10 max-w-[520px]">
             <h2 id="landing-cta-heading" className={clsx(sectionHeading, "max-w-[420px]")}>
@@ -44,13 +44,14 @@ export default function DownloadCtaSection() {
             </div>
           </div>
 
-          {/* Desktop: graphic sits at the export's position on the right. */}
+          {/* Desktop: geometry measured from the demo. The keychain's ring sits above the card
+              (clipped), so the chain enters from the top edge and the P hangs over the wave. */}
           <img
             src={wave}
             alt=""
             aria-hidden
             draggable={false}
-            className="pointer-events-none absolute top-[145px] left-[627px] hidden w-[438px] max-w-none select-none lg:block"
+            className="pointer-events-none absolute top-[120px] left-[627px] hidden w-[438px] max-w-none select-none lg:block"
           />
           <img
             src={keychain}
@@ -58,7 +59,7 @@ export default function DownloadCtaSection() {
             aria-hidden
             draggable={false}
             className={clsx(
-              "pointer-events-none absolute -top-[30px] left-[777px] hidden h-[340px] w-auto max-w-none origin-top select-none lg:block",
+              "pointer-events-none absolute -top-[183px] left-[692px] hidden w-[195px] max-w-none origin-top select-none lg:block",
               "animate-landing-sway motion-reduce:animate-none",
               inView ? "running" : "paused",
             )}
