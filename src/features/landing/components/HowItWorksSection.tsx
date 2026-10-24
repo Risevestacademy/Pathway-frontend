@@ -34,19 +34,23 @@ export default function HowItWorksSection() {
         </h2>
       </div>
 
+      {/* The viewport must clip horizontally for Embla; the vertical padding keeps the
+          paperclip (24px above the card) and the hover growth inside the clip box. */}
       <div
         ref={viewportRef}
         role="region"
         aria-label="How it works, drag to see all steps"
-        className="mt-14 cursor-grab overflow-hidden active:cursor-grabbing"
+        className="mt-10 cursor-grab overflow-hidden pt-10 pb-6 active:cursor-grabbing"
       >
         <ol className="flex gap-5 pr-page-mobile pl-[max(var(--spacing-page-mobile),calc((100%-1064px)/2))]">
           {STEPS.map((step, index) => (
             <li
               key={step.id}
               className={clsx(
-                "relative mt-6 h-[360px] w-[360px] shrink-0 select-none",
-                "transition-transform duration-200 ease-out hover:scale-[1.04] motion-reduce:transition-none motion-reduce:hover:scale-100",
+                "relative h-[360px] w-[360px] shrink-0 origin-left select-none",
+                // Grows 8% from its left edge and pushes the cards after it by the same amount (demo 0:19 to 0:21).
+                "transition-[scale,margin] duration-300 ease-out hover:mr-[29px] hover:scale-[1.08]",
+                "motion-reduce:transition-none motion-reduce:hover:mr-0 motion-reduce:hover:scale-100",
               )}
             >
               <img
@@ -64,11 +68,11 @@ export default function HowItWorksSection() {
                 className="absolute -top-6 left-[255px] w-[39px]"
               />
               <div className="relative px-14 pt-[70px]">
-                <h3 className="font-landing-body text-2xl leading-[1.15] font-medium whitespace-pre-line text-ink">
+                <h3 className="font-landing-body text-[28px] leading-[1.15] font-medium whitespace-pre-line text-ink">
                   <span className="sr-only">Step {index + 1}: </span>
                   {step.title}
                 </h3>
-                <p className="mt-7 max-w-[170px] font-landing-body text-base leading-[1.6] text-ink">
+                <p className="mt-6 max-w-[180px] font-landing-body text-[17px] leading-[1.55] text-ink">
                   {step.body}
                 </p>
               </div>
