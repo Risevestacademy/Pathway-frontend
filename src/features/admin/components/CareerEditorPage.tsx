@@ -30,6 +30,7 @@ import { useCurrentMember } from "../hooks/useCurrentMember";
 import { buildReview } from "../admin.workflow";
 import { Banner } from "./Banner";
 import { DetailsTab } from "./DetailsTab";
+import { HistoryTab } from "./HistoryTab";
 import { ResourcesTab } from "./ResourcesTab";
 import { RoadmapTab } from "./RoadmapTab";
 import { SourcesTab } from "./SourcesTab";
@@ -359,13 +360,7 @@ function CareerEditor({
 
         {tab === "Sources" && <SourcesTab sources={form.sources} onChange={editSources} />}
 
-        {tab === "History" && (
-          <StateMessage
-            kind="empty"
-            title="History is coming soon"
-            body="Edit history isn’t built yet."
-          />
-        )}
+        {tab === "History" && <HistoryTab />}
       </div>
     </main>
   );

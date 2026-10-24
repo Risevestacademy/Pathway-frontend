@@ -421,3 +421,41 @@ export function isLastAdmin(members: TeamMember[], id: string): boolean {
   const admins = members.filter((m) => m.roles.includes("admin"));
   return admins.length === 1 && admins[0].id === id;
 }
+
+// ---------------------------------------------------------------- History
+
+export interface CareerVersion {
+  version: number;
+  summary: string;
+  editedBy: string;
+  approvedBy: string;
+  publishedAt: string;
+}
+
+const VERSION_ROWS: [string, string, string, string][] = [
+  ["Updated the starting salary range and source", "Amaka O.", "Chidi E.", "2026-10-12"],
+  ["Added 3 roadmap topics on web performance", "Chidi E.", "Ngozi A.", "2026-10-09"],
+  ["Replaced a broken resource in Stage 3", "Amaka O.", "Chidi E.", "2026-09-30"],
+  ["Rewrote the “What you would do” summary", "Ngozi A.", "Amaka O.", "2026-09-18"],
+  ["First published", "Amaka O.", "Ngozi A.", "2026-09-02"],
+  ["Added a source for the demand figures", "Chidi E.", "Amaka O.", "2026-08-27"],
+  ["Reordered Stage 2 topics", "Ngozi A.", "Chidi E.", "2026-08-21"],
+  ["Fixed typos in the skills list", "Amaka O.", "Ngozi A.", "2026-08-14"],
+  ["Added Git and GitHub to Stage 1", "Chidi E.", "Amaka O.", "2026-08-07"],
+  ["Updated the time-to-job estimate", "Ngozi A.", "Chidi E.", "2026-07-31"],
+  ["Linked salary figures to a survey source", "Amaka O.", "Ngozi A.", "2026-07-24"],
+  ["Removed an outdated course", "Chidi E.", "Amaka O.", "2026-07-17"],
+  ["Rewrote the career overview", "Ngozi A.", "Chidi E.", "2026-07-10"],
+  ["Drafted the roadmap stages", "Amaka O.", "Ngozi A.", "2026-07-03"],
+];
+
+/** Newest first. Dummy data until the backend keeps published versions. */
+export const SEED_VERSIONS: CareerVersion[] = VERSION_ROWS.map(
+  ([summary, editedBy, approvedBy, date], i) => ({
+    version: VERSION_ROWS.length - i,
+    summary,
+    editedBy,
+    approvedBy,
+    publishedAt: `${date}T09:00:00.000Z`,
+  }),
+);
