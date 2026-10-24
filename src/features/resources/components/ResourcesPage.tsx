@@ -60,7 +60,7 @@ export default function ResourcesPage({
               <ResourceCard
                 resource={resource}
                 context={{
-                  careerId,
+                  careerId: result.career.id,
                   careerTitle: result.career.title,
                   stepTitle: context.step.title,
                 }}

@@ -1,6 +1,9 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { z } from "zod";
 import VerifyEmailForm from "../../features/auth/components/VerifyEmailForm";
+import {
+  clearPendingVerificationEmail,
+  getPendingVerificationEmail,
+} from "../../features/auth/pendingVerification";
 import {
   ensureAuthHydrated,
   resendVerification,
@@ -10,13 +13,12 @@ import { selectIsAuthenticated, useAuthStore } from "../../lib/stores/authStore"
 
 export const Route = createFileRoute("/(auth)/verify-email")({
   staticData: { shellVariant: "wide" },
-  validateSearch: z.object({ email: z.string().email().catch("") }),
-  beforeLoad: async ({ search }) => {
+  beforeLoad: async () => {
     await ensureAuthHydrated();
     if (selectIsAuthenticated(useAuthStore.getState())) {
       throw redirect({ to: "/careers" });
     }
-    if (!search.email) {
+    if (!getPendingVerificationEmail()) {
       throw redirect({ to: "/signup" });
     }
   },
@@ -25,10 +27,11 @@ export const Route = createFileRoute("/(auth)/verify-email")({
 
 function VerifyEmailRoute() {
   const navigate = useNavigate();
-  const { email } = Route.useSearch();
+  const email = getPendingVerificationEmail();
 
   const handleVerify = async (otp: string) => {
     const { user, accessToken } = await verifyEmail(email, otp);
+    clearPendingVerificationEmail();
     useAuthStore.getState().setAuth(user, accessToken);
     await navigate({ to: "/careers", replace: true });
   };

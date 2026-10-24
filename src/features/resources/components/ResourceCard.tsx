@@ -16,8 +16,10 @@ import { Button } from "../../../components/ui/Button";
 import { Card } from "../../../components/ui/Card";
 import { useEffect, useState } from "react";
 import type { Resource } from "../resources.types";
-import { useAdminStore } from "../../admin/adminStore";
-import { REPORT_TITLE, type ReportType } from "../../admin/admin.workflow";
+import { useMutation } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
+import { submitFeedback, type FeedbackCategory } from "../../../lib/api/feedback.api";
+import { useAuthStore } from "../../../lib/stores/authStore";
 
 /** Where the resource appears, so a report reaches the right career. */
 export interface ReportContext {
@@ -26,11 +28,11 @@ export interface ReportContext {
   stepTitle: string;
 }
 
-const REPORT_REASON_TYPE: Record<string, ReportType> = {
-  "Link is broken or doesn’t load": "link-problem",
-  "Content is outdated": "outdated",
-  "Doesn’t match this step": "wrong-fit",
-  "Something else": "other",
+const REPORT_REASON_CATEGORY: Record<string, FeedbackCategory> = {
+  "Link is broken or doesn’t load": "BROKEN_LINK",
+  "Content is outdated": "INCORRECT_CONTENT",
+  "Doesn’t match this step": "INCORRECT_CONTENT",
+  "Something else": "OTHER",
 };
 
 interface ResourceCardProps {
@@ -42,7 +44,8 @@ export default function ResourceCard({
   resource,
   context,
 }: ResourceCardProps) {
-  const addReport = useAdminStore((s) => s.addReport);
+  const userEmail = useAuthStore((s) => s.user?.email);
+  const feedback = useMutation({ mutationFn: submitFeedback });
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [reportSubmitted, setReportSubmitted] = useState(false);
   const [reason, setReason] = useState("");
@@ -98,22 +101,26 @@ export default function ResourceCard({
 
   const submitReport = () => {
     if (!reason) return;
-    if (context) {
-      const type = REPORT_REASON_TYPE[reason] ?? "other";
-      // Goes to the admin Reports inbox (dummy store until there's an endpoint).
-      addReport({
-        type,
-        title: REPORT_TITLE[type],
-        message: details.trim() || reason,
-        careerId: context.careerId,
-        careerTitle: context.careerTitle,
-        stepTitle: context.stepTitle,
-        resourceId: resource.id,
-        resourceTitle: resource.title,
-      });
-    }
-    closeReport();
-    setReportSubmitted(true);
+    // The API has no resource field, so the description says which resource it is about.
+    const note = details.trim() || reason;
+    feedback.mutate(
+      {
+        category: REPORT_REASON_CATEGORY[reason] ?? "OTHER",
+        description: context
+          ? `${note} (Resource: ${resource.title}, step: ${context.stepTitle})`
+          : `${note} (Resource: ${resource.title})`,
+        section: "RESOURCES",
+        careerId: context?.careerId,
+        userEmail,
+        platform: "WEB",
+      },
+      {
+        onSuccess: () => {
+          closeReport();
+          setReportSubmitted(true);
+        },
+      },
+    );
   };
 
   return (
@@ -261,11 +268,20 @@ export default function ResourceCard({
                 The resource stays available while our team reviews your report.
               </p>
 
+              {feedback.isError && (
+                <p role="alert" className="mt-4 text-sm text-danger-700">
+                  We couldn’t send your report. Please try again.
+                  {isAxiosError(feedback.error) &&
+                    typeof feedback.error.response?.data?.message === "string" &&
+                    ` (${feedback.error.response.data.message})`}
+                </p>
+              )}
+
               <div className="mt-6 flex justify-end gap-3">
                 <Button isPrimary={false} type="button" onClick={closeReport}>
                   Cancel
                 </Button>
-                <Button type="submit" disabled={!reason}>
+                <Button type="submit" disabled={!reason || feedback.isPending}>
                   Send report
                 </Button>
               </div>

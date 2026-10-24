@@ -99,12 +99,20 @@ export function ReportDetailPage({ reportId }: { reportId: string }) {
           </p>
         </div>
         <div className="flex gap-3">
-          <Button isPrimary={false} disabled={update.isPending} onClick={() => setStatus("DISMISSED", true)}>
-            Not an issue
-          </Button>
-          <Button disabled={update.isPending} onClick={() => setStatus("RESOLVED", true)}>
-            Mark as fixed
-          </Button>
+          {report.status === "NEW" && (
+            <Button
+              isPrimary={false}
+              disabled={update.isPending}
+              onClick={() => setStatus("UNDER_REVIEW")}
+            >
+              Start review
+            </Button>
+          )}
+          {report.status !== "RESOLVED" && (
+            <Button disabled={update.isPending} onClick={() => setStatus("RESOLVED", true)}>
+              Mark as resolved
+            </Button>
+          )}
         </div>
       </div>
 

@@ -402,6 +402,7 @@ declare module '@tanstack/react-router' {
       fullPath: '/verify-email'
       preLoaderRoute: typeof authVerifyEmailRouteImport
       parentRoute: typeof rootRouteImport
+    }
     '/_protected/admin': {
       id: '/_protected/admin'
       path: '/admin'

@@ -8,7 +8,9 @@ import linksArt from "../../../assets/images/admin-art-links.png";
 import reportsArt from "../../../assets/images/admin-art-reports.png";
 import { attentionItems, overviewStats, recentActivity } from "../admin.mock";
 import { countUpdatedThisWeek } from "../admin.utils";
+import { isOpenFeedback } from "../adminFeedback.types";
 import { useAdminCareers } from "../hooks/useAdminCareers";
+import { useAdminFeedback } from "../hooks/useAdminFeedback";
 import { AddCareerButton } from "./AddCareerButton";
 import { PageHeader } from "./AdminLayout";
 
@@ -83,6 +85,8 @@ export function OverviewPage() {
   const { rows, isPending, isError } = useAdminCareers();
   const published = rows.filter((r) => r.status === "published").length;
   const updated = countUpdatedThisWeek(rows);
+  const feedback = useAdminFeedback();
+  const openReports = (feedback.data ?? []).filter(isOpenFeedback);
 
   const staleItems = rows
     .filter((r) => r.sources && r.sources.health !== "ok")
@@ -130,8 +134,20 @@ export function OverviewPage() {
         />
         <StatCard
           label="Learner reports"
-          value={overviewStats.learnerReports.count}
-          note={overviewStats.learnerReports.note}
+          value={
+            feedback.isPending ? (
+              <Skeleton className="h-12 w-16" />
+            ) : feedback.isError ? (
+              "—"
+            ) : (
+              openReports.length
+            )
+          }
+          note={
+            feedback.isPending || feedback.isError
+              ? ""
+              : `${openReports.filter((r) => r.status === "NEW").length} new`
+          }
           tint="border-blue-300 bg-blue-50"
           art={<Art src={reportsArt} />}
         />
