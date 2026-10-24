@@ -76,7 +76,10 @@ api.interceptors.response.use(
       pendingRequests.forEach(({ reject }) => reject(refreshError));
       pendingRequests = [];
       useAuthStore.getState().clearAuth();
-      window.location.href = "/login";
+      // With the dev auth bypass there is no session to lose; let the request fail instead.
+      if (!(import.meta.env.DEV && import.meta.env.VITE_BYPASS_AUTH === "true")) {
+        window.location.href = "/login";
+      }
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;

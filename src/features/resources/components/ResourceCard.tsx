@@ -16,14 +16,33 @@ import { Button } from "../../../components/ui/Button";
 import { Card } from "../../../components/ui/Card";
 import { useEffect, useState } from "react";
 import type { Resource } from "../resources.types";
+import { useAdminStore } from "../../admin/adminStore";
+import { REPORT_TITLE, type ReportType } from "../../admin/admin.workflow";
+
+/** Where the resource appears, so a report reaches the right career. */
+export interface ReportContext {
+  careerId: string;
+  careerTitle: string;
+  stepTitle: string;
+}
+
+const REPORT_REASON_TYPE: Record<string, ReportType> = {
+  "Link is broken or doesn’t load": "link-problem",
+  "Content is outdated": "outdated",
+  "Doesn’t match this step": "wrong-fit",
+  "Something else": "other",
+};
 
 interface ResourceCardProps {
   resource: Resource;
+  context?: ReportContext;
 }
 
 export default function ResourceCard({
   resource,
+  context,
 }: ResourceCardProps) {
+  const addReport = useAdminStore((s) => s.addReport);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [reportSubmitted, setReportSubmitted] = useState(false);
   const [reason, setReason] = useState("");
@@ -79,6 +98,20 @@ export default function ResourceCard({
 
   const submitReport = () => {
     if (!reason) return;
+    if (context) {
+      const type = REPORT_REASON_TYPE[reason] ?? "other";
+      // Goes to the admin Reports inbox (dummy store until there's an endpoint).
+      addReport({
+        type,
+        title: REPORT_TITLE[type],
+        message: details.trim() || reason,
+        careerId: context.careerId,
+        careerTitle: context.careerTitle,
+        stepTitle: context.stepTitle,
+        resourceId: resource.id,
+        resourceTitle: resource.title,
+      });
+    }
     closeReport();
     setReportSubmitted(true);
   };

@@ -15,13 +15,23 @@ import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-password'
 import { Route as authSignupRouteImport } from './routes/(auth)/signup'
 import { Route as authVerifyEmailRouteImport } from './routes/(auth)/verify-email'
+import { Route as ProtectedAdminRouteImport } from './routes/_protected/admin'
 import { Route as ProtectedProgressRouteImport } from './routes/_protected/progress'
 import { Route as CareersIndexRouteImport } from './routes/careers/index'
 import { Route as authResetPasswordResetRouteImport } from './routes/(auth)/reset-password_.reset'
+import { Route as ProtectedAdminIndexRouteImport } from './routes/_protected/admin/index'
 import { Route as CareersCareerIdIndexRouteImport } from './routes/careers/$careerId/index'
 import { Route as CareersOnboardingIndexRouteImport } from './routes/careers/onboarding/index'
 import { Route as CareersOnboardingAboutRouteImport } from './routes/careers/onboarding/about'
 import { Route as CareersOnboardingGoalsRouteImport } from './routes/careers/onboarding/goals'
+import { Route as ProtectedAdminCareersIndexRouteImport } from './routes/_protected/admin/careers/index'
+import { Route as ProtectedAdminCareersCareerIdRouteImport } from './routes/_protected/admin/careers/$careerId'
+import { Route as ProtectedAdminReportsIndexRouteImport } from './routes/_protected/admin/reports/index'
+import { Route as ProtectedAdminReportsReportIdRouteImport } from './routes/_protected/admin/reports/$reportId'
+import { Route as ProtectedAdminReviewsIndexRouteImport } from './routes/_protected/admin/reviews/index'
+import { Route as ProtectedAdminReviewsReviewIdRouteImport } from './routes/_protected/admin/reviews/$reviewId'
+import { Route as ProtectedAdminTeamIndexRouteImport } from './routes/_protected/admin/team/index'
+import { Route as ProtectedAdminTeamMemberIdRouteImport } from './routes/_protected/admin/team/$memberId'
 import { Route as CareersCareerIdRoadmapIndexRouteImport } from './routes/careers/$careerId/roadmap/index'
 import { Route as CareersCareerIdRoadmapStepIdRouteImport } from './routes/careers/$careerId/roadmap/$stepId'
 import { Route as CareersCareerIdRoadmapStepIdResourcesRouteImport } from './routes/careers/$careerId/roadmap/$stepId/resources'
@@ -55,6 +65,11 @@ const authVerifyEmailRoute = authVerifyEmailRouteImport.update({
   path: '/verify-email',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProtectedAdminRoute = ProtectedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => ProtectedRoute,
+} as any)
 const ProtectedProgressRoute = ProtectedProgressRouteImport.update({
   id: '/progress',
   path: '/progress',
@@ -69,6 +84,11 @@ const authResetPasswordResetRoute = authResetPasswordResetRouteImport.update({
   id: '/(auth)/reset-password_/reset',
   path: '/reset-password/reset',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ProtectedAdminIndexRoute = ProtectedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProtectedAdminRoute,
 } as any)
 const CareersCareerIdIndexRoute = CareersCareerIdIndexRouteImport.update({
   id: '/careers/$careerId/',
@@ -90,6 +110,53 @@ const CareersOnboardingGoalsRoute = CareersOnboardingGoalsRouteImport.update({
   path: '/careers/onboarding/goals',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProtectedAdminCareersIndexRoute =
+  ProtectedAdminCareersIndexRouteImport.update({
+    id: '/careers/',
+    path: '/careers/',
+    getParentRoute: () => ProtectedAdminRoute,
+  } as any)
+const ProtectedAdminCareersCareerIdRoute =
+  ProtectedAdminCareersCareerIdRouteImport.update({
+    id: '/careers/$careerId',
+    path: '/careers/$careerId',
+    getParentRoute: () => ProtectedAdminRoute,
+  } as any)
+const ProtectedAdminReportsIndexRoute =
+  ProtectedAdminReportsIndexRouteImport.update({
+    id: '/reports/',
+    path: '/reports/',
+    getParentRoute: () => ProtectedAdminRoute,
+  } as any)
+const ProtectedAdminReportsReportIdRoute =
+  ProtectedAdminReportsReportIdRouteImport.update({
+    id: '/reports/$reportId',
+    path: '/reports/$reportId',
+    getParentRoute: () => ProtectedAdminRoute,
+  } as any)
+const ProtectedAdminReviewsIndexRoute =
+  ProtectedAdminReviewsIndexRouteImport.update({
+    id: '/reviews/',
+    path: '/reviews/',
+    getParentRoute: () => ProtectedAdminRoute,
+  } as any)
+const ProtectedAdminReviewsReviewIdRoute =
+  ProtectedAdminReviewsReviewIdRouteImport.update({
+    id: '/reviews/$reviewId',
+    path: '/reviews/$reviewId',
+    getParentRoute: () => ProtectedAdminRoute,
+  } as any)
+const ProtectedAdminTeamIndexRoute = ProtectedAdminTeamIndexRouteImport.update({
+  id: '/team/',
+  path: '/team/',
+  getParentRoute: () => ProtectedAdminRoute,
+} as any)
+const ProtectedAdminTeamMemberIdRoute =
+  ProtectedAdminTeamMemberIdRouteImport.update({
+    id: '/team/$memberId',
+    path: '/team/$memberId',
+    getParentRoute: () => ProtectedAdminRoute,
+  } as any)
 const CareersCareerIdRoadmapIndexRoute =
   CareersCareerIdRoadmapIndexRouteImport.update({
     id: '/careers/$careerId/roadmap/',
@@ -115,14 +182,24 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof authResetPasswordRoute
   '/signup': typeof authSignupRoute
   '/verify-email': typeof authVerifyEmailRoute
+  '/admin': typeof ProtectedAdminRouteWithChildren
   '/progress': typeof ProtectedProgressRoute
   '/careers/': typeof CareersIndexRoute
   '/reset-password/reset': typeof authResetPasswordResetRoute
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
   '/careers/onboarding/goals': typeof CareersOnboardingGoalsRoute
+  '/admin/': typeof ProtectedAdminIndexRoute
   '/careers/$careerId/': typeof CareersCareerIdIndexRoute
   '/careers/onboarding/': typeof CareersOnboardingIndexRoute
+  '/admin/careers/$careerId': typeof ProtectedAdminCareersCareerIdRoute
+  '/admin/reports/$reportId': typeof ProtectedAdminReportsReportIdRoute
+  '/admin/reviews/$reviewId': typeof ProtectedAdminReviewsReviewIdRoute
+  '/admin/team/$memberId': typeof ProtectedAdminTeamMemberIdRoute
   '/careers/$careerId/roadmap/$stepId': typeof CareersCareerIdRoadmapStepIdRouteWithChildren
+  '/admin/careers/': typeof ProtectedAdminCareersIndexRoute
+  '/admin/reports/': typeof ProtectedAdminReportsIndexRoute
+  '/admin/reviews/': typeof ProtectedAdminReviewsIndexRoute
+  '/admin/team/': typeof ProtectedAdminTeamIndexRoute
   '/careers/$careerId/roadmap/': typeof CareersCareerIdRoadmapIndexRoute
   '/careers/$careerId/roadmap/$stepId/resources': typeof CareersCareerIdRoadmapStepIdResourcesRoute
 }
@@ -137,9 +214,18 @@ export interface FileRoutesByTo {
   '/reset-password/reset': typeof authResetPasswordResetRoute
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
   '/careers/onboarding/goals': typeof CareersOnboardingGoalsRoute
+  '/admin': typeof ProtectedAdminIndexRoute
   '/careers/$careerId': typeof CareersCareerIdIndexRoute
   '/careers/onboarding': typeof CareersOnboardingIndexRoute
+  '/admin/careers/$careerId': typeof ProtectedAdminCareersCareerIdRoute
+  '/admin/reports/$reportId': typeof ProtectedAdminReportsReportIdRoute
+  '/admin/reviews/$reviewId': typeof ProtectedAdminReviewsReviewIdRoute
+  '/admin/team/$memberId': typeof ProtectedAdminTeamMemberIdRoute
   '/careers/$careerId/roadmap/$stepId': typeof CareersCareerIdRoadmapStepIdRouteWithChildren
+  '/admin/careers': typeof ProtectedAdminCareersIndexRoute
+  '/admin/reports': typeof ProtectedAdminReportsIndexRoute
+  '/admin/reviews': typeof ProtectedAdminReviewsIndexRoute
+  '/admin/team': typeof ProtectedAdminTeamIndexRoute
   '/careers/$careerId/roadmap': typeof CareersCareerIdRoadmapIndexRoute
   '/careers/$careerId/roadmap/$stepId/resources': typeof CareersCareerIdRoadmapStepIdResourcesRoute
 }
@@ -151,14 +237,24 @@ export interface FileRoutesById {
   '/(auth)/reset-password': typeof authResetPasswordRoute
   '/(auth)/signup': typeof authSignupRoute
   '/(auth)/verify-email': typeof authVerifyEmailRoute
+  '/_protected/admin': typeof ProtectedAdminRouteWithChildren
   '/_protected/progress': typeof ProtectedProgressRoute
   '/careers/': typeof CareersIndexRoute
   '/(auth)/reset-password_/reset': typeof authResetPasswordResetRoute
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
   '/careers/onboarding/goals': typeof CareersOnboardingGoalsRoute
+  '/_protected/admin/': typeof ProtectedAdminIndexRoute
   '/careers/$careerId/': typeof CareersCareerIdIndexRoute
   '/careers/onboarding/': typeof CareersOnboardingIndexRoute
+  '/_protected/admin/careers/$careerId': typeof ProtectedAdminCareersCareerIdRoute
+  '/_protected/admin/reports/$reportId': typeof ProtectedAdminReportsReportIdRoute
+  '/_protected/admin/reviews/$reviewId': typeof ProtectedAdminReviewsReviewIdRoute
+  '/_protected/admin/team/$memberId': typeof ProtectedAdminTeamMemberIdRoute
   '/careers/$careerId/roadmap/$stepId': typeof CareersCareerIdRoadmapStepIdRouteWithChildren
+  '/_protected/admin/careers/': typeof ProtectedAdminCareersIndexRoute
+  '/_protected/admin/reports/': typeof ProtectedAdminReportsIndexRoute
+  '/_protected/admin/reviews/': typeof ProtectedAdminReviewsIndexRoute
+  '/_protected/admin/team/': typeof ProtectedAdminTeamIndexRoute
   '/careers/$careerId/roadmap/': typeof CareersCareerIdRoadmapIndexRoute
   '/careers/$careerId/roadmap/$stepId/resources': typeof CareersCareerIdRoadmapStepIdResourcesRoute
 }
@@ -170,14 +266,24 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/verify-email'
+    | '/admin'
     | '/progress'
     | '/careers/'
     | '/reset-password/reset'
     | '/careers/onboarding/about'
     | '/careers/onboarding/goals'
+    | '/admin/'
     | '/careers/$careerId/'
     | '/careers/onboarding/'
+    | '/admin/careers/$careerId'
+    | '/admin/reports/$reportId'
+    | '/admin/reviews/$reviewId'
+    | '/admin/team/$memberId'
     | '/careers/$careerId/roadmap/$stepId'
+    | '/admin/careers/'
+    | '/admin/reports/'
+    | '/admin/reviews/'
+    | '/admin/team/'
     | '/careers/$careerId/roadmap/'
     | '/careers/$careerId/roadmap/$stepId/resources'
   fileRoutesByTo: FileRoutesByTo
@@ -192,9 +298,18 @@ export interface FileRouteTypes {
     | '/reset-password/reset'
     | '/careers/onboarding/about'
     | '/careers/onboarding/goals'
+    | '/admin'
     | '/careers/$careerId'
     | '/careers/onboarding'
+    | '/admin/careers/$careerId'
+    | '/admin/reports/$reportId'
+    | '/admin/reviews/$reviewId'
+    | '/admin/team/$memberId'
     | '/careers/$careerId/roadmap/$stepId'
+    | '/admin/careers'
+    | '/admin/reports'
+    | '/admin/reviews'
+    | '/admin/team'
     | '/careers/$careerId/roadmap'
     | '/careers/$careerId/roadmap/$stepId/resources'
   id:
@@ -205,14 +320,24 @@ export interface FileRouteTypes {
     | '/(auth)/reset-password'
     | '/(auth)/signup'
     | '/(auth)/verify-email'
+    | '/_protected/admin'
     | '/_protected/progress'
     | '/careers/'
     | '/(auth)/reset-password_/reset'
     | '/careers/onboarding/about'
     | '/careers/onboarding/goals'
+    | '/_protected/admin/'
     | '/careers/$careerId/'
     | '/careers/onboarding/'
+    | '/_protected/admin/careers/$careerId'
+    | '/_protected/admin/reports/$reportId'
+    | '/_protected/admin/reviews/$reviewId'
+    | '/_protected/admin/team/$memberId'
     | '/careers/$careerId/roadmap/$stepId'
+    | '/_protected/admin/careers/'
+    | '/_protected/admin/reports/'
+    | '/_protected/admin/reviews/'
+    | '/_protected/admin/team/'
     | '/careers/$careerId/roadmap/'
     | '/careers/$careerId/roadmap/$stepId/resources'
   fileRoutesById: FileRoutesById
@@ -277,6 +402,12 @@ declare module '@tanstack/react-router' {
       fullPath: '/verify-email'
       preLoaderRoute: typeof authVerifyEmailRouteImport
       parentRoute: typeof rootRouteImport
+    '/_protected/admin': {
+      id: '/_protected/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof ProtectedAdminRouteImport
+      parentRoute: typeof ProtectedRoute
     }
     '/_protected/progress': {
       id: '/_protected/progress'
@@ -298,6 +429,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/reset-password/reset'
       preLoaderRoute: typeof authResetPasswordResetRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_protected/admin/': {
+      id: '/_protected/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof ProtectedAdminIndexRouteImport
+      parentRoute: typeof ProtectedAdminRoute
     }
     '/careers/$careerId/': {
       id: '/careers/$careerId/'
@@ -327,6 +465,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CareersOnboardingGoalsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_protected/admin/careers/': {
+      id: '/_protected/admin/careers/'
+      path: '/careers'
+      fullPath: '/admin/careers/'
+      preLoaderRoute: typeof ProtectedAdminCareersIndexRouteImport
+      parentRoute: typeof ProtectedAdminRoute
+    }
+    '/_protected/admin/careers/$careerId': {
+      id: '/_protected/admin/careers/$careerId'
+      path: '/careers/$careerId'
+      fullPath: '/admin/careers/$careerId'
+      preLoaderRoute: typeof ProtectedAdminCareersCareerIdRouteImport
+      parentRoute: typeof ProtectedAdminRoute
+    }
+    '/_protected/admin/reports/': {
+      id: '/_protected/admin/reports/'
+      path: '/reports'
+      fullPath: '/admin/reports/'
+      preLoaderRoute: typeof ProtectedAdminReportsIndexRouteImport
+      parentRoute: typeof ProtectedAdminRoute
+    }
+    '/_protected/admin/reports/$reportId': {
+      id: '/_protected/admin/reports/$reportId'
+      path: '/reports/$reportId'
+      fullPath: '/admin/reports/$reportId'
+      preLoaderRoute: typeof ProtectedAdminReportsReportIdRouteImport
+      parentRoute: typeof ProtectedAdminRoute
+    }
+    '/_protected/admin/reviews/': {
+      id: '/_protected/admin/reviews/'
+      path: '/reviews'
+      fullPath: '/admin/reviews/'
+      preLoaderRoute: typeof ProtectedAdminReviewsIndexRouteImport
+      parentRoute: typeof ProtectedAdminRoute
+    }
+    '/_protected/admin/reviews/$reviewId': {
+      id: '/_protected/admin/reviews/$reviewId'
+      path: '/reviews/$reviewId'
+      fullPath: '/admin/reviews/$reviewId'
+      preLoaderRoute: typeof ProtectedAdminReviewsReviewIdRouteImport
+      parentRoute: typeof ProtectedAdminRoute
+    }
+    '/_protected/admin/team/': {
+      id: '/_protected/admin/team/'
+      path: '/team'
+      fullPath: '/admin/team/'
+      preLoaderRoute: typeof ProtectedAdminTeamIndexRouteImport
+      parentRoute: typeof ProtectedAdminRoute
+    }
+    '/_protected/admin/team/$memberId': {
+      id: '/_protected/admin/team/$memberId'
+      path: '/team/$memberId'
+      fullPath: '/admin/team/$memberId'
+      preLoaderRoute: typeof ProtectedAdminTeamMemberIdRouteImport
+      parentRoute: typeof ProtectedAdminRoute
+    }
     '/careers/$careerId/roadmap/': {
       id: '/careers/$careerId/roadmap/'
       path: '/careers/$careerId/roadmap'
@@ -351,11 +545,41 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface ProtectedAdminRouteChildren {
+  ProtectedAdminIndexRoute: typeof ProtectedAdminIndexRoute
+  ProtectedAdminCareersCareerIdRoute: typeof ProtectedAdminCareersCareerIdRoute
+  ProtectedAdminReportsReportIdRoute: typeof ProtectedAdminReportsReportIdRoute
+  ProtectedAdminReviewsReviewIdRoute: typeof ProtectedAdminReviewsReviewIdRoute
+  ProtectedAdminTeamMemberIdRoute: typeof ProtectedAdminTeamMemberIdRoute
+  ProtectedAdminCareersIndexRoute: typeof ProtectedAdminCareersIndexRoute
+  ProtectedAdminReportsIndexRoute: typeof ProtectedAdminReportsIndexRoute
+  ProtectedAdminReviewsIndexRoute: typeof ProtectedAdminReviewsIndexRoute
+  ProtectedAdminTeamIndexRoute: typeof ProtectedAdminTeamIndexRoute
+}
+
+const ProtectedAdminRouteChildren: ProtectedAdminRouteChildren = {
+  ProtectedAdminIndexRoute: ProtectedAdminIndexRoute,
+  ProtectedAdminCareersCareerIdRoute: ProtectedAdminCareersCareerIdRoute,
+  ProtectedAdminReportsReportIdRoute: ProtectedAdminReportsReportIdRoute,
+  ProtectedAdminReviewsReviewIdRoute: ProtectedAdminReviewsReviewIdRoute,
+  ProtectedAdminTeamMemberIdRoute: ProtectedAdminTeamMemberIdRoute,
+  ProtectedAdminCareersIndexRoute: ProtectedAdminCareersIndexRoute,
+  ProtectedAdminReportsIndexRoute: ProtectedAdminReportsIndexRoute,
+  ProtectedAdminReviewsIndexRoute: ProtectedAdminReviewsIndexRoute,
+  ProtectedAdminTeamIndexRoute: ProtectedAdminTeamIndexRoute,
+}
+
+const ProtectedAdminRouteWithChildren = ProtectedAdminRoute._addFileChildren(
+  ProtectedAdminRouteChildren,
+)
+
 interface ProtectedRouteChildren {
+  ProtectedAdminRoute: typeof ProtectedAdminRouteWithChildren
   ProtectedProgressRoute: typeof ProtectedProgressRoute
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
+  ProtectedAdminRoute: ProtectedAdminRouteWithChildren,
   ProtectedProgressRoute: ProtectedProgressRoute,
 }
 
