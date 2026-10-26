@@ -8,6 +8,8 @@ import { useCareerHeroMeta } from "@/features/careerDetail/hooks/useCareerHeroMe
 import { BackLink } from "@/features/skillCheck/components/BackLink";
 import { SkillLink } from "@/features/skillCheck/components/SkillButton";
 import type { Career } from "@/types/career.types";
+import { analytics } from "@/lib/monitoring/events";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/careers/$careerId/details")({
   pendingComponent: DetailSkeleton,
@@ -17,12 +19,24 @@ export const Route = createFileRoute("/careers/$careerId/details")({
 function DetailsRoute() {
   const { careerId } = Route.useParams();
   return (
-    <CareerLoader careerId={careerId}>{(career) => <DetailsPage career={career} />}</CareerLoader>
+    <CareerLoader careerId={careerId}>
+      {(career) => <DetailsPage career={career} />}
+    </CareerLoader>
   );
 }
 
 function DetailsPage({ career }: { career: Career }) {
   const meta = useCareerHeroMeta(career);
+  const { id, title, interest, levels } = career;
+
+  useEffect(() => {
+    analytics.trackFeature.careerViewed(
+      id,
+      title,
+      interest ?? "",
+      levels ?? [],
+    );
+  }, [id, interest, levels, title]);
 
   return (
     <>
@@ -38,7 +52,9 @@ function DetailsPage({ career }: { career: Career }) {
             <ArrowRightRegular aria-hidden className="size-5" />
           </SkillLink>
         ) : (
-          <p className="text-base leading-5 text-grey-600">Roadmap coming soon</p>
+          <p className="text-base leading-5 text-grey-600">
+            Roadmap coming soon
+          </p>
         )}
       </CareerHero>
       <Detail career={career} />

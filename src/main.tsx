@@ -1,11 +1,16 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  QueryCache,
+} from "@tanstack/react-query";
 import { routeTree } from "./routeTree.gen.ts";
 import { PostHogProvider } from "@posthog/react";
-import { initSentry } from "./lib/monitoring/sentry";
+import { captureApiError, initSentry } from "./lib/monitoring/sentry";
 import "./index.css";
+import { isAxiosError } from "axios";
 
 initSentry();
 
@@ -17,7 +22,31 @@ const options = {
 } as const;
 
 const router = createRouter({ routeTree });
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error) => {
+      if (isAxiosError(error)) {
+        if (
+          error.response?.status === undefined ||
+          error.response?.status >= 500 ||
+          error.code === "ECONNABORTED" ||
+          error.code === "ETIMEDOUT"
+        ) {
+          captureApiError(error, {
+            category: error.response
+              ? "http_error"
+              : error.code === "ECONNABORTED" || error.code === "ETIMEDOUT"
+                ? "timeout"
+                : "network_error",
+            method: error.config?.method?.toUpperCase(),
+            url: error.config?.url,
+            status: error.response?.status,
+          });
+        }
+      }
+    },
+  }),
+});
 
 declare module "@tanstack/react-router" {
   interface Register {

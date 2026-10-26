@@ -24,15 +24,19 @@ export const Route = createFileRoute("/careers/$careerId/roadmap/")({
 
 function RoadmapRoute() {
   const result = Route.useLoaderData();
+  const roadmapId = result?.roadmap?.id;
+  const careerId = result?.career.id;
+  const careerTitle = result?.career.title;
+
   useEffect(() => {
-    if (!result || !result.roadmap) return;
+    if (!roadmapId || !careerId || !careerTitle) return;
 
     analytics.trackFeature.roadmapViewed(
-      result.roadmap.id,
-      result.career.id,
-      result.career.title,
+      roadmapId,
+      careerId,
+      careerTitle,
     );
-  }, [result]);
+  }, [careerId, careerTitle, roadmapId]);
 
   const navigate = useNavigate();
 

@@ -6,7 +6,15 @@ export interface CustomEvents {
     title: string;
     timestamp: string;
     interest: string;
-    level: string;
+    levels: string[];
+  };
+
+  career_overviewed: {
+    career_id: string;
+    title: string;
+    timestamp: string;
+    interest: string;
+    levels: string[];
   };
 
   roadmap_viewed: {
@@ -14,8 +22,6 @@ export interface CustomEvents {
     career_id: string;
     career_title: string;
     timestamp: string;
-    interest: string;
-    level: string;
   };
 
   resource_opened: {
@@ -60,14 +66,29 @@ export const analytics = {
       career_id: string,
       title: string,
       interest?: string,
-      level?: string,
+      levels?: string[],
     ) => {
       analytics.track("career_viewed", {
         career_id,
         title,
         timestamp: new Date().toISOString(),
         interest: interest ?? "",
-        level: level ?? "",
+        levels: levels ?? [],
+      });
+    },
+
+    careerOverviewed: (
+      career_id: string,
+      title: string,
+      interest?: string,
+      levels?: string[],
+    ) => {
+      analytics.track("career_overviewed", {
+        career_id,
+        title,
+        timestamp: new Date().toISOString(),
+        interest: interest ?? "",
+        levels: levels ?? [],
       });
     },
 
@@ -75,16 +96,12 @@ export const analytics = {
       roadmap_id: string,
       career_id: string,
       career_title: string,
-      interest?: string,
-      level?: string,
     ) => {
       analytics.track("roadmap_viewed", {
         roadmap_id,
         career_id,
         career_title,
         timestamp: new Date().toISOString(),
-        interest: interest ?? "",
-        level: level ?? "",
       });
     },
 

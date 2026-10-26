@@ -168,7 +168,7 @@ export function toCareer(data: ApiCareerDetail): Career {
     title: data.title,
     description: data.description,
     levels: data.targetLevels.map((level) => levelMap[level]).filter(Boolean),
-    interest: data.field.slug ?? null,
+    interest: data.field?.slug ?? null,
     level,
     tags: data.skills.map((skill) => skill.name),
     roleSummary: data.roleSummary,

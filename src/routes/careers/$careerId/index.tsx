@@ -10,6 +10,8 @@ import { BackLink } from "@/features/skillCheck/components/BackLink";
 import { SkillGapEntry } from "@/features/skillCheck/components/SkillGapEntry";
 import { SkillLink } from "@/features/skillCheck/components/SkillButton";
 import type { Career } from "@/types/career.types";
+import { analytics } from "@/lib/monitoring/events";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/careers/$careerId/")({
   pendingComponent: DetailSkeleton,
@@ -29,6 +31,16 @@ function CareerRoute() {
 function CareerOverviewPage({ career }: { career: Career }) {
   const meta = useCareerHeroMeta(career);
   const withSkillCheck = hasSkillCheck(career.title, career.slug);
+  const { id, title, interest, levels } = career;
+
+  useEffect(() => {
+    analytics.trackFeature.careerOverviewed(
+      id,
+      title,
+      interest ?? "",
+      levels ?? [],
+    );
+  }, [id, interest, levels, title]);
 
   return (
     <>

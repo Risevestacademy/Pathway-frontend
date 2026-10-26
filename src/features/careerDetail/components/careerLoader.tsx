@@ -9,7 +9,6 @@ import { useCareer } from "../hooks/useCareer";
 import CareerFrame from "./careerFrame";
 import DetailSkeleton from "./detailSkeleton";
 import { useEffect } from "react";
-import { analytics } from "@/lib/monitoring/events";
 import { isAxiosError } from "axios";
 import * as Sentry from "@sentry/react";
 
@@ -28,17 +27,6 @@ export default function CareerLoader({
     refetch,
   } = useCareer(careerId);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!career) return;
-
-    analytics.trackFeature.careerViewed(
-      career.id,
-      career.title,
-      career.interest ?? "",
-      career.level ?? "",
-    );
-  }, [career]);
 
   useEffect(() => {
     if (isError && !isAxiosError(error)) {

@@ -1,4 +1,4 @@
-import { Outlet, useLocation, useMatches } from "@tanstack/react-router";
+import { Outlet, useMatches } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import * as Sentry from "@sentry/react";
 import { useEffect } from "react";
@@ -14,12 +14,19 @@ export default function RootLayout() {
       matches.findLast((match) => match.staticData.shellVariant)?.staticData
         .shellVariant,
   });
-  const pathname = useLocation({ select: (location) => location.pathname });
+  const routeId = useMatches({
+    select: (matches) => {
+      const routeId = matches.at(-1)?.routeId;
+      return routeId && routeId !== "/" ? routeId.replace(/\/$/, "") : routeId;
+    },
+  });
   const userId = useAuthStore((state) => state.user?.id ?? null);
 
   useEffect(() => {
-    Sentry.setTag("route", pathname);
-  }, [pathname]);
+    if (routeId) {
+      Sentry.setTag("route", routeId);
+    }
+  }, [routeId]);
 
   useEffect(() => {
     if (userId) {
