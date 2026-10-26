@@ -163,6 +163,7 @@ export function toCareer(data: ApiCareerDetail): Career {
 
   return {
     id: data.id,
+    slug: data.slug,
     status: status(data.status),
     title: data.title,
     description: data.description,

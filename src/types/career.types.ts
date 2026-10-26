@@ -78,6 +78,7 @@ export interface EntryConsideration {
 
 export interface Career {
   id: string;
+  slug?: string;
   status: ContentStatus;
   title: string;
   description: string;
