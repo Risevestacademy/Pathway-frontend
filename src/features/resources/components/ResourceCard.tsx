@@ -14,10 +14,9 @@ import {
 import { Badge } from "../../../components/ui/Badge";
 import { Button } from "../../../components/ui/Button";
 import { Card } from "../../../components/ui/Card";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { Resource } from "../resources.types";
 import { useMutation } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 import { submitFeedback, type FeedbackCategory } from "../../../lib/api/feedback.api";
 import { useAuthStore } from "../../../lib/stores/authStore";
 
@@ -82,11 +81,14 @@ export default function ResourceCard({
     "Something else",
   ];
 
-  const closeReport = () => {
+  const { reset: resetFeedback } = feedback;
+  // Clears the last error too, so it doesn't show again when the dialog reopens.
+  const closeReport = useCallback(() => {
     setIsReportOpen(false);
     setReason("");
     setDetails("");
-  };
+    resetFeedback();
+  }, [resetFeedback]);
 
   useEffect(() => {
     if (!isReportOpen) return;
@@ -97,7 +99,7 @@ export default function ResourceCard({
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isReportOpen]);
+  }, [isReportOpen, closeReport]);
 
   const submitReport = () => {
     if (!reason) return;
@@ -271,9 +273,6 @@ export default function ResourceCard({
               {feedback.isError && (
                 <p role="alert" className="mt-4 text-sm text-danger-700">
                   We couldn’t send your report. Please try again.
-                  {isAxiosError(feedback.error) &&
-                    typeof feedback.error.response?.data?.message === "string" &&
-                    ` (${feedback.error.response.data.message})`}
                 </p>
               )}
 

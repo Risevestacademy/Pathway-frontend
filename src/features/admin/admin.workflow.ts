@@ -368,7 +368,21 @@ export interface TeamMember {
   invitedAt?: string;
 }
 
+/**
+ * Stand-in for the signed-in admin until an endpoint lists users and their
+ * roles. Without a team entry, nobody can manage the team or review changes.
+ */
+export const OWNER_MEMBER: TeamMember = {
+  id: "member-esther",
+  name: "Esther Adejola",
+  email: "adejolanu@gmail.com",
+  roles: ["admin"],
+  careerAccess: "all",
+  lastActive: ago(5 * 60 * 1000),
+};
+
 export const SEED_MEMBERS: TeamMember[] = [
+  OWNER_MEMBER,
   {
     id: "member-amaka",
     name: "Amaka Obi",

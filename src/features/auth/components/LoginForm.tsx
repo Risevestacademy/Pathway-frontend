@@ -1,9 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { Eye, EyeOff } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { Button } from "../../../components/ui/Button";
 import AuthLayout from "./AuthLayout";
 import AuthGoogleButton from "./AuthGoogleButton";
+import ResendCodeLink from "./ResendCodeLink";
 
 interface LoginValues {
   email: string;
@@ -13,10 +14,13 @@ interface LoginValues {
 export default function LoginForm({
   onSubmit,
   onGoogleAuth,
+  onResendCode,
 }: {
   onSubmit: (values: LoginValues) => Promise<void>;
   onGoogleAuth: (idToken: string) => Promise<void>;
+  onResendCode: (email: string) => Promise<void>;
 }) {
+  const formRef = useRef<HTMLFormElement>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -46,7 +50,7 @@ export default function LoginForm({
 
   return (
     <AuthLayout variant="login">
-      <form className="space-y-3" onSubmit={handleSubmit} aria-labelledby="login-heading">
+      <form ref={formRef} className="space-y-3" onSubmit={handleSubmit} aria-labelledby="login-heading">
         <h1 id="login-heading" className="mb-8 text-center font-display text-xl font-semibold text-ink">Log in</h1>
         <label htmlFor="login-email" className="sr-only">Email address</label>
         <input id="login-email" name="email" type="email" required placeholder="Email address" className="auth-input" autoComplete="email" />
@@ -63,6 +67,13 @@ export default function LoginForm({
           </p>
         )}
         <Link to="/reset-password" className="inline-block text-xs font-semibold text-brand-600 hover:underline">Forgot Password?</Link>
+        <p className="text-xs text-grey-500">
+          Never verified your email?{" "}
+          <ResendCodeLink
+            getEmail={() => String(new FormData(formRef.current ?? undefined).get("email") ?? "")}
+            onResend={onResendCode}
+          />
+        </p>
         <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
           {isSubmitting ? "Logging in..." : "Log in"}
         </Button>

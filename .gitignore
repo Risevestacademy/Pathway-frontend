@@ -33,3 +33,6 @@ pnpm-workspace.yaml
 routeTree.gen.ts
 
 tree.txt
+
+# TanStack Router generated scaffolding
+.tanstack/

@@ -1,10 +1,11 @@
-import { Link, Outlet } from "@tanstack/react-router";
+import { Link, Outlet, useRouterState } from "@tanstack/react-router";
 import clsx from "clsx";
 import type { ReactNode } from "react";
 import {
   Bell,
   BriefcaseBusiness,
   CircleAlert,
+  Info,
   LayoutGrid,
   SquareCheckBig,
   UsersRound,
@@ -24,6 +25,26 @@ function CountBadge({ count }: { count: number }) {
       {count}
       <span className="sr-only"> waiting</span>
     </span>
+  );
+}
+
+/** Learner reports come from the API; everything else in admin is saved in this browser only. */
+function LocalPreviewNotice() {
+  const onReports = useRouterState({
+    select: (s) => s.location.pathname.startsWith("/admin/reports"),
+  });
+  if (onReports) return null;
+  return (
+    <p
+      role="note"
+      className="flex items-center gap-2 border-b border-line bg-warning-50 px-page-mobile py-2 text-sm text-ink sm:px-page-tablet lg:px-8"
+    >
+      <Info className="size-4 shrink-0" aria-hidden />
+      <span>
+        <strong className="font-semibold">Local preview only.</strong> Careers, drafts, reviews and
+        team changes are saved in this browser, not to the server, until the backend supports them.
+      </span>
+    </p>
   );
 }
 
@@ -104,6 +125,7 @@ export function AdminLayout() {
         </div>
       </header>
 
+      <LocalPreviewNotice />
       <Outlet />
     </div>
   );

@@ -70,7 +70,7 @@ function MemberEditor({ member }: { member: TeamMember }) {
   const members = useAdminStore((s) => s.members);
   const updateMember = useAdminStore((s) => s.updateMember);
   const removeMember = useAdminStore((s) => s.removeMember);
-  const { rows } = useAdminCareers();
+  const { rows } = useAdminCareers({ detailFor: [] });
 
   const [roles, setRoles] = useState<Role[]>(member.roles);
   const [access, setAccess] = useState<CareerAccess>(member.careerAccess);

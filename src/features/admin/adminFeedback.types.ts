@@ -43,3 +43,12 @@ export const feedbackStatusLabel = (status: string) =>
 
 export const isOpenFeedback = (f: FeedbackItem) =>
   f.status === "NEW" || f.status === "UNDER_REVIEW";
+
+/**
+ * Statuses a report can move to from `current`: the same one or a later one,
+ * never back. An unknown status can go anywhere.
+ */
+export function nextFeedbackStatuses(current: string): FeedbackStatus[] {
+  const index = FEEDBACK_STATUSES.indexOf(current as FeedbackStatus);
+  return index === -1 ? FEEDBACK_STATUSES : FEEDBACK_STATUSES.slice(index);
+}

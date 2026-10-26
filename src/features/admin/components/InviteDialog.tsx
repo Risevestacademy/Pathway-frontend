@@ -30,7 +30,7 @@ export function InviteDialog({
 function InviteForm({ onClose }: { onClose: () => void }) {
   const members = useAdminStore((s) => s.members);
   const addMember = useAdminStore((s) => s.addMember);
-  const { rows } = useAdminCareers();
+  const { rows } = useAdminCareers({ detailFor: [] });
   const [email, setEmail] = useState("");
   const [roles, setRoles] = useState<Role[]>([]);
   const [access, setAccess] = useState<CareerAccess>("all");

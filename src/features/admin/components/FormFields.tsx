@@ -99,11 +99,13 @@ export function SelectField<T extends string>({
   value,
   onChange,
   options,
+  disabled,
 }: {
   label: string;
   value: T;
   onChange: (value: T) => void;
   options: { value: T; label: string }[];
+  disabled?: boolean;
 }) {
   const id = useId();
   return (
@@ -111,7 +113,7 @@ export function SelectField<T extends string>({
       <span id={id} className="font-medium text-ink">
         {label}
       </span>
-      <Select value={value} onValueChange={(v) => onChange(v as T)}>
+      <Select value={value} onValueChange={(v) => onChange(v as T)} disabled={disabled}>
         <SelectTrigger aria-labelledby={id} className="w-full">
           <SelectValue />
         </SelectTrigger>

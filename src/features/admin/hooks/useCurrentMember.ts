@@ -7,7 +7,7 @@ export interface CurrentMember {
   member: TeamMember | undefined;
   /** How this person appears as an author, e.g. "Amaka O.". */
   displayName: string;
-  /** Without a matching team member (e.g. during development) nothing is restricted. */
+  /** False without a matching team member: no access unless the team list says so. */
   canReview: boolean;
   isAdmin: boolean;
 }
@@ -22,7 +22,7 @@ export function useCurrentMember(): CurrentMember {
   return {
     member,
     displayName: member ? shortName(member.name) : "You",
-    canReview: !member || hasRole(member, "reviewer", "admin"),
-    isAdmin: !member || hasRole(member, "admin"),
+    canReview: Boolean(member && hasRole(member, "reviewer", "admin")),
+    isAdmin: Boolean(member && hasRole(member, "admin")),
   };
 }

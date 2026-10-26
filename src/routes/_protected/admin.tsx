@@ -5,8 +5,6 @@ import { AdminLayout } from "../../features/admin/components/AdminLayout";
 
 export const Route = createFileRoute("/_protected/admin")({
   beforeLoad: () => {
-    if (import.meta.env.DEV && import.meta.env.VITE_BYPASS_AUTH === "true") return;
-
     if (!isAdminRole(useAuthStore.getState().user?.role)) {
       throw redirect({ to: "/" });
     }

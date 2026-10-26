@@ -5,20 +5,20 @@ import { Button, LinkButton } from "../../../components/ui/Button";
 import { StateMessage } from "../../../components/ui/StateMessage";
 import { dayLabel, timeLabel } from "../admin.workflow";
 import {
-  FEEDBACK_STATUSES,
   FEEDBACK_STATUS_LABEL,
   FEEDBACK_STATUS_TONE,
   feedbackStatusLabel,
   humanize,
+  nextFeedbackStatuses,
   type FeedbackStatus,
 } from "../adminFeedback.types";
 import { useAdminFeedback, useUpdateFeedbackStatus } from "../hooks/useAdminFeedback";
 import { SelectField } from "./FormFields";
 
-const STATUS_OPTIONS = FEEDBACK_STATUSES.map((value) => ({
+const statusOption = (value: FeedbackStatus) => ({
   value,
   label: FEEDBACK_STATUS_LABEL[value],
-}));
+});
 
 function Card({
   title,
@@ -133,8 +133,9 @@ export function ReportDetailPage({ reportId }: { reportId: string }) {
           <SelectField
             label="Status"
             value={report.status as FeedbackStatus}
-            onChange={(status) => setStatus(status)}
-            options={STATUS_OPTIONS}
+            onChange={(status) => status !== report.status && setStatus(status)}
+            options={nextFeedbackStatuses(report.status).map(statusOption)}
+            disabled={update.isPending}
           />
           {report.careerId && (
             <div className="flex flex-wrap gap-3">

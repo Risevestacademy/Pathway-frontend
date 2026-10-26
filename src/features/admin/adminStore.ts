@@ -6,10 +6,8 @@ import {
   SEED_MEMBERS,
   SEED_REPORTS,
   SEED_REVIEWS,
-  isOpenReport,
+  OWNER_MEMBER,
   type ReportItem,
-  type ReportStatus,
-  type ReportType,
   type ReviewItem,
   type ReviewStatus,
   type TeamMember,
@@ -29,17 +27,6 @@ export interface NewCareerInput {
   copyFrom?: AdminCareerRow;
 }
 
-export interface NewReportInput {
-  type: ReportType;
-  title: string;
-  message: string;
-  careerId: string;
-  careerTitle: string;
-  stepTitle: string;
-  resourceId: string;
-  resourceTitle: string;
-}
-
 interface AdminState {
   created: AdminCareerRow[];
   /** Status changes for any career by id, including API ones. */
@@ -57,11 +44,6 @@ interface AdminState {
   addReview: (review: Omit<ReviewItem, "id" | "status">) => void;
   decideReview: (id: string, status: ReviewStatus, note: string) => void;
 
-  /** Learners reporting the same open problem on a resource are counted together. */
-  addReport: (input: NewReportInput) => void;
-  updateReport: (id: string, patch: Partial<ReportItem>) => void;
-  /** Closes the report and every other open report about the same resource and problem. */
-  closeReport: (id: string, status: Extract<ReportStatus, "fixed" | "not-an-issue">) => void;
   replaceResourceLink: (careerId: string, resourceId: string, url: string) => void;
 
   addMember: (member: Omit<TeamMember, "id">) => void;
@@ -130,51 +112,6 @@ export const useAdminStore = create<AdminState>()(
           ),
         })),
 
-      addReport: (input) =>
-        set((state) => {
-          const duplicate = state.reports.find(
-            (r) => isOpenReport(r) && r.resourceId === input.resourceId && r.type === input.type,
-          );
-          if (duplicate) {
-            return {
-              reports: state.reports.map((r) =>
-                r.id === duplicate.id ? { ...r, count: r.count + 1 } : r,
-              ),
-            };
-          }
-          return {
-            reports: [
-              {
-                ...input,
-                id: newId("report"),
-                reportedAt: new Date().toISOString(),
-                status: "new",
-                assignedTo: null,
-                note: "",
-                count: 1,
-              },
-              ...state.reports,
-            ],
-          };
-        }),
-      updateReport: (id, patch) =>
-        set((state) => ({
-          reports: state.reports.map((r) => (r.id === id ? { ...r, ...patch } : r)),
-        })),
-      closeReport: (id, status) =>
-        set((state) => {
-          const target = state.reports.find((r) => r.id === id);
-          return {
-            reports: state.reports.map((r) => {
-              const related =
-                target &&
-                isOpenReport(r) &&
-                r.resourceId === target.resourceId &&
-                r.type === target.type;
-              return r.id === id || related ? { ...r, status } : r;
-            }),
-          };
-        }),
       replaceResourceLink: (careerId, resourceId, url) =>
         set((state) => {
           const draft = state.drafts[careerId];
@@ -210,6 +147,16 @@ export const useAdminStore = create<AdminState>()(
       reset: () =>
         set({ created: [], statusOverrides: {}, drafts: {}, ...initialWorkflow() }),
     }),
-    { name: "pathway-admin-dummy-data" },
+    {
+      name: "pathway-admin-dummy-data",
+      version: 2,
+      // Browsers with a saved team list get the current OWNER_MEMBER, replacing
+      // any earlier version of that entry (e.g. one with an old email).
+      migrate: (persisted) => {
+        const state = persisted as Partial<AdminState>;
+        const others = (state.members ?? []).filter((m) => m.id !== OWNER_MEMBER.id);
+        return { ...state, members: [OWNER_MEMBER, ...others] } as AdminState;
+      },
+    },
   ),
 );

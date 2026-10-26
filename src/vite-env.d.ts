@@ -10,7 +10,6 @@ interface ImportMetaEnv {
   readonly VITE_SENTRY_ENABLE_DEV?: string;
   readonly VITE_APP_VERSION?: string;
   /** Dev only: "true" skips the auth and admin-role route guards. */
-  readonly VITE_BYPASS_AUTH?: string;
 }
 
 interface ImportMeta {

@@ -3,6 +3,7 @@ import { redirect } from "@tanstack/react-router";
 import { loginSearchSchema } from "../../lib/validation/auth.schema";
 import LoginForm from "../../features/auth/components/LoginForm";
 import { useLogin } from "../../features/auth/hooks/useLogin";
+import { useResendCode } from "../../features/auth/hooks/useResendCode";
 import { normalizeRedirect } from "../../lib/utils/route.util";
 import { loginWithGoogle } from "../../lib/api/auth.api";
 import { useAuthStore } from "../../lib/stores/authStore";
@@ -24,6 +25,7 @@ export const Route = createFileRoute("/(auth)/login")({
 function RouteComponent() {
   const navigate = useNavigate();
   const login = useLogin();
+  const resendCode = useResendCode();
   const { redirect } = Route.useSearch();
 
   const handleLogin = async ({
@@ -50,5 +52,11 @@ function RouteComponent() {
     });
   };
 
-  return <LoginForm onSubmit={handleLogin} onGoogleAuth={handleGoogleAuth} />;
+  return (
+    <LoginForm
+      onSubmit={handleLogin}
+      onGoogleAuth={handleGoogleAuth}
+      onResendCode={resendCode}
+    />
+  );
 }

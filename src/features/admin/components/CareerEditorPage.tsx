@@ -49,7 +49,7 @@ export function CareerEditorPage({
   careerId: string;
   initialTab?: string;
 }) {
-  const { rows, isPending: rowsPending } = useAdminCareers();
+  const { rows, isPending: rowsPending } = useAdminCareers({ detailFor: [careerId] });
   const saved = useAdminStore((s) => s.drafts[careerId]);
   const isLocal = careerId.startsWith(LOCAL_ID_PREFIX);
 

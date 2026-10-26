@@ -4,6 +4,7 @@ import { Info } from "lucide-react";
 import { Badge } from "../../../components/ui/Badge";
 import { Button, LinkButton } from "../../../components/ui/Button";
 import { StateMessage } from "../../../components/ui/StateMessage";
+import { paginate } from "../admin.utils";
 import { dayLabel, timeLabel } from "../admin.workflow";
 import {
   FEEDBACK_STATUSES,
@@ -15,6 +16,7 @@ import {
 } from "../adminFeedback.types";
 import { useAdminFeedback } from "../hooks/useAdminFeedback";
 import { PageHeader } from "./AdminLayout";
+import { Pagination } from "./Pagination";
 
 type Filter = "all" | FeedbackStatus;
 const FILTERS: Filter[] = ["all", ...FEEDBACK_STATUSES];
@@ -28,6 +30,7 @@ const pill = (active: boolean) =>
 export function ReportsPage() {
   const { data, isPending, isError, refetch } = useAdminFeedback();
   const [filter, setFilter] = useState<Filter>("all");
+  const [page, setPage] = useState(1);
 
   const reports = data ?? [];
   const count = (f: Filter) => (f === "all" ? reports.length : reports.filter((r) => r.status === f).length);
@@ -39,6 +42,7 @@ export function ReportsPage() {
         Number(isOpenFeedback(b)) - Number(isOpenFeedback(a)) ||
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
+  const current = paginate(shown, page);
   const openCount = reports.filter(isOpenFeedback).length;
 
   return (
@@ -62,7 +66,10 @@ export function ReportsPage() {
                 key={f}
                 type="button"
                 aria-pressed={filter === f}
-                onClick={() => setFilter(f)}
+                onClick={() => {
+                  setFilter(f);
+                  setPage(1);
+                }}
                 className={pill(filter === f)}
               >
                 {f === "all" ? "All" : feedbackStatusLabel(f)} {count(f)}
@@ -93,7 +100,7 @@ export function ReportsPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-line">
-                    {shown.map((r) => (
+                    {current.items.map((r) => (
                       <tr key={r.id}>
                         <td className="max-w-sm px-6 py-4">
                           <p className="line-clamp-2 font-medium text-ink">{r.description}</p>
@@ -127,6 +134,16 @@ export function ReportsPage() {
                   </tbody>
                 </table>
               </div>
+            )}
+            {shown.length > 0 && (
+              <Pagination
+                page={current.page}
+                pageCount={current.pageCount}
+                shown={current.items.length}
+                total={shown.length}
+                noun="reports"
+                onPage={setPage}
+              />
             )}
             <p className="flex items-center gap-2 border-t border-line px-6 py-4 text-sm text-ink-subtle">
               <Info className="size-4 shrink-0" aria-hidden />
