@@ -37,13 +37,18 @@ export default function FaqSection() {
                   <Accordion.Trigger
                     className={clsx(
                       "group flex w-full cursor-pointer items-center justify-between gap-4 text-left",
-                      "focus-ring rounded-lg font-landing-body text-base font-medium text-ink",
+                      "focus-ring rounded-lg font-landing-body text-base font-medium text-[#474747]",
                     )}
                   >
                     {faq.question}
+                    {/* Same 3D construction as the other buttons: white face, brand-100 border with a
+                        thicker bottom edge that compresses while the row is pressed. */}
                     <span
                       aria-hidden
-                      className="grid size-8 shrink-0 place-items-center rounded-[10px] bg-white text-brand-400 shadow-[0_2px_6px_rgb(16_16_29/0.08)] ring-1 ring-brand-100"
+                      className={clsx(
+                        "grid size-8 shrink-0 place-items-center rounded-[10px] border border-b-4 border-brand-100 bg-white text-brand-500",
+                        "transition-[transform,border-width] duration-150 group-active:translate-y-[2px] group-active:border-b-2 motion-reduce:transition-none",
+                      )}
                     >
                       <Plus size={18} strokeWidth={1.75} className="group-data-[state=open]:hidden" />
                       <Minus size={18} strokeWidth={1.75} className="hidden group-data-[state=open]:block" />
@@ -52,7 +57,7 @@ export default function FaqSection() {
                 </h3>
               </Accordion.Header>
               <Accordion.Content className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down motion-reduce:animate-none">
-                <p className="mt-3 rounded-xl bg-white px-5 py-4 font-landing-body text-base leading-6 text-grey-500">
+                <p className="mt-3 rounded-xl bg-white px-5 py-4 font-landing-body text-base leading-6 text-[#919191]">
                   {faq.answer}
                 </p>
               </Accordion.Content>
