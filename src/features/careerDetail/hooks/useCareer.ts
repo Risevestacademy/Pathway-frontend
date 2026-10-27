@@ -3,7 +3,7 @@ import { isAxiosError } from "axios";
 import { fetchCareer } from "../../../lib/api/careers.api";
 import { toCareer } from "../careerDetail.utils";
 
-/** Client errors (bad id, not found) won't change on retry; network and 5xx errors still retry. */
+// A bad id or missing career won't change on retry.
 const retryUnlessClientError = (failureCount: number, error: unknown) => {
   const status = isAxiosError(error) ? error.response?.status : undefined;
   if (status !== undefined && status >= 400 && status < 500) return false;

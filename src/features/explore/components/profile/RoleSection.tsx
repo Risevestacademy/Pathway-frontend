@@ -3,7 +3,6 @@ import type { Career } from "@/types/career.types";
 import { CAREER_PROFILE } from "../../explore.copy";
 import { innerCard, panel, panelTitle } from "./profile.styles";
 
-/** "What the role involves" and the example work activities (plain sentences from the API). */
 export default function RoleSection({ career }: { career: Career }) {
   return (
     <section aria-labelledby="role-heading" className={panel}>

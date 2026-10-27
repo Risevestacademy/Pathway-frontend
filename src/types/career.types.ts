@@ -89,8 +89,7 @@ export interface Career {
   entryConsiderations: EntryConsideration[];
   roadmapId: string | null;
   stats: Statistic[];
-  /** The career's field (category) from the API; absent on mock data. */
+  /** Absent on mock data. */
   field?: { name: string; slug: string } | null;
-  /** Number of stages in the career's pathway, when it has one. */
   roadmapStepCount?: number | null;
 }

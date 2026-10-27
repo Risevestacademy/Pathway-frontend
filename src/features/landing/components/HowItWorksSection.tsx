@@ -6,13 +6,6 @@ import { eyebrow, sectionHeading } from "../landing.styles";
 import stepCard from "@/assets/landing/step-card.webp";
 import stepClip from "@/assets/landing/step-clip.webp";
 
-/**
- * Mint band with a drag-to-scroll row of sticky-note cards. The row starts on
- * the content column and overflows the right edge, as in the export; dragging
- * is free (no snapping), matching the demo at 0:19 to 0:22.5. Horizontal
- * wheel input (trackpad swipes, Shift + mouse wheel) scrolls the row too;
- * vertical wheel input is left alone so the page still scrolls past it.
- */
 const wheelGestures = [WheelGesturesPlugin()];
 
 export default function HowItWorksSection() {
@@ -42,22 +35,20 @@ export default function HowItWorksSection() {
         </h2>
       </div>
 
-      {/* The viewport must clip horizontally for Embla; the vertical padding keeps the
-          paperclip (24px above the card) and the hover growth inside the clip box. */}
+      {/* Vertical padding keeps the paperclip and hover growth inside Embla's clipping viewport. */}
       <div
         ref={viewportRef}
         role="region"
         aria-label="How it works, drag to see all steps"
         className="mt-10 cursor-grab overflow-hidden pt-10 pb-6 active:cursor-grabbing"
       >
-        {/* The track starts on the content column's left edge and runs off the right of the screen. */}
         <ol className="flex gap-5 pr-(--landing-gutter) pl-[calc((100%-var(--landing-w))/2)]">
           {STEPS.map((step, index) => (
             <li
               key={step.id}
               className={clsx(
                 "relative h-[360px] w-[360px] shrink-0 origin-left select-none",
-                // Grows 8% from its left edge and pushes the cards after it by the same amount (demo 0:19 to 0:21).
+                // The margin matches the 8% growth so the cards after it are pushed along.
                 "transition-[scale,margin] duration-300 ease-out hover:mr-[29px] hover:scale-[1.08]",
                 "motion-reduce:transition-none motion-reduce:hover:mr-0 motion-reduce:hover:scale-100",
               )}

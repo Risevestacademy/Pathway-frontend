@@ -122,11 +122,7 @@ function OutlookCard({ projection, demand }: { projection: ProjectionStat | unde
   );
 }
 
-/**
- * Pay & Job outlook. Salary cards per geography on the left; growth (with the
- * base-to-projected chart) and current demand on the right. Each figure keeps
- * its own geography and source, since the API reports them separately.
- */
+// Each figure keeps its own geography and source, since the API reports them separately.
 export default function OutlookSection({ career }: { career: Career }) {
   const medians = career.stats.filter((s): s is SalaryMedianStat => s.kind === "salary-median");
   const ranges = career.stats.filter((s): s is SalaryRangeStat => s.kind === "salary-range");

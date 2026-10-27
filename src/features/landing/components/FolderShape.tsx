@@ -1,10 +1,4 @@
-/**
- * Folder tab strips from the export (`Vector 19` to `Vector 22`, 1360 x 507).
- * Only the top 170 units (tab + outer rounded corner) are drawn as SVG; the
- * body below is a plain div so the folder can be any height. The strip keeps
- * its aspect ratio, so the tab scales with the folder width; strokes stay 1px
- * via vector-effect.
- */
+// The top 170 units of the export's folder paths; the body below is a div so folders can be any height.
 export const FOLDER_TAB_RATIO = 170 / 1360;
 
 const TABS = [

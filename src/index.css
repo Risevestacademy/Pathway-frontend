@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-/* Landing page handwritten accent font (Sour Gummy, variable weight) */
 @import "@fontsource-variable/sour-gummy/wght.css";
 
 @custom-variant dark (&:is(.dark *));
@@ -32,7 +31,6 @@
   font-display: swap;
 }
 
-/* Landing page families (static faces, see LANDING-PLAN.md section 2) */
 @font-face {
   font-family: "Borscha";
   src: url("./assets/fonts/Borscha-Medium.ttf") format("truetype");
@@ -74,8 +72,7 @@
 }
 
 @theme static {
-  /* Landing page only — never used inside the app shell. Values eyedropped
-   * from the landing page export (LANDING-PLAN.md section 2). */
+  /* Landing page only, eyedropped from the export. */
   --font-landing-display: "Borscha", "Google Sans Flex", ui-sans-serif, system-ui, sans-serif;
   --font-landing-body: "Neue Montreal", "Figtree", ui-sans-serif, system-ui, sans-serif;
   --font-accent: "Sour Gummy Variable", "Comic Sans MS", cursive;
@@ -210,7 +207,6 @@
 }
 
 @theme {
-  /* Landing page hero entrance (runs once on load) */
   --animate-landing-fade-up: landing-fade-up 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-landing-card-rise: landing-card-rise 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
 
@@ -236,7 +232,6 @@
     }
   }
 
-  /* Download CTA keychain: 1.5° pendulum, origin at the top of the chain */
   --animate-landing-sway: landing-sway 4s ease-in-out infinite;
 
   @keyframes landing-sway {
@@ -328,11 +323,7 @@
   --radius-4xl: 32px;
 }
 
-/* Landing page content column. The design is a 1440 frame with a 1064px
- * column (73.89%); the demo scales it with the window, so the column is the
- * larger of 1064px and 73.89% of its container, and never wider than the
- * container minus the page gutters on small screens. The % resolves where the
- * variable is used, against that element's containing block. */
+/* The 1064px design column is 73.89% of the 1440 frame and scales with the window, as in the demo. */
 :root {
   --landing-gutter: var(--spacing-page-mobile);
   --landing-w: max(min(1064px, 100% - 2 * var(--landing-gutter)), 73.89%);
@@ -443,14 +434,7 @@
   }
 }
 
-/* Landing page: pinned, scroll-scrubbed entries. A tall section holds a
- * sticky 100svh box and writes its progress --p (0..1) via useScrollProgress
- * ({ mode: "pinned" }). Each item sets --start (progress at which it begins)
- * and --span (how much progress its slide takes) and rises from below the
- * viewport to its resting place. --c is the item's own 0..1. Setting
- * --tilt-k to 0 (e.g. on hover) straightens the item without touching the
- * inline --tilt. The short transitions smooth the steps between scroll
- * frames. */
+/* Rises from below the viewport as the section's --p moves through [--start, --start + --span]. */
 @utility landing-pin-item {
   --c: clamp(0, calc((var(--p, 1) - var(--start, 0)) / var(--span, 0.25)), 1);
   translate: 0 calc((1 - var(--c)) * 100svh);

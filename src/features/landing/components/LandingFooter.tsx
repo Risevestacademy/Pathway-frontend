@@ -15,7 +15,6 @@ const SOCIAL_ICONS: Record<string, typeof InstagramRegular> = {
 const linkClass =
   "focus-ring rounded font-landing-body text-base text-white/90 transition-colors duration-150 hover:text-white motion-reduce:transition-none";
 
-/** 1px grid lines, white at 25%. Cell size is set per breakpoint via background-size classes. */
 const gridBackground = {
   backgroundImage:
     "linear-gradient(to right, rgb(255 255 255 / 0.25) 1px, transparent 1px), linear-gradient(to bottom, rgb(255 255 255 / 0.25) 1px, transparent 1px)",
@@ -24,9 +23,8 @@ const gridBackground = {
 export default function LandingFooter() {
   return (
     <footer className="relative mt-24 bg-landing-footer py-[90px] text-white">
-      {/* Decor: red book top-left straddling the edge, pencils + pink paper on the right. The wrapper
-          starts 200px above the footer and ends at its bottom, so the book can overlap the white area
-          above while anything past the sides or bottom is clipped (and never extends the page). */}
+      {/* Starts 200px above the footer so the book can overlap the section above, while overflow
+          at the sides and bottom is clipped instead of extending the page. */}
       <div aria-hidden className="pointer-events-none absolute inset-x-0 -top-[200px] bottom-0 hidden overflow-hidden lg:block">
         <img
           src={decorBook}
@@ -43,8 +41,7 @@ export default function LandingFooter() {
       </div>
 
       <div className="landing-container">
-        {/* Grid frame (34 x 5 cells on desktop) with a solid block on top of it: the block is
-            inset 2 columns left/right and 1 row top/bottom, so its border sits on grid lines. */}
+        {/* 34 x 5 cells on desktop; the block is inset 2 columns and 1 row so it sits on grid lines. */}
         <div
           style={gridBackground}
           className={clsx(

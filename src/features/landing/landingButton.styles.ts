@@ -1,11 +1,6 @@
 import clsx from "clsx";
 
-/**
- * Buttons as drawn on the landing page export: brand-500 fill with a
- * brand-600 3D edge for primary, white with a grey edge for secondary.
- * Kept separate from `components/ui/Button` because the landing page uses
- * its own type and shape system.
- */
+// Separate from components/ui/Button because the landing pages use their own type and shapes.
 export type LandingButtonVariant = "primary" | "secondary";
 export type LandingButtonSize = "md" | "lg";
 

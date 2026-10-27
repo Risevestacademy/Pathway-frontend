@@ -1,4 +1,3 @@
-/** Shared class strings for the career profile sections. */
 export const panel = "rounded-[28px] border border-grey-100 bg-white p-6";
 export const panelTitle = "font-landing-body text-lg font-medium text-ink";
 export const innerCard = "rounded-2xl border border-grey-100 bg-white p-6";

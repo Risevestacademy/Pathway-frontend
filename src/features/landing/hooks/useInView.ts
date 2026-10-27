@@ -2,11 +2,7 @@ import { useEffect, useState, type RefObject } from "react";
 
 const hasObserver = () => typeof IntersectionObserver !== "undefined";
 
-/**
- * True while the element intersects the viewport. Used to pause looping
- * animations off-screen. Resolves to true where IntersectionObserver is
- * unavailable (tests, very old browsers) so content is never hidden.
- */
+// Without IntersectionObserver (tests, old browsers) it reports in view, so nothing stays hidden.
 export function useInView<T extends Element>(
   ref: RefObject<T | null>,
   { rootMargin = "0px", threshold = 0 }: { rootMargin?: string; threshold?: number } = {},

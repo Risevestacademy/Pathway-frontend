@@ -6,11 +6,7 @@ import type { Career } from "@/types/career.types";
 import { EXPLORE_LIST } from "../explore.copy";
 import CareerIconTile from "./CareerIconTile";
 
-/**
- * Explore card. The list endpoint only has title and description; the field
- * badge and the skills row come from the career's detail once it loads. The
- * whole card is one link (the title's ::after covers it).
- */
+// The title link's ::after covers the card, making the whole card one link.
 export default function ExploreCareerCard({ career, detail }: { career: CareerListItem; detail: Career | undefined }) {
   const skills = detail?.tags.slice(0, 3) ?? [];
 

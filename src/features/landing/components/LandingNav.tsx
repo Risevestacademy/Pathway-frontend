@@ -40,11 +40,6 @@ function NavItem({ link, onNavigate, className }: { link: NavLink; onNavigate?: 
   );
 }
 
-/**
- * Floating, sticky nav. Translucent with a backdrop blur so content scrolling
- * under it blurs, as in the demo (0:07.5 and 0:16.0 in the recording). Below
- * `md` the links collapse into a disclosure menu.
- */
 export default function LandingNav() {
   const [open, setOpen] = useState(false);
   const menuId = useId();

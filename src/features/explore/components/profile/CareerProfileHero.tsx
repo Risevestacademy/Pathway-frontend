@@ -9,11 +9,6 @@ import type { PathwaySummary } from "../../hooks/useCareerPathway";
 
 const dash = "–";
 
-/**
- * Career hero: audience badge, title, summary, the pathway CTA and a stats
- * panel over the cubes. Stats are real counts: stages and resources from the
- * pathway, skills from the career.
- */
 export default function CareerProfileHero({
   career,
   pathway,

@@ -24,24 +24,11 @@ const TONES: Record<CareerTone, { body: string; tile: string; chip: string }> = 
   lavender: { body: "border-x border-b border-grey-100 bg-brand-50", tile: "bg-brand-100", chip: "bg-brand-500" },
 };
 
-/** Extra scroll travel while the stack is pinned (md and up). */
 const PIN_DISTANCE = 2200;
-/**
- * Folder 0 is in place from the start. Folder i (i >= 1) slides in over
- * progress [0.06 + (i - 1) * 0.33, +0.25]; the gaps between windows are the
- * pauses where each folder sits fully visible before the next one moves.
- */
+// Folder 0 starts in place. The gaps between the slide-in windows are pauses where each folder sits fully visible.
 const startFor = (index: number) => (index === 0 ? -1 : 0.06 + (index - 1) * 0.33);
 const SPAN = 0.25;
 
-/**
- * Scroll-driven stacking folders (demo 0:23.5 to 0:32). From `md` the section
- * pins a 100svh box and each folder slides up from below the viewport to its
- * resting offset, one at a time and fully reversible; the finished stack then
- * scrolls away as one block. The step between folders shrinks on short
- * viewports so every folder's content is visible before the next one starts.
- * Below `md` the folders are static blocks in normal flow.
- */
 export default function CareerFolderStack() {
   const pinRef = useRef<HTMLDivElement>(null);
   useScrollProgress(pinRef, { mode: "pinned" });
@@ -65,12 +52,10 @@ export default function CareerFolderStack() {
         style={{ "--pin": `${PIN_DISTANCE}px` } as CSSProperties}
         className={clsx(
           "relative mt-[45px]",
-          // Folder 0 rests `--nav` below the box top; pull the box up so it sits 45px under the heading pre-pin.
+          // Offsets the --nav gap so folder 0 sits 45px under the heading before pinning.
           "md:mt-[calc(45px-var(--nav))] md:h-[calc(100svh+var(--pin))]",
-          // Reduced motion: no pin, just the finished stack as one viewport-tall block.
           "motion-reduce:md:h-svh",
-          // Folders run `--tail` past the viewport bottom and the same space is reserved below the
-          // stack, so the last folder keeps showing body below its content as the stack scrolls away.
+          // --tail keeps the last folder's body showing below its content as the stack scrolls away.
           "md:mb-(--tail) [--tail:0px] md:[--tail:160px] lg:[--tail:240px]",
           "[--nav:100px] lg:[--nav:120px]",
           "[--step:clamp(80px,calc((100svh-560px)/3),157px)]",
@@ -93,7 +78,7 @@ export default function CareerFolderStack() {
                 className={clsx(
                   "relative flex w-full flex-col",
                   "md:landing-pin-item md:absolute md:top-(--top) md:h-[calc(100svh-var(--top)+var(--tail))]",
-                  // No max width: the alternating inset must stay 80px so a folder always covers the previous one's content.
+                  // No max width, so the 80px inset always covers the previous folder's content.
                   "md:w-[calc(100%-24px)] lg:w-[calc(100%-80px)]",
                   index % 2 === 1 ? "md:right-0" : "md:left-0",
                 )}

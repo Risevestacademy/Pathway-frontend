@@ -1,8 +1,3 @@
-/**
- * All copy and data for the public landing page. Components own the visuals
- * (illustrations, colours) and look them up by the ids defined here.
- */
-
 export type NavLink =
   | { label: string; to: "/explore"; comingSoon?: false }
   | { label: string; href: `#${string}`; comingSoon?: false }
@@ -18,7 +13,7 @@ export const NAV_LINKS: readonly NavLink[] = [
 export const NAV_CTA = { login: "Log in", getStarted: "Get Started" } as const;
 
 export const HERO = {
-  /** The H1 is rendered as `headingStart [briefcase] headingEnd [send]`. */
+  /** Rendered as `headingStart [briefcase] headingEnd [send]`. */
   headingStart: "Don't guess your career.",
   headingEnd: "Map it.",
   subtitle:
@@ -34,7 +29,7 @@ export interface StickerCard {
   copy: string;
 }
 
-/** Headings and step titles carry the export's line breaks as "\n"; render with `whitespace-pre-line`. */
+/** "\n" marks the export's line breaks; render with `whitespace-pre-line`. */
 export const STICKER_SECTION = {
   heading: "Choosing a career\nshouldn't feel like guessing.",
 } as const;
@@ -137,7 +132,6 @@ export interface Faq {
 export const FAQ_SECTION = {
   eyebrow: "FAQs",
   heading: "Frequently asked questions",
-  /** Item open on first render. */
   defaultOpen: "who",
 } as const;
 

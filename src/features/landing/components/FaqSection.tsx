@@ -4,14 +4,9 @@ import { Minus, Plus } from "lucide-react";
 import { FAQS, FAQ_SECTION } from "../landing.copy";
 import { container, eyebrow, sectionHeading } from "../landing.styles";
 
-/**
- * Single-open accordion, first item open on load, height animated with the
- * tw-animate accordion keyframes (driven by --radix-accordion-content-height).
- */
 export default function FaqSection() {
   return (
     <section aria-labelledby="landing-faq-heading" className="bg-white pt-[120px]">
-      {/* Question column starts at 540/1064 of the content width, as in the export. */}
       <div className={clsx(container, "grid gap-10 lg:grid-cols-[50.75%_1fr] lg:gap-0")}>
         <div>
           <p className={eyebrow}>{FAQ_SECTION.eyebrow}</p>
@@ -41,8 +36,6 @@ export default function FaqSection() {
                     )}
                   >
                     {faq.question}
-                    {/* Same 3D construction as the other buttons: white face, brand-100 border with a
-                        thicker bottom edge that compresses while the row is pressed. */}
                     <span
                       aria-hidden
                       className={clsx(

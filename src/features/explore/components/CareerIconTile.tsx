@@ -3,7 +3,7 @@ import { BriefcaseBusiness } from "lucide-react";
 import { TrackIcon } from "@/components/TrackIcon";
 import { careerIconKey } from "../explore.utils";
 
-/** The career's track icon (which carries its own tinted tile), or a neutral tile when there is none. */
+// Track icons carry their own tinted tile; the fallback draws a neutral one.
 export default function CareerIconTile({
   title,
   slug,

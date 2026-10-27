@@ -10,10 +10,6 @@ import HowItWorksSection from "./HowItWorksSection";
 import PublicPageLayout from "./PublicPageLayout";
 import StickerCardsSection from "./StickerCardsSection";
 
-/**
- * Public landing page at `/`. Owns the landing type system, the sticky nav
- * and the signed-in redirect; each section is its own component.
- */
 export default function LandingPage() {
   const navigate = useNavigate();
 

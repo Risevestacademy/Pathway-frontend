@@ -1,5 +1,3 @@
-/** Copy for the public explore page and career profile page. */
-
 export const EXPLORE_HERO = {
   eyebrow: "Find your path",
   heading: "Explore careers\nbefore you commit",

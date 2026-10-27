@@ -1,6 +1,5 @@
 import clsx from "clsx";
 
-/** Content column: 1064px at the 1440 design width, scaling with the window above it (see --landing-w). */
 export const container = "landing-container";
 
 export const eyebrow = "font-accent text-lg font-medium text-grey-500";

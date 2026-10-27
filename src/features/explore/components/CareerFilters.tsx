@@ -19,10 +19,6 @@ interface CareerFiltersProps {
 const chipBase =
   "focus-ring inline-flex h-10 cursor-pointer items-center rounded-[8px] border-b-[3px] px-3 font-landing-body text-[15px] font-medium whitespace-nowrap transition-colors duration-150 motion-reduce:transition-none";
 
-/**
- * Search box, field filter and career-stage chips. Stage and field are sent
- * to the API (`level`, `interest`); the search box filters the returned list.
- */
 export default function CareerFilters({
   query,
   level,

@@ -5,7 +5,6 @@ import { CAREER_PROFILE } from "../../explore.copy";
 import type { PathwaySummary } from "../../hooks/useCareerPathway";
 import { panel, panelTitle, sourceNote } from "./profile.styles";
 
-/** Skills chips plus three quick facts: first pathway step, roadmap size, typical education. */
 export default function SkillsSection({
   career,
   pathway,

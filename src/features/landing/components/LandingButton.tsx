@@ -43,7 +43,6 @@ export function LandingLinkButton({
   );
 }
 
-/** Plain anchor for external or placeholder hrefs (app stores, in-page anchors). */
 export function LandingAnchorButton({
   children,
   variant = "primary",

@@ -5,7 +5,6 @@ import PromoCard from "./PromoCard";
 import appleLogo from "@/assets/landing/apple-logo.svg";
 import googlePlayLogo from "@/assets/landing/google-play-logo.svg";
 
-/** Landing page download card: the shared promo card with the two store buttons. */
 export default function DownloadCtaSection() {
   return (
     <section aria-labelledby="landing-cta-heading" className="bg-white pt-[110px]">

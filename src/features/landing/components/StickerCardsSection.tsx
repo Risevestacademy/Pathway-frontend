@@ -10,14 +10,13 @@ import stickerPink from "@/assets/landing/sticker-pink.webp";
 import noteCorner from "@/assets/landing/decor-note-corner.webp";
 import notebook from "@/assets/landing/decor-notebook.webp";
 
+/** Sizes are export px; left/top place the card on the 1064px column. */
 interface Visual {
   src: string;
   bg: string;
-  /** Illustration box inside the card (1x export px). */
   width: number;
   right: number;
   bottom: number;
-  /** Resting position on the 1064px column (1x export px) and tilt. */
   left: number;
   top: number;
   tilt: string;
@@ -30,26 +29,13 @@ const VISUALS: Record<StickerTone, Visual> = {
   pink: { src: stickerPink, bg: "bg-landing-sticker-pink", width: 300, right: -4, bottom: -4, left: 664, top: 4, tilt: "1.5deg" },
 };
 
-/** Extra scroll travel while the section is pinned (xl and up). */
 const PIN_DISTANCE = 1600;
-/** Card i slides in over progress [START + i * GAP, START + i * GAP + SPAN]. */
+// Card i slides in over progress [START + i * GAP, START + i * GAP + SPAN].
 const START = 0.04;
 const GAP = 0.22;
 const SPAN = 0.2;
 
-/**
- * "Choosing a career" cards. From `xl` an inner wrapper pins (sticky 100svh
- * box in a taller wrapper) and the cards rise from below the viewport one at
- * a time as the user scrolls, fully reversible, like the folder stack. Below
- * `xl` they sit in a plain grid with no pinning.
- *
- * The decor is positioned on the section, not inside the pinned box, so it
- * scrolls with the page as in the demo: the green note sits on the hero edge
- * and scrolls away as the pin starts, the notebook sits on the next section's
- * edge and scrolls in as the pin ends.
- *
- * Hover (demo): the card comes to the front and straightens to 0deg.
- */
+// The decor sits outside the pinned box so it scrolls with the page, as in the demo.
 export default function StickerCardsSection() {
   const pinRef = useRef<HTMLDivElement>(null);
   useScrollProgress(pinRef, { mode: "pinned" });
@@ -59,7 +45,6 @@ export default function StickerCardsSection() {
       aria-labelledby="landing-stickers-heading"
       className="relative overflow-x-clip bg-white xl:pb-[120px] motion-reduce:xl:pb-0"
     >
-      {/* Green ruled note straddling the hero edge, top-right. */}
       <img
         src={noteCorner}
         alt=""
@@ -67,7 +52,6 @@ export default function StickerCardsSection() {
         draggable={false}
         className="pointer-events-none absolute -top-20 -right-4 z-10 hidden w-[192px] max-w-none select-none xl:block"
       />
-      {/* Notebook + pen straddling the "How it works" edge, bottom-left. */}
       <img
         src={notebook}
         alt=""
@@ -84,7 +68,7 @@ export default function StickerCardsSection() {
         <div
           className={clsx(
             "relative pt-[120px] pb-[100px]",
-            // Heading clears the sticky nav (120px) and, on tall viewports, sits up to 200px down as in the export.
+            // Clears the sticky nav; up to the export's 200px on tall viewports.
             "xl:sticky xl:top-0 xl:h-svh xl:[--pt:clamp(120px,calc(100svh-860px),200px)] xl:pt-(--pt) xl:pb-0",
             "motion-reduce:xl:static",
           )}
@@ -96,14 +80,12 @@ export default function StickerCardsSection() {
             {STICKER_SECTION.heading}
           </h2>
 
-          {/* From xl the row is a 1064 x 500 artboard scaled to the content column (capped so it
-              still fits the pinned viewport); everything inside is sized in design px * 100cqw / 1064. */}
+          {/* From xl: a 1064 x 500 artboard in design px * 100cqw / 1064, capped to fit the pinned viewport. */}
           <div
             className={clsx(
               "mx-auto mt-[60px] w-full",
               "grid grid-cols-1 gap-6 px-page-mobile sm:grid-cols-2 sm:px-page-tablet",
               "xl:relative xl:block xl:aspect-[1064/500] xl:px-0 xl:[container-type:inline-size]",
-              // Grows with the column while the pinned viewport is tall enough, never below the design's 1064px.
               "xl:w-[min(var(--landing-w),max(1064px,calc((100svh-var(--pt)-197px)*1064/500)))]",
             )}
           >

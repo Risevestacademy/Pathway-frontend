@@ -20,12 +20,7 @@ import PathwayCtaSection from "./PathwayCtaSection";
 
 const route = getRouteApi("/explore/");
 
-/**
- * Public career catalogue at /explore. Career stage and field go to the API
- * (GET /careers?level=&interest=), mirroring the in-app catalogue; the search
- * box filters the returned list on title, description, field and skills.
- * All three live in the URL.
- */
+// The API has no search, so the query filters the returned list; stage and field go to the API.
 export default function ExplorePage() {
   const search = route.useSearch();
   const navigate = route.useNavigate();
@@ -36,7 +31,6 @@ export default function ExplorePage() {
     void navigate({
       search: (prev) => {
         const next = { ...prev, ...patch };
-        // Drop empty values so the URL stays clean.
         return {
           q: next.q?.trim() ? next.q : undefined,
           level: next.level,

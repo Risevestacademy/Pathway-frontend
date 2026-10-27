@@ -32,10 +32,6 @@ function ProfileSkeleton() {
   );
 }
 
-/**
- * Public career profile at /explore/$careerId, built from GET /careers/:id
- * (shared cache with the in-app detail page) and GET /careers/:id/pathway.
- */
 export default function CareerProfilePage() {
   const { careerId } = route.useParams();
   const { data: career, isPending, isError, error, refetch } = useCareer(careerId);
@@ -45,8 +41,7 @@ export default function CareerProfilePage() {
 
   return (
     <PublicPageLayout bandClassName="h-[260px] lg:h-[370px]">
-      {/* The back link sits in the gap above the hero, so the hero keeps the design's 120px
-          offset from the nav on desktop. */}
+      {/* Fits in the gap above the hero, which keeps the design's 120px offset on desktop. */}
       <div className={`${container} pt-8 lg:pt-16`}>
         <Link
           to="/explore"

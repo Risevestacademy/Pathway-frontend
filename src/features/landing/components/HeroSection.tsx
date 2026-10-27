@@ -11,21 +11,15 @@ import card1 from "@/assets/landing/hero-card-1.webp";
 import card2 from "@/assets/landing/hero-card-2.webp";
 import card3 from "@/assets/landing/hero-card-3.webp";
 
-/**
- * The three profile cards are pre-rotated exports. Positions are the 1440px
- * export coordinates on the 1440 x 470 stage that holds the cards and the two
- * cloud bands (stage top = export y 540). The stage is a container-query
- * context, so every value is expressed in cqw and the whole artboard scales
- * with its width; below 900px it is cropped from the centre instead.
- */
+// Export px on the 1440 x 470 stage, scaled with cqw.
 const STAGE_WIDTH = 1440;
 const STAGE_HEIGHT = 470;
 const cqw = (px: number) => `${((px / STAGE_WIDTH) * 100).toFixed(3)}cqw`;
 
 const CARDS = [
-  { src: card3, width: 695, left: 285, top: 42, delay: "0ms" }, // back: Taiwo Talaricp
-  { src: card2, width: 787, left: 326, top: 14, delay: "110ms" }, // middle: Ethel Chidera
-  { src: card1, width: 876, left: 340, top: 115, delay: "220ms" }, // front: Taiwo Mufidat-Prince
+  { src: card3, width: 695, left: 285, top: 42, delay: "0ms" },
+  { src: card2, width: 787, left: 326, top: 14, delay: "110ms" },
+  { src: card1, width: 876, left: 340, top: 115, delay: "220ms" },
 ] as const;
 
 const rise = "animate-landing-fade-up motion-reduce:animate-none";
@@ -67,7 +61,7 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* Stage: clouds + cards. Scales with the viewport down to 900px, then crops from the centre. */}
+      {/* Below 900px the stage crops from the centre instead of shrinking. */}
       <div aria-hidden className="relative mt-8 w-full overflow-hidden lg:mt-10">
         <div
           className="relative left-1/2 w-[max(100%,900px)] -translate-x-1/2 [container-type:inline-size]"

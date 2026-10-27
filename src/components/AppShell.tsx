@@ -16,7 +16,7 @@ const PLAIN_SIDEBAR_ROUTES = [
 /**
  * auto → logo-mark rail up to 1440px, full sidebar above (the `shell` breakpoint).
  * wide → always the full sidebar: logo, copyright and desk illustration.
- * none → no shell at all; the route renders its own chrome (public landing page).
+ * none → no shell; the route renders its own chrome.
  *
  * Wider-than-1440 behaviour is pending designer confirmation.
  */
@@ -24,8 +24,7 @@ export type AppShellVariant = "auto" | "wide" | "none";
 
 declare module "@tanstack/react-router" {
   interface StaticDataRouteOption {
-    /** Routes that always need the full sidebar (e.g. auth) set "wide";
-     * routes with their own chrome (landing page) set "none". */
+    /** Routes that always need the full sidebar (e.g. auth) set "wide". */
     shellVariant?: AppShellVariant;
   }
 }

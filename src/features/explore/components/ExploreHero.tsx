@@ -19,18 +19,13 @@ function Pill({ icon, label, className }: { icon: string; label: string; classNa
   );
 }
 
-/**
- * Explore hero on the lavender band. The band itself is painted by
- * PublicPageLayout (it runs behind the nav); this section's height is the
- * band height minus the nav, per breakpoint.
- */
+// The lavender band behind it is painted by PublicPageLayout, since it runs behind the nav.
 export default function ExploreHero() {
   return (
     <section
       aria-labelledby="explore-heading"
       className="relative h-[440px] overflow-x-clip md:h-[540px] lg:h-[652px]"
     >
-      {/* Decorative wave on the left edge, the CTA wave's shape in lavender. */}
       <svg
         aria-hidden
         viewBox="-40 -30 700 320"

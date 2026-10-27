@@ -4,17 +4,13 @@ import { projectionGeometry } from "../../explore.utils";
 const WIDTH = 600;
 const HEIGHT = 200;
 
-/**
- * Area chart for an employment projection. The API gives a base and a
- * projected value only, so the line is straight between them; the end values
- * are labelled so the chart does not imply yearly data it doesn't have.
- */
+// The API gives only a base and a projected value, so both are labelled to avoid implying yearly data.
 export default function GrowthChart({ points, unit }: { points: ProjectionPoint[]; unit?: string }) {
   const g = projectionGeometry(points, WIDTH, HEIGHT);
   const first = points[0];
   const last = points[points.length - 1];
   const labelled = new Set([first.year, last.year]);
-  // Label every other year, skipping the ones next to the end labels so they never collide.
+  // Skips the years next to the end labels so they never collide.
   const middle = g.ticks.filter(
     (tick) =>
       !labelled.has(tick.year) &&
@@ -39,7 +35,7 @@ export default function GrowthChart({ points, unit }: { points: ProjectionPoint[
             <line key={tick.year} x1={tick.x} x2={tick.x} y1={HEIGHT} y2={HEIGHT - 8} stroke="var(--color-grey-200)" vectorEffect="non-scaling-stroke" />
           ))}
         </svg>
-        {/* End-point values, positioned in % so they track the stretched chart. */}
+        {/* Positioned in % so they track the stretched chart. */}
         {[{ point: first, at: g.first }, { point: last, at: g.last }].map(({ point, at }, i) => (
           <span
             key={point.year}

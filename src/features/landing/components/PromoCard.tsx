@@ -5,12 +5,6 @@ import { useInView } from "../hooks/useInView";
 import wave from "@/assets/landing/cta-wave.svg";
 import keychain from "@/assets/landing/cta-keychain.webp";
 
-/**
- * Lavender promo card with the pink wave and the hanging keychain, used by the
- * landing download CTA and the "Not sure which career fits you?" CTA on the
- * explore pages. The keychain sways gently while the card is on screen; the
- * wave is static and clipped by the card.
- */
 export default function PromoCard({
   headingId,
   heading,
@@ -28,18 +22,13 @@ export default function PromoCard({
   return (
     <div
       ref={cardRef}
-      // From lg the card keeps at least the design's 1064 x 374 proportions, with the copy centred.
       className={clsx(
         "relative overflow-hidden rounded-[40px] border border-brand-300 bg-brand-50 px-6 py-12 sm:px-[54px] sm:py-[75px]",
         "lg:flex lg:aspect-[1064/374] lg:flex-col lg:justify-center",
       )}
     >
-      {/* Below lg: the desktop composition as a strip across the top of the card. It bleeds to the
-          card edges, so the card's top edge cuts the chain (as on desktop) and the wave runs off the
-          right edge. It shows the design's x 560-1065 region; --u is one design px, capped so the
-          strip stays at most 300px tall on wider cards, with the graphic anchored right. The height
-          is the card's width (viewport minus page gutters) at 505:380, not aspect-ratio, because
-          aspect-ratio with a max-height would shrink the strip's width too. */}
+      {/* Mobile: the design's x 560-1065 region as a top strip; --u is one design px. The height is
+          computed, since aspect-ratio under a max-height would also shrink the width. */}
       <div
         aria-hidden
         className="pointer-events-none relative -mx-6 -mt-12 mb-4 h-[min(calc((100vw-2*var(--landing-gutter)-2px)*380/505),300px)] [container-type:inline-size] [--u:calc(min(100cqw,399px)/505)] sm:-mx-[54px] sm:-mt-[75px] lg:hidden"
@@ -70,10 +59,8 @@ export default function PromoCard({
         <div className="mt-8 flex flex-wrap gap-3">{actions}</div>
       </div>
 
-      {/* Desktop: geometry measured from the demo, in design px * 100cqw / 1064. The layer covers
-          the whole card (not just its padded content box), so the units scale with the full card
-          width and the wave always ends at the card's right edge. The keychain's ring sits above
-          the card (clipped), so the chain enters from the top edge and the P hangs over the wave. */}
+      {/* Covers the whole card, not its padded content box, so cqw scales with the full width and
+          the wave ends at the right edge. */}
       <div aria-hidden className="pointer-events-none absolute inset-0 hidden [container-type:inline-size] lg:block">
         <img
           src={wave}

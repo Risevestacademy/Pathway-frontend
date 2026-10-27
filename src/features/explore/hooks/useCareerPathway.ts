@@ -7,7 +7,6 @@ export interface PathwaySummary {
   firstStep: string | null;
 }
 
-/** Stage and resource counts plus the first step, for the career profile page. */
 export function useCareerPathway(careerId: string) {
   return useQuery({
     queryKey: ["pathway", careerId],
