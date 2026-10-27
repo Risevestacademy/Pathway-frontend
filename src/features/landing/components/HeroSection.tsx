@@ -35,14 +35,21 @@ export default function HeroSection() {
           id="landing-hero-heading"
           className={clsx(
             rise,
-            "mx-auto max-w-[14ch] font-landing-display text-[2.75rem] leading-[1.05] font-bold tracking-[-0.02em] text-ink sm:text-[3.5rem] lg:text-[4rem]",
+            "mx-auto font-landing-display text-[2.75rem] leading-[1.05] font-bold tracking-[-0.02em] text-ink sm:text-[3.5rem] lg:text-[4rem]",
           )}
         >
-          {HERO.headingStart}{" "}
-          <img src={briefcaseIcon} alt="" aria-hidden className="inline-block size-[0.94em] align-[-0.12em]" />{" "}
-          <span className="whitespace-nowrap">
-            {HERO.headingEnd}{" "}
-            <img src={sendIcon} alt="" aria-hidden className="inline-block size-[0.94em] align-[-0.12em]" />
+          {/* An explicit break, not a ch-based max width, which wrapped differently depending on whether
+              the web font had loaded. On narrow screens the second line splits between its two halves. */}
+          <span className="block">{HERO.headingLead}</span>{" "}
+          <span className="block">
+            <span className="whitespace-nowrap">
+              {HERO.headingStart}{" "}
+              <img src={briefcaseIcon} alt="" aria-hidden className="inline-block size-[0.94em] align-[-0.12em]" />
+            </span>{" "}
+            <span className="whitespace-nowrap">
+              {HERO.headingEnd}{" "}
+              <img src={sendIcon} alt="" aria-hidden className="inline-block size-[0.94em] align-[-0.12em]" />
+            </span>
           </span>
         </h1>
         <p

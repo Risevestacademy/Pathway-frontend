@@ -13,8 +13,9 @@ export const NAV_LINKS: readonly NavLink[] = [
 export const NAV_CTA = { login: "Log in", getStarted: "Get Started" } as const;
 
 export const HERO = {
-  /** Rendered as `headingStart [briefcase] headingEnd [send]`. */
-  headingStart: "Don't guess your career.",
+  /** Rendered as `headingLead` / `headingStart [briefcase] headingEnd [send]`. */
+  headingLead: "Don't guess your",
+  headingStart: "career.",
   headingEnd: "Map it.",
   subtitle:
     "Pathway helps students and graduates explore careers and plan their next steps.",
