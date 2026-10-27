@@ -65,10 +65,10 @@ export default function CareerProfileHero({
           </div>
         </div>
 
-        <dl className="grid shrink-0 grid-cols-3 divide-x divide-grey-100 rounded-2xl border border-grey-100 bg-white py-4 md:border-0">
+        <dl className="grid shrink-0 grid-cols-3 divide-x divide-grey-100 rounded-2xl border border-grey-100 bg-white py-4 text-center md:border-0 md:text-left">
           {stats.map((stat) => (
-            <div key={stat.label} className="px-6">
-              <dt className="font-landing-body text-[15px] text-grey-500">{stat.label}</dt>
+            <div key={stat.label} className="px-2 sm:px-4 md:px-6">
+              <dt className="font-landing-body text-[14px] text-grey-500 sm:text-[15px]">{stat.label}</dt>
               <dd className="mt-2 font-landing-body text-[26px] leading-none text-ink">{stat.value}</dd>
             </div>
           ))}
