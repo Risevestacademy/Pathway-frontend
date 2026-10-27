@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import useEmblaCarousel from "embla-carousel-react";
+import { WheelGesturesPlugin } from "embla-carousel-wheel-gestures";
 import { HOW_IT_WORKS, STEPS } from "../landing.copy";
 import { eyebrow, sectionHeading } from "../landing.styles";
 import stepCard from "@/assets/landing/step-card.webp";
@@ -8,15 +9,22 @@ import stepClip from "@/assets/landing/step-clip.webp";
 /**
  * Mint band with a drag-to-scroll row of sticky-note cards. The row starts on
  * the content column and overflows the right edge, as in the export; dragging
- * is free (no snapping), matching the demo at 0:19 to 0:22.5.
+ * is free (no snapping), matching the demo at 0:19 to 0:22.5. Horizontal
+ * wheel input (trackpad swipes, Shift + mouse wheel) scrolls the row too;
+ * vertical wheel input is left alone so the page still scrolls past it.
  */
+const wheelGestures = [WheelGesturesPlugin()];
+
 export default function HowItWorksSection() {
-  const [viewportRef] = useEmblaCarousel({
-    dragFree: true,
-    containScroll: "trimSnaps",
-    align: "start",
-    skipSnaps: true,
-  });
+  const [viewportRef] = useEmblaCarousel(
+    {
+      dragFree: true,
+      containScroll: "trimSnaps",
+      align: "start",
+      skipSnaps: true,
+    },
+    wheelGestures,
+  );
 
   return (
     <section
