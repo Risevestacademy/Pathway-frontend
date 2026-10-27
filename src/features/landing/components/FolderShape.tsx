@@ -1,6 +1,4 @@
 // The top 170 units of the export's folder paths; the body below is a div so folders can be any height.
-export const FOLDER_TAB_RATIO = 170 / 1360;
-
 const TABS = [
   {
     fill: "#feeee7",
