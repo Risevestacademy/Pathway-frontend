@@ -59,6 +59,11 @@ export default function ResourcesPage({
             <li key={resource.id}>
               <ResourceCard
                 resource={resource}
+                context={{
+                  careerId: result.career.id,
+                  careerTitle: result.career.title,
+                  stepTitle: context.step.title,
+                }}
               />
             </li>
           ))}
