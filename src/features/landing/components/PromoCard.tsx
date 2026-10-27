@@ -28,11 +28,10 @@ export default function PromoCard({
   return (
     <div
       ref={cardRef}
-      // From lg the card is a size container: the graphic is placed in design px * 100cqw / 1064,
-      // and the card keeps at least the design's 1064 x 374 proportions, with the copy centred.
+      // From lg the card keeps at least the design's 1064 x 374 proportions, with the copy centred.
       className={clsx(
         "relative overflow-hidden rounded-[40px] border border-brand-300 bg-brand-50 px-6 py-12 sm:px-[54px] sm:py-[75px]",
-        "lg:flex lg:aspect-[1064/374] lg:flex-col lg:justify-center lg:[container-type:inline-size]",
+        "lg:flex lg:aspect-[1064/374] lg:flex-col lg:justify-center",
       )}
     >
       <div className="relative z-10 max-w-[520px]">
@@ -43,26 +42,28 @@ export default function PromoCard({
         <div className="mt-8 flex flex-wrap gap-3">{actions}</div>
       </div>
 
-      {/* Desktop: geometry measured from the demo. The keychain's ring sits above the card
-          (clipped), so the chain enters from the top edge and the P hangs over the wave. */}
-      <img
-        src={wave}
-        alt=""
-        aria-hidden
-        draggable={false}
-        className="pointer-events-none absolute top-[calc(120*100cqw/1064)] left-[calc(627*100cqw/1064)] hidden w-[calc(438*100cqw/1064)] max-w-none select-none lg:block"
-      />
-      <img
-        src={keychain}
-        alt=""
-        aria-hidden
-        draggable={false}
-        className={clsx(
-          "pointer-events-none absolute top-[calc(-183*100cqw/1064)] left-[calc(692*100cqw/1064)] hidden w-[calc(195*100cqw/1064)] max-w-none origin-top select-none lg:block",
-          "animate-landing-sway motion-reduce:animate-none",
-          inView ? "running" : "paused",
-        )}
-      />
+      {/* Desktop: geometry measured from the demo, in design px * 100cqw / 1064. The layer covers
+          the whole card (not just its padded content box), so the units scale with the full card
+          width and the wave always ends at the card's right edge. The keychain's ring sits above
+          the card (clipped), so the chain enters from the top edge and the P hangs over the wave. */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 hidden [container-type:inline-size] lg:block">
+        <img
+          src={wave}
+          alt=""
+          draggable={false}
+          className="absolute top-[calc(120*100cqw/1064)] left-[calc(627*100cqw/1064)] w-[calc(438*100cqw/1064)] max-w-none select-none"
+        />
+        <img
+          src={keychain}
+          alt=""
+          draggable={false}
+          className={clsx(
+            "absolute top-[calc(-183*100cqw/1064)] left-[calc(692*100cqw/1064)] w-[calc(195*100cqw/1064)] max-w-none origin-top select-none",
+            "animate-landing-sway motion-reduce:animate-none",
+            inView ? "running" : "paused",
+          )}
+        />
+      </div>
 
       {/* Below lg: the same graphic stacked under the copy, scaled with the card. */}
       <div aria-hidden className="relative mt-10 h-[220px] overflow-hidden sm:h-[260px] lg:hidden">
