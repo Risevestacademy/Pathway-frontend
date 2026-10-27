@@ -13,18 +13,30 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-password'
+import { Route as authSignupRouteImport } from './routes/(auth)/signup'
+import { Route as authVerifyEmailRouteImport } from './routes/(auth)/verify-email'
+import { Route as ProtectedAdminRouteImport } from './routes/_protected/admin'
 import { Route as ProtectedProgressRouteImport } from './routes/_protected/progress'
 import { Route as ProtectedSkillCheckRouteImport } from './routes/_protected/skill-check'
 import { Route as CareersIndexRouteImport } from './routes/careers/index'
 import { Route as ExploreIndexRouteImport } from './routes/explore/index'
 import { Route as ExploreCareerIdRouteImport } from './routes/explore/$careerId'
 import { Route as authResetPasswordResetRouteImport } from './routes/(auth)/reset-password_.reset'
+import { Route as ProtectedAdminIndexRouteImport } from './routes/_protected/admin/index'
 import { Route as ProtectedSkillCheckIndexRouteImport } from './routes/_protected/skill-check/index'
 import { Route as CareersCareerIdIndexRouteImport } from './routes/careers/$careerId/index'
 import { Route as CareersCareerIdDetailsRouteImport } from './routes/careers/$careerId/details'
 import { Route as CareersOnboardingIndexRouteImport } from './routes/careers/onboarding/index'
 import { Route as CareersOnboardingAboutRouteImport } from './routes/careers/onboarding/about'
 import { Route as CareersOnboardingGoalsRouteImport } from './routes/careers/onboarding/goals'
+import { Route as ProtectedAdminCareersIndexRouteImport } from './routes/_protected/admin/careers/index'
+import { Route as ProtectedAdminCareersCareerIdRouteImport } from './routes/_protected/admin/careers/$careerId'
+import { Route as ProtectedAdminReportsIndexRouteImport } from './routes/_protected/admin/reports/index'
+import { Route as ProtectedAdminReportsReportIdRouteImport } from './routes/_protected/admin/reports/$reportId'
+import { Route as ProtectedAdminReviewsIndexRouteImport } from './routes/_protected/admin/reviews/index'
+import { Route as ProtectedAdminReviewsReviewIdRouteImport } from './routes/_protected/admin/reviews/$reviewId'
+import { Route as ProtectedAdminTeamIndexRouteImport } from './routes/_protected/admin/team/index'
+import { Route as ProtectedAdminTeamMemberIdRouteImport } from './routes/_protected/admin/team/$memberId'
 import { Route as ProtectedSkillCheckCareerIdIndexRouteImport } from './routes/_protected/skill-check/$careerId/index'
 import { Route as ProtectedSkillCheckCareerIdResultRouteImport } from './routes/_protected/skill-check/$careerId/result'
 import { Route as ProtectedSkillCheckCareerIdRoadmapRouteImport } from './routes/_protected/skill-check/$careerId/roadmap'
@@ -50,6 +62,21 @@ const authResetPasswordRoute = authResetPasswordRouteImport.update({
   id: '/(auth)/reset-password',
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
+} as any)
+const authSignupRoute = authSignupRouteImport.update({
+  id: '/(auth)/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authVerifyEmailRoute = authVerifyEmailRouteImport.update({
+  id: '/(auth)/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProtectedAdminRoute = ProtectedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => ProtectedRoute,
 } as any)
 const ProtectedProgressRoute = ProtectedProgressRouteImport.update({
   id: '/progress',
@@ -80,6 +107,11 @@ const authResetPasswordResetRoute = authResetPasswordResetRouteImport.update({
   id: '/(auth)/reset-password_/reset',
   path: '/reset-password/reset',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ProtectedAdminIndexRoute = ProtectedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProtectedAdminRoute,
 } as any)
 const ProtectedSkillCheckIndexRoute =
   ProtectedSkillCheckIndexRouteImport.update({
@@ -112,6 +144,53 @@ const CareersOnboardingGoalsRoute = CareersOnboardingGoalsRouteImport.update({
   path: '/careers/onboarding/goals',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProtectedAdminCareersIndexRoute =
+  ProtectedAdminCareersIndexRouteImport.update({
+    id: '/careers/',
+    path: '/careers/',
+    getParentRoute: () => ProtectedAdminRoute,
+  } as any)
+const ProtectedAdminCareersCareerIdRoute =
+  ProtectedAdminCareersCareerIdRouteImport.update({
+    id: '/careers/$careerId',
+    path: '/careers/$careerId',
+    getParentRoute: () => ProtectedAdminRoute,
+  } as any)
+const ProtectedAdminReportsIndexRoute =
+  ProtectedAdminReportsIndexRouteImport.update({
+    id: '/reports/',
+    path: '/reports/',
+    getParentRoute: () => ProtectedAdminRoute,
+  } as any)
+const ProtectedAdminReportsReportIdRoute =
+  ProtectedAdminReportsReportIdRouteImport.update({
+    id: '/reports/$reportId',
+    path: '/reports/$reportId',
+    getParentRoute: () => ProtectedAdminRoute,
+  } as any)
+const ProtectedAdminReviewsIndexRoute =
+  ProtectedAdminReviewsIndexRouteImport.update({
+    id: '/reviews/',
+    path: '/reviews/',
+    getParentRoute: () => ProtectedAdminRoute,
+  } as any)
+const ProtectedAdminReviewsReviewIdRoute =
+  ProtectedAdminReviewsReviewIdRouteImport.update({
+    id: '/reviews/$reviewId',
+    path: '/reviews/$reviewId',
+    getParentRoute: () => ProtectedAdminRoute,
+  } as any)
+const ProtectedAdminTeamIndexRoute = ProtectedAdminTeamIndexRouteImport.update({
+  id: '/team/',
+  path: '/team/',
+  getParentRoute: () => ProtectedAdminRoute,
+} as any)
+const ProtectedAdminTeamMemberIdRoute =
+  ProtectedAdminTeamMemberIdRouteImport.update({
+    id: '/team/$memberId',
+    path: '/team/$memberId',
+    getParentRoute: () => ProtectedAdminRoute,
+  } as any)
 const ProtectedSkillCheckCareerIdIndexRoute =
   ProtectedSkillCheckCareerIdIndexRouteImport.update({
     id: '/$careerId/',
@@ -153,6 +232,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof authLoginRoute
   '/reset-password': typeof authResetPasswordRoute
+  '/signup': typeof authSignupRoute
+  '/verify-email': typeof authVerifyEmailRoute
+  '/admin': typeof ProtectedAdminRouteWithChildren
   '/progress': typeof ProtectedProgressRoute
   '/skill-check': typeof ProtectedSkillCheckRouteWithChildren
   '/explore/$careerId': typeof ExploreCareerIdRoute
@@ -162,12 +244,21 @@ export interface FileRoutesByFullPath {
   '/careers/$careerId/details': typeof CareersCareerIdDetailsRoute
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
   '/careers/onboarding/goals': typeof CareersOnboardingGoalsRoute
+  '/admin/': typeof ProtectedAdminIndexRoute
   '/skill-check/': typeof ProtectedSkillCheckIndexRoute
   '/careers/$careerId/': typeof CareersCareerIdIndexRoute
   '/careers/onboarding/': typeof CareersOnboardingIndexRoute
+  '/admin/careers/$careerId': typeof ProtectedAdminCareersCareerIdRoute
+  '/admin/reports/$reportId': typeof ProtectedAdminReportsReportIdRoute
+  '/admin/reviews/$reviewId': typeof ProtectedAdminReviewsReviewIdRoute
+  '/admin/team/$memberId': typeof ProtectedAdminTeamMemberIdRoute
   '/skill-check/$careerId/result': typeof ProtectedSkillCheckCareerIdResultRoute
   '/skill-check/$careerId/roadmap': typeof ProtectedSkillCheckCareerIdRoadmapRoute
   '/careers/$careerId/roadmap/$stepId': typeof CareersCareerIdRoadmapStepIdRouteWithChildren
+  '/admin/careers/': typeof ProtectedAdminCareersIndexRoute
+  '/admin/reports/': typeof ProtectedAdminReportsIndexRoute
+  '/admin/reviews/': typeof ProtectedAdminReviewsIndexRoute
+  '/admin/team/': typeof ProtectedAdminTeamIndexRoute
   '/skill-check/$careerId/': typeof ProtectedSkillCheckCareerIdIndexRoute
   '/careers/$careerId/roadmap/': typeof CareersCareerIdRoadmapIndexRoute
   '/careers/$careerId/roadmap/$stepId/resources': typeof CareersCareerIdRoadmapStepIdResourcesRoute
@@ -176,6 +267,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof authLoginRoute
   '/reset-password': typeof authResetPasswordRoute
+  '/signup': typeof authSignupRoute
+  '/verify-email': typeof authVerifyEmailRoute
   '/progress': typeof ProtectedProgressRoute
   '/explore/$careerId': typeof ExploreCareerIdRoute
   '/careers': typeof CareersIndexRoute
@@ -184,12 +277,21 @@ export interface FileRoutesByTo {
   '/careers/$careerId/details': typeof CareersCareerIdDetailsRoute
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
   '/careers/onboarding/goals': typeof CareersOnboardingGoalsRoute
+  '/admin': typeof ProtectedAdminIndexRoute
   '/skill-check': typeof ProtectedSkillCheckIndexRoute
   '/careers/$careerId': typeof CareersCareerIdIndexRoute
   '/careers/onboarding': typeof CareersOnboardingIndexRoute
+  '/admin/careers/$careerId': typeof ProtectedAdminCareersCareerIdRoute
+  '/admin/reports/$reportId': typeof ProtectedAdminReportsReportIdRoute
+  '/admin/reviews/$reviewId': typeof ProtectedAdminReviewsReviewIdRoute
+  '/admin/team/$memberId': typeof ProtectedAdminTeamMemberIdRoute
   '/skill-check/$careerId/result': typeof ProtectedSkillCheckCareerIdResultRoute
   '/skill-check/$careerId/roadmap': typeof ProtectedSkillCheckCareerIdRoadmapRoute
   '/careers/$careerId/roadmap/$stepId': typeof CareersCareerIdRoadmapStepIdRouteWithChildren
+  '/admin/careers': typeof ProtectedAdminCareersIndexRoute
+  '/admin/reports': typeof ProtectedAdminReportsIndexRoute
+  '/admin/reviews': typeof ProtectedAdminReviewsIndexRoute
+  '/admin/team': typeof ProtectedAdminTeamIndexRoute
   '/skill-check/$careerId': typeof ProtectedSkillCheckCareerIdIndexRoute
   '/careers/$careerId/roadmap': typeof CareersCareerIdRoadmapIndexRoute
   '/careers/$careerId/roadmap/$stepId/resources': typeof CareersCareerIdRoadmapStepIdResourcesRoute
@@ -200,6 +302,9 @@ export interface FileRoutesById {
   '/_protected': typeof ProtectedRouteWithChildren
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/reset-password': typeof authResetPasswordRoute
+  '/(auth)/signup': typeof authSignupRoute
+  '/(auth)/verify-email': typeof authVerifyEmailRoute
+  '/_protected/admin': typeof ProtectedAdminRouteWithChildren
   '/_protected/progress': typeof ProtectedProgressRoute
   '/_protected/skill-check': typeof ProtectedSkillCheckRouteWithChildren
   '/explore/$careerId': typeof ExploreCareerIdRoute
@@ -209,12 +314,21 @@ export interface FileRoutesById {
   '/careers/$careerId/details': typeof CareersCareerIdDetailsRoute
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
   '/careers/onboarding/goals': typeof CareersOnboardingGoalsRoute
+  '/_protected/admin/': typeof ProtectedAdminIndexRoute
   '/_protected/skill-check/': typeof ProtectedSkillCheckIndexRoute
   '/careers/$careerId/': typeof CareersCareerIdIndexRoute
   '/careers/onboarding/': typeof CareersOnboardingIndexRoute
+  '/_protected/admin/careers/$careerId': typeof ProtectedAdminCareersCareerIdRoute
+  '/_protected/admin/reports/$reportId': typeof ProtectedAdminReportsReportIdRoute
+  '/_protected/admin/reviews/$reviewId': typeof ProtectedAdminReviewsReviewIdRoute
+  '/_protected/admin/team/$memberId': typeof ProtectedAdminTeamMemberIdRoute
   '/_protected/skill-check/$careerId/result': typeof ProtectedSkillCheckCareerIdResultRoute
   '/_protected/skill-check/$careerId/roadmap': typeof ProtectedSkillCheckCareerIdRoadmapRoute
   '/careers/$careerId/roadmap/$stepId': typeof CareersCareerIdRoadmapStepIdRouteWithChildren
+  '/_protected/admin/careers/': typeof ProtectedAdminCareersIndexRoute
+  '/_protected/admin/reports/': typeof ProtectedAdminReportsIndexRoute
+  '/_protected/admin/reviews/': typeof ProtectedAdminReviewsIndexRoute
+  '/_protected/admin/team/': typeof ProtectedAdminTeamIndexRoute
   '/_protected/skill-check/$careerId/': typeof ProtectedSkillCheckCareerIdIndexRoute
   '/careers/$careerId/roadmap/': typeof CareersCareerIdRoadmapIndexRoute
   '/careers/$careerId/roadmap/$stepId/resources': typeof CareersCareerIdRoadmapStepIdResourcesRoute
@@ -225,6 +339,9 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/reset-password'
+    | '/signup'
+    | '/verify-email'
+    | '/admin'
     | '/progress'
     | '/skill-check'
     | '/explore/$careerId'
@@ -234,12 +351,21 @@ export interface FileRouteTypes {
     | '/careers/$careerId/details'
     | '/careers/onboarding/about'
     | '/careers/onboarding/goals'
+    | '/admin/'
     | '/skill-check/'
     | '/careers/$careerId/'
     | '/careers/onboarding/'
+    | '/admin/careers/$careerId'
+    | '/admin/reports/$reportId'
+    | '/admin/reviews/$reviewId'
+    | '/admin/team/$memberId'
     | '/skill-check/$careerId/result'
     | '/skill-check/$careerId/roadmap'
     | '/careers/$careerId/roadmap/$stepId'
+    | '/admin/careers/'
+    | '/admin/reports/'
+    | '/admin/reviews/'
+    | '/admin/team/'
     | '/skill-check/$careerId/'
     | '/careers/$careerId/roadmap/'
     | '/careers/$careerId/roadmap/$stepId/resources'
@@ -248,6 +374,8 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/reset-password'
+    | '/signup'
+    | '/verify-email'
     | '/progress'
     | '/explore/$careerId'
     | '/careers'
@@ -256,12 +384,21 @@ export interface FileRouteTypes {
     | '/careers/$careerId/details'
     | '/careers/onboarding/about'
     | '/careers/onboarding/goals'
+    | '/admin'
     | '/skill-check'
     | '/careers/$careerId'
     | '/careers/onboarding'
+    | '/admin/careers/$careerId'
+    | '/admin/reports/$reportId'
+    | '/admin/reviews/$reviewId'
+    | '/admin/team/$memberId'
     | '/skill-check/$careerId/result'
     | '/skill-check/$careerId/roadmap'
     | '/careers/$careerId/roadmap/$stepId'
+    | '/admin/careers'
+    | '/admin/reports'
+    | '/admin/reviews'
+    | '/admin/team'
     | '/skill-check/$careerId'
     | '/careers/$careerId/roadmap'
     | '/careers/$careerId/roadmap/$stepId/resources'
@@ -271,6 +408,9 @@ export interface FileRouteTypes {
     | '/_protected'
     | '/(auth)/login'
     | '/(auth)/reset-password'
+    | '/(auth)/signup'
+    | '/(auth)/verify-email'
+    | '/_protected/admin'
     | '/_protected/progress'
     | '/_protected/skill-check'
     | '/explore/$careerId'
@@ -280,12 +420,21 @@ export interface FileRouteTypes {
     | '/careers/$careerId/details'
     | '/careers/onboarding/about'
     | '/careers/onboarding/goals'
+    | '/_protected/admin/'
     | '/_protected/skill-check/'
     | '/careers/$careerId/'
     | '/careers/onboarding/'
+    | '/_protected/admin/careers/$careerId'
+    | '/_protected/admin/reports/$reportId'
+    | '/_protected/admin/reviews/$reviewId'
+    | '/_protected/admin/team/$memberId'
     | '/_protected/skill-check/$careerId/result'
     | '/_protected/skill-check/$careerId/roadmap'
     | '/careers/$careerId/roadmap/$stepId'
+    | '/_protected/admin/careers/'
+    | '/_protected/admin/reports/'
+    | '/_protected/admin/reviews/'
+    | '/_protected/admin/team/'
     | '/_protected/skill-check/$careerId/'
     | '/careers/$careerId/roadmap/'
     | '/careers/$careerId/roadmap/$stepId/resources'
@@ -296,6 +445,8 @@ export interface RootRouteChildren {
   ProtectedRoute: typeof ProtectedRouteWithChildren
   authLoginRoute: typeof authLoginRoute
   authResetPasswordRoute: typeof authResetPasswordRoute
+  authSignupRoute: typeof authSignupRoute
+  authVerifyEmailRoute: typeof authVerifyEmailRoute
   ExploreCareerIdRoute: typeof ExploreCareerIdRoute
   CareersIndexRoute: typeof CareersIndexRoute
   ExploreIndexRoute: typeof ExploreIndexRoute
@@ -339,6 +490,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(auth)/signup': {
+      id: '/(auth)/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof authSignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/verify-email': {
+      id: '/(auth)/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof authVerifyEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_protected/admin': {
+      id: '/_protected/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof ProtectedAdminRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
     '/_protected/progress': {
       id: '/_protected/progress'
       path: '/progress'
@@ -381,6 +553,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authResetPasswordResetRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_protected/admin/': {
+      id: '/_protected/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof ProtectedAdminIndexRouteImport
+      parentRoute: typeof ProtectedAdminRoute
+    }
     '/_protected/skill-check/': {
       id: '/_protected/skill-check/'
       path: '/'
@@ -422,6 +601,62 @@ declare module '@tanstack/react-router' {
       fullPath: '/careers/onboarding/goals'
       preLoaderRoute: typeof CareersOnboardingGoalsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_protected/admin/careers/': {
+      id: '/_protected/admin/careers/'
+      path: '/careers'
+      fullPath: '/admin/careers/'
+      preLoaderRoute: typeof ProtectedAdminCareersIndexRouteImport
+      parentRoute: typeof ProtectedAdminRoute
+    }
+    '/_protected/admin/careers/$careerId': {
+      id: '/_protected/admin/careers/$careerId'
+      path: '/careers/$careerId'
+      fullPath: '/admin/careers/$careerId'
+      preLoaderRoute: typeof ProtectedAdminCareersCareerIdRouteImport
+      parentRoute: typeof ProtectedAdminRoute
+    }
+    '/_protected/admin/reports/': {
+      id: '/_protected/admin/reports/'
+      path: '/reports'
+      fullPath: '/admin/reports/'
+      preLoaderRoute: typeof ProtectedAdminReportsIndexRouteImport
+      parentRoute: typeof ProtectedAdminRoute
+    }
+    '/_protected/admin/reports/$reportId': {
+      id: '/_protected/admin/reports/$reportId'
+      path: '/reports/$reportId'
+      fullPath: '/admin/reports/$reportId'
+      preLoaderRoute: typeof ProtectedAdminReportsReportIdRouteImport
+      parentRoute: typeof ProtectedAdminRoute
+    }
+    '/_protected/admin/reviews/': {
+      id: '/_protected/admin/reviews/'
+      path: '/reviews'
+      fullPath: '/admin/reviews/'
+      preLoaderRoute: typeof ProtectedAdminReviewsIndexRouteImport
+      parentRoute: typeof ProtectedAdminRoute
+    }
+    '/_protected/admin/reviews/$reviewId': {
+      id: '/_protected/admin/reviews/$reviewId'
+      path: '/reviews/$reviewId'
+      fullPath: '/admin/reviews/$reviewId'
+      preLoaderRoute: typeof ProtectedAdminReviewsReviewIdRouteImport
+      parentRoute: typeof ProtectedAdminRoute
+    }
+    '/_protected/admin/team/': {
+      id: '/_protected/admin/team/'
+      path: '/team'
+      fullPath: '/admin/team/'
+      preLoaderRoute: typeof ProtectedAdminTeamIndexRouteImport
+      parentRoute: typeof ProtectedAdminRoute
+    }
+    '/_protected/admin/team/$memberId': {
+      id: '/_protected/admin/team/$memberId'
+      path: '/team/$memberId'
+      fullPath: '/admin/team/$memberId'
+      preLoaderRoute: typeof ProtectedAdminTeamMemberIdRouteImport
+      parentRoute: typeof ProtectedAdminRoute
     }
     '/_protected/skill-check/$careerId/': {
       id: '/_protected/skill-check/$careerId/'
@@ -468,6 +703,34 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface ProtectedAdminRouteChildren {
+  ProtectedAdminIndexRoute: typeof ProtectedAdminIndexRoute
+  ProtectedAdminCareersCareerIdRoute: typeof ProtectedAdminCareersCareerIdRoute
+  ProtectedAdminReportsReportIdRoute: typeof ProtectedAdminReportsReportIdRoute
+  ProtectedAdminReviewsReviewIdRoute: typeof ProtectedAdminReviewsReviewIdRoute
+  ProtectedAdminTeamMemberIdRoute: typeof ProtectedAdminTeamMemberIdRoute
+  ProtectedAdminCareersIndexRoute: typeof ProtectedAdminCareersIndexRoute
+  ProtectedAdminReportsIndexRoute: typeof ProtectedAdminReportsIndexRoute
+  ProtectedAdminReviewsIndexRoute: typeof ProtectedAdminReviewsIndexRoute
+  ProtectedAdminTeamIndexRoute: typeof ProtectedAdminTeamIndexRoute
+}
+
+const ProtectedAdminRouteChildren: ProtectedAdminRouteChildren = {
+  ProtectedAdminIndexRoute: ProtectedAdminIndexRoute,
+  ProtectedAdminCareersCareerIdRoute: ProtectedAdminCareersCareerIdRoute,
+  ProtectedAdminReportsReportIdRoute: ProtectedAdminReportsReportIdRoute,
+  ProtectedAdminReviewsReviewIdRoute: ProtectedAdminReviewsReviewIdRoute,
+  ProtectedAdminTeamMemberIdRoute: ProtectedAdminTeamMemberIdRoute,
+  ProtectedAdminCareersIndexRoute: ProtectedAdminCareersIndexRoute,
+  ProtectedAdminReportsIndexRoute: ProtectedAdminReportsIndexRoute,
+  ProtectedAdminReviewsIndexRoute: ProtectedAdminReviewsIndexRoute,
+  ProtectedAdminTeamIndexRoute: ProtectedAdminTeamIndexRoute,
+}
+
+const ProtectedAdminRouteWithChildren = ProtectedAdminRoute._addFileChildren(
+  ProtectedAdminRouteChildren,
+)
+
 interface ProtectedSkillCheckRouteChildren {
   ProtectedSkillCheckIndexRoute: typeof ProtectedSkillCheckIndexRoute
   ProtectedSkillCheckCareerIdResultRoute: typeof ProtectedSkillCheckCareerIdResultRoute
@@ -488,11 +751,13 @@ const ProtectedSkillCheckRouteWithChildren =
   ProtectedSkillCheckRoute._addFileChildren(ProtectedSkillCheckRouteChildren)
 
 interface ProtectedRouteChildren {
+  ProtectedAdminRoute: typeof ProtectedAdminRouteWithChildren
   ProtectedProgressRoute: typeof ProtectedProgressRoute
   ProtectedSkillCheckRoute: typeof ProtectedSkillCheckRouteWithChildren
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
+  ProtectedAdminRoute: ProtectedAdminRouteWithChildren,
   ProtectedProgressRoute: ProtectedProgressRoute,
   ProtectedSkillCheckRoute: ProtectedSkillCheckRouteWithChildren,
 }
@@ -521,6 +786,8 @@ const rootRouteChildren: RootRouteChildren = {
   ProtectedRoute: ProtectedRouteWithChildren,
   authLoginRoute: authLoginRoute,
   authResetPasswordRoute: authResetPasswordRoute,
+  authSignupRoute: authSignupRoute,
+  authVerifyEmailRoute: authVerifyEmailRoute,
   ExploreCareerIdRoute: ExploreCareerIdRoute,
   CareersIndexRoute: CareersIndexRoute,
   ExploreIndexRoute: ExploreIndexRoute,

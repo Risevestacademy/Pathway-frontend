@@ -8,7 +8,9 @@ const logoMark = "/favicon.svg";
 
 const PLAIN_SIDEBAR_ROUTES = [
   "/careers/onboarding",
+  "/admin",
   "/login",
+  "/signup",
   "/reset-password",
   "/reset-password/reset",
 ];
@@ -63,11 +65,24 @@ export default function AppShell({ children, variant = "auto" }: AppShellProps) 
     return <>{children}</>;
   }
 
+  const isAuthRoute = pathname === "/login" || pathname === "/signup";
   const styles = shellStyles[variant];
 
   return (
-    <div className="min-h-svh bg-grey-50 flex justify-center">
-      <div className="flex w-full max-w-[2560px] flex-col bg-brand-50 shadow-2xl border-x border-grey-100 lg:flex-row">
+    <div
+      className={
+        isAuthRoute
+          ? "h-svh overflow-hidden bg-grey-50 flex justify-center"
+          : "min-h-svh bg-grey-50 flex justify-center"
+      }
+    >
+      <div
+        className={
+          isAuthRoute
+            ? "flex h-full w-full max-w-[2560px] flex-col overflow-hidden bg-brand-50 shadow-2xl border-x border-grey-100 lg:flex-row"
+            : "flex w-full max-w-[2560px] flex-col bg-brand-50 shadow-2xl border-x border-grey-100 lg:flex-row"
+        }
+      >
         <aside
           className={clsx(
             "flex h-14 shrink-0 items-center px-page-mobile sm:px-page-tablet",
@@ -114,12 +129,11 @@ export default function AppShell({ children, variant = "auto" }: AppShellProps) 
         </aside>
 
         <div
-          className="
-            relative z-10 flex flex-1 flex-col overflow-clip
-            rounded-t-2xl bg-surface
-            lg:mt-shell-inset lg:mr-shell-inset lg:rounded-tr-md
-            border border-grey-50 shadow-panel
-          "
+          className={
+            isAuthRoute
+              ? "relative z-10 flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-hidden rounded-t-2xl bg-surface lg:mt-shell-inset lg:mr-shell-inset lg:h-[calc(100%-var(--spacing-shell-inset))] lg:rounded-tr-md border border-grey-50 shadow-panel"
+              : "relative z-10 flex min-h-0 min-w-0 flex-1 flex-col overflow-clip rounded-t-2xl bg-surface lg:mt-shell-inset lg:mr-shell-inset lg:rounded-tr-md border border-grey-50 shadow-panel"
+          }
         >
           {children}
         </div>

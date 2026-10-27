@@ -34,5 +34,5 @@ routeTree.gen.ts
 
 tree.txt
 
-# Designer exports (fonts and optimised assets are copied into src/assets)
-landing-page-assets/
+# TanStack Router generated scaffolding
+.tanstack/
