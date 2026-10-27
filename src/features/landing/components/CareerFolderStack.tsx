@@ -144,7 +144,7 @@ export default function CareerFolderStack() {
                         ))}
                       </ul>
                     </div>
-                    <LandingLinkButton to="/careers" variant="secondary" className="shrink-0">
+                    <LandingLinkButton to="/explore" variant="secondary" className="shrink-0">
                       {CAREERS_SECTION.cta}
                       <span className="sr-only">: {career.title}</span>
                     </LandingLinkButton>

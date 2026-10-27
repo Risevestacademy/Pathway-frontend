@@ -4,12 +4,12 @@
  */
 
 export type NavLink =
-  | { label: string; to: "/careers"; comingSoon?: false }
+  | { label: string; to: "/explore"; comingSoon?: false }
   | { label: string; href: `#${string}`; comingSoon?: false }
   | { label: string; comingSoon: true };
 
 export const NAV_LINKS: readonly NavLink[] = [
-  { label: "Explore", to: "/careers" },
+  { label: "Explore", to: "/explore" },
   { label: "How it works", href: "#how-it-works" },
   { label: "Opportunities", comingSoon: true },
   { label: "Mentors", comingSoon: true },
@@ -178,7 +178,7 @@ export const DOWNLOAD_CTA = {
 export const FOOTER = {
   links: [
     { label: "How it works", href: "#how-it-works" },
-    { label: "Careers", to: "/careers" },
+    { label: "Careers", to: "/explore" },
     { label: "Help", href: "#" },
     { label: "privacy", href: "#" },
   ],

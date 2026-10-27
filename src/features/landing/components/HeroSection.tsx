@@ -60,7 +60,7 @@ export default function HeroSection() {
           {HERO.subtitle}
         </p>
         <div className={clsx(rise, "mt-10 flex flex-wrap items-center justify-center gap-3 [animation-delay:160ms]")}>
-          <LandingLinkButton to="/careers" variant="secondary">
+          <LandingLinkButton to="/explore" variant="secondary">
             {HERO.explore}
           </LandingLinkButton>
           <LandingLinkButton to="/careers/onboarding">{HERO.getStarted}</LandingLinkButton>

@@ -16,6 +16,8 @@ import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-pas
 import { Route as ProtectedProgressRouteImport } from './routes/_protected/progress'
 import { Route as ProtectedSkillCheckRouteImport } from './routes/_protected/skill-check'
 import { Route as CareersIndexRouteImport } from './routes/careers/index'
+import { Route as ExploreIndexRouteImport } from './routes/explore/index'
+import { Route as ExploreCareerIdRouteImport } from './routes/explore/$careerId'
 import { Route as authResetPasswordResetRouteImport } from './routes/(auth)/reset-password_.reset'
 import { Route as ProtectedSkillCheckIndexRouteImport } from './routes/_protected/skill-check/index'
 import { Route as CareersCareerIdIndexRouteImport } from './routes/careers/$careerId/index'
@@ -62,6 +64,16 @@ const ProtectedSkillCheckRoute = ProtectedSkillCheckRouteImport.update({
 const CareersIndexRoute = CareersIndexRouteImport.update({
   id: '/careers/',
   path: '/careers/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreIndexRoute = ExploreIndexRouteImport.update({
+  id: '/explore/',
+  path: '/explore/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreCareerIdRoute = ExploreCareerIdRouteImport.update({
+  id: '/explore/$careerId',
+  path: '/explore/$careerId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const authResetPasswordResetRoute = authResetPasswordResetRouteImport.update({
@@ -143,7 +155,9 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof authResetPasswordRoute
   '/progress': typeof ProtectedProgressRoute
   '/skill-check': typeof ProtectedSkillCheckRouteWithChildren
+  '/explore/$careerId': typeof ExploreCareerIdRoute
   '/careers/': typeof CareersIndexRoute
+  '/explore/': typeof ExploreIndexRoute
   '/reset-password/reset': typeof authResetPasswordResetRoute
   '/careers/$careerId/details': typeof CareersCareerIdDetailsRoute
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
@@ -163,7 +177,9 @@ export interface FileRoutesByTo {
   '/login': typeof authLoginRoute
   '/reset-password': typeof authResetPasswordRoute
   '/progress': typeof ProtectedProgressRoute
+  '/explore/$careerId': typeof ExploreCareerIdRoute
   '/careers': typeof CareersIndexRoute
+  '/explore': typeof ExploreIndexRoute
   '/reset-password/reset': typeof authResetPasswordResetRoute
   '/careers/$careerId/details': typeof CareersCareerIdDetailsRoute
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
@@ -186,7 +202,9 @@ export interface FileRoutesById {
   '/(auth)/reset-password': typeof authResetPasswordRoute
   '/_protected/progress': typeof ProtectedProgressRoute
   '/_protected/skill-check': typeof ProtectedSkillCheckRouteWithChildren
+  '/explore/$careerId': typeof ExploreCareerIdRoute
   '/careers/': typeof CareersIndexRoute
+  '/explore/': typeof ExploreIndexRoute
   '/(auth)/reset-password_/reset': typeof authResetPasswordResetRoute
   '/careers/$careerId/details': typeof CareersCareerIdDetailsRoute
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
@@ -209,7 +227,9 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/progress'
     | '/skill-check'
+    | '/explore/$careerId'
     | '/careers/'
+    | '/explore/'
     | '/reset-password/reset'
     | '/careers/$careerId/details'
     | '/careers/onboarding/about'
@@ -229,7 +249,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/progress'
+    | '/explore/$careerId'
     | '/careers'
+    | '/explore'
     | '/reset-password/reset'
     | '/careers/$careerId/details'
     | '/careers/onboarding/about'
@@ -251,7 +273,9 @@ export interface FileRouteTypes {
     | '/(auth)/reset-password'
     | '/_protected/progress'
     | '/_protected/skill-check'
+    | '/explore/$careerId'
     | '/careers/'
+    | '/explore/'
     | '/(auth)/reset-password_/reset'
     | '/careers/$careerId/details'
     | '/careers/onboarding/about'
@@ -272,7 +296,9 @@ export interface RootRouteChildren {
   ProtectedRoute: typeof ProtectedRouteWithChildren
   authLoginRoute: typeof authLoginRoute
   authResetPasswordRoute: typeof authResetPasswordRoute
+  ExploreCareerIdRoute: typeof ExploreCareerIdRoute
   CareersIndexRoute: typeof CareersIndexRoute
+  ExploreIndexRoute: typeof ExploreIndexRoute
   authResetPasswordResetRoute: typeof authResetPasswordResetRoute
   CareersCareerIdDetailsRoute: typeof CareersCareerIdDetailsRoute
   CareersOnboardingAboutRoute: typeof CareersOnboardingAboutRoute
@@ -332,6 +358,20 @@ declare module '@tanstack/react-router' {
       path: '/careers'
       fullPath: '/careers/'
       preLoaderRoute: typeof CareersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore/': {
+      id: '/explore/'
+      path: '/explore'
+      fullPath: '/explore/'
+      preLoaderRoute: typeof ExploreIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore/$careerId': {
+      id: '/explore/$careerId'
+      path: '/explore/$careerId'
+      fullPath: '/explore/$careerId'
+      preLoaderRoute: typeof ExploreCareerIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(auth)/reset-password_/reset': {
@@ -481,7 +521,9 @@ const rootRouteChildren: RootRouteChildren = {
   ProtectedRoute: ProtectedRouteWithChildren,
   authLoginRoute: authLoginRoute,
   authResetPasswordRoute: authResetPasswordRoute,
+  ExploreCareerIdRoute: ExploreCareerIdRoute,
   CareersIndexRoute: CareersIndexRoute,
+  ExploreIndexRoute: ExploreIndexRoute,
   authResetPasswordResetRoute: authResetPasswordResetRoute,
   CareersCareerIdDetailsRoute: CareersCareerIdDetailsRoute,
   CareersOnboardingAboutRoute: CareersOnboardingAboutRoute,
