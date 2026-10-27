@@ -10,6 +10,7 @@ import mailBox from "@/assets/icons/mail-box.svg";
 import repeatIcon from "@/assets/icons/repeat-icon.svg";
 import { Button } from "@/components/ui/Button";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { useResendCooldown } from "../hooks/useResendCooldown";
 
 const CODE_LENGTH = 6;
 
@@ -30,6 +31,7 @@ export default function VerifyEmailForm({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const inputs = useRef<Array<HTMLInputElement | null>>([]);
+  const { remaining, start } = useResendCooldown();
 
   const code = digits.join("");
   const isComplete = code.length === CODE_LENGTH;
@@ -105,6 +107,7 @@ export default function VerifyEmailForm({
     setErrorMessage(null);
     setNotice(null);
     setIsResending(true);
+    start();
 
     try {
       await onResend();
@@ -205,7 +208,7 @@ export default function VerifyEmailForm({
           Haven&apos;t received a code?{" "}
           <button
             type="button"
-            disabled={isResending}
+            disabled={isResending || remaining > 0}
             onClick={handleResend}
             className="font-semibold text-brand-600 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-70"
           >
@@ -214,6 +217,8 @@ export default function VerifyEmailForm({
                 <LoadingSpinner className="h-4 w-4" />
                 Resending...
               </span>
+            ) : remaining > 0 ? (
+              `Resend code in ${remaining}s`
             ) : (
               "Resend code"
             )}

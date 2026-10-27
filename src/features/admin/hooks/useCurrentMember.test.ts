@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderHook } from "@testing-library/react";
 import { useAuthStore } from "../../../lib/stores/authStore";
 import { useAdminStore } from "../adminStore";
@@ -43,14 +43,55 @@ describe("useCurrentMember", () => {
   });
 });
 
-describe("useCurrentMember for the project owner", () => {
-  it("is an admin from a fresh team list", () => {
-    signInAs("adejolanu@gmail.com");
+describe("useCurrentMember for the configured owner", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("is an admin when VITE_ADMIN_OWNER_EMAIL matches", () => {
+    vi.stubEnv("VITE_ADMIN_OWNER_EMAIL", "owner@example.com");
+    vi.stubEnv("VITE_ADMIN_OWNER_NAME", "Ada Lovelace");
+    useAdminStore.getState().reset();
+    signInAs("owner@example.com");
 
     const { result } = renderHook(() => useCurrentMember());
 
     expect(result.current.isAdmin).toBe(true);
     expect(result.current.canReview).toBe(true);
-    expect(result.current.displayName).toBe("Esther A.");
+    expect(result.current.displayName).toBe("Ada L.");
+  });
+
+  it("seeds nobody extra when the variable is not set", () => {
+    vi.stubEnv("VITE_ADMIN_OWNER_EMAIL", "");
+    useAdminStore.getState().reset();
+    signInAs("owner@example.com");
+
+    const { result } = renderHook(() => useCurrentMember());
+
+    expect(result.current.member).toBeUndefined();
+    expect(result.current.isAdmin).toBe(false);
+  });
+});
+
+describe("useCurrentMember full name", () => {
+  it("uses the team member's name", () => {
+    const member = SEED_MEMBERS.find((m) => m.roles.includes("admin"))!;
+    signInAs(member.email);
+
+    const { result } = renderHook(() => useCurrentMember());
+
+    expect(result.current.fullName).toBe(member.name);
+  });
+
+  it("makes a name from the email when the person is not on the team list", () => {
+    signInAs("grace.hopper@example.com");
+
+    const { result } = renderHook(() => useCurrentMember());
+
+    expect(result.current.fullName).toBe("Grace Hopper");
+  });
+
+  it("is empty when nobody is signed in", () => {
+    const { result } = renderHook(() => useCurrentMember());
+
+    expect(result.current.fullName).toBe("");
   });
 });

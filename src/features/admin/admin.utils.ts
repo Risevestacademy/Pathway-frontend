@@ -1,8 +1,8 @@
 import type { ApiCareerDetail } from "../careerDetail/career.types";
 import type { CareerListItem } from "../catalog/catalog.types";
 
-/** Roles allowed into /admin. Confirm the exact values with the backend. */
-const ADMIN_ROLES = new Set(["ADMIN", "CONTENT_ADMIN", "SUPER_ADMIN", "EDITOR"]);
+/** Backend roles allowed into /admin. USER (a learner) is the only one left out. */
+const ADMIN_ROLES = new Set(["ADMIN", "EDITOR", "REVIEWER", "PUBLISHER"]);
 
 export function isAdminRole(role: string | undefined | null): boolean {
   return role ? ADMIN_ROLES.has(role.toUpperCase()) : false;

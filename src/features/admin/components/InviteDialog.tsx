@@ -1,35 +1,53 @@
 import { useState, type FormEvent } from "react";
 import { Button } from "../../../components/ui/Button";
 import { Dialog } from "../../../components/ui/Dialog";
-import { useAdminStore } from "../adminStore";
 import { useAdminCareers } from "../hooks/useAdminCareers";
+import { useTeamMembers } from "../hooks/useTeamMembers";
 import { isValidEmail, type CareerAccess, type Role } from "../admin.workflow";
 import { TextField } from "./FormFields";
 import { CareerAccessPicker, RoleCards } from "./TeamFormParts";
 
+/**
+ * Collects an email, roles and career access. Nothing is sent or added to the
+ * team yet: that needs the "invite someone" endpoint. When it exists, call it
+ * from the submit handler and let the new invite show up under Invites.
+ */
 export function InviteDialog({
   open,
   onOpenChange,
+  onSubmitted,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Called with the email once the form passes validation. */
+  onSubmitted?: (email: string) => void;
 }) {
   return (
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
       title="Invite someone"
-      description="They get an email with a link to join. Pick one or more roles."
+      description="Add their email and pick one or more roles. Sending invites isn’t connected to the server yet, so nobody is added for now."
     >
       {/* Mounted only while open, so the form resets each time. */}
-      {open && <InviteForm onClose={() => onOpenChange(false)} />}
+      {open && (
+        <InviteForm
+          onClose={() => onOpenChange(false)}
+          onSubmitted={(email) => onSubmitted?.(email)}
+        />
+      )}
     </Dialog>
   );
 }
 
-function InviteForm({ onClose }: { onClose: () => void }) {
-  const members = useAdminStore((s) => s.members);
-  const addMember = useAdminStore((s) => s.addMember);
+function InviteForm({
+  onClose,
+  onSubmitted,
+}: {
+  onClose: () => void;
+  onSubmitted: (email: string) => void;
+}) {
+  const { members } = useTeamMembers();
   const { rows } = useAdminCareers({ detailFor: [] });
   const [email, setEmail] = useState("");
   const [roles, setRoles] = useState<Role[]>([]);
@@ -50,15 +68,7 @@ function InviteForm({ onClose }: { onClose: () => void }) {
     e.preventDefault();
     setAttempted(true);
     if (emailError || rolesError) return;
-    const local = trimmed.split("@")[0];
-    addMember({
-      name: local.charAt(0).toUpperCase() + local.slice(1),
-      email: trimmed,
-      roles,
-      careerAccess: access,
-      lastActive: null,
-      invitedAt: new Date().toISOString(),
-    });
+    onSubmitted(trimmed);
     onClose();
   };
 

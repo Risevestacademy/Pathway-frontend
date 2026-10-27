@@ -43,18 +43,36 @@ describe("fetchAdminFeedback", () => {
     expect(await fetchAdminFeedback()).toEqual([]);
   });
 
-  it("follows pages until totalPages", async () => {
+  it("follows pages until every report in `total` is collected", async () => {
     const requested: string[] = [];
     server.use(
       http.get("*/admin/feedback", ({ request }) => {
         const page = Number(new URL(request.url).searchParams.get("page"));
         requested.push(String(page));
-        return HttpResponse.json({ data: { items: [item(`p${page}`)], page, totalPages: 3 } });
+        return HttpResponse.json({ items: [item(`p${page}`)], total: 3, page, limit: 1 });
       }),
     );
 
     expect((await fetchAdminFeedback()).map((f) => f.id)).toEqual(["p1", "p2", "p3"]);
     expect(requested).toEqual(["1", "2", "3"]);
+  });
+
+  it("keeps going when the server caps the page size below what was asked", async () => {
+    const all = Array.from({ length: 42 }, (_, i) => item(`r${i}`));
+    server.use(
+      http.get("*/admin/feedback", ({ request }) => {
+        const page = Number(new URL(request.url).searchParams.get("page"));
+        // The server ignores limit=100 and always sends 20.
+        return HttpResponse.json({
+          items: all.slice((page - 1) * 20, page * 20),
+          total: 42,
+          page,
+          limit: 20,
+        });
+      }),
+    );
+
+    expect(await fetchAdminFeedback()).toHaveLength(42);
   });
 
   it("stops when the server ignores paging and repeats the same items", async () => {
@@ -72,20 +90,23 @@ describe("fetchAdminFeedback", () => {
 });
 
 describe("hasMorePages", () => {
+  const page = (count: number, total?: number) => ({
+    items: Array.from({ length: count }, (_, i) => item(`x${i}`)) as never[],
+    total,
+  });
+
   it("never asks for more after an empty page", () => {
-    expect(hasMorePages({ totalPages: 9 }, 1, 0, 0)).toBe(false);
+    expect(hasMorePages(page(0, 9), 0)).toBe(false);
   });
 
-  it("uses hasNext and total when there is no totalPages", () => {
-    expect(hasMorePages({ hasNext: true }, 1, 10, 10)).toBe(true);
-    expect(hasMorePages({ meta: { hasNext: false } }, 1, 10, 10)).toBe(false);
-    expect(hasMorePages({ pagination: { total: 150 } }, 1, 100, 100)).toBe(true);
-    expect(hasMorePages({ pagination: { total: 100 } }, 1, 100, 100)).toBe(false);
+  it("compares what has been collected with the total", () => {
+    expect(hasMorePages(page(20, 42), 20)).toBe(true);
+    expect(hasMorePages(page(2, 42), 42)).toBe(false);
   });
 
-  it("treats a full page as possibly more when there is no paging info", () => {
-    expect(hasMorePages([], 1, 100, 100)).toBe(true);
-    expect(hasMorePages([], 1, 40, 40)).toBe(false);
+  it("treats a full page as possibly more when there is no total", () => {
+    expect(hasMorePages(page(100), 100)).toBe(true);
+    expect(hasMorePages(page(40), 40)).toBe(false);
   });
 });
 

@@ -14,6 +14,7 @@ import avatar from "../../../assets/images/admin-avatar.png";
 import { useAdminStore } from "../adminStore";
 import { isOpenFeedback } from "../adminFeedback.types";
 import { useAdminFeedback } from "../hooks/useAdminFeedback";
+import { useCurrentMember } from "../hooks/useCurrentMember";
 
 const navClass =
   "inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium focus-ring";
@@ -50,6 +51,7 @@ function LocalPreviewNotice() {
 
 export function AdminLayout() {
   const pendingReviews = useAdminStore((s) => s.reviews.filter((r) => r.status === "pending").length);
+  const { fullName } = useCurrentMember();
   const openReports = useAdminFeedback().data?.filter(isOpenFeedback).length ?? 0;
 
   return (
@@ -112,8 +114,8 @@ export function AdminLayout() {
           >
             <Bell className="size-5" aria-hidden />
           </button>
-          <span className="rounded-lg bg-brand-50 px-4 py-2 text-sm font-medium text-brand-700">
-            Content admin
+          <span className="max-w-48 truncate rounded-lg bg-brand-50 px-4 py-2 text-sm font-medium text-brand-700">
+            {fullName || "Admin"}
           </span>
           <img
             src={avatar}

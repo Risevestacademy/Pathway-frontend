@@ -11,6 +11,12 @@ vi.mock("@tanstack/react-router", () => ({
     select({ location: { pathname } }),
 }));
 
+let fullName = "Ada Lovelace";
+
+vi.mock("../hooks/useCurrentMember", () => ({
+  useCurrentMember: () => ({ fullName }),
+}));
+
 vi.mock("../hooks/useAdminFeedback", () => ({
   useAdminFeedback: () => ({ data: [] }),
 }));
@@ -30,5 +36,22 @@ describe("AdminLayout local preview notice", () => {
     render(<AdminLayout />);
 
     expect(screen.queryByRole("note")).toBeNull();
+  });
+
+  it("shows the signed-in admin's name instead of a generic title", () => {
+    pathname = "/admin";
+    fullName = "Ada Lovelace";
+    render(<AdminLayout />);
+
+    expect(screen.getByText("Ada Lovelace")).toBeTruthy();
+    expect(screen.queryByText("Content admin")).toBeNull();
+  });
+
+  it("falls back to Admin when there is no name", () => {
+    pathname = "/admin";
+    fullName = "";
+    render(<AdminLayout />);
+
+    expect(screen.getByText("Admin")).toBeTruthy();
   });
 });

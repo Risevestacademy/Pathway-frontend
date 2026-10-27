@@ -9,7 +9,9 @@ interface ImportMetaEnv {
   readonly VITE_SENTRY_ENVIRONMENT?: string;
   readonly VITE_SENTRY_ENABLE_DEV?: string;
   readonly VITE_APP_VERSION?: string;
-  /** Dev only: "true" skips the auth and admin-role route guards. */
+  /** Email of the person seeded on the dummy team list as an admin. */
+  readonly VITE_ADMIN_OWNER_EMAIL?: string;
+  readonly VITE_ADMIN_OWNER_NAME?: string;
 }
 
 interface ImportMeta {

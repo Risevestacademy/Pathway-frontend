@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useResendCooldown } from "../hooks/useResendCooldown";
 
 /**
  * For people who signed up but never verified. Reads the email typed into the
@@ -13,6 +14,7 @@ export default function ResendCodeLink({
 }) {
   const [isResending, setIsResending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { remaining, start } = useResendCooldown();
 
   const handleClick = async () => {
     const email = getEmail().trim();
@@ -22,6 +24,8 @@ export default function ResendCodeLink({
     }
     setError(null);
     setIsResending(true);
+    // Counts a failed try too, so the link can't be hammered.
+    start();
     try {
       await onResend(email);
     } catch (err) {
@@ -37,10 +41,14 @@ export default function ResendCodeLink({
       <button
         type="button"
         onClick={() => void handleClick()}
-        disabled={isResending}
+        disabled={isResending || remaining > 0}
         className="focus-ring font-semibold text-brand-600 underline disabled:opacity-60"
       >
-        {isResending ? "Sending code..." : "Resend code"}
+        {isResending
+          ? "Sending code..."
+          : remaining > 0
+            ? `Resend code in ${remaining}s`
+            : "Resend code"}
       </button>
       {error && (
         <span role="alert" className="mt-1 block text-red-600">

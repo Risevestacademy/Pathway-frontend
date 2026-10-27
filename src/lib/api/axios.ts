@@ -48,7 +48,9 @@ api.interceptors.response.use(
       originalRequest?.url === "/auth/refresh" ||
       originalRequest?.url === "/auth/login" ||
       originalRequest?.url === "/auth/register" ||
-      originalRequest?.url === "/auth/google";
+      originalRequest?.url === "/auth/google" ||
+      originalRequest?.url === "/auth/verify-email" ||
+      originalRequest?.url === "/auth/resend-verification";
     if (
       !originalRequest ||
       error.response?.status !== 401 ||

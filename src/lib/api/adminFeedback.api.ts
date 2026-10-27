@@ -14,36 +14,33 @@ function unwrap<T>(body: unknown): T {
 
 const FETCH_PAGE_SIZE = 100;
 /** Safety stop in case the server keeps answering with pages. */
-const MAX_PAGES = 50;
+const MAX_PAGES = 100;
 
-function itemsOf(payload: unknown): FeedbackItem[] {
-  if (Array.isArray(payload)) return payload as FeedbackItem[];
-  const items = (payload as { items?: unknown } | null)?.items;
-  return Array.isArray(items) ? (items as FeedbackItem[]) : [];
+/** GET /admin/feedback answers { items, total, page, limit }. */
+interface FeedbackPage {
+  items: FeedbackItem[];
+  total?: number;
+}
+
+function readPage(payload: unknown): FeedbackPage {
+  if (Array.isArray(payload)) return { items: payload as FeedbackItem[] };
+  const body = payload as { items?: unknown; total?: unknown } | null;
+  return {
+    items: Array.isArray(body?.items) ? (body.items as FeedbackItem[]) : [],
+    total: typeof body?.total === "number" ? body.total : undefined,
+  };
 }
 
 /**
- * Whether another page is worth asking for. Reads whichever paging info the
- * response carries (totalPages, hasNext or total, at the top or under
- * meta/pagination); without any, a full page means there may be more.
+ * Whether another page is worth asking for. The response's `total` says how
+ * many reports exist, so this keeps going until that many are collected (the
+ * server may return fewer per page than asked for). Without a total, a full
+ * page means there may be more.
  */
-export function hasMorePages(
-  payload: unknown,
-  page: number,
-  collected: number,
-  received: number,
-): boolean {
-  if (received === 0) return false;
-  const root = (payload && typeof payload === "object" ? payload : {}) as Record<string, unknown>;
-  for (const source of [root, root.meta, root.pagination]) {
-    if (!source || typeof source !== "object") continue;
-    const info = source as Record<string, unknown>;
-    if (typeof info.totalPages === "number") return page < info.totalPages;
-    if (typeof info.hasNext === "boolean") return info.hasNext;
-    if (typeof info.hasNextPage === "boolean") return info.hasNextPage;
-    if (typeof info.total === "number") return collected < info.total;
-  }
-  return received >= FETCH_PAGE_SIZE;
+export function hasMorePages(page: FeedbackPage, collected: number): boolean {
+  if (page.items.length === 0) return false;
+  if (page.total !== undefined) return collected < page.total;
+  return page.items.length >= FETCH_PAGE_SIZE;
 }
 
 /**
@@ -57,14 +54,13 @@ export async function fetchAdminFeedback(): Promise<FeedbackItem[]> {
     const { data } = await api.get<unknown>("/admin/feedback", {
       params: { page, limit: FETCH_PAGE_SIZE },
     });
-    const payload = unwrap<unknown>(data);
-    const items = itemsOf(payload);
+    const current = readPage(unwrap<unknown>(data));
 
     const before = all.size;
-    for (const item of items) all.set(item.id, item);
+    for (const item of current.items) all.set(item.id, item);
     // A server that ignores paging repeats page 1, which adds nothing new.
     if (all.size === before) break;
-    if (!hasMorePages(payload, page, all.size, items.length)) break;
+    if (!hasMorePages(current, all.size)) break;
   }
 
   return [...all.values()];

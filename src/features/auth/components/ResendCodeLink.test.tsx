@@ -1,8 +1,9 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import ResendCodeLink from "./ResendCodeLink";
 
+beforeEach(() => sessionStorage.clear());
 afterEach(cleanup);
 
 describe("ResendCodeLink", () => {
@@ -23,15 +24,18 @@ describe("ResendCodeLink", () => {
 
     expect(onResend).not.toHaveBeenCalled();
     expect(screen.getByRole("alert").textContent).toContain("Enter your email");
+    // No code was requested, so there is nothing to wait for.
+    expect(screen.getByRole("button", { name: "Resend code" }).hasAttribute("disabled")).toBe(false);
   });
 
-  it("shows the error and lets the user retry when sending fails", async () => {
+  it("makes the user wait before asking again, even after a failure", async () => {
     const onResend = vi.fn().mockRejectedValue(new Error("Too many attempts."));
     render(<ResendCodeLink getEmail={() => "a@b.co"} onResend={onResend} />);
 
     await userEvent.click(screen.getByRole("button", { name: "Resend code" }));
 
     expect(screen.getByRole("alert").textContent).toContain("Too many attempts.");
-    expect(screen.getByRole("button", { name: "Resend code" }).hasAttribute("disabled")).toBe(false);
+    const waiting = screen.getByRole("button", { name: /Resend code in \d+s/ });
+    expect(waiting.hasAttribute("disabled")).toBe(true);
   });
 });

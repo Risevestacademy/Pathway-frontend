@@ -366,23 +366,39 @@ export interface TeamMember {
   /** Null until they join. */
   lastActive: string | null;
   invitedAt?: string;
+  /** Joined through an invite; roles come from the server and are not edited here. */
+  fromInvite?: boolean;
 }
+
+/** Id of the team entry created from VITE_ADMIN_OWNER_EMAIL. */
+export const OWNER_MEMBER_ID = "member-owner";
 
 /**
  * Stand-in for the signed-in admin until an endpoint lists users and their
- * roles. Without a team entry, nobody can manage the team or review changes.
+ * roles. Set VITE_ADMIN_OWNER_EMAIL (and optionally VITE_ADMIN_OWNER_NAME) to
+ * put that person on the team as an admin; without it nobody is seeded as one,
+ * and so nobody can manage the team or review changes.
  */
-export const OWNER_MEMBER: TeamMember = {
-  id: "member-esther",
-  name: "Esther Adejola",
-  email: "adejolanu@gmail.com",
-  roles: ["admin"],
-  careerAccess: "all",
-  lastActive: ago(5 * 60 * 1000),
+export function getOwnerMember(): TeamMember | null {
+  const email = import.meta.env.VITE_ADMIN_OWNER_EMAIL?.trim();
+  if (!email) return null;
+  return {
+    id: OWNER_MEMBER_ID,
+    name: import.meta.env.VITE_ADMIN_OWNER_NAME?.trim() || "Admin",
+    email,
+    roles: ["admin"],
+    careerAccess: "all",
+    lastActive: ago(5 * 60 * 1000),
+  };
+}
+
+/** The seed team: the owner (when configured) followed by the dummy members. */
+export const getSeedMembers = (): TeamMember[] => {
+  const owner = getOwnerMember();
+  return owner ? [owner, ...SEED_MEMBERS] : SEED_MEMBERS;
 };
 
 export const SEED_MEMBERS: TeamMember[] = [
-  OWNER_MEMBER,
   {
     id: "member-amaka",
     name: "Amaka Obi",

@@ -3,8 +3,8 @@ import clsx from "clsx";
 import { Check, Info, Minus } from "lucide-react";
 import { Badge } from "../../../components/ui/Badge";
 import { Button, LinkButton } from "../../../components/ui/Button";
-import { useAdminStore } from "../adminStore";
 import { useCurrentMember } from "../hooks/useCurrentMember";
+import { useTeamMembers } from "../hooks/useTeamMembers";
 import {
   PERMISSIONS,
   ROLES,
@@ -13,12 +13,12 @@ import {
   dayLabel,
   initials,
   type Role,
-  type TeamMember,
 } from "../admin.workflow";
-import { formatDate, paginate } from "../admin.utils";
+import { paginate } from "../admin.utils";
 import { Banner } from "./Banner";
 import { PageHeader } from "./AdminLayout";
 import { InviteDialog } from "./InviteDialog";
+import { InvitesSection } from "./InvitesSection";
 import { Pagination } from "./Pagination";
 
 const PAGE_SIZE = 6;
@@ -36,6 +36,7 @@ type Tab = (typeof TABS)[number];
 export function TeamPage() {
   const [tab, setTab] = useState<Tab>("Members");
   const [inviting, setInviting] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
   const { isAdmin } = useCurrentMember();
 
   return (
@@ -45,7 +46,10 @@ export function TeamPage() {
         subtitle="Who can edit, review and publish content."
         action={
           isAdmin ? (
-            <Button onClick={() => setInviting(true)}>Invite someone</Button>
+            <Button onClick={() => {
+                setNotice(null);
+                setInviting(true);
+              }}>Invite someone</Button>
           ) : undefined
         }
       />
@@ -70,32 +74,47 @@ export function TeamPage() {
         ))}
       </div>
 
-      {tab === "Members" ? <MembersTab canManage={isAdmin} /> : <RolesTab />}
+      {notice && (
+        <p role="status" className="text-sm text-ink-muted">
+          {notice}
+        </p>
+      )}
 
-      <InviteDialog open={inviting} onOpenChange={setInviting} />
+      {tab === "Members" ? (
+        <>
+          <MembersTab canManage={isAdmin} />
+          {isAdmin && <InvitesSection />}
+        </>
+      ) : (
+        <RolesTab />
+      )}
+
+      <InviteDialog
+        open={inviting}
+        onOpenChange={setInviting}
+        onSubmitted={(email) =>
+          setNotice(`Invite for ${email} wasn’t sent. Sending invites isn’t available yet.`)
+        }
+      />
     </main>
   );
 }
 
+/** People on the team: the local list plus everyone who accepted an invite. */
 function MembersTab({ canManage }: { canManage: boolean }) {
-  const members = useAdminStore((s) => s.members);
-  const updateMember = useAdminStore((s) => s.updateMember);
+  const { members, invitesFailed, refetchInvites } = useTeamMembers(canManage);
   const [page, setPage] = useState(1);
-  const [notice, setNotice] = useState<string | null>(null);
 
   const current = paginate(members, page, PAGE_SIZE);
-  const invites = members.filter((m) => m.invitedAt && !m.lastActive).length;
-
-  const resend = (member: TeamMember) => {
-    updateMember(member.id, { invitedAt: new Date().toISOString() });
-    setNotice(`Invite resent to ${member.email}`);
-  };
 
   return (
     <div className="flex flex-col gap-4">
-      {notice && (
-        <p role="status" className="text-sm text-success-700">
-          {notice}
+      {invitesFailed && (
+        <p role="alert" className="flex flex-wrap items-center gap-3 text-sm text-danger-700">
+          Couldn’t load people who accepted invites.
+          <Button isPrimary={false} onClick={() => void refetchInvites()}>
+            Try again
+          </Button>
         </p>
       )}
       <section className="overflow-hidden rounded-3xl border border-line-strong">
@@ -115,7 +134,6 @@ function MembersTab({ canManage }: { canManage: boolean }) {
             </thead>
             <tbody className="divide-y divide-line">
               {current.items.map((m) => {
-                const pending = Boolean(m.invitedAt && !m.lastActive);
                 return (
                   <tr key={m.id}>
                     <td className="px-6 py-4">
@@ -128,9 +146,7 @@ function MembersTab({ canManage }: { canManage: boolean }) {
                         </span>
                         <div>
                           <p className="font-medium text-ink">{m.name}</p>
-                          <p className="text-ink-muted">
-                            {pending && m.invitedAt ? `Invited ${formatDate(m.invitedAt)}` : m.email}
-                          </p>
+                          <p className="text-ink-muted">{m.email}</p>
                         </div>
                       </div>
                     </td>
@@ -141,28 +157,22 @@ function MembersTab({ canManage }: { canManage: boolean }) {
                             {ROLE_LABEL[r]}
                           </Badge>
                         ))}
-                        {pending && <Badge tone="neutral">Invited</Badge>}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-ink">{careerAccessLabel(m.careerAccess)}</td>
                     <td className="px-6 py-4 text-ink">
-                      {m.lastActive ? dayLabel(m.lastActive) : "Not joined yet"}
+                      {m.lastActive ? dayLabel(m.lastActive) : "—"}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      {pending ? (
-                        <Button isPrimary={false} disabled={!canManage} onClick={() => resend(m)}>
-                          Resend
-                        </Button>
-                      ) : (
-                        canManage && (
-                          <LinkButton
-                            isPrimary={false}
-                            to="/admin/team/$memberId"
-                            params={{ memberId: m.id }}
-                          >
-                            Manage
-                          </LinkButton>
-                        )
+                      {/* Roles of people who joined by invite come from the server. */}
+                      {canManage && !m.fromInvite && (
+                        <LinkButton
+                          isPrimary={false}
+                          to="/admin/team/$memberId"
+                          params={{ memberId: m.id }}
+                        >
+                          Manage
+                        </LinkButton>
                       )}
                     </td>
                   </tr>
@@ -174,8 +184,8 @@ function MembersTab({ canManage }: { canManage: boolean }) {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="flex items-center gap-2 px-6 py-4 text-sm text-ink-subtle">
             <Info className="size-4 shrink-0" aria-hidden />
-            {members.length} {members.length === 1 ? "person" : "people"} · {invites} invite
-            {invites === 1 ? "" : "s"} waiting. Admins manage the team and roles.
+            {members.length} {members.length === 1 ? "person" : "people"}. People appear here once
+            they accept an invite. Admins manage the team and roles.
           </p>
         </div>
         <Pagination

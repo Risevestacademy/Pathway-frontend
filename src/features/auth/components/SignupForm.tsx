@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Eye, EyeOff } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Button } from "../../../components/ui/Button";
+import { EmailAlreadyRegisteredError } from "../../../lib/api/auth.api";
 import AuthLayout from "./AuthLayout";
 import AuthGoogleButton from "./AuthGoogleButton";
 
@@ -21,10 +22,12 @@ export default function SignupForm({
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [emailTaken, setEmailTaken] = useState(false);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMessage(null);
+    setEmailTaken(false);
     setIsSubmitting(true);
 
     const formData = new FormData(event.currentTarget);
@@ -36,6 +39,7 @@ export default function SignupForm({
         password: String(formData.get("password") ?? ""),
       });
     } catch (error) {
+      setEmailTaken(error instanceof EmailAlreadyRegisteredError);
       setErrorMessage(
         error instanceof Error
           ? error.message
@@ -113,7 +117,7 @@ export default function SignupForm({
         {errorMessage && (
           <p role="alert" className="text-sm text-red-600">
             {errorMessage}
-            {errorMessage.includes("already registered") && (
+            {emailTaken && (
               <>
                 {" "}
                 <Link to="/login" className="font-semibold underline">

@@ -3,10 +3,11 @@ import { persist } from "zustand/middleware";
 import type { CareerDraft } from "./admin.editor";
 import type { AdminCareerRow, AdminStatus } from "./admin.utils";
 import {
-  SEED_MEMBERS,
+  getOwnerMember,
+  getSeedMembers,
+  OWNER_MEMBER_ID,
   SEED_REPORTS,
   SEED_REVIEWS,
-  OWNER_MEMBER,
   type ReportItem,
   type ReviewItem,
   type ReviewStatus,
@@ -61,7 +62,7 @@ const newId = (prefix: string) => `${prefix}-${crypto.randomUUID()}`;
 const initialWorkflow = () => ({
   reviews: SEED_REVIEWS,
   reports: SEED_REPORTS,
-  members: SEED_MEMBERS,
+  members: getSeedMembers(),
 });
 
 export const useAdminStore = create<AdminState>()(
@@ -149,13 +150,16 @@ export const useAdminStore = create<AdminState>()(
     }),
     {
       name: "pathway-admin-dummy-data",
-      version: 2,
-      // Browsers with a saved team list get the current OWNER_MEMBER, replacing
-      // any earlier version of that entry (e.g. one with an old email).
+      version: 3,
+      // Browsers with a saved team list get the owner from the current env,
+      // replacing any earlier owner entry (e.g. a hardcoded one).
       migrate: (persisted) => {
         const state = persisted as Partial<AdminState>;
-        const others = (state.members ?? []).filter((m) => m.id !== OWNER_MEMBER.id);
-        return { ...state, members: [OWNER_MEMBER, ...others] } as AdminState;
+        const owner = getOwnerMember();
+        const others = (state.members ?? []).filter(
+          (m) => m.id !== OWNER_MEMBER_ID && m.id !== "member-esther",
+        );
+        return { ...state, members: owner ? [owner, ...others] : others } as AdminState;
       },
     },
   ),
