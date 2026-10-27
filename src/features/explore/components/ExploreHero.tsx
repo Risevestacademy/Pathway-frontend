@@ -1,18 +1,18 @@
 import clsx from "clsx";
-import { Binoculars, ClipboardList } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import { container, eyebrow } from "@/features/landing/landing.styles";
 import { landingButtonStyles } from "@/features/landing/landingButton.styles";
 import { scrollToAnchor } from "@/features/landing/landing.utils";
+import planIcon from "@/assets/landing/explore-pill-plan.svg";
+import exploreIcon from "@/assets/landing/explore-pill-explore.svg";
 import { EXPLORE_HERO, EXPLORE_LIST } from "../explore.copy";
 
-function Pill({ icon: Icon, label, className }: { icon: LucideIcon; label: string; className: string }) {
+function Pill({ icon, label, className }: { icon: string; label: string; className: string }) {
   return (
     <span aria-hidden className={clsx("pointer-events-none absolute hidden items-center lg:flex", className)}>
-      <span className="grid size-[52px] place-items-center rounded-full bg-brand-200 text-brand-500">
-        <Icon className="size-5" strokeWidth={1.75} />
+      <span className="grid size-[52px] place-items-center rounded-full bg-brand-200">
+        <img src={icon} alt="" draggable={false} className="size-6 select-none" />
       </span>
-      <span className="grid h-[52px] place-items-center rounded-full bg-brand-200 px-4 font-landing-body text-2xl text-brand-500">
+      <span className="grid h-[52px] place-items-center rounded-full bg-brand-200 px-4 font-landing-body text-2xl font-medium text-brand-500">
         {label}
       </span>
     </span>
@@ -45,8 +45,8 @@ export default function ExploreHero() {
           strokeLinejoin="round"
         />
       </svg>
-      <Pill icon={ClipboardList} label={EXPLORE_HERO.pills.plan} className="top-[120px] left-[calc(50%-440px)]" />
-      <Pill icon={Binoculars} label={EXPLORE_HERO.pills.explore} className="top-[381px] left-[calc(50%+271px)]" />
+      <Pill icon={planIcon} label={EXPLORE_HERO.pills.plan} className="top-[120px] left-[calc(50%-440px)]" />
+      <Pill icon={exploreIcon} label={EXPLORE_HERO.pills.explore} className="top-[381px] left-[calc(50%+271px)]" />
 
       <div className={clsx(container, "relative pt-[90px] text-center md:pt-[130px] lg:pt-[164px]")}>
         <p className={clsx(eyebrow, "text-[22px]")}>{EXPLORE_HERO.eyebrow}</p>

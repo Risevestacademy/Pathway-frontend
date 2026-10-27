@@ -55,6 +55,8 @@ const VECTOR = [
   { from: "GooglePlayLogo.svg", to: "google-play-logo.svg" },
   { from: "Group.svg", to: "logo-mark-green.svg" },
   { from: "Frame 2147226665.svg", to: "logo-nav.svg" },
+  { from: "ClipboardText.svg", to: "explore-pill-plan.svg" },
+  { from: "Binoculars.svg", to: "explore-pill-explore.svg" },
 ];
 
 const kb = (bytes) => `${Math.round(bytes / 1024)} KB`;
