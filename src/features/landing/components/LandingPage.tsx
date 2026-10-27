@@ -7,8 +7,7 @@ import DownloadCtaSection from "./DownloadCtaSection";
 import FaqSection from "./FaqSection";
 import HeroSection from "./HeroSection";
 import HowItWorksSection from "./HowItWorksSection";
-import LandingFooter from "./LandingFooter";
-import LandingNav from "./LandingNav";
+import PublicPageLayout from "./PublicPageLayout";
 import StickerCardsSection from "./StickerCardsSection";
 
 /**
@@ -31,19 +30,13 @@ export default function LandingPage() {
   }, [navigate]);
 
   return (
-    // flow-root stops the nav's top margin collapsing through this wrapper, which would push the
-    // white page down and expose the grey body above the nav.
-    <div className="flow-root min-h-svh bg-white font-landing-body text-ink antialiased">
-      <LandingNav />
-      <main>
-        <HeroSection />
-        <StickerCardsSection />
-        <HowItWorksSection />
-        <CareerFolderStack />
-        <FaqSection />
-        <DownloadCtaSection />
-      </main>
-      <LandingFooter />
-    </div>
+    <PublicPageLayout>
+      <HeroSection />
+      <StickerCardsSection />
+      <HowItWorksSection />
+      <CareerFolderStack />
+      <FaqSection />
+      <DownloadCtaSection />
+    </PublicPageLayout>
   );
 }
