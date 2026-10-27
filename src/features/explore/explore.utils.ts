@@ -18,12 +18,22 @@ const toIconKey = (value: string) =>
     .replace(/^-|-$/g, "");
 
 /**
+ * Careers with no icon of their own borrow another track's icon until design
+ * supplies one. Keyed by the career's title or slug in icon-key form.
+ */
+const ICON_STAND_INS: Record<string, TrackIconKey> = {
+  "qa-engineer": "ux-researcher",
+};
+
+/**
  * Picks a track icon for a career title. Tries the skill-check career match
  * first (it knows aliases such as "UI/UX Designer"), then the title itself,
  * then the title with "engineer" read as "developer" (the icon set uses
- * "Frontend Developer" where the API says "Frontend Engineer").
+ * "Frontend Developer" where the API says "Frontend Engineer"), then a
+ * stand-in icon.
  */
 export function careerIconKey(title: string, slug?: string): TrackIconKey | null {
+  const standIn = ICON_STAND_INS[toIconKey(title)] ?? (slug ? ICON_STAND_INS[toIconKey(slug)] : undefined);
   const match = findSkillCheckCareerByTitle(title, slug);
   if (match && hasTrackIcon(match.icon)) return match.icon;
 
@@ -31,7 +41,7 @@ export function careerIconKey(title: string, slug?: string): TrackIconKey | null
   for (const candidate of candidates) {
     if (hasTrackIcon(candidate as TrackIconKey)) return candidate as TrackIconKey;
   }
-  return null;
+  return standIn && hasTrackIcon(standIn) ? standIn : null;
 }
 
 const AUDIENCE: Record<CareerLevel, string> = {

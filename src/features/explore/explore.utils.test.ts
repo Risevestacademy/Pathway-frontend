@@ -32,6 +32,10 @@ describe("careerIconKey", () => {
     expect(careerIconKey("UI/UX Designer", "ui-ux-designer")).not.toBeNull();
   });
 
+  it("uses the UX Researcher icon as a stand-in for QA Engineer", () => {
+    expect(careerIconKey("QA Engineer", "qa-engineer")).toBe("ux-researcher");
+  });
+
   it("returns null when no icon exists", () => {
     expect(careerIconKey("Lighthouse Keeper")).toBeNull();
   });
