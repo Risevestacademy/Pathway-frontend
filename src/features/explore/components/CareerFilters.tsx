@@ -37,7 +37,7 @@ export default function CareerFilters({
   return (
     <div className="mx-auto w-full max-w-[740px]">
       <div className="flex gap-3">
-        <label className="relative flex-1">
+        <label className="relative min-w-0 flex-1">
           <span className="sr-only">{EXPLORE_LIST.searchLabel}</span>
           <Search aria-hidden className="pointer-events-none absolute top-1/2 left-5 size-5 -translate-y-1/2 text-grey-500" strokeWidth={1.75} />
           <input

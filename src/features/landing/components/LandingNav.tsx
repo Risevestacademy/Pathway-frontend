@@ -62,9 +62,10 @@ export default function LandingNav() {
           "backdrop-blur-md supports-[backdrop-filter]:bg-white/80",
         )}
       >
-        <div className="flex h-14 items-center justify-between gap-4 pr-2 pl-5">
+        {/* Below 360px the logo, Get Started and the menu button only fit with tighter spacing and no arrow. */}
+        <div className="flex h-14 items-center justify-between gap-4 pr-2 pl-5 max-[359px]:gap-2 max-[359px]:pl-4">
           <Link to="/" aria-label="Pathway home" className="focus-ring inline-flex shrink-0 rounded">
-            <img src={logo} alt="" className="h-5 w-auto" draggable={false} />
+            <img src={logo} alt="" className="h-5 w-auto max-[359px]:h-[18px]" draggable={false} />
           </Link>
 
           <nav aria-label="Main" className="hidden md:block">
@@ -77,7 +78,7 @@ export default function LandingNav() {
             </ul>
           </nav>
 
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-3 max-[359px]:gap-1 sm:gap-4">
             <Link
               to="/login"
               search={{ redirect: "/careers" }}
@@ -85,9 +86,9 @@ export default function LandingNav() {
             >
               {NAV_CTA.login}
             </Link>
-            <LandingLinkButton to="/careers/onboarding" size="md">
+            <LandingLinkButton to="/careers/onboarding" size="md" className="max-[359px]:px-3">
               {NAV_CTA.getStarted}
-              <ArrowRightRegular aria-hidden size={16} />
+              <ArrowRightRegular aria-hidden size={16} className="max-[359px]:hidden" />
             </LandingLinkButton>
             <button
               type="button"

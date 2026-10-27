@@ -87,7 +87,7 @@ export default function ExplorePage() {
                 action={<LandingButton onClick={() => void careers.refetch()}>{EXPLORE_LIST.retry}</LandingButton>}
               />
             ) : careers.isPending ? (
-              <div className="grid gap-5 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 {Array.from({ length: 4 }, (_, i) => (
                   <ExploreCareerCardSkeleton key={i} />
                 ))}
@@ -111,7 +111,8 @@ export default function ExplorePage() {
             ) : (
               <ul
                 className={clsx(
-                  "grid gap-5 md:grid-cols-2",
+                  // grid-cols-1 caps the column at the container; an implicit one grows to the cards' nowrap rows.
+                  "grid grid-cols-1 gap-5 md:grid-cols-2",
                   "transition-opacity duration-200 motion-reduce:transition-none",
                   careers.isPlaceholderData && "opacity-60",
                 )}
