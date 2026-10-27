@@ -32,6 +32,7 @@ export const PATHWAY_CTA = {
 } as const;
 
 export const CAREER_PROFILE = {
+  back: "All careers",
   start: "Start this pathway",
   roadmapSoon: "Roadmap coming soon",
   stats: { stages: "Stages", resources: "Resources", skills: "Skills" },

@@ -1,6 +1,6 @@
-import { getRouteApi } from "@tanstack/react-router";
+import { Link, getRouteApi } from "@tanstack/react-router";
 import { isAxiosError } from "axios";
-import { AlertTriangle, SearchX } from "lucide-react";
+import { AlertTriangle, ChevronsLeft, SearchX } from "lucide-react";
 import StateMessage from "@/components/StateMessage";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useCareer } from "@/features/careerDetail/hooks/useCareer";
@@ -45,7 +45,16 @@ export default function CareerProfilePage() {
 
   return (
     <PublicPageLayout bandClassName="h-[260px] lg:h-[370px]">
-      <div className={`${container} pt-10 lg:pt-[120px]`}>
+      {/* The back link sits in the gap above the hero, so the hero keeps the design's 120px
+          offset from the nav on desktop. */}
+      <div className={`${container} pt-8 lg:pt-16`}>
+        <Link
+          to="/explore"
+          className="focus-ring mb-5 inline-flex h-9 w-fit items-center gap-1.5 rounded-lg bg-white/70 py-2 pr-3 pl-2 font-landing-body text-base leading-5 font-medium text-grey-600 transition-colors duration-200 ease-out hover:bg-white hover:text-ink motion-reduce:transition-none"
+        >
+          <ChevronsLeft aria-hidden className="size-5" />
+          {CAREER_PROFILE.back}
+        </Link>
         {isPending ? (
           <ProfileSkeleton />
         ) : notFound || (!isError && !career) ? (

@@ -180,7 +180,7 @@ export const FOOTER = {
     { label: "How it works", href: "#how-it-works" },
     { label: "Careers", to: "/explore" },
     { label: "Help", href: "#" },
-    { label: "privacy", href: "#" },
+    { label: "Privacy", href: "#" },
   ],
   socials: [
     { id: "instagram", label: "Pathway on Instagram", href: "#" },
