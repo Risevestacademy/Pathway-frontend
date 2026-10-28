@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchPathwayOrNull } from "@/lib/api/pathways.api";
+import { queryKeys } from "@/lib/queryKeys";
 
 export interface PathwaySummary {
   stages: number;
@@ -9,7 +10,7 @@ export interface PathwaySummary {
 
 export function useCareerPathway(careerId: string) {
   return useQuery({
-    queryKey: ["pathway", careerId],
+    queryKey: queryKeys.pathway(careerId),
     queryFn: () => fetchPathwayOrNull(careerId),
     select: (pathway): PathwaySummary | null => {
       if (!pathway) return null;
