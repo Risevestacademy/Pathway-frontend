@@ -89,18 +89,48 @@ export function inviteToMember(invite: InviteItem): TeamMember {
     roles: ROLE_FROM_API[invite.role] ?? [],
     careerAccess: "all",
     lastActive: invite.acceptedAt ?? invite.createdAt,
-    fromInvite: true,
+    serverManaged: true,
   };
 }
 
 /**
- * The Members list: people already on the local team list, plus everyone who
- * accepted an invite. People still waiting on an invite are not members yet;
- * they stay under Invites. A local entry wins over an invite for the same email.
+ * The signed-in person as a team member, so the list is never empty. Null for a
+ * role that is not on the team (a learner, or one the app does not know).
  */
-export function mergeTeamMembers(local: TeamMember[], acceptedInvites: InviteItem[]): TeamMember[] {
+export function sessionToMember(
+  user: { id: string; email: string; role: string },
+  fullName: string,
+): TeamMember | null {
+  const roles = ROLE_FROM_API[user.role.toUpperCase()] ?? [];
+  if (roles.length === 0) return null;
+  return {
+    id: `session-${user.id}`,
+    name: fullName || nameFromEmail(user.email) || user.email,
+    email: user.email,
+    roles,
+    careerAccess: "all",
+    lastActive: new Date().toISOString(),
+    serverManaged: true,
+  };
+}
+
+/**
+ * The Members list: people already on the local team list, the signed-in
+ * person, and everyone who accepted an invite. People still waiting on an
+ * invite are not members yet; they stay under Invites. A local entry wins over
+ * the signed-in person, who wins over an invite, for the same email.
+ */
+export function mergeTeamMembers(
+  local: TeamMember[],
+  acceptedInvites: InviteItem[],
+  currentUser?: TeamMember | null,
+): TeamMember[] {
   const joined = local.filter((m) => !(m.invitedAt && !m.lastActive));
   const known = new Set(joined.map((m) => m.email.toLowerCase()));
+  if (currentUser && !known.has(currentUser.email.toLowerCase())) {
+    joined.push(currentUser);
+    known.add(currentUser.email.toLowerCase());
+  }
 
   const fromInvites: TeamMember[] = [];
   // Newest first, so a person invited twice appears once, with their latest role.
@@ -115,4 +145,27 @@ export function mergeTeamMembers(local: TeamMember[], acceptedInvites: InviteIte
   }
 
   return [...joined, ...fromInvites];
+}
+
+/** The team roles an admin can invite someone as (USER, a learner, is left out). */
+export const ROLE_TO_API: Record<Role, ApiRole> = {
+  editor: "EDITOR",
+  reviewer: "REVIEWER",
+  publisher: "PUBLISHER",
+  admin: "ADMIN",
+};
+
+export interface CreateInviteInput {
+  email: string;
+  role: ApiRole;
+}
+
+/** POST /admin/teams/invites. The invite exists even when `emailSent` is false. */
+export interface CreatedInvite {
+  id: string;
+  email: string;
+  role: ApiRole | (string & {});
+  expiresAt: string;
+  emailSent: boolean;
+  message?: string;
 }

@@ -15,6 +15,9 @@ export interface AuthUser {
   id: string;
   email: string;
   role: string;
+  /** Present when the backend sends the person's name. */
+  fullName?: string;
+  name?: string;
 }
 
 export interface RegisterResponse {

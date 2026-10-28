@@ -1,39 +1,40 @@
 import { useState, type FormEvent } from "react";
 import { Button } from "../../../components/ui/Button";
 import { Dialog } from "../../../components/ui/Dialog";
-import { useAdminCareers } from "../hooks/useAdminCareers";
+import { ROLE_TO_API, type CreatedInvite } from "../adminInvites.types";
+import { useCreateInvite } from "../hooks/useAdminInvites";
 import { useTeamMembers } from "../hooks/useTeamMembers";
-import { isValidEmail, type CareerAccess, type Role } from "../admin.workflow";
+import { isValidEmail, type Role } from "../admin.workflow";
 import { TextField } from "./FormFields";
-import { CareerAccessPicker, RoleCards } from "./TeamFormParts";
+import { RoleRadioCards } from "./TeamFormParts";
 
 /**
- * Collects an email, roles and career access. Nothing is sent or added to the
- * team yet: that needs the "invite someone" endpoint. When it exists, call it
- * from the submit handler and let the new invite show up under Invites.
+ * Invites someone by email with one role (POST /admin/teams/invites). The
+ * invite then appears under Invites; they join the Members list once they
+ * accept it.
  */
 export function InviteDialog({
   open,
   onOpenChange,
-  onSubmitted,
+  onSent,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Called with the email once the form passes validation. */
-  onSubmitted?: (email: string) => void;
+  /** Called with the created invite. `emailSent` is false if the email failed. */
+  onSent?: (invite: CreatedInvite) => void;
 }) {
   return (
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
       title="Invite someone"
-      description="Add their email and pick one or more roles. Sending invites isn’t connected to the server yet, so nobody is added for now."
+      description="They get an email with a link to join, which works for 24 hours. Pick the role they’ll have."
     >
       {/* Mounted only while open, so the form resets each time. */}
       {open && (
         <InviteForm
           onClose={() => onOpenChange(false)}
-          onSubmitted={(email) => onSubmitted?.(email)}
+          onSent={(invite) => onSent?.(invite)}
         />
       )}
     </Dialog>
@@ -42,16 +43,15 @@ export function InviteDialog({
 
 function InviteForm({
   onClose,
-  onSubmitted,
+  onSent,
 }: {
   onClose: () => void;
-  onSubmitted: (email: string) => void;
+  onSent: (invite: CreatedInvite) => void;
 }) {
   const { members } = useTeamMembers();
-  const { rows } = useAdminCareers({ detailFor: [] });
+  const create = useCreateInvite();
   const [email, setEmail] = useState("");
-  const [roles, setRoles] = useState<Role[]>([]);
-  const [access, setAccess] = useState<CareerAccess>("all");
+  const [role, setRole] = useState<Role | null>(null);
   const [attempted, setAttempted] = useState(false);
 
   const trimmed = email.trim().toLowerCase();
@@ -62,14 +62,21 @@ function InviteForm({
       : members.some((m) => m.email.toLowerCase() === trimmed)
         ? "This person is already on the team."
         : undefined;
-  const rolesError = roles.length === 0 ? "Pick at least one role." : undefined;
+  const roleError = role === null ? "Pick a role." : undefined;
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
     setAttempted(true);
-    if (emailError || rolesError) return;
-    onSubmitted(trimmed);
-    onClose();
+    if (emailError || role === null) return;
+    create.mutate(
+      { email: trimmed, role: ROLE_TO_API[role] },
+      {
+        onSuccess: (invite) => {
+          onSent(invite);
+          onClose();
+        },
+      },
+    );
   };
 
   return (
@@ -84,29 +91,25 @@ function InviteForm({
       />
 
       <div className="flex flex-col gap-2">
-        <span className="font-medium text-ink">Roles</span>
-        <RoleCards value={roles} onChange={setRoles} compact />
-        {attempted && rolesError && (
+        <span className="font-medium text-ink">Role</span>
+        <RoleRadioCards value={role} onChange={setRole} />
+        {attempted && roleError && (
           <span role="alert" className="text-sm text-danger-700">
-            {rolesError}
+            {roleError}
           </span>
         )}
       </div>
 
-      <div className="flex flex-col gap-2">
-        <span className="font-medium text-ink">Career access</span>
-        <CareerAccessPicker
-          value={access}
-          careers={rows.map((r) => r.title)}
-          onChange={setAccess}
-        />
-        <span className="text-sm text-ink-muted">
-          Choose specific careers to limit what this person can edit.
-        </span>
-      </div>
+      {create.isError && (
+        <p role="alert" className="text-sm text-danger-700">
+          {create.error.message}
+        </p>
+      )}
 
       <div className="flex gap-3">
-        <Button type="submit">Send invite</Button>
+        <Button type="submit" disabled={create.isPending}>
+          {create.isPending ? "Sending..." : "Send invite"}
+        </Button>
         <Button isPrimary={false} onClick={onClose}>
           Cancel
         </Button>

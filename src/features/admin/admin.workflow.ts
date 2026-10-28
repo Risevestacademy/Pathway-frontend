@@ -366,18 +366,17 @@ export interface TeamMember {
   /** Null until they join. */
   lastActive: string | null;
   invitedAt?: string;
-  /** Joined through an invite; roles come from the server and are not edited here. */
-  fromInvite?: boolean;
+  /** Roles come from the server (an accepted invite, or the configured admin) and are not edited here. */
+  serverManaged?: boolean;
 }
 
 /** Id of the team entry created from VITE_ADMIN_OWNER_EMAIL. */
 export const OWNER_MEMBER_ID = "member-owner";
 
 /**
- * Stand-in for the signed-in admin until an endpoint lists users and their
- * roles. Set VITE_ADMIN_OWNER_EMAIL (and optionally VITE_ADMIN_OWNER_NAME) to
- * put that person on the team as an admin; without it nobody is seeded as one,
- * and so nobody can manage the team or review changes.
+ * The one admin who is on the team without having accepted an invite, until an
+ * endpoint lists users and their roles. Set VITE_ADMIN_OWNER_EMAIL (and
+ * VITE_ADMIN_OWNER_NAME for their full name); without it nobody is seeded.
  */
 export function getOwnerMember(): TeamMember | null {
   const email = import.meta.env.VITE_ADMIN_OWNER_EMAIL?.trim();
@@ -389,50 +388,15 @@ export function getOwnerMember(): TeamMember | null {
     roles: ["admin"],
     careerAccess: "all",
     lastActive: ago(5 * 60 * 1000),
+    serverManaged: true,
   };
 }
 
-/** The seed team: the owner (when configured) followed by the dummy members. */
+/** The saved team list starts as just the owner. */
 export const getSeedMembers = (): TeamMember[] => {
   const owner = getOwnerMember();
-  return owner ? [owner, ...SEED_MEMBERS] : SEED_MEMBERS;
+  return owner ? [owner] : [];
 };
-
-export const SEED_MEMBERS: TeamMember[] = [
-  {
-    id: "member-amaka",
-    name: "Amaka Obi",
-    email: "amaka@pathway.app",
-    roles: ["editor", "reviewer"],
-    careerAccess: "all",
-    lastActive: ago(1 * HOUR),
-  },
-  {
-    id: "member-chidi",
-    name: "Chidi Eze",
-    email: "chidi@pathway.app",
-    roles: ["editor"],
-    careerAccess: ["Frontend Developer", "UX Designer"],
-    lastActive: ago(3 * HOUR),
-  },
-  {
-    id: "member-ngozi",
-    name: "Ngozi Adams",
-    email: "ngozi@pathway.app",
-    roles: ["admin"],
-    careerAccess: "all",
-    lastActive: ago(1 * DAY + HOUR),
-  },
-  {
-    id: "member-tunde",
-    name: "Tunde Bello",
-    email: "tunde@pathway.app",
-    roles: ["reviewer"],
-    careerAccess: ["Data Analyst"],
-    lastActive: null,
-    invitedAt: "2026-10-12T09:00:00.000Z",
-  },
-];
 
 export const hasRole = (m: Pick<TeamMember, "roles">, ...roles: Role[]) =>
   roles.some((r) => m.roles.includes(r));
