@@ -11,6 +11,7 @@ import { analytics } from "./events";
 
 describe("analytics.track", () => {
   beforeEach(() => {
+    posthog.__loaded = false;
     posthog.capture.mockClear();
   });
 
@@ -24,5 +25,23 @@ describe("analytics.track", () => {
     });
 
     expect(posthog.capture).not.toHaveBeenCalled();
+  });
+
+  it("sends the event when PostHog is loaded", () => {
+    posthog.__loaded = true;
+    const properties = {
+      career_id: "career-1",
+      title: "Software Engineer",
+      timestamp: "2026-10-26T00:00:00.000Z",
+      interest: "technology",
+      levels: [],
+    };
+
+    analytics.track("career_detail_viewed", properties);
+
+    expect(posthog.capture).toHaveBeenCalledWith(
+      "career_detail_viewed",
+      properties,
+    );
   });
 });

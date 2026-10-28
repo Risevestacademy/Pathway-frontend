@@ -44,6 +44,9 @@ export const analytics = {
     eventName: K,
     properties: CustomEvents[K],
   ) => {
+    // the internal variable `__loaded` is used intentionally used here.
+    // There is currently no public API from posthog for checking this,
+    // and this is a recommended way provided the risk is understood
     if (posthog.__loaded) {
       posthog.capture(eventName, properties);
     }
