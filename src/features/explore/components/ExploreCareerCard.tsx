@@ -23,7 +23,7 @@ export default function ExploreCareerCard({ career, detail }: { career: CareerLi
       </div>
 
       <div className="mt-3 flex items-center gap-3">
-        <CareerIconTile title={career.title} slug={career.slug} size={60} />
+        <CareerIconTile slug={career.slug} size={60} />
         <div className="min-w-0">
           <h3 className="font-landing-body text-lg leading-6 font-medium text-ink">
             <Link

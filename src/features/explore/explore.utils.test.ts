@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { hasTrackIcon } from "@/components/trackIcons";
 import {
   audienceLabel,
+  CAREER_ICONS,
   careerIconKey,
   experienceLabel,
   matchesQuery,
@@ -10,7 +12,7 @@ import {
 } from "./explore.utils";
 
 describe("matchesQuery", () => {
-  const fields = ["Frontend Engineer", "Builds the parts of web applications people use.", "React", null];
+  const fields = ["Frontend Engineer", "Builds the parts of web applications people use with React."];
 
   it("matches everything when the query is empty", () => {
     expect(matchesQuery(fields, "")).toBe(true);
@@ -25,19 +27,15 @@ describe("matchesQuery", () => {
 });
 
 describe("careerIconKey", () => {
-  it("resolves API titles to the track icon set", () => {
-    expect(careerIconKey("Data Analyst", "data-analyst")).not.toBeNull();
-    expect(careerIconKey("Frontend Engineer", "frontend-engineer")).not.toBeNull();
-    expect(careerIconKey("Backend Engineer", "backend-engineer")).not.toBeNull();
-    expect(careerIconKey("UI/UX Designer", "ui-ux-designer")).not.toBeNull();
+  it("maps every listed slug to an icon file that exists", () => {
+    for (const slug of Object.keys(CAREER_ICONS)) {
+      const icon = careerIconKey(slug);
+      expect(icon && hasTrackIcon(icon), slug).toBe(true);
+    }
   });
 
-  it("uses the UX Researcher icon as a stand-in for QA Engineer", () => {
-    expect(careerIconKey("QA Engineer", "qa-engineer")).toBe("ux-researcher");
-  });
-
-  it("returns null when no icon exists", () => {
-    expect(careerIconKey("Lighthouse Keeper")).toBeNull();
+  it("returns null for a slug it doesn't know", () => {
+    expect(careerIconKey("lighthouse-keeper")).toBeNull();
   });
 });
 

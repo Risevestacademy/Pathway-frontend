@@ -47,13 +47,8 @@ export default function ExplorePage() {
   const list = useMemo(() => careers.data ?? [], [careers.data]);
   const details = useCareerDetails(list.map((career) => career.id));
 
-  const visible = list.filter((career) => {
-    const detail = details.get(career.id);
-    return matchesQuery(
-      [career.title, career.shortDescription, detail?.field?.name, ...(detail?.tags ?? [])],
-      deferredQuery,
-    );
-  });
+  // Only list fields are searched, so results are complete as soon as the list arrives.
+  const visible = list.filter((career) => matchesQuery([career.title, career.shortDescription], deferredQuery));
 
   const hasFilters = Boolean(search.q || search.level || search.field);
 

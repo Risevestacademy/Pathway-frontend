@@ -5,17 +5,15 @@ import { careerIconKey } from "../explore.utils";
 
 // Track icons carry their own tinted tile; the fallback draws a neutral one.
 export default function CareerIconTile({
-  title,
   slug,
   size,
   className,
 }: {
-  title: string;
-  slug?: string;
+  slug: string;
   size: number;
   className?: string;
 }) {
-  const icon = careerIconKey(title, slug);
+  const icon = careerIconKey(slug);
   if (icon) return <TrackIcon icon={icon} size={size} className={clsx("rounded-[14px]", className)} />;
 
   return (

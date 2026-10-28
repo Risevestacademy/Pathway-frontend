@@ -1,37 +1,26 @@
-import { hasTrackIcon } from "@/components/trackIcons";
-import { findSkillCheckCareerByTitle } from "@/features/skillCheck/careerMatch";
 import type { TrackIconKey } from "@/features/skillCheck/skillCheck.types";
 import type { CareerLevel, PayBasis, PayPeriod } from "@/types/career.types";
 
-export function matchesQuery(fields: (string | null | undefined)[], query: string): boolean {
+export function matchesQuery(fields: string[], query: string): boolean {
   const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
   if (terms.length === 0) return true;
-  const haystack = fields.filter(Boolean).join(" ").toLowerCase();
+  const haystack = fields.join(" ").toLowerCase();
   return terms.every((term) => haystack.includes(term));
 }
 
-const toIconKey = (value: string) =>
-  value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-
-// TODO: drop the QA Engineer stand-in once design supplies its icon.
-const ICON_STAND_INS: Record<string, TrackIconKey> = {
+// Keyed by API slug, which survives a title change. A slug missing here gets the neutral tile.
+// TODO: use an icon key from the API once it provides one.
+export const CAREER_ICONS: Readonly<Record<string, TrackIconKey>> = {
+  "frontend-engineer": "frontend-developer",
+  "backend-engineer": "backend-developer",
+  "data-analyst": "data-analyst",
+  "ui-ux-designer": "ux-designer",
+  // TODO: drop the stand-in once design supplies a QA Engineer icon.
   "qa-engineer": "ux-researcher",
 };
 
-export function careerIconKey(title: string, slug?: string): TrackIconKey | null {
-  const standIn = ICON_STAND_INS[toIconKey(title)] ?? (slug ? ICON_STAND_INS[toIconKey(slug)] : undefined);
-  const match = findSkillCheckCareerByTitle(title, slug);
-  if (match && hasTrackIcon(match.icon)) return match.icon;
-
-  // The icon set says "Developer" where the API says "Engineer".
-  const candidates = [title, title.replace(/engineer/gi, "developer")].map(toIconKey);
-  for (const candidate of candidates) {
-    if (hasTrackIcon(candidate as TrackIconKey)) return candidate as TrackIconKey;
-  }
-  return standIn && hasTrackIcon(standIn) ? standIn : null;
+export function careerIconKey(slug: string): TrackIconKey | null {
+  return CAREER_ICONS[slug] ?? null;
 }
 
 const AUDIENCE: Record<CareerLevel, string> = {
