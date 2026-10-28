@@ -9,6 +9,8 @@ import RoadmapError from "../../../../features/pathway/components/RoadmapError";
 import RoadmapSkeleton from "../../../../features/pathway/components/RoadmapSkeleton";
 import { fetchPathwayOrNull } from "../../../../lib/api/pathways.api";
 import { Link } from "@tanstack/react-router";
+import { ReportIssueLink } from "../../../../features/feedback/components/ReportIssueLink";
+import { REPORT_REASONS } from "../../../../features/feedback/feedback.utils";
 import { analytics } from "@/lib/monitoring/events";
 import { useEffect } from "react";
 import { withLoaderErrorReporting } from "@/lib/monitoring/sentry";
@@ -93,6 +95,15 @@ function RoadmapRoute() {
       </p>
 
       <RoadmapStepList careerId={career.id} steps={roadmap.steps} />
+
+      <ReportIssueLink
+        className="mt-8"
+        label="Report an issue with this roadmap"
+        section="PATHWAY"
+        reasons={REPORT_REASONS.PATHWAY}
+        careerId={career.id}
+        subject={`${career.title} roadmap`}
+      />
     </RoadmapPage>
   );
 }

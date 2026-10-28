@@ -9,6 +9,7 @@ import { dayLabel, timeLabel } from "../admin.workflow";
 import {
   FEEDBACK_STATUSES,
   FEEDBACK_STATUS_TONE,
+  feedbackSender,
   feedbackStatusLabel,
   humanize,
   isOpenFeedback,
@@ -105,7 +106,7 @@ export function ReportsPage() {
                         <td className="max-w-sm px-6 py-4">
                           <p className="line-clamp-2 font-medium text-ink">{r.description}</p>
                           <p className="text-ink-muted">
-                            {r.userEmail} · {humanize(r.platform)}
+                            {feedbackSender(r)}
                           </p>
                         </td>
                         <td className="px-6 py-4 text-ink">

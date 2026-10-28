@@ -3,6 +3,8 @@ import Section from "./Section";
 import { Card } from "@/components/ui/Card";
 import type { Career } from "@/types/career.types";
 import StatGroup from "./StatGroup";
+import { ReportIssueLink } from "@/features/feedback/components/ReportIssueLink";
+import { REPORT_REASONS } from "@/features/feedback/feedback.utils";
 
 export default function Detail({ career }: { career: Career }) {
   const salary = career.stats.filter(
@@ -47,6 +49,14 @@ export default function Detail({ career }: { career: Career }) {
             ))}
           </dl>
         </Section>
+        <ReportIssueLink
+          className="mt-4"
+          label="Report an issue with this career"
+          section="CAREER_DETAILS"
+          reasons={REPORT_REASONS.CAREER_DETAILS}
+          careerId={career.id}
+          subject={career.title}
+        />
       </section>
 
       {/* 4. Linked roadmap */}
@@ -92,6 +102,15 @@ export default function Detail({ career }: { career: Career }) {
             </div>
           )}
         </Section>
+        <div className="mt-6 border-t border-line pt-5">
+          <ReportIssueLink
+            label="Report an issue with pay or outlook data"
+            section="OUTLOOK"
+            reasons={REPORT_REASONS.OUTLOOK}
+            careerId={career.id}
+            subject={`${career.title} · Pay and job outlook`}
+          />
+        </div>
       </Card>
     </article>
   );
