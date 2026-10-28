@@ -56,6 +56,7 @@ export default function HowItWorksSection() {
               <img
                 src={stepCard}
                 alt=""
+                loading="lazy"
                 aria-hidden
                 draggable={false}
                 className="absolute inset-0 size-full"
@@ -63,6 +64,7 @@ export default function HowItWorksSection() {
               <img
                 src={stepClip}
                 alt=""
+                loading="lazy"
                 aria-hidden
                 draggable={false}
                 className="absolute -top-6 left-[255px] w-[39px]"

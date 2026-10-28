@@ -100,6 +100,7 @@ export default function CareerFolderStack() {
                       <img
                         src={ICONS[career.id]}
                         alt=""
+                        loading="lazy"
                         aria-hidden
                         draggable={false}
                         className="size-[82px] lg:size-[136px]"

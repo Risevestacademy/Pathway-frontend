@@ -36,12 +36,14 @@ export default function PromoCard({
         <img
           src={wave}
           alt=""
+          loading="lazy"
           draggable={false}
           className="absolute top-[calc(120*var(--u))] right-0 w-[calc(438*var(--u))] max-w-none select-none"
         />
         <img
           src={keychain}
           alt=""
+          loading="lazy"
           draggable={false}
           className={clsx(
             "absolute top-[calc(-183*var(--u))] right-[calc(178*var(--u))] w-[calc(195*var(--u))] max-w-none origin-top select-none",
@@ -65,12 +67,14 @@ export default function PromoCard({
         <img
           src={wave}
           alt=""
+          loading="lazy"
           draggable={false}
           className="absolute top-[calc(120*100cqw/1064)] left-[calc(627*100cqw/1064)] w-[calc(438*100cqw/1064)] max-w-none select-none"
         />
         <img
           src={keychain}
           alt=""
+          loading="lazy"
           draggable={false}
           className={clsx(
             "absolute top-[calc(-183*100cqw/1064)] left-[calc(692*100cqw/1064)] w-[calc(195*100cqw/1064)] max-w-none origin-top select-none",

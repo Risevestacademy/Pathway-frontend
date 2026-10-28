@@ -48,6 +48,7 @@ export default function StickerCardsSection() {
       <img
         src={noteCorner}
         alt=""
+        loading="lazy"
         aria-hidden
         draggable={false}
         className="pointer-events-none absolute -top-20 -right-4 z-10 hidden w-[192px] max-w-none select-none xl:block"
@@ -55,6 +56,7 @@ export default function StickerCardsSection() {
       <img
         src={notebook}
         alt=""
+        loading="lazy"
         aria-hidden
         draggable={false}
         className="pointer-events-none absolute -bottom-[170px] -left-3 z-10 hidden w-[266px] max-w-none select-none xl:block"
