@@ -1,6 +1,6 @@
-import InputPassword from "./inputPassword";
+import InputPassword from "./InputPassword";
 import { useState } from "react";
-import PasswordChanged from "./passwordChanged";
+import PasswordChanged from "./PasswordChanged";
 import { useSearch } from "@tanstack/react-router";
 
 export default function ChangePasswordComponent() {

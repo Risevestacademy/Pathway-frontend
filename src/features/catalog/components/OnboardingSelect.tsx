@@ -5,7 +5,7 @@ import {
   SelectContent,
   SelectItem,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/Select";
 
 interface OnboardingSelectProps {
   id?: string;

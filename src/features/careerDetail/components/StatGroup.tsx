@@ -1,7 +1,7 @@
 import { groupByGeo } from "../careerDetail.utils";
 import type { Statistic } from "@/types/career.types";
 import { MapPin } from "lucide-react";
-import { StatCard } from "./statCard";
+import { StatCard } from "./StatCard";
 
 export default function StatGroup({
   title,

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import ChangePasswordComponent from "@/features/auth/components/changePassword";
+import ChangePasswordComponent from "@/features/auth/components/ChangePassword";
 import { z } from "zod";
 
 export const Route = createFileRoute("/(auth)/reset-password_/reset")({

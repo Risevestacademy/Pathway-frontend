@@ -1,8 +1,8 @@
 import { CircleCheck } from "lucide-react";
-import Section from "./section";
+import Section from "./Section";
 import { Card } from "@/components/ui/Card";
 import type { Career } from "@/types/career.types";
-import StatGroup from "./statGroup";
+import StatGroup from "./StatGroup";
 
 export default function Detail({ career }: { career: Career }) {
   const salary = career.stats.filter(

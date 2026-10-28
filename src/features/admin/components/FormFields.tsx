@@ -7,7 +7,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../../components/ui/select";
+} from "../../../components/ui/Select";
 import type { TopicOption } from "../admin.editor";
 
 const labelClass = "flex flex-col gap-2 font-medium text-ink";
@@ -21,7 +21,9 @@ function FieldMessage({ error, hint }: { error?: string; hint?: ReactNode }) {
       </span>
     );
   }
-  return hint ? <span className="text-sm font-normal text-ink-muted">{hint}</span> : null;
+  return hint ? (
+    <span className="text-sm font-normal text-ink-muted">{hint}</span>
+  ) : null;
 }
 
 interface TextFieldProps {
@@ -113,7 +115,11 @@ export function SelectField<T extends string>({
       <span id={id} className="font-medium text-ink">
         {label}
       </span>
-      <Select value={value} onValueChange={(v) => onChange(v as T)} disabled={disabled}>
+      <Select
+        value={value}
+        onValueChange={(v) => onChange(v as T)}
+        disabled={disabled}
+      >
         <SelectTrigger aria-labelledby={id} className="w-full">
           <SelectValue />
         </SelectTrigger>
@@ -150,7 +156,9 @@ export function TopicPicker({
   const selected = topics.filter((t) => value.includes(t.id));
   const q = query.trim().toLowerCase();
   const matches = topics
-    .filter((t) => !value.includes(t.id) && (!q || t.title.toLowerCase().includes(q)))
+    .filter(
+      (t) => !value.includes(t.id) && (!q || t.title.toLowerCase().includes(q)),
+    )
     .slice(0, 6);
 
   return (
