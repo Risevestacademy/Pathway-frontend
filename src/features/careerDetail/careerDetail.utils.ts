@@ -159,6 +159,8 @@ function outlookStats(outlook: ApiCareerOutlook): Statistic[] {
 
 export function toCareer(data: ApiCareerDetail): Career {
   const skills = data.skills.map((skill) => skill.name).join(", ");
+  const level = data.targetLevels[0] ? levelMap[data.targetLevels[0]] : null;
+
   return {
     id: data.id,
     slug: data.slug,
@@ -166,6 +168,8 @@ export function toCareer(data: ApiCareerDetail): Career {
     title: data.title,
     description: data.description,
     levels: data.targetLevels.map((level) => levelMap[level]).filter(Boolean),
+    interest: data.field?.slug ?? null,
+    level,
     tags: data.skills.map((skill) => skill.name),
     roleSummary: data.roleSummary,
     workActivities: data.exampleActivities,

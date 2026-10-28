@@ -28,17 +28,19 @@ import {
 import RoadmapError from "../../../../features/pathway/components/RoadmapError";
 import RoadmapSkeleton from "../../../../features/pathway/components/RoadmapSkeleton";
 import { fetchPathwayOrNull } from "../../../../lib/api/pathways.api";
+import { withLoaderErrorReporting } from "@/lib/monitoring/sentry";
 
 export const Route = createFileRoute("/careers/$careerId/roadmap/$stepId")({
-  loader: async ({ params }) => {
-    const pathway = await fetchPathwayOrNull(params.careerId);
-    const result = pathway ? mapPathwayToRoadmap(pathway) : null;
-    const steps = result?.roadmap?.steps ?? [];
-    return {
-      totalSteps: steps.length,
-      context: getStepContext(steps, params.stepId),
-    };
-  },
+  loader: async ({ params }) =>
+    withLoaderErrorReporting(async () => {
+      const pathway = await fetchPathwayOrNull(params.careerId);
+      const result = pathway ? mapPathwayToRoadmap(pathway) : null;
+      const steps = result?.roadmap?.steps ?? [];
+      return {
+        totalSteps: steps.length,
+        context: getStepContext(steps, params.stepId),
+      };
+    }),
   pendingComponent: RoadmapSkeleton,
   errorComponent: RoadmapError,
   component: StepRoute,

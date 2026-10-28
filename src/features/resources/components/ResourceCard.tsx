@@ -16,8 +16,12 @@ import { Button } from "../../../components/ui/Button";
 import { Card } from "../../../components/ui/Card";
 import { useCallback, useEffect, useState } from "react";
 import type { Resource } from "../resources.types";
+import { analytics } from "@/lib/monitoring/events";
 import { useMutation } from "@tanstack/react-query";
-import { submitFeedback, type FeedbackCategory } from "../../../lib/api/feedback.api";
+import {
+  submitFeedback,
+  type FeedbackCategory,
+} from "../../../lib/api/feedback.api";
 import { useAuthStore } from "../../../lib/stores/authStore";
 
 /** Where the resource appears, so a report reaches the right career. */
@@ -39,10 +43,7 @@ interface ResourceCardProps {
   context?: ReportContext;
 }
 
-export default function ResourceCard({
-  resource,
-  context,
-}: ResourceCardProps) {
+export default function ResourceCard({ resource, context }: ResourceCardProps) {
   const userEmail = useAuthStore((s) => s.user?.email);
   const feedback = useMutation({ mutationFn: submitFeedback });
   const [isReportOpen, setIsReportOpen] = useState(false);
@@ -125,6 +126,15 @@ export default function ResourceCard({
     );
   };
 
+  const trackResourceOpened = () => {
+    analytics.trackFeature.resourceOpened(
+      resource.id,
+      resource.title,
+      resource.provider,
+      resource.kind,
+    );
+  };
+
   return (
     <Card className="p-6">
       <div className="flex items-start gap-5">
@@ -181,6 +191,10 @@ export default function ResourceCard({
           href={resource.url}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={trackResourceOpened}
+          onAuxClick={(event) => {
+            if (event.button === 1) trackResourceOpened();
+          }}
           className="
             inline-flex items-center justify-center gap-2
             rounded-md border-[0.5px] border-grey-200 bg-grey-50
@@ -238,25 +252,25 @@ export default function ResourceCard({
               }}
             >
               <fieldset className="mt-6 grid gap-2">
-              <legend className="sr-only">
-                What is wrong with this resource?
-              </legend>
-              {reportReasons.map((reportReason) => (
-                <label
-                  key={reportReason}
-                  className="flex cursor-pointer items-center gap-4 rounded-lg border border-line px-4 py-4 text-base text-ink hover:border-brand-300"
-                >
-                  <input
-                    type="radio"
-                    name={`report-reason-${resource.id}`}
-                    value={reportReason}
-                    checked={reason === reportReason}
-                    onChange={(event) => setReason(event.target.value)}
-                    className="size-4 accent-brand-600"
-                  />
-                  {reportReason}
-                </label>
-              ))}
+                <legend className="sr-only">
+                  What is wrong with this resource?
+                </legend>
+                {reportReasons.map((reportReason) => (
+                  <label
+                    key={reportReason}
+                    className="flex cursor-pointer items-center gap-4 rounded-lg border border-line px-4 py-4 text-base text-ink hover:border-brand-300"
+                  >
+                    <input
+                      type="radio"
+                      name={`report-reason-${resource.id}`}
+                      value={reportReason}
+                      checked={reason === reportReason}
+                      onChange={(event) => setReason(event.target.value)}
+                      className="size-4 accent-brand-600"
+                    />
+                    {reportReason}
+                  </label>
+                ))}
               </fieldset>
 
               <textarea

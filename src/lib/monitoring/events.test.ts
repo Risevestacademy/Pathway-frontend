@@ -1,0 +1,47 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const posthog = vi.hoisted(() => ({
+  __loaded: false,
+  capture: vi.fn(),
+}));
+
+vi.mock("posthog-js", () => ({ default: posthog }));
+
+import { analytics } from "./events";
+
+describe("analytics.track", () => {
+  beforeEach(() => {
+    posthog.__loaded = false;
+    posthog.capture.mockClear();
+  });
+
+  it("does nothing when PostHog is not loaded", () => {
+    analytics.track("career_detail_viewed", {
+      career_id: "career-1",
+      title: "Software Engineer",
+      timestamp: "2026-10-26T00:00:00.000Z",
+      interest: "technology",
+      levels: [],
+    });
+
+    expect(posthog.capture).not.toHaveBeenCalled();
+  });
+
+  it("sends the event when PostHog is loaded", () => {
+    posthog.__loaded = true;
+    const properties = {
+      career_id: "career-1",
+      title: "Software Engineer",
+      timestamp: "2026-10-26T00:00:00.000Z",
+      interest: "technology",
+      levels: [],
+    };
+
+    analytics.track("career_detail_viewed", properties);
+
+    expect(posthog.capture).toHaveBeenCalledWith(
+      "career_detail_viewed",
+      properties,
+    );
+  });
+});

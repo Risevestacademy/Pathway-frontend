@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/react";
+import { isAxiosError, isCancel } from "axios";
 
 const isEnabled =
   import.meta.env.PROD || import.meta.env.VITE_SENTRY_ENABLE_DEV === "true";
@@ -42,4 +43,58 @@ export function setSentryUser(userId: string) {
 
 export function clearSentryUser() {
   Sentry.setUser(null);
+}
+
+export function captureApiError(
+  error: unknown,
+  context: {
+    method?: string;
+    url?: string;
+    status?: number;
+    category: string;
+  },
+) {
+  Sentry.withScope((scope) => {
+    scope.setTag("error.category", context.category);
+    if (context.status !== undefined) {
+      scope.setTag("http.status_code", String(context.status));
+    }
+    scope.setContext("request", context);
+    Sentry.captureException(error);
+  });
+}
+
+export function captureErrorResponse(error: unknown) {
+  if (isCancel(error)) return;
+
+  if (isAxiosError(error)) {
+    if (
+      error.response?.status === undefined ||
+      error.response?.status >= 500 ||
+      error.code === "ECONNABORTED" ||
+      error.code === "ETIMEDOUT"
+    ) {
+      captureApiError(error, {
+        category: error.response
+          ? "http_error"
+          : error.code === "ECONNABORTED" || error.code === "ETIMEDOUT"
+            ? "timeout"
+            : "network_error",
+        method: error.config?.method?.toUpperCase(),
+        url: error.config?.url,
+        status: error.response?.status,
+      });
+    }
+  }
+}
+
+export async function withLoaderErrorReporting<T>(
+  loader: () => Promise<T>,
+): Promise<T> {
+  try {
+    return await loader();
+  } catch (error) {
+    captureErrorResponse(error);
+    throw error;
+  }
 }

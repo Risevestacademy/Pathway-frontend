@@ -8,6 +8,9 @@ import type { Career } from "@/types/career.types";
 import { useCareer } from "../hooks/useCareer";
 import CareerFrame from "./careerFrame";
 import DetailSkeleton from "./detailSkeleton";
+import { useEffect } from "react";
+import { isAxiosError } from "axios";
+import * as Sentry from "@sentry/react";
 
 export default function CareerLoader({
   careerId,
@@ -16,8 +19,20 @@ export default function CareerLoader({
   careerId: string;
   children: (career: Career) => ReactNode;
 }) {
-  const { data: career, isPending, isError, refetch } = useCareer(careerId);
+  const {
+    data: career,
+    isPending,
+    isError,
+    error,
+    refetch,
+  } = useCareer(careerId);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isError && !isAxiosError(error)) {
+      Sentry.captureException(error);
+    }
+  }, [error, isError]);
 
   if (isPending) return <DetailSkeleton />;
 
@@ -45,7 +60,10 @@ export default function CareerLoader({
           title="This career isn't available"
           body="It may have been removed from the catalogue."
           action={
-            <Button isPrimary={false} onClick={() => navigate({ to: "/careers" })}>
+            <Button
+              isPrimary={false}
+              onClick={() => navigate({ to: "/careers" })}
+            >
               Browse careers
             </Button>
           }
