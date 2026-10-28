@@ -1,11 +1,11 @@
 export type NavLink =
-  | { label: string; to: "/explore"; comingSoon?: false }
-  | { label: string; href: `#${string}`; comingSoon?: false }
+  | { label: string; to: "/explore" }
+  | { label: string; to: "/"; hash: string }
   | { label: string; comingSoon: true };
 
 export const NAV_LINKS: readonly NavLink[] = [
   { label: "Explore", to: "/explore" },
-  { label: "How it works", href: "#how-it-works" },
+  { label: "How it works", to: "/", hash: "how-it-works" },
   { label: "Opportunities", comingSoon: true },
   { label: "Mentors", comingSoon: true },
 ];
@@ -170,16 +170,16 @@ export const DOWNLOAD_CTA = {
   android: "Download Android",
 } as const;
 
-export const FOOTER = {
-  links: [
-    { label: "How it works", href: "#how-it-works" },
-    { label: "Careers", to: "/explore" },
-    { label: "Help", href: "#" },
-    { label: "Privacy", href: "#" },
-  ],
-  socials: [
-    { id: "instagram", label: "Pathway on Instagram", href: "#" },
-    { id: "x", label: "Pathway on X", href: "#" },
-    { id: "linkedin", label: "Pathway on LinkedIn", href: "#" },
-  ],
-} as const;
+export const FOOTER_LINKS: readonly NavLink[] = [
+  { label: "How it works", to: "/", hash: "how-it-works" },
+  { label: "Careers", to: "/explore" },
+  { label: "Help", comingSoon: true },
+  { label: "Privacy", comingSoon: true },
+];
+
+// TODO: link these once the accounts exist.
+export const FOOTER_SOCIALS = [
+  { id: "instagram", label: "Pathway on Instagram" },
+  { id: "x", label: "Pathway on X" },
+  { id: "linkedin", label: "Pathway on LinkedIn" },
+] as const;

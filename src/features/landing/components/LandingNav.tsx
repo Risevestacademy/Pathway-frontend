@@ -1,9 +1,9 @@
 import clsx from "clsx";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRightRegular, CloseRegular, MenuRegular } from "@mingcute/react/core-regular";
 import { NAV_CTA, NAV_LINKS, type NavLink } from "../landing.copy";
-import { scrollToAnchor } from "../landing.utils";
+import { hashScrollOptions } from "../landing.utils";
 import { LandingLinkButton } from "./LandingButton";
 import logo from "@/assets/landing/logo-nav.svg";
 
@@ -11,7 +11,7 @@ const linkBase =
   "font-landing-body text-base font-medium leading-none transition-colors duration-150 motion-reduce:transition-none";
 
 function NavItem({ link, onNavigate, className }: { link: NavLink; onNavigate?: () => void; className?: string }) {
-  if ("comingSoon" in link && link.comingSoon) {
+  if ("comingSoon" in link) {
     return (
       <span aria-disabled="true" title="Coming soon" className={clsx(linkBase, "cursor-not-allowed text-grey-500", className)}>
         {link.label}
@@ -19,42 +19,59 @@ function NavItem({ link, onNavigate, className }: { link: NavLink; onNavigate?: 
       </span>
     );
   }
-  if ("to" in link) {
+  if ("hash" in link) {
     return (
-      <Link to={link.to} onClick={onNavigate} className={clsx(linkBase, "focus-ring rounded text-ink hover:text-brand-600", className)}>
+      <Link
+        to={link.to}
+        hash={link.hash}
+        hashScrollIntoView={hashScrollOptions()}
+        onClick={onNavigate}
+        className={clsx(linkBase, "focus-ring rounded text-grey-500 hover:text-ink", className)}
+      >
         {link.label}
       </Link>
     );
   }
   return (
-    <a
-      href={link.href}
-      onClick={(event) => {
-        scrollToAnchor(event, link.href);
-        onNavigate?.();
-      }}
-      className={clsx(linkBase, "focus-ring rounded text-grey-500 hover:text-ink", className)}
-    >
+    <Link to={link.to} onClick={onNavigate} className={clsx(linkBase, "focus-ring rounded text-ink hover:text-brand-600", className)}>
       {link.label}
-    </a>
+    </Link>
   );
 }
 
 export default function LandingNav() {
   const [open, setOpen] = useState(false);
   const menuId = useId();
+  const headerRef = useRef<HTMLElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
+  // A disclosure, not a modal: rather than trapping focus, it closes once focus or a tap leaves the nav.
   useEffect(() => {
     if (!open) return;
-    const close = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setOpen(false);
+      menuButtonRef.current?.focus();
     };
-    window.addEventListener("keydown", close);
-    return () => window.removeEventListener("keydown", close);
+    const onPointerDown = (event: PointerEvent) => {
+      if (event.target instanceof Node && !headerRef.current?.contains(event.target)) setOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("pointerdown", onPointerDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("pointerdown", onPointerDown);
+    };
   }, [open]);
 
   return (
-    <header className="sticky top-6 z-40 mt-6 lg:top-10 lg:mt-10">
+    <header
+      ref={headerRef}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+      }}
+      className="sticky top-6 z-40 mt-6 lg:top-10 lg:mt-10"
+    >
       <div
         className={clsx(
           "landing-container",
@@ -91,6 +108,7 @@ export default function LandingNav() {
               <ArrowRightRegular aria-hidden size={16} className="max-[359px]:hidden" />
             </LandingLinkButton>
             <button
+              ref={menuButtonRef}
               type="button"
               aria-expanded={open}
               aria-controls={menuId}

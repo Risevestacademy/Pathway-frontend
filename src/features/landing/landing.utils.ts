@@ -1,10 +1,5 @@
-import type { MouseEvent } from "react";
-
-export function scrollToAnchor(event: MouseEvent<HTMLAnchorElement>, href: string) {
-  const target = document.querySelector(href);
-  if (!target) return;
-  event.preventDefault();
+// Passed to router hash links so the router owns the URL and the scroll respects reduced motion.
+export function hashScrollOptions(): ScrollIntoViewOptions {
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-  window.history.replaceState(null, "", href);
+  return { behavior: reduce ? "auto" : "smooth", block: "start" };
 }

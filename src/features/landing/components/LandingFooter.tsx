@@ -1,7 +1,8 @@
 import clsx from "clsx";
 import { Link } from "@tanstack/react-router";
 import { InstagramRegular, LinkedinRegular, SocialXRegular } from "@mingcute/react/core-regular";
-import { FOOTER } from "../landing.copy";
+import { FOOTER_LINKS, FOOTER_SOCIALS } from "../landing.copy";
+import { hashScrollOptions } from "../landing.utils";
 import logoWhite from "@/assets/landing/logo-white.svg";
 import decorBook from "@/assets/landing/decor-book.webp";
 import decorPencils from "@/assets/landing/decor-pencils.webp";
@@ -14,6 +15,7 @@ const SOCIAL_ICONS: Record<string, typeof InstagramRegular> = {
 
 const linkClass =
   "focus-ring rounded font-landing-body text-base text-white/90 transition-colors duration-150 hover:text-white motion-reduce:transition-none";
+const comingSoonClass = "cursor-not-allowed font-landing-body text-base text-white/50";
 
 const gridBackground = {
   backgroundImage:
@@ -29,12 +31,14 @@ export default function LandingFooter() {
         <img
           src={decorBook}
           alt=""
+          loading="lazy"
           draggable={false}
           className="absolute top-[144px] -left-5 w-[141px] max-w-none select-none"
         />
         <img
           src={decorPencils}
           alt=""
+          loading="lazy"
           draggable={false}
           className="absolute top-[240px] -right-2 w-[144px] max-w-none select-none"
         />
@@ -62,16 +66,21 @@ export default function LandingFooter() {
 
             <nav aria-label="Footer">
               <ul className="flex flex-wrap items-center justify-center gap-x-10 gap-y-3">
-                {FOOTER.links.map((link) => (
+                {FOOTER_LINKS.map((link) => (
                   <li key={link.label}>
-                    {"to" in link ? (
-                      <Link to={link.to} className={linkClass}>
+                    {"comingSoon" in link ? (
+                      <span aria-disabled="true" title="Coming soon" className={comingSoonClass}>
+                        {link.label}
+                        <span className="sr-only"> (coming soon)</span>
+                      </span>
+                    ) : "hash" in link ? (
+                      <Link to={link.to} hash={link.hash} hashScrollIntoView={hashScrollOptions()} className={linkClass}>
                         {link.label}
                       </Link>
                     ) : (
-                      <a href={link.href} className={linkClass}>
+                      <Link to={link.to} className={linkClass}>
                         {link.label}
-                      </a>
+                      </Link>
                     )}
                   </li>
                 ))}
@@ -79,20 +88,18 @@ export default function LandingFooter() {
             </nav>
 
             <ul className="flex items-center gap-3">
-              {FOOTER.socials.map((social) => {
+              {FOOTER_SOCIALS.map((social) => {
                 const Icon = SOCIAL_ICONS[social.id];
                 return (
                   <li key={social.id}>
-                    <a
-                      href={social.href}
-                      aria-label={social.label}
-                      className={clsx(
-                        "focus-ring grid size-9 place-items-center rounded-[10px] border-b-[3px] border-grey-200 bg-white text-grey-500",
-                        "transition-[transform,color] duration-150 hover:text-ink active:translate-y-px active:border-b-2 motion-reduce:transition-none",
-                      )}
+                    <span
+                      aria-disabled="true"
+                      title="Coming soon"
+                      className="grid size-9 cursor-not-allowed place-items-center rounded-[10px] border-b-[3px] border-grey-200 bg-white text-grey-500 opacity-60"
                     >
                       <Icon aria-hidden size={18} />
-                    </a>
+                      <span className="sr-only">{social.label} (coming soon)</span>
+                    </span>
                   </li>
                 );
               })}

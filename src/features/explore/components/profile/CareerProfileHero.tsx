@@ -1,7 +1,6 @@
 import { ArrowRight, WandSparkles } from "lucide-react";
 import heroCubes from "@/assets/images/discover-hero-cubes.svg";
-import { LandingLinkButton } from "@/features/landing/components/LandingButton";
-import { landingButtonStyles } from "@/features/landing/landingButton.styles";
+import { LandingComingSoonButton, LandingLinkButton } from "@/features/landing/components/LandingButton";
 import type { Career } from "@/types/career.types";
 import { CAREER_PROFILE } from "../../explore.copy";
 import { audienceLabel } from "../../explore.utils";
@@ -58,9 +57,7 @@ export default function CareerProfileHero({
                 <ArrowRight aria-hidden className="size-5" />
               </LandingLinkButton>
             ) : (
-              <span aria-disabled="true" className={landingButtonStyles({ variant: "secondary", size: "lg", className: "cursor-not-allowed opacity-70" })}>
-                {CAREER_PROFILE.roadmapSoon}
-              </span>
+              <LandingComingSoonButton variant="secondary">{CAREER_PROFILE.roadmapSoon}</LandingComingSoonButton>
             )}
           </div>
         </div>

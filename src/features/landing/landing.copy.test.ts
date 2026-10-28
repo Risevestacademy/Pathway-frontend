@@ -37,7 +37,7 @@ describe("landing copy", () => {
   });
 
   it("marks only Opportunities and Mentors as coming soon", () => {
-    const comingSoon = NAV_LINKS.filter((link) => link.comingSoon).map((l) => l.label);
+    const comingSoon = NAV_LINKS.filter((link) => "comingSoon" in link).map((l) => l.label);
     expect(comingSoon).toEqual(["Opportunities", "Mentors"]);
   });
 });

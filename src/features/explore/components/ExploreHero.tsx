@@ -1,7 +1,8 @@
 import clsx from "clsx";
+import { Link } from "@tanstack/react-router";
 import { container, eyebrow } from "@/features/landing/landing.styles";
 import { landingButtonStyles } from "@/features/landing/landingButton.styles";
-import { scrollToAnchor } from "@/features/landing/landing.utils";
+import { hashScrollOptions } from "@/features/landing/landing.utils";
 import planIcon from "@/assets/landing/explore-pill-plan.svg";
 import exploreIcon from "@/assets/landing/explore-pill-explore.svg";
 import { EXPLORE_HERO, EXPLORE_LIST } from "../explore.copy";
@@ -51,13 +52,15 @@ export default function ExploreHero() {
         >
           {EXPLORE_HERO.heading}
         </h1>
-        <a
-          href={`#${EXPLORE_LIST.anchor}`}
-          onClick={(event) => scrollToAnchor(event, `#${EXPLORE_LIST.anchor}`)}
+        <Link
+          to="/explore"
+          search={(prev) => prev}
+          hash={EXPLORE_LIST.anchor}
+          hashScrollIntoView={hashScrollOptions()}
           className={landingButtonStyles({ variant: "secondary", size: "lg", className: "mt-11" })}
         >
           {EXPLORE_HERO.cta}
-        </a>
+        </Link>
       </div>
     </section>
   );

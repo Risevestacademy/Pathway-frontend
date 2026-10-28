@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import type { LinkComponentProps } from "@tanstack/react-router";
-import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 import {
   landingButtonStyles,
   type LandingButtonSize,
@@ -43,16 +43,12 @@ export function LandingLinkButton({
   );
 }
 
-export function LandingAnchorButton({
-  children,
-  variant = "primary",
-  size = "lg",
-  className,
-  ...props
-}: Shared & AnchorHTMLAttributes<HTMLAnchorElement>) {
+// Not a link or button, so it can't be clicked or tabbed to until the destination exists.
+export function LandingComingSoonButton({ children, variant = "primary", size = "lg", className }: Shared) {
   return (
-    <a className={landingButtonStyles({ variant, size, className })} {...props}>
+    <span aria-disabled="true" title="Coming soon" className={landingButtonStyles({ variant, size, disabled: true, className })}>
       {children}
-    </a>
+      <span className="sr-only"> (coming soon)</span>
+    </span>
   );
 }

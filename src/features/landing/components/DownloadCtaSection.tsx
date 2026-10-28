@@ -1,6 +1,6 @@
 import { DOWNLOAD_CTA } from "../landing.copy";
 import { container } from "../landing.styles";
-import { LandingAnchorButton } from "./LandingButton";
+import { LandingComingSoonButton } from "./LandingButton";
 import PromoCard from "./PromoCard";
 import appleLogo from "@/assets/landing/apple-logo.svg";
 import googlePlayLogo from "@/assets/landing/google-play-logo.svg";
@@ -15,14 +15,14 @@ export default function DownloadCtaSection() {
           subtitle={DOWNLOAD_CTA.subtitle}
           actions={
             <>
-              <LandingAnchorButton href="#" aria-disabled="true">
+              <LandingComingSoonButton>
                 <img src={appleLogo} alt="" aria-hidden className="size-5" />
                 {DOWNLOAD_CTA.ios}
-              </LandingAnchorButton>
-              <LandingAnchorButton href="#" aria-disabled="true" variant="secondary" className="text-brand-500">
+              </LandingComingSoonButton>
+              <LandingComingSoonButton variant="secondary" className="text-brand-500">
                 <img src={googlePlayLogo} alt="" aria-hidden className="size-5" />
                 {DOWNLOAD_CTA.android}
-              </LandingAnchorButton>
+              </LandingComingSoonButton>
             </>
           }
         />
