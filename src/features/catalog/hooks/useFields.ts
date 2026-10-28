@@ -6,6 +6,5 @@ export function useFields() {
     queryKey: ["fields"],
     queryFn: fetchFields,
     staleTime: Infinity,
-    refetchOnWindowFocus: false,
   });
 }

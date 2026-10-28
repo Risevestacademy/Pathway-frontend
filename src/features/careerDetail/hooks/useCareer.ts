@@ -8,6 +8,5 @@ export function useCareer(careerId: string) {
     queryFn: () => fetchCareer(careerId),
     select: toCareer,
     staleTime: 15 * 60 * 1000,
-    refetchOnWindowFocus: false,
   });
 }
