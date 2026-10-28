@@ -1,13 +1,14 @@
 import clsx from "clsx";
 import { CheckCircle2, Flag } from "lucide-react";
 import { useState } from "react";
-import { ReportIssueDialog, type ReportIssueDialogProps } from "./ReportIssueDialog";
+import { ReportIssueDialog, type ReportIssueDialogProps, type ReportTarget } from "./ReportIssueDialog";
 
-type ReportIssueLinkProps = Omit<ReportIssueDialogProps, "open" | "onClose" | "onSent"> & {
-  label: string;
-  sentLabel?: string;
-  className?: string;
-};
+type ReportIssueLinkProps = ReportTarget &
+  Omit<ReportIssueDialogProps, "open" | "onClose" | "onSent" | keyof ReportTarget> & {
+    label: string;
+    sentLabel?: string;
+    className?: string;
+  };
 
 /** "Report an issue" text link that opens the report dialog and thanks the learner once sent. */
 export function ReportIssueLink({

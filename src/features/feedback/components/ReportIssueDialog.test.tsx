@@ -6,7 +6,7 @@ import { setupServer } from "msw/node";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { useAuthStore } from "../../../lib/stores/authStore";
 import { REPORT_REASONS } from "../feedback.utils";
-import { ReportIssueDialog } from "./ReportIssueDialog";
+import { ReportIssueDialog, type ReportIssueDialogProps, type ReportTarget } from "./ReportIssueDialog";
 
 const CAREER_ID = "6f1c2a7e-0d4b-4b8e-9f53-2a1e7c9d0b11";
 const server = setupServer();
@@ -35,7 +35,10 @@ afterEach(() => {
 });
 afterAll(() => server.close());
 
-function setup(props: Partial<Parameters<typeof ReportIssueDialog>[0]> = {}) {
+function setup(
+  target: ReportTarget = { section: "PATHWAY", careerId: CAREER_ID },
+  props: Partial<Omit<ReportIssueDialogProps, keyof ReportTarget>> = {},
+) {
   const onClose = vi.fn();
   const onSent = vi.fn();
   render(
@@ -44,12 +47,11 @@ function setup(props: Partial<Parameters<typeof ReportIssueDialog>[0]> = {}) {
         open
         onClose={onClose}
         onSent={onSent}
-        section="PATHWAY"
         reasons={REPORT_REASONS.PATHWAY}
-        careerId={CAREER_ID}
         subject="Learn React"
         contextNote="Step 2: Learn React"
         {...props}
+        {...target}
       />
     </QueryClientProvider>,
   );
@@ -58,6 +60,14 @@ function setup(props: Partial<Parameters<typeof ReportIssueDialog>[0]> = {}) {
 }
 
 describe("ReportIssueDialog", () => {
+  it("needs a careerId for every section except GENERAL", () => {
+    // @ts-expect-error The API rejects a PATHWAY report without a careerId.
+    const missing: ReportTarget = { section: "PATHWAY" };
+    const general: ReportTarget = { section: "GENERAL" };
+
+    expect([missing.section, general.section]).toEqual(["PATHWAY", "GENERAL"]);
+  });
+
   it("keeps Send disabled until a reason is chosen", async () => {
     const { send } = setup();
     expect(send.disabled).toBe(true);
@@ -87,12 +97,10 @@ describe("ReportIssueDialog", () => {
   });
 
   it("sends general feedback without a career", async () => {
-    const { onSent, send } = setup({
-      section: "GENERAL",
-      reasons: REPORT_REASONS.GENERAL,
-      careerId: undefined,
-      contextNote: undefined,
-    });
+    const { onSent, send } = setup(
+      { section: "GENERAL" },
+      { reasons: REPORT_REASONS.GENERAL, contextNote: undefined },
+    );
 
     await userEvent.click(screen.getByRole("radio", { name: "Something is confusing" }));
     await userEvent.click(send);

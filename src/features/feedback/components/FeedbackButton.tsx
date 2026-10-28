@@ -33,10 +33,12 @@ export function FeedbackButton({ className }: { className?: string }) {
         ) : (
           <Chat3Regular aria-hidden size={18} className="shrink-0 text-grey-500" />
         )}
-        <span className="sr-only sm:not-sr-only" role={sent ? "status" : undefined}>
-          {sent ? "Thanks!" : "Feedback"}
-        </span>
+        <span className="sr-only sm:not-sr-only">{sent ? "Thanks!" : "Feedback"}</span>
       </button>
+      {/* Always mounted: screen readers only announce changes to a live region that already exists. */}
+      <span role="status" className="sr-only">
+        {sent ? "Thanks, your feedback was sent." : ""}
+      </span>
       <ReportIssueDialog
         open={open}
         onClose={() => setOpen(false)}

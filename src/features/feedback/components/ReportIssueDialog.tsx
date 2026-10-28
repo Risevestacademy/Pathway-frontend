@@ -13,14 +13,16 @@ const COUNTER_THRESHOLD = 200;
 const fieldClass =
   "w-full rounded-lg border border-line bg-surface px-4 py-3 text-base text-ink placeholder:text-ink-placeholder focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15";
 
-export interface ReportIssueDialogProps {
+/** The API rejects a report without a careerId unless it is GENERAL, so the types do too. */
+export type ReportTarget =
+  | { section: "GENERAL"; careerId?: undefined }
+  | { section: Exclude<FeedbackSection, "GENERAL">; careerId: string };
+
+export type ReportIssueDialogProps = ReportTarget & {
   open: boolean;
   onClose: () => void;
   onSent: () => void;
-  section: FeedbackSection;
   reasons: ReportReason[];
-  /** Required by the API for every section except GENERAL. */
-  careerId?: string;
   title?: string;
   /** What is being reported, shown under the title. */
   subject?: string;
@@ -28,7 +30,7 @@ export interface ReportIssueDialogProps {
   contextNote?: string;
   /** Reassurance shown above the buttons. */
   note?: string;
-}
+};
 
 export function ReportIssueDialog({
   open,

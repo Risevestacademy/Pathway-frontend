@@ -96,20 +96,19 @@ export default function ResourceCard({ resource, context }: ResourceCardProps) {
       </div>
 
       <div className="mt-5 flex flex-col gap-3 border-t border-line pt-5 sm:flex-row sm:items-center sm:justify-between">
-        <ReportIssueLink
-          label="Report an issue with this resource"
-          sentLabel="Thanks, we’ll review this resource"
-          section="RESOURCES"
-          reasons={REPORT_REASONS.RESOURCES}
-          careerId={context?.careerId}
-          subject={resource.title}
-          contextNote={
-            context
-              ? `Resource: ${resource.title}, step: ${context.stepTitle}`
-              : `Resource: ${resource.title}`
-          }
-          note="The resource stays available while our team reviews your report."
-        />
+        {/* A report needs the career, so there is nothing to file without a context. */}
+        {context && (
+          <ReportIssueLink
+            label="Report an issue with this resource"
+            sentLabel="Thanks, we’ll review this resource"
+            section="RESOURCES"
+            reasons={REPORT_REASONS.RESOURCES}
+            careerId={context.careerId}
+            subject={resource.title}
+            contextNote={`Resource: ${resource.title}, step: ${context.stepTitle}`}
+            note="The resource stays available while our team reviews your report."
+          />
+        )}
         <a
           href={resource.url}
           target="_blank"
@@ -119,7 +118,7 @@ export default function ResourceCard({ resource, context }: ResourceCardProps) {
             if (event.button === 1) trackResourceOpened();
           }}
           className="
-            inline-flex items-center justify-center gap-2
+            inline-flex items-center justify-center gap-2 sm:ml-auto
             rounded-md border-[0.5px] border-grey-200 bg-grey-50
             px-4 py-2 text-sm font-sans font-semibold text-grey-500
             inset-shadow-secondary-btn transition-[box-shadow,transform,background-color,color] duration-100
