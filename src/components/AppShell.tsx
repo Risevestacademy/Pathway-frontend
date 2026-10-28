@@ -1,63 +1,142 @@
 import type { ReactNode } from "react";
+import clsx from "clsx";
 import { Link, useRouterState } from "@tanstack/react-router";
 import deskSupplies from "../assets/images/desk-supplies.png";
 
 const logo = "/brand-logo-lavender.svg";
+const logoMark = "/favicon.svg";
 
-/** The desk illustration only appears once the user is past onboarding. */
-const PLAIN_SIDEBAR_ROUTES = ["/careers/onboarding", "/login"];
+const PLAIN_SIDEBAR_ROUTES = [
+  "/careers/onboarding",
+  "/admin",
+  "/login",
+  "/signup",
+  "/reset-password",
+  "/reset-password/reset",
+];
 
-export default function AppShell({ children }: { children: ReactNode }) {
+/**
+ * auto → logo-mark rail up to 1440px, full sidebar above (the `shell` breakpoint).
+ * wide → always the full sidebar: logo, copyright and desk illustration.
+ * none → no shell; the route renders its own chrome.
+ *
+ * Wider-than-1440 behaviour is pending designer confirmation.
+ */
+export type AppShellVariant = "auto" | "wide" | "none";
+
+declare module "@tanstack/react-router" {
+  interface StaticDataRouteOption {
+    /** Routes that always need the full sidebar (e.g. auth) set "wide". */
+    shellVariant?: AppShellVariant;
+  }
+}
+
+interface AppShellProps {
+  children: ReactNode;
+  variant?: AppShellVariant;
+}
+
+// From `lg`, the full sidebar shows always for "wide" and only above 1440px for "auto".
+const shellStyles = {
+  wide: {
+    aside: "lg:w-sidebar lg:items-start lg:justify-between lg:px-6 lg:pt-10 lg:pb-8",
+    fullOnly: "hidden lg:block",
+    logo: "",
+    mark: "hidden",
+  },
+  auto: {
+    aside: clsx(
+      "lg:w-sidebar-slim lg:items-center lg:px-0 lg:pt-10",
+      "shell:w-sidebar shell:items-start shell:justify-between shell:px-6 shell:pb-8",
+    ),
+    fullOnly: "hidden shell:block",
+    logo: "lg:hidden shell:block",
+    mark: "hidden lg:block shell:hidden",
+  },
+} satisfies Record<Exclude<AppShellVariant, "none">, Record<string, string>>;
+
+export default function AppShell({ children, variant = "auto" }: AppShellProps) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const showIllustration = !PLAIN_SIDEBAR_ROUTES.some((route) =>
     pathname.startsWith(route),
   );
 
+  if (variant === "none") {
+    return <>{children}</>;
+  }
+
+  const isAuthRoute = pathname === "/login" || pathname === "/signup";
+  const styles = shellStyles[variant];
+
   return (
-    <div className="flex min-h-svh flex-col bg-brand-50">
-      <aside
-        className="
-          flex h-14 shrink-0 items-center px-page-mobile sm:px-page-tablet
-          lg:fixed lg:inset-y-0 lg:left-0 lg:h-auto lg:w-sidebar
-          lg:flex-col lg:items-start lg:justify-between lg:px-6 lg:pt-10 lg:pb-8
-        "
-      >
-        {showIllustration && (
-          <img
-            src={deskSupplies}
-            alt=""
-            aria-hidden
-            draggable={false}
-            className="
-              pointer-events-none fixed bottom-0 left-0 hidden h-[min(819px,85svh)] w-auto select-none
-              lg:block
-              animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out
-              motion-reduce:animate-none
-            "
-          />
-        )}
-
-        <Link
-          to="/"
-          aria-label="Pathway home"
-          className="relative inline-flex rounded cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-brand-50"
-        >
-          <img className="h-6.5 w-auto" src={logo} alt="Pathway" />
-        </Link>
-
-        <p className="relative hidden text-sm text-grey-600 lg:block">
-          ©{new Date().getFullYear()} Pathway
-        </p>
-      </aside>
-
+    <div
+      className={
+        isAuthRoute
+          ? "h-svh overflow-hidden bg-grey-50 flex justify-center"
+          : "min-h-svh bg-grey-50 flex justify-center"
+      }
+    >
       <div
-        className="
-          relative z-10 flex flex-1 flex-col overflow-clip
-          rounded-t-2xl bg-surface
-          lg:mt-shell-inset lg:mr-shell-inset lg:ml-sidebar lg:rounded-tr-md
-        "
+        className={
+          isAuthRoute
+            ? "flex h-full w-full max-w-[2560px] flex-col overflow-hidden bg-brand-50 shadow-2xl border-x border-grey-100 lg:flex-row"
+            : "flex w-full max-w-[2560px] flex-col bg-brand-50 shadow-2xl border-x border-grey-100 lg:flex-row"
+        }
       >
-        {children}
+        <aside
+          className={clsx(
+            "flex h-14 shrink-0 items-center px-page-mobile sm:px-page-tablet",
+            "lg:sticky lg:top-0 lg:h-svh lg:flex-col",
+            styles.aside,
+          )}
+        >
+          {showIllustration && (
+            <img
+              src={deskSupplies}
+              alt=""
+              aria-hidden
+              draggable={false}
+              // max-w-none: the base `img { max-width: 100% }` would otherwise
+              // squeeze it to the sidebar's width while its height stays fixed.
+              className={clsx(
+                "pointer-events-none absolute bottom-0 left-0 h-[min(819px,85svh)] w-auto max-w-none select-none",
+                "animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out motion-reduce:animate-none",
+                styles.fullOnly,
+              )}
+            />
+          )}
+
+          <Link
+            to="/"
+            aria-label="Pathway home"
+            className="relative inline-flex rounded cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-brand-50"
+          >
+            <img
+              className={clsx("h-6.5 w-auto", styles.logo)}
+              src={logo}
+              alt="Pathway"
+            />
+            <img
+              className={clsx("size-6", styles.mark)}
+              src={logoMark}
+              alt="Pathway"
+            />
+          </Link>
+
+          <p className={clsx("relative text-sm text-grey-600", styles.fullOnly)}>
+            ©{new Date().getFullYear()} Pathway
+          </p>
+        </aside>
+
+        <div
+          className={
+            isAuthRoute
+              ? "relative z-10 flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-hidden rounded-t-2xl bg-surface lg:mt-shell-inset lg:mr-shell-inset lg:h-[calc(100%-var(--spacing-shell-inset))] lg:rounded-tr-md border border-grey-50 shadow-panel"
+              : "relative z-10 flex min-h-0 min-w-0 flex-1 flex-col overflow-clip rounded-t-2xl bg-surface lg:mt-shell-inset lg:mr-shell-inset lg:rounded-tr-md border border-grey-50 shadow-panel"
+          }
+        >
+          {children}
+        </div>
       </div>
     </div>
   );

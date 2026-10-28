@@ -9,12 +9,18 @@ import RoadmapError from "../../../../features/pathway/components/RoadmapError";
 import RoadmapSkeleton from "../../../../features/pathway/components/RoadmapSkeleton";
 import { fetchPathwayOrNull } from "../../../../lib/api/pathways.api";
 import { Link } from "@tanstack/react-router";
+import { ReportIssueLink } from "../../../../features/feedback/components/ReportIssueLink";
+import { REPORT_REASONS } from "../../../../features/feedback/feedback.utils";
+import { analytics } from "@/lib/monitoring/events";
+import { useEffect } from "react";
+import { withLoaderErrorReporting } from "@/lib/monitoring/sentry";
 
 export const Route = createFileRoute("/careers/$careerId/roadmap/")({
-  loader: async ({ params }) => {
-    const pathway = await fetchPathwayOrNull(params.careerId);
-    return pathway ? mapPathwayToRoadmap(pathway) : null;
-  },
+  loader: ({ params }) =>
+    withLoaderErrorReporting(async () => {
+      const pathway = await fetchPathwayOrNull(params.careerId);
+      return pathway ? mapPathwayToRoadmap(pathway) : null;
+    }),
   pendingComponent: RoadmapSkeleton,
   errorComponent: RoadmapError,
   component: RoadmapRoute,
@@ -22,6 +28,16 @@ export const Route = createFileRoute("/careers/$careerId/roadmap/")({
 
 function RoadmapRoute() {
   const result = Route.useLoaderData();
+  const roadmapId = result?.roadmap?.id;
+  const careerId = result?.career.id;
+  const careerTitle = result?.career.title;
+
+  useEffect(() => {
+    if (!roadmapId || !careerId || !careerTitle) return;
+
+    analytics.trackFeature.roadmapViewed(roadmapId, careerId, careerTitle);
+  }, [careerId, careerTitle, roadmapId]);
+
   const navigate = useNavigate();
 
   const homeAction = (
@@ -79,6 +95,15 @@ function RoadmapRoute() {
       </p>
 
       <RoadmapStepList careerId={career.id} steps={roadmap.steps} />
+
+      <ReportIssueLink
+        className="mt-8"
+        label="Report an issue with this roadmap"
+        section="PATHWAY"
+        reasons={REPORT_REASONS.PATHWAY}
+        careerId={career.id}
+        subject={`${career.title} roadmap`}
+      />
     </RoadmapPage>
   );
 }

@@ -78,14 +78,20 @@ export interface EntryConsideration {
 
 export interface Career {
   id: string;
+  slug?: string;
   status: ContentStatus;
   title: string;
   description: string;
   levels: CareerLevel[];
+  interest?: string | null;
+  level?: CareerLevel | null;
   tags: string[];
   roleSummary: string;
   workActivities: string[];
   entryConsiderations: EntryConsideration[];
   roadmapId: string | null;
   stats: Statistic[];
+  /** Absent on mock data. */
+  field?: { name: string; slug: string } | null;
+  roadmapStepCount?: number | null;
 }

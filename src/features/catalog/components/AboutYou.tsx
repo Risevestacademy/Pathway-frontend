@@ -1,239 +1,251 @@
-import { useState, type ReactNode } from 'react';
-import { Check, ChevronDown } from 'lucide-react';
-import { useNavigate, Link } from '@tanstack/react-router';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
-import { Popover, PopoverContent, PopoverTrigger } from '../../../components/ui/popover';
-import { Button } from '../../../components/ui/Button';
-import { useSession } from '../../../lib/stores/session';
-import { useFields } from '../hooks/useFields';
+import { useRef, useState, type ReactNode } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { AddRegular, CloseRegular } from "@mingcute/react/core-regular";
+import { Button } from "@/components/ui/Button";
+import { MAX_EXPERIENCE_ENTRIES, useSession } from "@/lib/stores/session";
+import { NO_INTEREST, type OnboardingOption } from "../catalog.types";
+import { useOnboardingOptions } from "../hooks/useOnboardingOptions";
+import { FIELD_OF_STUDY_OPTIONS, JOB_TYPE_OPTIONS } from "../onboarding.mock";
+import { HelperText } from "./HelperText";
+import { OnboardingLayout, StepDots, StepHeader } from "./OnboardingLayout";
+import { OnboardingSelect } from "./OnboardingSelect";
+import { SkillsInput } from "./SkillsInput";
 
-const SKILL_OPTIONS = ['JavaScript', 'Python', 'SQL', 'Excel', 'Design', 'Communication'];
-const NO_INTEREST = 'none';
-
-const selectTriggerClass =
-  'cursor-pointer h-10.5! w-full justify-between px-3.5 text-left text-[15px] bg-surface text-ink ' +
-  'border border-line rounded-md shadow-sm transition-colors hover:border-line-strong ' +
-  'data-placeholder:text-ink-placeholder ' +
-  'focus-visible:border-brand-500 focus-visible:ring-3 focus-visible:ring-brand-500/15 focus-visible:outline-none ' +
-  'data-[state=open]:border-brand-500 data-[state=open]:ring-3 data-[state=open]:ring-brand-500/15';
+const MAX_SKILLS = 5;
+const LABEL_CLASS = "text-body-lg-bold text-ink";
+const EMPTY_OPTIONS: OnboardingOption[] = [];
 
 export default function AboutYou() {
   const profile = useSession();
   const navigate = useNavigate();
-  const fields = useFields();
+  const options = useOnboardingOptions();
+  const [cvNoticeVisible, setCvNoticeVisible] = useState(false);
+  const experienceRef = useRef<HTMLDivElement>(null);
 
-  const [draft, setDraft] = useState({
-    education: { degree: '', field: '' },
-    experience: { years: '', internships: '' },
-    skills: profile.skills || [],
-    interest: profile.interest,
-  });
-
-  const submit = () => {
-    profile.setSkills(draft.skills);
-    profile.setInterest(draft.interest);
-    navigate({ to: '/careers' });
-  };
+  const data = options.data;
+  const ready = Boolean(data);
+  const skillOptions = (data?.skills ?? []).map((skill) => ({
+    value: skill.id,
+    label: skill.name,
+  }));
+  const interestOptions = [
+    { value: NO_INTEREST, label: "No preference" },
+    ...(data?.fields ?? []).map((field) => ({
+      value: field.slug,
+      label: field.name,
+    })),
+  ];
+  const interestPlaceholder = options.isPending
+    ? "Loading fields…"
+    : options.isError
+      ? "Couldn’t load fields"
+      : "Pick a field you are interested in";
+  const atMaxExperience = profile.experience.length >= MAX_EXPERIENCE_ENTRIES;
+  const hasSeveralEntries = profile.experience.length > 1;
 
   const skip = () => {
     profile.clearOptional();
-    navigate({ to: '/careers' });
+    navigate({ to: "/careers" });
   };
 
-  const hasInput =
-    draft.education.degree ||
-    draft.education.field ||
-    draft.experience.years ||
-    draft.experience.internships ||
-    draft.skills.length > 0 ||
-    draft.interest;
+  const next = () => {
+    navigate({ to: "/careers/onboarding/goals" });
+  };
+
+  const removeEntry = (index: number) => {
+    profile.removeExperience(index);
+    experienceRef.current?.focus();
+  };
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-8">
-      <Link
-        to="/careers/onboarding"
-        className="inline-flex items-center gap-1 text-sm font-medium text-brand-700 hover:underline mb-6 cursor-pointer"
-      >
-        &larr; Back
-      </Link>
-      <p className="mb-2 text-sm font-medium text-brand-700">Step 2 of 2 · Optional</p>
-      <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">Tell us a bit more</h1>
-      <p className="mt-1 mb-8 text-ink-muted">
-        Add any of these to see careers that fit you best — or skip to browse everything.
-      </p>
+    <OnboardingLayout step={2}>
+      <StepHeader
+        step={2}
+        titleId="about-heading"
+        title="Tell us a bit more..."
+        description="Add any of these to see careers that fit you best, or skip to browse everything."
+      />
 
-      <div className="grid gap-6">
+      {options.isError && (
+        <HelperText role="alert" className="mb-4">
+          We couldn’t load the options.{" "}
+          <button
+            type="button"
+            onClick={() => options.refetch()}
+            className="focus-ring cursor-pointer font-semibold text-brand-600 underline"
+          >
+            Try again
+          </button>
+        </HelperText>
+      )}
+
+      <div className="flex flex-col gap-4" aria-busy={options.isPending}>
         <Field label="Education">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Select
-              value={draft.education.degree}
-              onValueChange={(v) => setDraft({ ...draft, education: { ...draft.education, degree: v } })}
-            >
-              <SelectTrigger className={selectTriggerClass}>
-                <SelectValue placeholder="Highest qualification" />
-              </SelectTrigger>
-              <SelectContent>
-                {['Secondary school', 'Diploma / OND', "Bachelor's (in progress)", "Bachelor's", "Master's", 'Other'].map((opt) => (
-                  <SelectItem key={opt} value={opt} className="h-9 rounded-sm px-2.5 text-[15px]">
-                    {opt}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <input
-              type="text"
-              value={draft.education.field}
-              onChange={(e) => setDraft({ ...draft, education: { ...draft.education, field: e.target.value } })}
-              placeholder="Field of study, e.g. Economics"
-              className="flex w-full items-center rounded-md border border-line bg-surface px-3.5 h-10.5 text-[15px] placeholder:text-ink-placeholder shadow-sm transition-colors hover:border-line-strong focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15"
+          <div className="flex gap-1">
+            <OnboardingSelect
+              label="Degree"
+              placeholder="Degree"
+              value={profile.degree ?? ""}
+              onValueChange={profile.setDegree}
+              options={data?.educationLevels ?? EMPTY_OPTIONS}
+              disabled={!ready}
+              className="w-[151px] shrink-0"
+            />
+            <OnboardingSelect
+              label="Field of study"
+              placeholder="Field of study, e.g. Engineering"
+              value={profile.fieldOfStudy ?? ""}
+              onValueChange={profile.setFieldOfStudy}
+              options={FIELD_OF_STUDY_OPTIONS}
+              className="min-w-0 flex-1"
             />
           </div>
         </Field>
 
-        <Field label="Experience">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Select
-              value={draft.experience.years}
-              onValueChange={(v) => setDraft({ ...draft, experience: { ...draft.experience, years: v } })}
-            >
-              <SelectTrigger className={selectTriggerClass}>
-                <SelectValue placeholder="Years of work" />
-              </SelectTrigger>
-              <SelectContent>
-                {['None yet', 'Less than 1 year', '1–2 years', '3–5 years'].map((opt) => (
-                  <SelectItem key={opt} value={opt} className="h-9 rounded-sm px-2.5 text-[15px]">
-                    {opt}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select
-              value={draft.experience.internships}
-              onValueChange={(v) => setDraft({ ...draft, experience: { ...draft.experience, internships: v } })}
-            >
-              <SelectTrigger className={selectTriggerClass}>
-                <SelectValue placeholder="Internships" />
-              </SelectTrigger>
-              <SelectContent>
-                {['None', '1', '2', '3 or more'].map((opt) => (
-                  <SelectItem key={opt} value={opt} className="h-9 rounded-sm px-2.5 text-[15px]">
-                    {opt}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </Field>
-
         <Field label="Skills">
-          <MultiSelect
-            values={draft.skills}
-            options={SKILL_OPTIONS}
-            placeholder="Select skills"
-            onChange={(skills) => setDraft({ ...draft, skills })}
+          <SkillsInput
+            values={profile.skills}
+            options={skillOptions}
+            max={MAX_SKILLS}
+            onChange={profile.setSkills}
+            disabled={!ready}
           />
         </Field>
 
-        <Field label="Career interest">
-          <Select
-            value={draft.interest ?? ''}
-            onValueChange={(v) => setDraft({ ...draft, interest: v === NO_INTEREST ? null : v })}
-            disabled={!fields.data}
+        <div>
+          <label
+            htmlFor="career-interest"
+            className={`${LABEL_CLASS} flex items-baseline gap-2`}
           >
-            <SelectTrigger className={selectTriggerClass}>
-              <SelectValue
-                placeholder={fields.isPending ? 'Loading fields…' : fields.isError ? 'Couldn’t load fields' : 'Pick a field'}
-              />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={NO_INTEREST} className="h-9 rounded-sm px-2.5 text-[15px]">No preference</SelectItem>
-              {fields.data?.map((f) => (
-                <SelectItem key={f.slug} value={f.slug} className="h-9 rounded-sm px-2.5 text-[15px]">{f.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {fields.isError && (
-            <p className="mt-2 text-sm text-ink-muted">
-              We couldn’t load fields.{' '}
-              <button onClick={() => fields.refetch()} className="font-medium text-brand-700 hover:underline cursor-pointer">
-                Try again
+            Career interests
+            <span className="text-body-sm font-semibold text-ink-muted">
+              (Optional)
+            </span>
+          </label>
+          <div className="mt-2">
+            <OnboardingSelect
+              id="career-interest"
+              className="w-full"
+              placeholder={interestPlaceholder}
+              value={profile.interest ?? ""}
+              onValueChange={(value) =>
+                profile.setInterest(value === NO_INTEREST ? null : value)
+              }
+              options={interestOptions}
+              disabled={!ready}
+            />
+          </div>
+        </div>
+
+        <div
+          ref={experienceRef}
+          tabIndex={-1}
+          role="group"
+          aria-labelledby="experience-heading"
+          className="focus-ring rounded-lg"
+        >
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span id="experience-heading" className={LABEL_CLASS}>
+                Experience
+              </span>
+              <button
+                type="button"
+                onClick={() => setCvNoticeVisible(true)}
+                className="focus-ring cursor-pointer rounded-xs text-body-sm font-medium text-brand-600 underline hover:text-brand-700"
+              >
+                import cv
               </button>
-            </p>
+            </div>
+            <button
+              type="button"
+              aria-label="Add another experience"
+              onClick={profile.addExperience}
+              disabled={atMaxExperience}
+              className="focus-ring inline-flex cursor-pointer items-center justify-center rounded-[4px] border border-b-4 border-grey-50 p-1 text-ink-muted hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <AddRegular size={16} aria-hidden />
+            </button>
+          </div>
+
+          <div role="status">
+            {cvNoticeVisible && (
+              <HelperText className="mt-1">
+                CV import isn’t available yet. You can add your experience
+                below.
+              </HelperText>
+            )}
+          </div>
+
+          <div className="mt-2 flex flex-col gap-1">
+            {profile.experience.map((entry, index) => {
+              const suffix = hasSeveralEntries ? `, entry ${index + 1}` : "";
+              return (
+                <div key={entry.id} className="flex gap-1">
+                  <OnboardingSelect
+                    label={`Years of work${suffix}`}
+                    placeholder="Years of work"
+                    value={entry.years ?? ""}
+                    onValueChange={(years) =>
+                      profile.updateExperience(index, { years })
+                    }
+                    options={data?.experienceOptions ?? EMPTY_OPTIONS}
+                    disabled={!ready}
+                    className="min-w-0 flex-1"
+                  />
+                  <OnboardingSelect
+                    label={`Job type${suffix}`}
+                    placeholder="Job type"
+                    value={entry.jobType ?? ""}
+                    onValueChange={(jobType) =>
+                      profile.updateExperience(index, { jobType })
+                    }
+                    options={JOB_TYPE_OPTIONS}
+                    className="min-w-0 flex-1"
+                  />
+                  {hasSeveralEntries && (
+                    <button
+                      type="button"
+                      aria-label={`Remove experience entry ${index + 1}`}
+                      onClick={() => removeEntry(index)}
+                      className="focus-ring grid size-10.5 shrink-0 cursor-pointer place-items-center rounded-lg border-[1.33px] border-grey-50 text-ink-muted hover:border-grey-100 hover:text-ink"
+                    >
+                      <CloseRegular size={16} aria-hidden />
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          {atMaxExperience && (
+            <HelperText className="mt-1">
+              You can add up to {MAX_EXPERIENCE_ENTRIES} experiences
+            </HelperText>
           )}
-        </Field>
+        </div>
       </div>
 
-      <div className="sticky bottom-0 -mx-4 mt-8 flex flex-col-reverse gap-3 border-t border-line bg-canvas px-4 py-4 sm:static sm:mx-0 sm:flex-row sm:justify-end sm:border-0 sm:bg-transparent sm:px-0">
-        <Button isPrimary={false} size="lg" onClick={skip} className="w-full sm:w-auto">
+      <div className="mt-6 flex items-stretch gap-2">
+        <Button isPrimary={false} size="lg" onClick={skip} className="flex-1">
           Skip for now
         </Button>
-        <Button size="lg" onClick={submit} disabled={!hasInput} className="w-full sm:w-auto">
-          Show my careers
+        <Button size="lg" onClick={next} className="flex-1">
+          Next
         </Button>
       </div>
-    </main>
+
+      <div className="mt-3">
+        <StepDots step={2} />
+      </div>
+    </OnboardingLayout>
   );
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <fieldset>
-      <legend className="mb-2 text-sm font-medium">{label}</legend>
-      {children}
+    <fieldset className="min-w-0">
+      <legend className={LABEL_CLASS}>{label}</legend>
+      <div className="mt-2">{children}</div>
     </fieldset>
-  );
-}
-
-function MultiSelect({
-  values,
-  options,
-  placeholder,
-  onChange,
-}: {
-  values: string[];
-  options: string[];
-  placeholder: string;
-  onChange: (v: string[]) => void;
-}) {
-  const toggle = (option: string) => {
-    onChange(
-      values.includes(option)
-        ? values.filter((v) => v !== option)
-        : [...values, option]
-    );
-  };
-
-  return (
-    <Popover>
-      <PopoverTrigger className={`flex items-center ${selectTriggerClass}`}>
-        <span className={`truncate text-left ${values.length === 0 ? 'text-ink-placeholder' : ''}`}>
-          {values.length > 0 ? values.join(', ') : placeholder}
-        </span>
-        <ChevronDown className="size-4 shrink-0 opacity-50 ml-2" />
-      </PopoverTrigger>
-      <PopoverContent
-        className="w-[--radix-popover-trigger-width] min-w-48 p-1 bg-surface rounded-md border border-line shadow-md"
-        align="start"
-      >
-        <div className="flex flex-col gap-0.5">
-          {options.map((option) => {
-            const selected = values.includes(option);
-            return (
-              <button
-                key={option}
-                type="button"
-                onClick={() => toggle(option)}
-                className={`flex h-9 w-full items-center justify-between rounded-sm px-2.5 text-[15px] transition-colors cursor-pointer text-left hover:bg-surface-muted ${
-                  selected ? 'font-medium text-ink' : 'text-ink'
-                }`}
-              >
-                <span>{option}</span>
-                {selected && <Check className="size-4 text-brand-600" />}
-              </button>
-            );
-          })}
-        </div>
-      </PopoverContent>
-    </Popover>
   );
 }

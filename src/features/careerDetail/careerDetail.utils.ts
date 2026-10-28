@@ -9,9 +9,8 @@ import type {
   ApiCareerDetail,
   ApiCareerOutlook,
 } from "@/features/careerDetail/career.types";
-import { careers } from "../../data/careers.mock";
 
-export function getCareerInfo(careerId: string) {
+export function getCareerInfo(careerId: string, careers: Career[]) {
   return (
     careers.find((c) => c.id === careerId && c.status === "published") ?? null
   );
@@ -159,12 +158,17 @@ function outlookStats(outlook: ApiCareerOutlook): Statistic[] {
 
 export function toCareer(data: ApiCareerDetail): Career {
   const skills = data.skills.map((skill) => skill.name).join(", ");
+  const level = data.targetLevels[0] ? levelMap[data.targetLevels[0]] : null;
+
   return {
     id: data.id,
+    slug: data.slug,
     status: status(data.status),
     title: data.title,
     description: data.description,
     levels: data.targetLevels.map((level) => levelMap[level]).filter(Boolean),
+    interest: data.field?.slug ?? null,
+    level,
     tags: data.skills.map((skill) => skill.name),
     roleSummary: data.roleSummary,
     workActivities: data.exampleActivities,
@@ -176,6 +180,8 @@ export function toCareer(data: ApiCareerDetail): Career {
         : []),
     ],
     roadmapId: data.pathway?.id ?? null,
+    roadmapStepCount: data.pathway?.stepCount ?? null,
+    field: data.field ? { name: data.field.name, slug: data.field.slug } : null,
     stats: data.outlook.flatMap(outlookStats),
   };
 }

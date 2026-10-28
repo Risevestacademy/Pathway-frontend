@@ -1,71 +1,89 @@
 import { createFileRoute } from "@tanstack/react-router";
-import CareerDetailPage from "../../../features/careerDetail/components/CareerDetailPage";
-import { AlertTriangle, ChevronLeft } from "lucide-react";
-import StateMessage from "@/components/StateMessage";
-import { SearchX } from "lucide-react";
-import { Button } from "@/components/ui/Button";
-import { useNavigate, Link } from "@tanstack/react-router";
-import Detail from "@/features/careerDetail/components/detail";
-import DetailSkeleton from "@/features/careerDetail/components/detailSkeleton";
-import { useCareer } from "@/features/careerDetail/hooks/useCareer";
+import { ArrowRightRegular } from "@mingcute/react/core-regular";
+import CareerLoader from "@/features/careerDetail/components/CareerLoader";
+import CareerOverview from "@/features/careerDetail/components/CareerOverview";
+import { CareerHero } from "@/features/careerDetail/components/CareerHero";
+import DetailSkeleton from "@/features/careerDetail/components/DetailSkeleton";
+import { useCareerHeroMeta } from "@/features/careerDetail/hooks/useCareerHeroMeta";
+import { hasSkillCheck } from "@/features/skillCheck/careerMatch";
+import { BackLink } from "@/features/skillCheck/components/BackLink";
+import { SkillGapEntry } from "@/features/skillCheck/components/SkillGapEntry";
+import { SkillLink } from "@/features/skillCheck/components/SkillButton";
+import type { Career } from "@/types/career.types";
+import { analytics } from "@/lib/monitoring/events";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/careers/$careerId/")({
   pendingComponent: DetailSkeleton,
-  component: CareerDetailRoute,
+  component: CareerRoute,
 });
 
-function CareerDetailRoute() {
+function CareerRoute() {
   const { careerId } = Route.useParams();
-  const { data: result, isPending, isError, refetch } = useCareer(careerId);
-  const navigate = useNavigate();
-
-  if (isPending) return <DetailSkeleton />;
-
-  if (isError) {
-    return (
-      <CareerDetailPage>
-        <StateMessage
-          icon={AlertTriangle}
-          variant="error"
-          title="We couldn’t load this career"
-          body="Something went wrong while loading the career details. Please try again."
-          action={<Button onClick={() => refetch()}>Try again</Button>}
-        />
-      </CareerDetailPage>
-    );
-  }
-
-  if (!result) {
-    return (
-      <CareerDetailPage>
-        <StateMessage
-          icon={SearchX}
-          title="This career isn't available"
-          body="It may have been removed from the catalogue."
-          action={
-            <Button
-              isPrimary={false}
-              onClick={() => navigate({ to: "/careers" })}
-            >
-              Browse careers
-            </Button>
-          }
-        />
-      </CareerDetailPage>
-    );
-  }
 
   return (
-    <CareerDetailPage>
-      <Link
-        to="/careers"
-        className="mb-4 inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink"
-      >
-        <ChevronLeft className="size-4" aria-hidden />
-        All Careers
-      </Link>
+    <CareerLoader careerId={careerId}>
+      {(career) => <CareerOverviewPage career={career} />}
+    </CareerLoader>
+  );
+}
 
-      <Detail career={result} />
-    </CareerDetailPage>
+function CareerOverviewPage({ career }: { career: Career }) {
+  const meta = useCareerHeroMeta(career);
+  const withSkillCheck = hasSkillCheck(career.title, career.slug);
+  const { id, title, interest, levels } = career;
+
+  useEffect(() => {
+    analytics.trackFeature.careerViewed(
+      id,
+      title,
+      interest ?? "",
+      levels ?? [],
+    );
+  }, [id, interest, levels, title]);
+
+  return (
+    <>
+      <BackLink to="/careers" label="All careers" />
+      <CareerHero career={career} {...meta}>
+        <div className="flex flex-wrap items-center gap-3">
+          <SkillLink
+            to="/careers/$careerId/details"
+            params={{ careerId: career.id }}
+          >
+            View career
+            <ArrowRightRegular aria-hidden className="size-5" />
+          </SkillLink>
+          {career.roadmapId ? (
+            <SkillLink
+              isPrimary={false}
+              to="/careers/$careerId/roadmap"
+              params={{ careerId: career.id }}
+            >
+              View roadmap
+            </SkillLink>
+          ) : (
+            <p className="text-base leading-5 text-grey-600">
+              Roadmap coming soon
+            </p>
+          )}
+        </div>
+      </CareerHero>
+      <div
+        className={
+          withSkillCheck
+            ? "mt-4 grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_420px]"
+            : "mt-4"
+        }
+      >
+        <SkillGapEntry
+          title={career.title}
+          slug={career.slug}
+          roadmapId={career.roadmapId}
+          careerId={career.id}
+        />
+        <CareerOverview career={career} />
+      </div>
+    </>
   );
 }

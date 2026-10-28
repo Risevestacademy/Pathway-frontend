@@ -1,6 +1,30 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "@fontsource-variable/sour-gummy/wght.css";
+
+@layer components {
+  .auth-input {
+    @apply h-10 w-full rounded-lg border border-grey-200 bg-white px-3 text-sm text-ink outline-none placeholder:text-ink-muted focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20;
+  }
+
+  .auth-page-flex {
+    @apply flex h-full min-h-0 min-w-0 w-full flex-1 flex-col overflow-hidden lg:flex-row;
+  }
+
+  .auth-form-panel {
+    @apply flex min-h-0 min-w-0 flex-1 basis-full items-center justify-center overflow-x-hidden overflow-y-auto px-4 py-6 sm:px-8 sm:py-8 md:px-12 lg:basis-1/2 lg:px-16 xl:px-24;
+  }
+
+  .auth-art-panel {
+    @apply hidden min-h-0 min-w-0 basis-1/2 overflow-hidden lg:flex;
+  }
+
+  .auth-artwork {
+    @apply block h-full w-full object-cover;
+  }
+
+}
 
 @custom-variant dark (&:is(.dark *));
 
@@ -30,7 +54,67 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Borscha";
+  src: url("./assets/fonts/Borscha-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Borscha";
+  src: url("./assets/fonts/Borscha-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Borscha";
+  src: url("./assets/fonts/Borscha-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Neue Montreal";
+  src: url("./assets/fonts/NeueMontreal-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Neue Montreal";
+  src: url("./assets/fonts/NeueMontreal-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme static {
+  /* Landing page only, eyedropped from the export. */
+  --font-landing-display: "Borscha", "Google Sans Flex", ui-sans-serif, system-ui, sans-serif;
+  --font-landing-body: "Neue Montreal", "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --font-accent: "Sour Gummy Variable", "Comic Sans MS", cursive;
+
+  --color-landing-mint: #e5f9ef; /* how it works band */
+  --color-landing-mint-card: #ccf4df; /* how it works cards */
+  --color-landing-mint-fold: #99e8c0; /* folded corner of those cards */
+  --color-landing-sticker-blue: #e6f4ff;
+  --color-landing-sticker-cream: #fff8eb;
+  --color-landing-sticker-pink: #ffeaf4;
+  --color-landing-folder-peach: #feeee7;
+  --color-landing-folder-green: #f4faeb;
+  --color-landing-folder-green-line: #d8ecb6;
+  --color-landing-footer: #1d5036;
+  --color-landing-pink: #ff3193; /* hero briefcase squircle */
+  --color-landing-green: #00c660; /* hero send squircle */
+  --color-landing-yellow: #f2b53c; /* data analyst chips */
+  --color-landing-leaf: #7fb33a; /* ux researcher chips */
+
   /* Brand — Pathway purple. 500 is the logomark color (#9E67F7) and the
    * primary button fill in the design team's auth screen. Note: white text
    * on 500 is ~3.6:1 (below WCAG AA for normal text) — flagged to design. */
@@ -117,7 +201,12 @@
   --radius-pill: 999px;
 
   /* Layout sizing */
-  --spacing-sidebar: 12.875rem; /* 206px app-shell side nav (hifi Dashboard.png) */
+  --spacing-sidebar: 12.875rem; /* 206px full app-shell side nav (hifi Dashboard.png) */
+  --spacing-sidebar-slim: 4.5rem; /* 72px app-shell rail (hifi Discover, 1440 frame) */
+
+  /* Above the 1440px Figma frame the default app shell swaps its rail for the
+   * full sidebar. Pending designer confirmation for wider screens. */
+  --breakpoint-shell: 90.0625rem; /* 1441px */
   --spacing-shell-inset: 0.8125rem; /* 13px gap above/right of the content panel */
   --spacing-page-mobile: 1rem; /* 16px */
   --spacing-page-tablet: 1.5rem; /* 24px */
@@ -129,6 +218,7 @@
   --shadow-raised:
     0 4px 12px rgb(16 16 29 / 0.08), 0 2px 4px rgb(16 16 29 / 0.04);
   --shadow-overlay: 0 20px 48px rgb(16 16 29 / 0.18);
+  --shadow-panel: 0 4px 8px rgb(0 0 0 / 0.04);
 
   /* Btn Shadow*/
 
@@ -140,11 +230,47 @@
 }
 
 @theme {
+  --animate-landing-fade-up: landing-fade-up 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-landing-card-rise: landing-card-rise 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @keyframes landing-fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes landing-card-rise {
+    from {
+      opacity: 0;
+      transform: translateY(140px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  --animate-landing-sway: landing-sway 4s ease-in-out infinite;
+
+  @keyframes landing-sway {
+    0%,
+    100% {
+      transform: rotate(-1.5deg);
+    }
+    50% {
+      transform: rotate(1.5deg);
+    }
+  }
+
   --animate-roadmap-connector: roadmap-connector 500ms linear both;
   --animate-roadmap-node: roadmap-node 360ms cubic-bezier(0.34, 1.56, 0.64, 1)
     both;
-  --animate-roadmap-card: roadmap-card 420ms cubic-bezier(0.22, 1, 0.36, 1)
-    both;
+  --animate-roadmap-card: roadmap-card 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
 
   @keyframes roadmap-connector {
     from {
@@ -220,6 +346,23 @@
   --radius-4xl: 32px;
 }
 
+/* The 1064px design column is 73.89% of the 1440 frame and scales with the window, as in the demo. */
+:root {
+  --landing-gutter: var(--spacing-page-mobile);
+  --landing-w: max(min(1064px, 100% - 2 * var(--landing-gutter)), 73.89%);
+}
+
+@media (width >= 40rem) {
+  :root {
+    --landing-gutter: var(--spacing-page-tablet);
+  }
+}
+
+@utility landing-container {
+  margin-inline: auto;
+  width: var(--landing-w);
+}
+
 :root {
   --background: var(--color-canvas);
   --foreground: var(--color-ink);
@@ -265,4 +408,73 @@
   html {
     @apply font-sans;
   }
+}
+
+@utility text-heading {
+  font-size: 1.5rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.24px;
+}
+
+@utility text-body-lg {
+  font-size: 1.125rem;
+  line-height: 1.5rem;
+  font-weight: 500;
+  letter-spacing: -0.18px;
+}
+
+@utility text-body-md {
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 500;
+  letter-spacing: -0.16px;
+}
+
+@utility text-body-md-bold {
+  font-size: 1rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+}
+
+@utility text-body-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  letter-spacing: -0.14px;
+}
+
+@utility focus-ring {
+  @apply focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none;
+}
+
+@utility field-control {
+  @apply rounded-lg border-[1.33px] border-grey-50 bg-surface px-3.5 py-2 transition-colors hover:border-grey-100 motion-reduce:transition-none;
+
+  &:focus-visible,
+  &:has(:focus-visible) {
+    @apply border-brand-500 ring-3 ring-brand-500/15 outline-none;
+  }
+}
+
+/* Rises from below the viewport as the section's --p moves through [--start, --start + --span]. */
+@utility landing-pin-item {
+  --c: clamp(0, calc((var(--p, 1) - var(--start, 0)) / var(--span, 0.25)), 1);
+  translate: 0 calc((1 - var(--c)) * 100svh);
+  rotate: calc(var(--c) * var(--tilt, 0deg) * var(--tilt-k, 1));
+  transition:
+    translate 120ms ease-out,
+    rotate 220ms ease-out;
+
+  @media (prefers-reduced-motion: reduce) {
+    --c: 1;
+    transition: none;
+  }
+}
+
+@utility text-body-lg-bold {
+  font-size: 1.125rem;
+  line-height: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.18px;
 }
