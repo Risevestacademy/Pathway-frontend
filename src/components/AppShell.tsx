@@ -18,10 +18,11 @@ const PLAIN_SIDEBAR_ROUTES = [
 /**
  * auto → logo-mark rail up to 1440px, full sidebar above (the `shell` breakpoint).
  * wide → always the full sidebar: logo, copyright and desk illustration.
+ * none → no shell; the route renders its own chrome.
  *
  * Wider-than-1440 behaviour is pending designer confirmation.
  */
-export type AppShellVariant = "auto" | "wide";
+export type AppShellVariant = "auto" | "wide" | "none";
 
 declare module "@tanstack/react-router" {
   interface StaticDataRouteOption {
@@ -52,13 +53,18 @@ const shellStyles = {
     logo: "lg:hidden shell:block",
     mark: "hidden lg:block shell:hidden",
   },
-} satisfies Record<AppShellVariant, Record<string, string>>;
+} satisfies Record<Exclude<AppShellVariant, "none">, Record<string, string>>;
 
 export default function AppShell({ children, variant = "auto" }: AppShellProps) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const showIllustration = !PLAIN_SIDEBAR_ROUTES.some((route) =>
     pathname.startsWith(route),
   );
+
+  if (variant === "none") {
+    return <>{children}</>;
+  }
+
   const isAuthRoute = pathname === "/login" || pathname === "/signup";
   const styles = shellStyles[variant];
 

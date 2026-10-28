@@ -180,6 +180,8 @@ export function toCareer(data: ApiCareerDetail): Career {
         : []),
     ],
     roadmapId: data.pathway?.id ?? null,
+    roadmapStepCount: data.pathway?.stepCount ?? null,
+    field: data.field ? { name: data.field.name, slug: data.field.slug } : null,
     stats: data.outlook.flatMap(outlookStats),
   };
 }

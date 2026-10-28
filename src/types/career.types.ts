@@ -91,4 +91,7 @@ export interface Career {
   entryConsiderations: EntryConsideration[];
   roadmapId: string | null;
   stats: Statistic[];
+  /** Absent on mock data. */
+  field?: { name: string; slug: string } | null;
+  roadmapStepCount?: number | null;
 }

@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "@fontsource-variable/sour-gummy/wght.css";
 
 @layer components {
   .auth-input {
@@ -53,7 +54,67 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Borscha";
+  src: url("./assets/fonts/Borscha-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Borscha";
+  src: url("./assets/fonts/Borscha-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Borscha";
+  src: url("./assets/fonts/Borscha-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Neue Montreal";
+  src: url("./assets/fonts/NeueMontreal-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Neue Montreal";
+  src: url("./assets/fonts/NeueMontreal-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme static {
+  /* Landing page only, eyedropped from the export. */
+  --font-landing-display: "Borscha", "Google Sans Flex", ui-sans-serif, system-ui, sans-serif;
+  --font-landing-body: "Neue Montreal", "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --font-accent: "Sour Gummy Variable", "Comic Sans MS", cursive;
+
+  --color-landing-mint: #e5f9ef; /* how it works band */
+  --color-landing-mint-card: #ccf4df; /* how it works cards */
+  --color-landing-mint-fold: #99e8c0; /* folded corner of those cards */
+  --color-landing-sticker-blue: #e6f4ff;
+  --color-landing-sticker-cream: #fff8eb;
+  --color-landing-sticker-pink: #ffeaf4;
+  --color-landing-folder-peach: #feeee7;
+  --color-landing-folder-green: #f4faeb;
+  --color-landing-folder-green-line: #d8ecb6;
+  --color-landing-footer: #1d5036;
+  --color-landing-pink: #ff3193; /* hero briefcase squircle */
+  --color-landing-green: #00c660; /* hero send squircle */
+  --color-landing-yellow: #f2b53c; /* data analyst chips */
+  --color-landing-leaf: #7fb33a; /* ux researcher chips */
+
   /* Brand — Pathway purple. 500 is the logomark color (#9E67F7) and the
    * primary button fill in the design team's auth screen. Note: white text
    * on 500 is ~3.6:1 (below WCAG AA for normal text) — flagged to design. */
@@ -169,6 +230,43 @@
 }
 
 @theme {
+  --animate-landing-fade-up: landing-fade-up 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-landing-card-rise: landing-card-rise 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @keyframes landing-fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes landing-card-rise {
+    from {
+      opacity: 0;
+      transform: translateY(140px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  --animate-landing-sway: landing-sway 4s ease-in-out infinite;
+
+  @keyframes landing-sway {
+    0%,
+    100% {
+      transform: rotate(-1.5deg);
+    }
+    50% {
+      transform: rotate(1.5deg);
+    }
+  }
+
   --animate-roadmap-connector: roadmap-connector 500ms linear both;
   --animate-roadmap-node: roadmap-node 360ms cubic-bezier(0.34, 1.56, 0.64, 1)
     both;
@@ -246,6 +344,23 @@
   --radius-2xl: 24px;
   --radius-3xl: 28px;
   --radius-4xl: 32px;
+}
+
+/* The 1064px design column is 73.89% of the 1440 frame and scales with the window, as in the demo. */
+:root {
+  --landing-gutter: var(--spacing-page-mobile);
+  --landing-w: max(min(1064px, 100% - 2 * var(--landing-gutter)), 73.89%);
+}
+
+@media (width >= 40rem) {
+  :root {
+    --landing-gutter: var(--spacing-page-tablet);
+  }
+}
+
+@utility landing-container {
+  margin-inline: auto;
+  width: var(--landing-w);
 }
 
 :root {
@@ -339,6 +454,21 @@
   &:focus-visible,
   &:has(:focus-visible) {
     @apply border-brand-500 ring-3 ring-brand-500/15 outline-none;
+  }
+}
+
+/* Rises from below the viewport as the section's --p moves through [--start, --start + --span]. */
+@utility landing-pin-item {
+  --c: clamp(0, calc((var(--p, 1) - var(--start, 0)) / var(--span, 0.25)), 1);
+  translate: 0 calc((1 - var(--c)) * 100svh);
+  rotate: calc(var(--c) * var(--tilt, 0deg) * var(--tilt-k, 1));
+  transition:
+    translate 120ms ease-out,
+    rotate 220ms ease-out;
+
+  @media (prefers-reduced-motion: reduce) {
+    --c: 1;
+    transition: none;
   }
 }
 
