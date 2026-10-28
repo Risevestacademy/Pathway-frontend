@@ -7,6 +7,7 @@ import { dayLabel, timeLabel } from "../admin.workflow";
 import {
   FEEDBACK_STATUS_LABEL,
   FEEDBACK_STATUS_TONE,
+  feedbackSender,
   feedbackStatusLabel,
   humanize,
   nextFeedbackStatuses,
@@ -123,7 +124,7 @@ export function ReportDetailPage({ reportId }: { reportId: string }) {
       )}
 
       <div className="grid items-start gap-4 lg:grid-cols-2">
-        <Card title="What the learner said" subtitle={`Sent from ${report.userEmail} on ${humanize(report.platform)}`}>
+        <Card title="What the learner said" subtitle={`Sent by ${feedbackSender(report)}`}>
           <ReadOnly label="Category" value={humanize(report.category)} />
           <ReadOnly label="Message" value={report.description || "No message"} multiline />
           <ReadOnly label="Section" value={humanize(report.section)} />
