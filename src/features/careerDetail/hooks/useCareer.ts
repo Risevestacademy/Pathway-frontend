@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import { fetchCareer } from "../../../lib/api/careers.api";
 import { toCareer } from "../careerDetail.utils";
+import { queryKeys } from "../../../lib/queryKeys";
 
 // A bad id or missing career won't change on retry.
 const retryUnlessClientError = (failureCount: number, error: unknown) => {
@@ -12,7 +13,7 @@ const retryUnlessClientError = (failureCount: number, error: unknown) => {
 
 export function useCareer(careerId: string) {
   return useQuery({
-    queryKey: ["career", careerId],
+    queryKey: queryKeys.careers.detail(careerId),
     queryFn: () => fetchCareer(careerId),
     select: toCareer,
     retry: retryUnlessClientError,

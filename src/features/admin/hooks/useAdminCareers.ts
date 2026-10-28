@@ -3,11 +3,12 @@ import { fetchCareer } from "../../../lib/api/careers.api";
 import { useCareers } from "../../catalog/hooks/useCareers";
 import { useAdminStore } from "../adminStore";
 import { toAdminRow, type AdminCareerRow } from "../admin.utils";
+import { queryKeys } from "../../../lib/queryKeys";
 
 /**
  * Careers for the admin tables: the catalogue list plus each career's detail
  * (status, roadmap steps, source freshness), then careers created locally and
- * any local status changes on top. Detail queries share the ["career", id]
+ * any local status changes on top. Detail queries share the career detail
  * cache with the public career page.
  *
  * That is one request per career, so pass `detailFor` when only some rows need
@@ -23,7 +24,7 @@ export function useAdminCareers({ detailFor = "all" }: { detailFor?: "all" | str
 
   const details = useQueries({
     queries: (items ?? []).map((c) => ({
-      queryKey: ["career", c.id],
+      queryKey: queryKeys.careers.detail(c.id),
       queryFn: () => fetchCareer(c.id),
       enabled: detailFor === "all" || detailFor.includes(c.id),
       staleTime: 15 * 60 * 1000,

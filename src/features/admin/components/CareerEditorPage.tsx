@@ -8,6 +8,7 @@ import { Skeleton } from "../../../components/ui/Skeleton";
 import { StateMessage } from "../../../components/ui/StateMessage";
 import { fetchCareer } from "../../../lib/api/careers.api";
 import { fetchPathwayOrNull } from "../../../lib/api/pathways.api";
+import { queryKeys } from "../../../lib/queryKeys";
 import {
   describeFixes,
   getOtherBlockers,
@@ -54,7 +55,7 @@ export function CareerEditorPage({
   const isLocal = careerId.startsWith(LOCAL_ID_PREFIX);
 
   const detail = useQuery({
-    queryKey: ["career", careerId],
+    queryKey: queryKeys.careers.detail(careerId),
     queryFn: () => fetchCareer(careerId),
     enabled: !isLocal,
     staleTime: 15 * 60 * 1000,
@@ -62,7 +63,7 @@ export function CareerEditorPage({
   });
 
   const pathway = useQuery({
-    queryKey: ["pathway", careerId],
+    queryKey: queryKeys.pathway(careerId),
     queryFn: () => fetchPathwayOrNull(careerId),
     enabled: !isLocal,
     staleTime: 15 * 60 * 1000,

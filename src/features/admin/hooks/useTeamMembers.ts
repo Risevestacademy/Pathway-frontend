@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchAllAdminInvites } from "../../../lib/api/adminInvites.api";
 import { mergeTeamMembers } from "../adminInvites.types";
 import { useAdminStore } from "../adminStore";
-import { ADMIN_INVITES_KEY } from "./useAdminInvites";
+import { queryKeys } from "../../../lib/queryKeys";
 
 /**
  * The Members list: the local team list plus everyone who accepted an invite.
@@ -12,7 +12,7 @@ import { ADMIN_INVITES_KEY } from "./useAdminInvites";
 export function useTeamMembers(enabled = true) {
   const local = useAdminStore((s) => s.members);
   const accepted = useQuery({
-    queryKey: [...ADMIN_INVITES_KEY, "accepted"],
+    queryKey: queryKeys.admin.invites.accepted,
     queryFn: () => fetchAllAdminInvites("ACCEPTED"),
     enabled,
     staleTime: 60 * 1000,

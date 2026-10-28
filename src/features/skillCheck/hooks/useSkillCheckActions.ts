@@ -13,14 +13,15 @@ import type {
   SkillAnswerMap,
   StartingPoint,
 } from "../skillCheck.types";
-import { skillCheckKeys, useSkillCheckUserId } from "./useSkillCheck";
+import { useSkillCheckUserId } from "./useSkillCheck";
+import { queryKeys } from "../../../lib/queryKeys";
 
 function useInvalidateUser() {
   const queryClient = useQueryClient();
   const userId = useSkillCheckUserId();
   return () =>
     queryClient.invalidateQueries({
-      queryKey: ["skill-check", userId],
+      queryKey: queryKeys.skillCheck.user(userId),
     });
 }
 
@@ -40,7 +41,7 @@ export function useSaveSkillCheckDraft(careerId: string) {
     mutationFn: (input: { draft: SkillAnswerMap; areaId: string | null }) =>
       saveSkillCheckDraft(userId, careerId, input.draft, input.areaId),
     onSuccess: (record) => {
-      queryClient.setQueryData(skillCheckKeys.record(userId, careerId), record);
+      queryClient.setQueryData(queryKeys.skillCheck.record(userId, careerId), record);
     },
   });
 }

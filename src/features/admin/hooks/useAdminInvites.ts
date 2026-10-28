@@ -4,12 +4,11 @@ import {
   revokeAdminInvite,
   type FetchInvitesParams,
 } from "../../../lib/api/adminInvites.api";
-
-export const ADMIN_INVITES_KEY = ["admin", "invites"] as const;
+import { queryKeys } from "../../../lib/queryKeys";
 
 export function useAdminInvites(params: FetchInvitesParams, enabled = true) {
   return useQuery({
-    queryKey: [...ADMIN_INVITES_KEY, params],
+    queryKey: queryKeys.admin.invites.list(params),
     queryFn: () => fetchAdminInvites(params),
     enabled,
     placeholderData: keepPreviousData,
@@ -22,6 +21,6 @@ export function useRevokeInvite() {
   return useMutation({
     mutationFn: (id: string) => revokeAdminInvite(id),
     // Also after a failure: a 409 or 404 means the list on screen is out of date.
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ADMIN_INVITES_KEY }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.admin.invites.all }),
   });
 }
