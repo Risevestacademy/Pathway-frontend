@@ -129,3 +129,25 @@ describe('axios refresh flow', () => {
     restoreLocation()
   })
 })
+describe('axios auth endpoints', () => {
+  it.each(['/auth/verify-email', '/auth/resend-verification'])(
+    'does not try to refresh the session when %s returns 401',
+    async (path) => {
+      let refreshCallCount = 0
+      server.use(
+        http.post(`*${path}`, () => HttpResponse.json({ message: 'unauthorized' }, { status: 401 })),
+        http.post('*/auth/refresh', () => {
+          refreshCallCount += 1
+          return HttpResponse.json({ data: { accessToken: 'fresh' } })
+        })
+      )
+      const restoreLocation = stubLocation()
+
+      await expect(api.post(path, {})).rejects.toBeTruthy()
+
+      expect(refreshCallCount).toBe(0)
+      expect(window.location.href).not.toBe('/login')
+      restoreLocation()
+    }
+  )
+})

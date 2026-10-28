@@ -14,15 +14,38 @@ import {
 import { Badge } from "../../../components/ui/Badge";
 import { Button } from "../../../components/ui/Button";
 import { Card } from "../../../components/ui/Card";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { Resource } from "../resources.types";
 import { analytics } from "@/lib/monitoring/events";
+import { useMutation } from "@tanstack/react-query";
+import {
+  submitFeedback,
+  type FeedbackCategory,
+} from "../../../lib/api/feedback.api";
+import { useAuthStore } from "../../../lib/stores/authStore";
+
+/** Where the resource appears, so a report reaches the right career. */
+export interface ReportContext {
+  careerId: string;
+  careerTitle: string;
+  stepTitle: string;
+}
+
+const REPORT_REASON_CATEGORY: Record<string, FeedbackCategory> = {
+  "Link is broken or doesn’t load": "BROKEN_LINK",
+  "Content is outdated": "INCORRECT_CONTENT",
+  "Doesn’t match this step": "INCORRECT_CONTENT",
+  "Something else": "OTHER",
+};
 
 interface ResourceCardProps {
   resource: Resource;
+  context?: ReportContext;
 }
 
-export default function ResourceCard({ resource }: ResourceCardProps) {
+export default function ResourceCard({ resource, context }: ResourceCardProps) {
+  const userEmail = useAuthStore((s) => s.user?.email);
+  const feedback = useMutation({ mutationFn: submitFeedback });
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [reportSubmitted, setReportSubmitted] = useState(false);
   const [reason, setReason] = useState("");
@@ -59,11 +82,14 @@ export default function ResourceCard({ resource }: ResourceCardProps) {
     "Something else",
   ];
 
-  const closeReport = () => {
+  const { reset: resetFeedback } = feedback;
+  // Clears the last error too, so it doesn't show again when the dialog reopens.
+  const closeReport = useCallback(() => {
     setIsReportOpen(false);
     setReason("");
     setDetails("");
-  };
+    resetFeedback();
+  }, [resetFeedback]);
 
   useEffect(() => {
     if (!isReportOpen) return;
@@ -74,12 +100,30 @@ export default function ResourceCard({ resource }: ResourceCardProps) {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isReportOpen]);
+  }, [isReportOpen, closeReport]);
 
   const submitReport = () => {
     if (!reason) return;
-    closeReport();
-    setReportSubmitted(true);
+    // The API has no resource field, so the description says which resource it is about.
+    const note = details.trim() || reason;
+    feedback.mutate(
+      {
+        category: REPORT_REASON_CATEGORY[reason] ?? "OTHER",
+        description: context
+          ? `${note} (Resource: ${resource.title}, step: ${context.stepTitle})`
+          : `${note} (Resource: ${resource.title})`,
+        section: "RESOURCES",
+        careerId: context?.careerId,
+        userEmail,
+        platform: "WEB",
+      },
+      {
+        onSuccess: () => {
+          closeReport();
+          setReportSubmitted(true);
+        },
+      },
+    );
   };
 
   const trackResourceOpened = () => {
@@ -240,11 +284,17 @@ export default function ResourceCard({ resource }: ResourceCardProps) {
                 The resource stays available while our team reviews your report.
               </p>
 
+              {feedback.isError && (
+                <p role="alert" className="mt-4 text-sm text-danger-700">
+                  We couldn’t send your report. Please try again.
+                </p>
+              )}
+
               <div className="mt-6 flex justify-end gap-3">
                 <Button isPrimary={false} type="button" onClick={closeReport}>
                   Cancel
                 </Button>
-                <Button type="submit" disabled={!reason}>
+                <Button type="submit" disabled={!reason || feedback.isPending}>
                   Send report
                 </Button>
               </div>
