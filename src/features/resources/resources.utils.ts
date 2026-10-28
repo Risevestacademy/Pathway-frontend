@@ -1,4 +1,3 @@
-import { mockResources } from "./resources.mock";
 import type { PathwayResourceDto, PathwayResourceType } from "../../lib/api/pathways.api";
 import type { Resource } from "./resources.types";
 
@@ -12,7 +11,7 @@ const resourceKindMap: Record<PathwayResourceType, Resource["kind"]> = {
 
 export function getResources(
   resourceIds: string[],
-  resources: Resource[] = mockResources,
+  resources: Resource[],
 ) {
   const resourcesById = new Map(resources.map((resource) => [resource.id, resource]));
   return resourceIds.flatMap((resourceId) => {

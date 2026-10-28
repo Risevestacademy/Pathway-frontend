@@ -10,6 +10,8 @@ import { BackLink } from "@/features/skillCheck/components/BackLink";
 import { SkillGapEntry } from "@/features/skillCheck/components/SkillGapEntry";
 import { SkillLink } from "@/features/skillCheck/components/SkillButton";
 import type { Career } from "@/types/career.types";
+import { analytics } from "@/lib/monitoring/events";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/careers/$careerId/")({
   pendingComponent: DetailSkeleton,
@@ -18,21 +20,37 @@ export const Route = createFileRoute("/careers/$careerId/")({
 
 function CareerRoute() {
   const { careerId } = Route.useParams();
+
   return (
-    <CareerLoader careerId={careerId}>{(career) => <CareerOverviewPage career={career} />}</CareerLoader>
+    <CareerLoader careerId={careerId}>
+      {(career) => <CareerOverviewPage career={career} />}
+    </CareerLoader>
   );
 }
 
 function CareerOverviewPage({ career }: { career: Career }) {
   const meta = useCareerHeroMeta(career);
   const withSkillCheck = hasSkillCheck(career.title, career.slug);
+  const { id, title, interest, levels } = career;
+
+  useEffect(() => {
+    analytics.trackFeature.careerViewed(
+      id,
+      title,
+      interest ?? "",
+      levels ?? [],
+    );
+  }, [id, interest, levels, title]);
 
   return (
     <>
       <BackLink to="/careers" label="All careers" />
       <CareerHero career={career} {...meta}>
         <div className="flex flex-wrap items-center gap-3">
-          <SkillLink to="/careers/$careerId/details" params={{ careerId: career.id }}>
+          <SkillLink
+            to="/careers/$careerId/details"
+            params={{ careerId: career.id }}
+          >
             View career
             <ArrowRightRegular aria-hidden className="size-5" />
           </SkillLink>
@@ -45,7 +63,9 @@ function CareerOverviewPage({ career }: { career: Career }) {
               View roadmap
             </SkillLink>
           ) : (
-            <p className="text-base leading-5 text-grey-600">Roadmap coming soon</p>
+            <p className="text-base leading-5 text-grey-600">
+              Roadmap coming soon
+            </p>
           )}
         </div>
       </CareerHero>
@@ -59,7 +79,9 @@ function CareerOverviewPage({ career }: { career: Career }) {
         <SkillGapEntry
           title={career.title}
           slug={career.slug}
-          roadmapId={career.roadmapId} careerId={career.id} />
+          roadmapId={career.roadmapId}
+          careerId={career.id}
+        />
         <CareerOverview career={career} />
       </div>
     </>

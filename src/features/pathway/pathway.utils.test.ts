@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mockRoadmaps } from "./pathway.mock";
+import { mockCareers, mockRoadmaps } from "../../test/fixtures/pathway.fixture";
 import {
   describeEstimate,
   getRoadmap,
@@ -8,21 +8,21 @@ import {
 
 describe("getRoadmap", () => {
   it("returns a published career with its roadmap", () => {
-    const result = getRoadmap("frontend-developer");
+    const result = getRoadmap("frontend-developer", mockCareers, mockRoadmaps);
     expect(result?.career.title).toBe("Frontend Developer");
     expect(result?.roadmap?.steps.length).toBeGreaterThan(0);
   });
 
   it("returns null for a retired career even if it has a roadmap", () => {
-    expect(getRoadmap("ux-designer")).toBeNull();
+    expect(getRoadmap("ux-designer", mockCareers, mockRoadmaps)).toBeNull();
   });
 
   it("returns null for an unknown career", () => {
-    expect(getRoadmap("does-not-exist")).toBeNull();
+    expect(getRoadmap("does-not-exist", mockCareers, mockRoadmaps)).toBeNull();
   });
 
   it("returns the career with no roadmap when none is linked yet", () => {
-    const result = getRoadmap("product-manager");
+    const result = getRoadmap("product-manager", mockCareers, mockRoadmaps);
     expect(result?.career.id).toBe("product-manager");
     expect(result?.roadmap).toBeNull();
   });

@@ -13,6 +13,7 @@ import { Card } from "../../../components/ui/Card";
 import type { Resource } from "../resources.types";
 import { ReportIssueLink } from "../../feedback/components/ReportIssueLink";
 import { REPORT_REASONS } from "../../feedback/feedback.utils";
+import { analytics } from "@/lib/monitoring/events";
 
 /** Where the resource appears, so a report reaches the right career. */
 export interface ReportContext {
@@ -26,10 +27,7 @@ interface ResourceCardProps {
   context?: ReportContext;
 }
 
-export default function ResourceCard({
-  resource,
-  context,
-}: ResourceCardProps) {
+export default function ResourceCard({ resource, context }: ResourceCardProps) {
   const icons: Record<Resource["kind"], LucideIcon> = {
     article: FileText,
     course: BookOpen,
@@ -55,6 +53,16 @@ export default function ResourceCard({
     if (normalized.includes("paid")) return "warning" as const;
     return "unavailable" as const;
   };
+
+  const trackResourceOpened = () => {
+    analytics.trackFeature.resourceOpened(
+      resource.id,
+      resource.title,
+      resource.provider,
+      resource.kind,
+    );
+  };
+
   return (
     <Card className="p-6">
       <div className="flex items-start gap-5">
@@ -106,6 +114,10 @@ export default function ResourceCard({
           href={resource.url}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={trackResourceOpened}
+          onAuxClick={(event) => {
+            if (event.button === 1) trackResourceOpened();
+          }}
           className="
             inline-flex items-center justify-center gap-2
             rounded-md border-[0.5px] border-grey-200 bg-grey-50

@@ -1,10 +1,15 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  QueryCache,
+  MutationCache,
+} from "@tanstack/react-query";
 import { routeTree } from "./routeTree.gen.ts";
 import { PostHogProvider } from "@posthog/react";
-import { initSentry } from "./lib/monitoring/sentry";
+import { captureErrorResponse, initSentry } from "./lib/monitoring/sentry";
 import "./index.css";
 
 initSentry();
@@ -17,7 +22,14 @@ const options = {
 } as const;
 
 const router = createRouter({ routeTree });
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: captureErrorResponse,
+  }),
+  mutationCache: new MutationCache({
+    onError: captureErrorResponse,
+  }),
+});
 
 declare module "@tanstack/react-router" {
   interface Register {

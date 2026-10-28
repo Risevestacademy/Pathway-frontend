@@ -1,4 +1,4 @@
-import type { Resource } from "./resources.types";
+import type { Resource } from "../../features/resources/resources.types";
 
 export const mockResources: Resource[] = [
   {

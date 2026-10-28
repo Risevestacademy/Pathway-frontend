@@ -1,4 +1,4 @@
-import type { Roadmap, RoadmapCareer } from "./pathway.types";
+import type { Roadmap, RoadmapCareer } from "../../features/pathway/pathway.types";
 
 /**
  * Deliberate edge cases:

@@ -30,18 +30,20 @@ import RoadmapSkeleton from "../../../../features/pathway/components/RoadmapSkel
 import { fetchPathwayOrNull } from "../../../../lib/api/pathways.api";
 import { ReportIssueLink } from "../../../../features/feedback/components/ReportIssueLink";
 import { REPORT_REASONS } from "../../../../features/feedback/feedback.utils";
+import { withLoaderErrorReporting } from "@/lib/monitoring/sentry";
 
 export const Route = createFileRoute("/careers/$careerId/roadmap/$stepId")({
-  loader: async ({ params }) => {
-    const pathway = await fetchPathwayOrNull(params.careerId);
-    const result = pathway ? mapPathwayToRoadmap(pathway) : null;
-    const steps = result?.roadmap?.steps ?? [];
-    return {
-      career: result?.career ?? null,
-      totalSteps: steps.length,
-      context: getStepContext(steps, params.stepId),
-    };
-  },
+  loader: async ({ params }) =>
+    withLoaderErrorReporting(async () => {
+      const pathway = await fetchPathwayOrNull(params.careerId);
+      const result = pathway ? mapPathwayToRoadmap(pathway) : null;
+      const steps = result?.roadmap?.steps ?? [];
+      return {
+        career: result?.career ?? null,
+        totalSteps: steps.length,
+        context: getStepContext(steps, params.stepId),
+      };
+    }),
   pendingComponent: RoadmapSkeleton,
   errorComponent: RoadmapError,
   component: StepRoute,
