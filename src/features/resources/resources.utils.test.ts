@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { mockResources } from "./resources.mock";
+import { mockResources } from "../../test/fixtures/resources.fixture";
 import { getResources } from "./resources.utils";
 
 describe("getResources", () => {
   it("returns the requested resources in the same order as their ids", () => {
-    const result = getResources(["r-fcc-web", "r-mdn-html"]);
+    const result = getResources(["r-fcc-web", "r-mdn-html"], mockResources);
 
     expect(result.map((resource) => resource.id)).toEqual([
       "r-fcc-web",
@@ -13,11 +13,14 @@ describe("getResources", () => {
   });
 
   it("returns an empty list when no resource ids are provided", () => {
-    expect(getResources([])).toEqual([]);
+    expect(getResources([], mockResources)).toEqual([]);
   });
 
   it("ignores resource ids that do not exist", () => {
-    const result = getResources(["r-mdn-html", "missing-resource", "r-fcc-web"]);
+    const result = getResources(
+      ["r-mdn-html", "missing-resource", "r-fcc-web"],
+      mockResources,
+    );
 
     expect(result.map((resource) => resource.id)).toEqual([
       "r-mdn-html",
@@ -42,8 +45,11 @@ describe("getResources", () => {
     expect(getResources(["r-mdn-html"], customResources)).toEqual([]);
   });
 
-  it("includes all default resources referenced by the frontend HTML step", () => {
-    const result = getResources(["r-mdn-html", "r-fcc-web", "r-a11y-video"]);
+  it("includes all resources referenced by the frontend HTML step", () => {
+    const result = getResources(
+      ["r-mdn-html", "r-fcc-web", "r-a11y-video"],
+      mockResources,
+    );
 
     expect(result).toHaveLength(3);
     expect(result.every((resource) => mockResources.includes(resource))).toBe(

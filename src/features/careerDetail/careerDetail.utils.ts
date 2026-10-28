@@ -9,9 +9,8 @@ import type {
   ApiCareerDetail,
   ApiCareerOutlook,
 } from "@/features/careerDetail/career.types";
-import { careers } from "../../data/careers.mock";
 
-export function getCareerInfo(careerId: string) {
+export function getCareerInfo(careerId: string, careers: Career[]) {
   return (
     careers.find((c) => c.id === careerId && c.status === "published") ?? null
   );
