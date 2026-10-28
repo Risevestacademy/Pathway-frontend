@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowRightRegular } from "@mingcute/react/core-regular";
-import CareerLoader from "@/features/careerDetail/components/careerLoader";
-import { CareerHero } from "@/features/careerDetail/components/careerHero";
-import Detail from "@/features/careerDetail/components/detail";
-import DetailSkeleton from "@/features/careerDetail/components/detailSkeleton";
+import CareerLoader from "@/features/careerDetail/components/CareerLoader";
+import { CareerHero } from "@/features/careerDetail/components/CareerHero";
+import Detail from "@/features/careerDetail/components/Detail";
+import DetailSkeleton from "@/features/careerDetail/components/DetailSkeleton";
 import { useCareerHeroMeta } from "@/features/careerDetail/hooks/useCareerHeroMeta";
 import { BackLink } from "@/features/skillCheck/components/BackLink";
 import { SkillLink } from "@/features/skillCheck/components/SkillButton";

@@ -6,7 +6,7 @@ import {
   PopoverAnchor,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@/components/ui/Popover";
 import type { OnboardingOption } from "../catalog.types";
 import { HelperText } from "./HelperText";
 
@@ -27,7 +27,7 @@ export function SkillsInput({
 }: SkillsInputProps) {
   const [open, setOpen] = useState(false);
   const helperId = useId();
-    const labelOf = (value: string) =>
+  const labelOf = (value: string) =>
     options.find((option) => option.value === value)?.label;
 
   const shown = values.filter((value) => labelOf(value) !== undefined);

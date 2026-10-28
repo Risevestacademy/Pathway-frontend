@@ -1,5 +1,5 @@
-import SendEmailComponent from "./sendEmail";
-import EmailSentComponent from "./emailSent";
+import SendEmailComponent from "./SendEmail";
+import EmailSentComponent from "./EmailSent";
 import { useState } from "react";
 
 export default function ResetPasswordComponent() {

@@ -1,8 +1,8 @@
 import { CircleCheck } from "lucide-react";
-import Section from "./section";
+import Section from "./Section";
 import { Card } from "@/components/ui/Card";
 import type { Career } from "@/types/career.types";
-import StatGroup from "./statGroup";
+import StatGroup from "./StatGroup";
 import { ReportIssueLink } from "@/features/feedback/components/ReportIssueLink";
 import { REPORT_REASONS } from "@/features/feedback/feedback.utils";
 
