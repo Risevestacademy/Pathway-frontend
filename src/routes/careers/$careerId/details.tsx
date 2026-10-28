@@ -30,7 +30,7 @@ function DetailsPage({ career }: { career: Career }) {
   const { id, title, interest, levels } = career;
 
   useEffect(() => {
-    analytics.trackFeature.careerViewed(
+    analytics.trackFeature.careerDetailViewed(
       id,
       title,
       interest ?? "",

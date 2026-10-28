@@ -5,12 +5,12 @@ import {
   QueryClient,
   QueryClientProvider,
   QueryCache,
+  MutationCache,
 } from "@tanstack/react-query";
 import { routeTree } from "./routeTree.gen.ts";
 import { PostHogProvider } from "@posthog/react";
-import { captureApiError, initSentry } from "./lib/monitoring/sentry";
+import { captureErrorResponse, initSentry } from "./lib/monitoring/sentry";
 import "./index.css";
-import { isAxiosError } from "axios";
 
 initSentry();
 
@@ -24,27 +24,10 @@ const options = {
 const router = createRouter({ routeTree });
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
-    onError: (error) => {
-      if (isAxiosError(error)) {
-        if (
-          error.response?.status === undefined ||
-          error.response?.status >= 500 ||
-          error.code === "ECONNABORTED" ||
-          error.code === "ETIMEDOUT"
-        ) {
-          captureApiError(error, {
-            category: error.response
-              ? "http_error"
-              : error.code === "ECONNABORTED" || error.code === "ETIMEDOUT"
-                ? "timeout"
-                : "network_error",
-            method: error.config?.method?.toUpperCase(),
-            url: error.config?.url,
-            status: error.response?.status,
-          });
-        }
-      }
-    },
+    onError: captureErrorResponse,
+  }),
+  mutationCache: new MutationCache({
+    onError: captureErrorResponse,
   }),
 });
 

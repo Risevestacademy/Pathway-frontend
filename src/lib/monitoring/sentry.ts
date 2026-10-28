@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/react";
+import { isAxiosError, isCancel } from "axios";
 
 const isEnabled =
   import.meta.env.PROD || import.meta.env.VITE_SENTRY_ENABLE_DEV === "true";
@@ -61,4 +62,39 @@ export function captureApiError(
     scope.setContext("request", context);
     Sentry.captureException(error);
   });
+}
+
+export function captureErrorResponse(error: unknown) {
+  if (isCancel(error)) return;
+
+  if (isAxiosError(error)) {
+    if (
+      error.response?.status === undefined ||
+      error.response?.status >= 500 ||
+      error.code === "ECONNABORTED" ||
+      error.code === "ETIMEDOUT"
+    ) {
+      captureApiError(error, {
+        category: error.response
+          ? "http_error"
+          : error.code === "ECONNABORTED" || error.code === "ETIMEDOUT"
+            ? "timeout"
+            : "network_error",
+        method: error.config?.method?.toUpperCase(),
+        url: error.config?.url,
+        status: error.response?.status,
+      });
+    }
+  }
+}
+
+export async function withLoaderErrorReporting<T>(
+  loader: () => Promise<T>,
+): Promise<T> {
+  try {
+    return await loader();
+  } catch (error) {
+    captureErrorResponse(error);
+    throw error;
+  }
 }

@@ -15,7 +15,7 @@ describe("analytics.track", () => {
   });
 
   it("does nothing when PostHog is not loaded", () => {
-    analytics.track("career_viewed", {
+    analytics.track("career_detail_viewed", {
       career_id: "career-1",
       title: "Software Engineer",
       timestamp: "2026-10-26T00:00:00.000Z",

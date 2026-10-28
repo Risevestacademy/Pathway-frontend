@@ -34,7 +34,7 @@ function CareerOverviewPage({ career }: { career: Career }) {
   const { id, title, interest, levels } = career;
 
   useEffect(() => {
-    analytics.trackFeature.careerOverviewed(
+    analytics.trackFeature.careerViewed(
       id,
       title,
       interest ?? "",

@@ -1,7 +1,7 @@
 import posthog from "posthog-js";
 
 export interface CustomEvents {
-  career_viewed: {
+  career_detail_viewed: {
     career_id: string;
     title: string;
     timestamp: string;
@@ -9,7 +9,7 @@ export interface CustomEvents {
     levels: string[];
   };
 
-  career_overviewed: {
+  career_viewed: {
     career_id: string;
     title: string;
     timestamp: string;
@@ -62,13 +62,13 @@ export const analytics = {
   },
 
   trackFeature: {
-    careerViewed: (
+    careerDetailViewed: (
       career_id: string,
       title: string,
       interest?: string,
       levels?: string[],
     ) => {
-      analytics.track("career_viewed", {
+      analytics.track("career_detail_viewed", {
         career_id,
         title,
         timestamp: new Date().toISOString(),
@@ -77,13 +77,13 @@ export const analytics = {
       });
     },
 
-    careerOverviewed: (
+    careerViewed: (
       career_id: string,
       title: string,
       interest?: string,
       levels?: string[],
     ) => {
-      analytics.track("career_overviewed", {
+      analytics.track("career_viewed", {
         career_id,
         title,
         timestamp: new Date().toISOString(),

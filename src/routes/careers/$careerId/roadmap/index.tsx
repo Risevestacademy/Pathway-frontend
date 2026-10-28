@@ -11,12 +11,14 @@ import { fetchPathwayOrNull } from "../../../../lib/api/pathways.api";
 import { Link } from "@tanstack/react-router";
 import { analytics } from "@/lib/monitoring/events";
 import { useEffect } from "react";
+import { withLoaderErrorReporting } from "@/lib/monitoring/sentry";
 
 export const Route = createFileRoute("/careers/$careerId/roadmap/")({
-  loader: async ({ params }) => {
-    const pathway = await fetchPathwayOrNull(params.careerId);
-    return pathway ? mapPathwayToRoadmap(pathway) : null;
-  },
+  loader: ({ params }) =>
+    withLoaderErrorReporting(async () => {
+      const pathway = await fetchPathwayOrNull(params.careerId);
+      return pathway ? mapPathwayToRoadmap(pathway) : null;
+    }),
   pendingComponent: RoadmapSkeleton,
   errorComponent: RoadmapError,
   component: RoadmapRoute,
@@ -31,11 +33,7 @@ function RoadmapRoute() {
   useEffect(() => {
     if (!roadmapId || !careerId || !careerTitle) return;
 
-    analytics.trackFeature.roadmapViewed(
-      roadmapId,
-      careerId,
-      careerTitle,
-    );
+    analytics.trackFeature.roadmapViewed(roadmapId, careerId, careerTitle);
   }, [careerId, careerTitle, roadmapId]);
 
   const navigate = useNavigate();
