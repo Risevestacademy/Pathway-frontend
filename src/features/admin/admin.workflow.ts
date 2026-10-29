@@ -12,46 +12,6 @@ const HOUR = 60 * 60 * 1000;
 const DAY = 24 * HOUR;
 const ago = (ms: number) => new Date(Date.now() - ms).toISOString();
 
-export function shortName(fullName: string): string {
-  const [first, ...rest] = fullName.trim().split(/\s+/);
-  const last = rest[rest.length - 1];
-  return last ? `${first} ${last.charAt(0)}.` : first;
-}
-
-export function initials(fullName: string): string {
-  return fullName
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((p) => p.charAt(0).toUpperCase())
-    .join("");
-}
-
-/** "5 hours", "1 day", "12 minutes". */
-export function waitingLabel(iso: string, now = new Date()): string {
-  const ms = Math.max(0, now.getTime() - new Date(iso).getTime());
-  const plural = (n: number, unit: string) => `${n} ${unit}${n === 1 ? "" : "s"}`;
-  if (ms < HOUR) return plural(Math.max(1, Math.round(ms / 60000)), "minute");
-  if (ms < DAY) return plural(Math.floor(ms / HOUR), "hour");
-  return plural(Math.floor(ms / DAY), "day");
-}
-
-function isSameDay(a: Date, b: Date) {
-  return a.toDateString() === b.toDateString();
-}
-
-/** "Today", "Yesterday" or a date. */
-export function dayLabel(iso: string, now = new Date()): string {
-  const date = new Date(iso);
-  if (isSameDay(date, now)) return "Today";
-  if (isSameDay(date, new Date(now.getTime() - DAY))) return "Yesterday";
-  return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric" }).format(date);
-}
-
-export function timeLabel(iso: string): string {
-  return new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
-}
-
 // ---------------------------------------------------------------- Reviews
 
 export type ReviewType = "new-career" | "roadmap" | "figures" | "details";
@@ -135,66 +95,6 @@ export const SEED_REVIEWS: ReviewItem[] = [
       "The new source is dated 2026 and loads. Learners will see “checked 12 Oct 2026” next to the figure.",
   },
 ];
-
-/** What the editor submits for review, based on what changed since it was opened. */
-export function buildReview(
-  row: AdminCareerRow,
-  initial: EditableCareer,
-  form: EditableCareer,
-  submittedBy: string,
-): Omit<ReviewItem, "id" | "status"> {
-  const base = { careerId: row.id, submittedBy, submittedAt: new Date().toISOString() };
-  const title = form.details.name.trim() || row.title;
-
-  if (row.status === "draft") {
-    return {
-      ...base,
-      title: `${title}: new career`,
-      summary: `First publish · ${countTopics(form.stages)} topics`,
-      type: "new-career",
-      changes: [],
-      bannerTitle: "First publish",
-      bannerBody: "Approving makes this career visible to learners straight away.",
-    };
-  }
-
-  const before = initial.details;
-  const after = form.details;
-  const figuresChanged =
-    before.salary !== after.salary || before.salarySource !== after.salarySource;
-  if (figuresChanged) {
-    return {
-      ...base,
-      title: `${title}: salary range`,
-      summary: `${before.salary || "none"} to ${after.salary}`,
-      type: "figures",
-      changes: [
-        { label: "Typical starting salary", before: before.salary || "—", after: after.salary },
-        { label: "Source", before: before.salarySource || "—", after: after.salarySource },
-      ],
-      bannerTitle: "Check the source before you approve",
-      bannerBody: "Learners will see when the source was last checked next to the figure.",
-    };
-  }
-
-  if (JSON.stringify(initial.stages) !== JSON.stringify(form.stages)) {
-    return {
-      ...base,
-      title: `${title} roadmap`,
-      summary: `${countTopics(form.stages)} topics in ${form.stages.length} stages`,
-      type: "roadmap",
-      changes: [],
-    };
-  }
-
-  return {
-    ...base,
-    title: `${title}: details`,
-    summary: "Details, skills, resources or sources changed",
-    type: "details",
-    changes: [],
-  };
-}
 
 // ---------------------------------------------------------------- Reports
 
