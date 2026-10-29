@@ -8,14 +8,15 @@ import {
   MutationCache,
 } from "@tanstack/react-query";
 import { routeTree } from "./routeTree.gen.ts";
-import { PostHogProvider } from "@posthog/react";
 import { captureErrorResponse, initSentry } from "./lib/monitoring/sentry";
+import { initAnalytics } from "./lib/monitoring/events";
+import { setSessionExpiredHandler } from "./lib/api/axios";
 import { retryUnlessClientError } from "./lib/queryRetry";
 import "./index.css";
 
 initSentry();
 
-const options = {
+const analyticsOptions = {
   api_host: import.meta.env.VITE_POSTHOG_HOST,
   capture_pageview: "history_change",
   defaults: "2026-05-30",
@@ -38,6 +39,17 @@ const queryClient = new QueryClient({
   }),
 });
 
+// A refresh failed and auth is already cleared: send them to log in and back.
+setSessionExpiredHandler(() => {
+  const { pathname, href } = router.state.location;
+  if (pathname === "/login") return;
+
+  void router
+    .navigate({ to: "/login", search: { redirect: href }, replace: true })
+    // Drop the old session's cached data once its pages have unmounted.
+    .then(() => queryClient.clear());
+});
+
 declare module "@tanstack/react-router" {
   interface Register {
     router: typeof router;
@@ -53,12 +65,12 @@ if (!rootElement) {
 createRoot(rootElement).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <PostHogProvider
-        apiKey={import.meta.env.VITE_POSTHOG_PROJECT_TOKEN}
-        options={options}
-      >
-        <RouterProvider router={router} />
-      </PostHogProvider>
+      <RouterProvider router={router} />
     </QueryClientProvider>
   </StrictMode>,
+);
+
+void initAnalytics(
+  import.meta.env.VITE_POSTHOG_PROJECT_TOKEN,
+  analyticsOptions,
 );
