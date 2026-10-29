@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useRouter, type ErrorComponentProps } from "@tanstack/react-router";
+import { isAxiosError } from "axios";
 import { CloudOff } from "lucide-react";
 import * as Sentry from "@sentry/react";
 import { Button } from "../../../components/ui/Button";
@@ -11,7 +12,9 @@ export default function RoadmapError({ error }: ErrorComponentProps) {
   const router = useRouter();
 
   useEffect(() => {
-    Sentry.captureException(error);
+    if (!isAxiosError(error)) {
+      Sentry.captureException(error);
+    }
   }, [error]);
 
   return (

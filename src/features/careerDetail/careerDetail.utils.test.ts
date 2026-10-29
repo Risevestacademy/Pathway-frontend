@@ -1,21 +1,22 @@
 import { describe, expect, it } from "vitest";
+import { careers } from "../../test/fixtures/careers.fixture";
 import { formatMoney, getCareerInfo, groupByGeo } from "./careerDetail.utils";
 
 describe("getCareerInfo", () => {
   it("returns published careers", () => {
-    expect(getCareerInfo("frontend-developer")?.title).toBe(
+    expect(getCareerInfo("frontend-developer", careers)?.title).toBe(
       "Frontend Developer",
     );
   });
 
   it("does not return retired careers", () => {
-    expect(getCareerInfo("flash-developer")).toBeNull();
+    expect(getCareerInfo("flash-developer", careers)).toBeNull();
   });
 });
 
 describe("groupByGeo", () => {
   it("keeps statistics from different geographies separate", () => {
-    const career = getCareerInfo("frontend-developer");
+    const career = getCareerInfo("frontend-developer", careers);
     const grouped = groupByGeo(career?.stats ?? []);
 
     expect([...grouped.keys()]).toEqual(["United States", "Lagos, Nigeria"]);

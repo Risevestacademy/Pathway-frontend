@@ -8,22 +8,27 @@ import { fetchPathwayOrNull } from "../../../../../lib/api/pathways.api";
 import ResourcesPage from "../../../../../features/resources/components/ResourcesPage";
 import RoadmapError from "../../../../../features/pathway/components/RoadmapError";
 import RoadmapSkeleton from "../../../../../features/pathway/components/RoadmapSkeleton";
+import { withLoaderErrorReporting } from "@/lib/monitoring/sentry";
 
 export const Route = createFileRoute(
   "/careers/$careerId/roadmap/$stepId/resources",
 )({
-  loader: async ({ params }) => {
-    const pathway = await fetchPathwayOrNull(params.careerId);
-    const result = pathway ? mapPathwayToRoadmap(pathway) : null;
-    const context = getStepContext(result?.roadmap?.steps ?? [], params.stepId);
-    const step = pathway?.steps.find(({ id }) => id === params.stepId);
+  loader: async ({ params }) =>
+    withLoaderErrorReporting(async () => {
+      const pathway = await fetchPathwayOrNull(params.careerId);
+      const result = pathway ? mapPathwayToRoadmap(pathway) : null;
+      const context = getStepContext(
+        result?.roadmap?.steps ?? [],
+        params.stepId,
+      );
+      const step = pathway?.steps.find(({ id }) => id === params.stepId);
 
-    return {
-      result,
-      context,
-      resources: step?.resources.map(mapPathwayResource) ?? [],
-    };
-  },
+      return {
+        result,
+        context,
+        resources: step?.resources.map(mapPathwayResource) ?? [],
+      };
+    }),
   pendingComponent: RoadmapSkeleton,
   errorComponent: RoadmapError,
   component: RouteComponent,

@@ -11,8 +11,9 @@ export interface FeedbackItem {
   section: string;
   careerId: string | null;
   description: string;
-  userEmail: string;
-  platform: string;
+  /** Missing when the learner sent the report anonymously. */
+  userEmail: string | null;
+  platform: string | null;
   status: FeedbackStatus | (string & {});
   createdAt: string;
   updatedAt: string;
@@ -40,6 +41,10 @@ export function humanize(value: string): string {
 
 export const feedbackStatusLabel = (status: string) =>
   FEEDBACK_STATUS_LABEL[status as FeedbackStatus] ?? humanize(status);
+
+/** "a@b.co · Web", or "Anonymous" when no email was given. */
+export const feedbackSender = (f: Pick<FeedbackItem, "userEmail" | "platform">) =>
+  [f.userEmail ?? "Anonymous", f.platform && humanize(f.platform)].filter(Boolean).join(" · ");
 
 export const isOpenFeedback = (f: FeedbackItem) =>
   f.status === "NEW" || f.status === "UNDER_REVIEW";

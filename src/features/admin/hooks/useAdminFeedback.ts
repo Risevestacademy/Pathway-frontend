@@ -4,12 +4,11 @@ import {
   updateFeedbackStatus,
 } from "../../../lib/api/adminFeedback.api";
 import type { FeedbackItem, FeedbackStatus } from "../adminFeedback.types";
-
-export const ADMIN_FEEDBACK_KEY = ["admin", "feedback"] as const;
+import { queryKeys } from "../../../lib/queryKeys";
 
 export function useAdminFeedback() {
   return useQuery({
-    queryKey: ADMIN_FEEDBACK_KEY,
+    queryKey: queryKeys.admin.feedback,
     queryFn: fetchAdminFeedback,
     staleTime: 60 * 1000,
   });
@@ -21,7 +20,7 @@ export function useUpdateFeedbackStatus() {
     mutationFn: ({ id, status }: { id: string; status: FeedbackStatus }) =>
       updateFeedbackStatus(id, status),
     onSuccess: (updated) => {
-      queryClient.setQueryData<FeedbackItem[]>(ADMIN_FEEDBACK_KEY, (old) =>
+      queryClient.setQueryData<FeedbackItem[]>(queryKeys.admin.feedback, (old) =>
         old?.map((f) => (f.id === updated.id ? updated : f)),
       );
     },

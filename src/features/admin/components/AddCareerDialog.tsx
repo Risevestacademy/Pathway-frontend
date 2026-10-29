@@ -7,7 +7,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../../components/ui/select";
+} from "../../../components/ui/Select";
 import { useAdminStore } from "../adminStore";
 import { useAdminCareers } from "../hooks/useAdminCareers";
 

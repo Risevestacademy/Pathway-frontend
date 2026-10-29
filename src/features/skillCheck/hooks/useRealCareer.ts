@@ -3,6 +3,7 @@ import { fetchPathwayOrNull } from "../../../lib/api/pathways.api";
 import { useCareers } from "../../catalog/hooks/useCareers";
 import { mapPathwayToRoadmap } from "../../pathway/pathway.utils";
 import { findSkillCheckCareerByTitle, matchesSkillCheckCareer } from "../careerMatch";
+import { queryKeys } from "../../../lib/queryKeys";
 
 export function useRealCareerId(title: string | null): string | null {
   const { data } = useCareers({});
@@ -18,7 +19,7 @@ export function useRealCareerId(title: string | null): string | null {
 
 export function useRoadmapSteps(careerId: string | null) {
   const query = useQuery({
-    queryKey: ["real-roadmap", careerId],
+    queryKey: queryKeys.realRoadmap(careerId),
     queryFn: async () => {
       const pathway = await fetchPathwayOrNull(careerId as string);
       return pathway ? (mapPathwayToRoadmap(pathway)?.roadmap?.steps ?? []) : [];

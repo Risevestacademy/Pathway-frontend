@@ -1,6 +1,6 @@
-import { mockCareers, mockRoadmaps } from "./pathway.mock";
 import type { CareerPathwayDto } from "../../lib/api/pathways.api";
 import type {
+  Roadmap,
   RoadmapCareer,
   RoadmapLookup,
   RoadmapStep,
@@ -9,8 +9,8 @@ import type {
 
 export function getRoadmap(
   careerId: string,
-  careers: RoadmapCareer[] = mockCareers,
-  roadmaps = mockRoadmaps,
+  careers: RoadmapCareer[],
+  roadmaps: Roadmap[],
 ): RoadmapLookup {
   const career = careers.find(
     (c) => c.id === careerId && c.status === "published",

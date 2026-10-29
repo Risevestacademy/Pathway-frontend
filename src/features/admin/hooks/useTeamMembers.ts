@@ -4,7 +4,7 @@ import { fetchAllAdminInvites } from "../../../lib/api/adminInvites.api";
 import { useAuthStore } from "../../../lib/stores/authStore";
 import { mergeTeamMembers, sessionToMember } from "../adminInvites.types";
 import { useAdminStore } from "../adminStore";
-import { ADMIN_INVITES_KEY } from "./useAdminInvites";
+import { queryKeys } from "../../../lib/queryKeys";
 import { useCurrentMember } from "./useCurrentMember";
 
 /**
@@ -22,7 +22,7 @@ export function useTeamMembers(enabled = true) {
     [user, fullName],
   );
   const accepted = useQuery({
-    queryKey: [...ADMIN_INVITES_KEY, "accepted"],
+    queryKey: queryKeys.admin.invites.accepted,
     queryFn: () => fetchAllAdminInvites("ACCEPTED"),
     enabled,
     staleTime: 60 * 1000,
