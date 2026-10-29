@@ -1,7 +1,12 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
-import { fetchAdminInvites, fetchAllAdminInvites, revokeAdminInvite } from "./adminInvites.api";
+import {
+  createAdminInvite,
+  fetchAdminInvites,
+  fetchAllAdminInvites,
+  revokeAdminInvite,
+} from "./adminInvites.api";
 
 const server = setupServer();
 
@@ -153,5 +158,60 @@ describe("fetchAllAdminInvites", () => {
 
     expect(await fetchAllAdminInvites("ACCEPTED")).toHaveLength(1);
     expect(calls).toBe(2);
+  });
+});
+
+describe("createAdminInvite", () => {
+  const response = {
+    id: "b2c3",
+    email: "ada@example.com",
+    role: "EDITOR",
+    expiresAt: "2026-10-26T09:00:00.000Z",
+  };
+
+  it("posts the email and role and returns the created invite", async () => {
+    let body: unknown;
+    server.use(
+      http.post("*/admin/teams/invites", async ({ request }) => {
+        body = await request.json();
+        return HttpResponse.json({ ...response, emailSent: true });
+      }),
+    );
+
+    const result = await createAdminInvite({ email: "ada@example.com", role: "EDITOR" });
+
+    expect(body).toEqual({ email: "ada@example.com", role: "EDITOR" });
+    expect(result).toMatchObject({ id: "b2c3", emailSent: true });
+  });
+
+  it("reports an email that could not be sent, keeping the invite", async () => {
+    server.use(
+      http.post("*/admin/teams/invites", () =>
+        HttpResponse.json({
+          ...response,
+          emailSent: false,
+          message: "Invite created, but the email could not be sent. Re-invite to retry.",
+        }),
+      ),
+    );
+
+    const result = await createAdminInvite({ email: "ada@example.com", role: "EDITOR" });
+
+    expect(result.emailSent).toBe(false);
+    expect(result.id).toBe("b2c3");
+  });
+
+  it.each([
+    [400, "Check the email address and role, then try again."],
+    [403, "Only admins can invite people."],
+    [500, "We couldn’t send this invite. Please try again."],
+  ])("explains a %i in plain words", async (status, message) => {
+    server.use(
+      http.post("*/admin/teams/invites", () =>
+        HttpResponse.json({ message: "raw server text" }, { status }),
+      ),
+    );
+
+    await expect(createAdminInvite({ email: "a@b.co", role: "ADMIN" })).rejects.toThrow(message);
   });
 });

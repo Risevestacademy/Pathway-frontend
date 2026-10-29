@@ -1,6 +1,12 @@
 import { isAxiosError } from "axios";
 import { api } from "./axios";
-import type { InviteItem, InvitePage, InviteStatus } from "../../features/admin/adminInvites.types";
+import type {
+  CreateInviteInput,
+  CreatedInvite,
+  InviteItem,
+  InvitePage,
+  InviteStatus,
+} from "../../features/admin/adminInvites.types";
 
 export interface FetchInvitesParams {
   /** Omit for every status. */
@@ -80,4 +86,47 @@ export async function fetchAllAdminInvites(status: InviteStatus): Promise<Invite
   }
 
   return [...all.values()];
+}
+
+function getCreateError(error: unknown): Error {
+  const status = isAxiosError(error) ? error.response?.status : undefined;
+  switch (status) {
+    case 400:
+      return new Error("Check the email address and role, then try again.");
+    case 403:
+      return new Error("Only admins can invite people.");
+    default:
+      return new Error(
+        isAxiosError(error) && !error.response
+          ? "We couldn’t reach the server. Check your connection and try again."
+          : "We couldn’t send this invite. Please try again.",
+      );
+  }
+}
+
+/**
+ * POST /admin/teams/invites. Admins only. Creates a single-use invite that
+ * expires after 24 hours and emails an accept link; inviting the same email
+ * again replaces its pending invite. If the email can't be sent the invite
+ * still exists (`emailSent: false`) and re-inviting retries it.
+ */
+export async function createAdminInvite(input: CreateInviteInput): Promise<CreatedInvite> {
+  try {
+    const { data } = await api.post<unknown>("/admin/teams/invites", input);
+    const body = (
+      data && typeof data === "object" && "data" in data ? (data as { data: unknown }).data : data
+    ) as Partial<CreatedInvite> | null;
+
+    return {
+      id: String(body?.id ?? ""),
+      email: body?.email ?? input.email,
+      role: body?.role ?? input.role,
+      expiresAt: body?.expiresAt ?? "",
+      // Only an explicit false counts as a failure to send.
+      emailSent: body?.emailSent !== false,
+      message: body?.message,
+    };
+  } catch (error) {
+    throw getCreateError(error);
+  }
 }

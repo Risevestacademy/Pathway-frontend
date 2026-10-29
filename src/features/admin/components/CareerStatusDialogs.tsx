@@ -4,6 +4,7 @@ import { Button } from "../../../components/ui/Button";
 import { Dialog } from "../../../components/ui/Dialog";
 import { getPublishIssues, type AdminCareerRow } from "../admin.utils";
 import { useAdminStore } from "../adminStore";
+import { useDeleteCareer } from "../hooks/useDeleteCareer";
 
 interface StatusDialogProps {
   career: AdminCareerRow | null;
@@ -121,6 +122,52 @@ export function RetireCareerDialog({ career, onClose }: StatusDialogProps) {
           }}
           onClose={onClose}
         />
+      )}
+    </Dialog>
+  );
+}
+
+export function DeleteCareerDialog({
+  career,
+  onClose,
+  onDeleted,
+}: StatusDialogProps & { onDeleted?: (career: AdminCareerRow) => void }) {
+  const remove = useDeleteCareer();
+
+  const close = () => {
+    remove.reset();
+    onClose();
+  };
+
+  return (
+    <Dialog
+      open={career !== null}
+      onOpenChange={(open) => !open && close()}
+      title={`Delete ${career?.title ?? ""}?`}
+      description="This permanently deletes the draft with its roadmap, skills, outlook and revisions. It can’t be undone. Only a draft that was never published and hasn’t been saved by anyone can be deleted."
+    >
+      {career && (
+        <>
+          {remove.isError && (
+            <p role="alert" className="mt-4 text-sm text-danger-700">
+              {remove.error.message}
+            </p>
+          )}
+          <Actions
+            confirmLabel={remove.isPending ? "Deleting..." : "Delete career"}
+            danger
+            disabled={remove.isPending}
+            onConfirm={() =>
+              remove.mutate(career, {
+                onSuccess: () => {
+                  onDeleted?.(career);
+                  close();
+                },
+              })
+            }
+            onClose={close}
+          />
+        </>
       )}
     </Dialog>
   );

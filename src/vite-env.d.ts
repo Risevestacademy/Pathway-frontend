@@ -9,8 +9,9 @@ interface ImportMetaEnv {
   readonly VITE_SENTRY_ENVIRONMENT?: string;
   readonly VITE_SENTRY_ENABLE_DEV?: string;
   readonly VITE_APP_VERSION?: string;
-  /** Email of the person seeded on the dummy team list as an admin. */
+  /** Email of the admin who is the only seeded person on the team list. */
   readonly VITE_ADMIN_OWNER_EMAIL?: string;
+  /** That admin's full name. */
   readonly VITE_ADMIN_OWNER_NAME?: string;
 }
 

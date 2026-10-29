@@ -4,6 +4,9 @@ interface User {
   id: string
   email: string
   role: string
+  /** Present when the backend sends the person's name. */
+  fullName?: string
+  name?: string
 }
 
 interface AuthState {

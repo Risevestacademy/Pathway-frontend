@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { inviteToMember, mergeTeamMembers, type InviteItem } from "./adminInvites.types";
+import {
+  inviteToMember,
+  mergeTeamMembers,
+  sessionToMember,
+  type InviteItem,
+} from "./adminInvites.types";
 import type { TeamMember } from "./admin.workflow";
 
 const invite = (id: string, over: Partial<InviteItem> = {}): InviteItem => ({
@@ -37,7 +42,7 @@ describe("inviteToMember", () => {
       roles: ["publisher"],
       careerAccess: "all",
       lastActive: "2026-10-02T00:00:00Z",
-      fromInvite: true,
+      serverManaged: true,
     });
   });
 
@@ -87,5 +92,54 @@ describe("mergeTeamMembers", () => {
 
     expect(merged).toHaveLength(1);
     expect(merged[0].roles).toEqual(["admin"]);
+  });
+});
+
+describe("sessionToMember", () => {
+  const user = { id: "u1", email: "ada@example.com", role: "ADMIN" };
+
+  it("makes the signed-in admin a team member with their server role", () => {
+    expect(sessionToMember(user, "Ada Lovelace")).toMatchObject({
+      id: "session-u1",
+      name: "Ada Lovelace",
+      email: "ada@example.com",
+      roles: ["admin"],
+      careerAccess: "all",
+      serverManaged: true,
+    });
+  });
+
+  it("falls back to a name made from the email", () => {
+    expect(sessionToMember({ ...user, email: "grace.hopper@example.com" }, "")?.name).toBe(
+      "Grace Hopper",
+    );
+  });
+
+  it.each(["USER", "SOMETHING_NEW", ""])("leaves out the role %j", (role) => {
+    expect(sessionToMember({ ...user, role }, "Ada")).toBeNull();
+  });
+});
+
+describe("mergeTeamMembers with the signed-in person", () => {
+  const me = sessionToMember({ id: "u1", email: "me@example.com", role: "ADMIN" }, "Me Myself")!;
+
+  it("is never empty: the signed-in admin is listed before invited people", () => {
+    const merged = mergeTeamMembers([], [invite("ada")], me);
+
+    expect(merged.map((m) => m.email)).toEqual(["me@example.com", "ada@example.com"]);
+  });
+
+  it("lists the signed-in admin once when they also accepted an invite", () => {
+    const merged = mergeTeamMembers([], [invite("me", { email: "ME@example.com" })], me);
+
+    expect(merged).toHaveLength(1);
+    expect(merged[0].id).toBe("session-u1");
+  });
+
+  it("keeps a local entry for the same email over the session one", () => {
+    const merged = mergeTeamMembers([member("me", { email: "me@example.com", name: "Esther Adejola" })], [], me);
+
+    expect(merged).toHaveLength(1);
+    expect(merged[0].name).toBe("Esther Adejola");
   });
 });
