@@ -10,6 +10,7 @@ import {
 import { routeTree } from "./routeTree.gen.ts";
 import { PostHogProvider } from "@posthog/react";
 import { captureErrorResponse, initSentry } from "./lib/monitoring/sentry";
+import { retryUnlessClientError } from "./lib/queryRetry";
 import "./index.css";
 
 initSentry();
@@ -23,6 +24,12 @@ const options = {
 
 const router = createRouter({ routeTree });
 const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: retryUnlessClientError,
+      refetchOnWindowFocus: false,
+    },
+  },
   queryCache: new QueryCache({
     onError: captureErrorResponse,
   }),
