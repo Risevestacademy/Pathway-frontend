@@ -48,8 +48,8 @@ export default defineConfig({
   ],
   server: {
     proxy: {
-      '/api': {
-        target: 'https://pathway-backend-a89a738.onrender.com',
+      "/api": {
+        target: process.env.VITE_DEV_API_BASE_URL,
         changeOrigin: true,
         secure: true,
       },
