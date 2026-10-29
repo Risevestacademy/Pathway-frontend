@@ -135,8 +135,8 @@ export interface TeamMember {
   /** Null until they join. */
   lastActive: string | null;
   invitedAt?: string;
-  /** Joined through an invite; roles come from the server and are not edited here. */
-  fromInvite?: boolean;
+  /** Roles come from the server (an accepted invite, or the configured admin) and are not edited here. */
+  serverManaged?: boolean;
 }
 
 /** Id of the team entry created from VITE_ADMIN_OWNER_EMAIL. */

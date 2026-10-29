@@ -8,8 +8,6 @@ import {
 import { queryKeys } from "../../../lib/queryKeys";
 import type { CreateInviteInput } from "../adminInvites.types";
 
-export const ADMIN_INVITES_KEY = ["admin", "invites"] as const;
-
 export function useAdminInvites(params: FetchInvitesParams, enabled = true) {
   return useQuery({
     queryKey: queryKeys.admin.invites.list(params),
@@ -34,6 +32,6 @@ export function useCreateInvite() {
   return useMutation({
     mutationFn: (input: CreateInviteInput) => createAdminInvite(input),
     // The new invite shows up under Invites; re-inviting replaces a pending one.
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ADMIN_INVITES_KEY }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.admin.invites.all }),
   });
 }

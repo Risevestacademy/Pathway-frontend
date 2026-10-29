@@ -5,7 +5,6 @@ import { useAuthStore } from "../../../lib/stores/authStore";
 import { mergeTeamMembers, sessionToMember } from "../adminInvites.types";
 import { useAdminStore } from "../adminStore";
 import { queryKeys } from "../../../lib/queryKeys";
-import { ADMIN_INVITES_KEY } from "./useAdminInvites";
 import { useCurrentMember } from "./useCurrentMember";
 
 /**
