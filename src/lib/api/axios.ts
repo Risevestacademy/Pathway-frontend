@@ -1,6 +1,17 @@
 import axios from "axios";
 import { useAuthStore } from "../stores/authStore";
 
+declare module "axios" {
+  interface AxiosRequestConfig {
+    /**
+     * A 401 from this request means bad credentials, not an expired session,
+     * so the interceptor rejects it instead of refreshing. Set it on every
+     * auth endpoint, and always on the refresh call itself.
+     */
+    skipAuthRefresh?: boolean;
+  }
+}
+
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 10000,
@@ -18,11 +29,23 @@ interface WrappedRefreshResponse {
 export async function refreshAccessToken(): Promise<string> {
   const { data } = await api.post<RefreshResponse | WrappedRefreshResponse>(
     "/auth/refresh",
+    undefined,
+    { skipAuthRefresh: true },
   );
   const response = "data" in data ? data.data : data;
 
   useAuthStore.getState().setAccessToken(response.accessToken);
   return response.accessToken;
+}
+
+let onSessionExpired: (() => void) | null = null;
+
+/**
+ * Called once the session can't be refreshed and auth has been cleared. The
+ * app registers a router redirect here, which keeps the return path.
+ */
+export function setSessionExpiredHandler(handler: () => void) {
+  onSessionExpired = handler;
 }
 
 api.interceptors.request.use((config) => {
@@ -44,18 +67,11 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    const isAuthRequest =
-      originalRequest?.url === "/auth/refresh" ||
-      originalRequest?.url === "/auth/login" ||
-      originalRequest?.url === "/auth/register" ||
-      originalRequest?.url === "/auth/google" ||
-      originalRequest?.url === "/auth/verify-email" ||
-      originalRequest?.url === "/auth/resend-verification";
     if (
       !originalRequest ||
       error.response?.status !== 401 ||
       originalRequest._retry ||
-      isAuthRequest
+      originalRequest.skipAuthRefresh
     ) {
       return Promise.reject(error);
     }
@@ -78,7 +94,7 @@ api.interceptors.response.use(
       pendingRequests.forEach(({ reject }) => reject(refreshError));
       pendingRequests = [];
       useAuthStore.getState().clearAuth();
-      window.location.href = "/login";
+      onSessionExpired?.();
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;
@@ -89,4 +105,5 @@ api.interceptors.response.use(
 export function __resetAuthInterceptorState() {
   isRefreshing = false;
   pendingRequests = [];
+  onSessionExpired = null;
 }

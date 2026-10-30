@@ -6,7 +6,10 @@ import {
   InvalidCredentialsError,
   loginUser,
   loginWithGoogle,
+  passwordResetConfirm,
+  passwordResetRequest,
   registerUser,
+  resendVerification,
   verifyEmail,
 } from "./auth.api";
 
@@ -128,5 +131,29 @@ describe("auth API", () => {
     await expect(verifyEmail("user@example.com", "000000")).rejects.toThrow(
       "invalid or has expired",
     );
+  });
+
+  it.each([
+    ["/auth/register", () => registerUser({ fullName: "A", email: "a@a.com", password: "x" })],
+    ["/auth/login", () => loginUser({ email: "a@a.com", password: "x" })],
+    ["/auth/google", () => loginWithGoogle("id-token")],
+    ["/auth/verify-email", () => verifyEmail("a@a.com", "123456")],
+    ["/auth/resend-verification", () => resendVerification("a@a.com")],
+    ["/auth/password-reset/request", () => passwordResetRequest("a@a.com")],
+    ["/auth/password-reset/confirm", () => passwordResetConfirm("new-password", "token")],
+  ])("does not try to refresh the session when %s returns 401", async (path, call) => {
+    let refreshCallCount = 0;
+    server.use(
+      http.post(`*${path}`, () =>
+        HttpResponse.json({ message: "unauthorized" }, { status: 401 }),
+      ),
+      http.post("*/auth/refresh", () => {
+        refreshCallCount += 1;
+        return HttpResponse.json({ data: { accessToken: "fresh-token" } });
+      }),
+    );
+
+    await expect(call()).rejects.toBeTruthy();
+    expect(refreshCallCount).toBe(0);
   });
 });

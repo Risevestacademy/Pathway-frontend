@@ -2,15 +2,12 @@ import clsx from "clsx";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   BriefcaseRegular,
-  CompassRegular,
   Directions2Regular,
-  FlameRegular,
   Layout3Regular,
   TelescopeRegular,
 } from "@mingcute/react/core-regular";
 import type { ComponentType, SVGProps } from "react";
 import { selectIsAuthenticated, useAuthStore } from "../lib/stores/authStore";
-import { MOCK_USER_STATS } from "./appTopNav.mock";
 import { NavIcon } from "./NavIcon";
 import { FeedbackButton } from "../features/feedback/components/FeedbackButton";
 
@@ -46,8 +43,6 @@ const avatarUrl = Object.values(avatarFiles)[0] ?? null;
 
 const itemBase =
   "flex h-10 items-center gap-1.5 rounded-lg py-2 pr-3 pl-2 text-base leading-5 font-medium whitespace-nowrap";
-
-const statBase = "flex items-center gap-1.5 whitespace-nowrap p-1.5 text-base leading-5 font-medium text-grey-600";
 
 export default function AppTopNav() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
@@ -110,17 +105,6 @@ export default function AppTopNav() {
         <FeedbackButton />
         {signedIn ? (
           <>
-            <ul className="hidden items-center gap-2 rounded-[10px] border border-grey-50 p-1 lg:flex">
-              <li aria-label={`${MOCK_USER_STATS.xp} XP`} className={statBase}>
-                <CompassRegular aria-hidden size={16} color="var(--color-brand-500)" className="shrink-0" />
-                {MOCK_USER_STATS.xp} XP
-              </li>
-              <li aria-hidden className="h-8 w-px bg-grey-100" />
-              <li aria-label={`${MOCK_USER_STATS.streakDays} day streak`} className={statBase}>
-                <FlameRegular aria-hidden size={16} color="#ff9845" className="shrink-0" />
-                {MOCK_USER_STATS.streakDays}
-              </li>
-            </ul>
             {avatarUrl ? (
               <img
                 src={avatarUrl}

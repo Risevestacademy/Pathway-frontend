@@ -1,13 +1,19 @@
-import { afterAll, afterEach, beforeEach, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, afterEach, beforeEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
-import { api, __resetAuthInterceptorState } from './axios'
+import { api, __resetAuthInterceptorState, setSessionExpiredHandler } from './axios'
 import { useAuthStore } from '../stores/authStore'
 
 const server = setupServer()
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
-beforeEach(() => __resetAuthInterceptorState())
+const onSessionExpired = vi.fn()
+
+beforeEach(() => {
+  __resetAuthInterceptorState()
+  onSessionExpired.mockClear()
+  setSessionExpiredHandler(onSessionExpired)
+})
 afterEach(() => {
   server.resetHandlers()
   useAuthStore.getState().clearAuth()
@@ -15,23 +21,6 @@ afterEach(() => {
 afterAll(() => server.close())
 
 const testUser = { id: '1', email: 'a@a.com', role: 'USER' }
-
-function stubLocation() {
-  const original = window.location
-  const stub: Location = { ...original, href: original.href } as Location
-  Object.defineProperty(window, 'location', {
-    value: stub,
-    writable: true,
-    configurable: true,
-  })
-  return () => {
-    Object.defineProperty(window, 'location', {
-      value: original,
-      writable: true,
-      configurable: true,
-    })
-  }
-}
 
 describe('axios refresh flow', () => {
   it('sends only one /auth/refresh request for two concurrent 401s', async () => {
@@ -89,7 +78,7 @@ describe('axios refresh flow', () => {
     expect(useAuthStore.getState().accessToken).toBe('fresh-token')
   })
 
-  it('rejects all queued requests and logs out when the refresh itself fails', async () => {
+  it('rejects all queued requests and ends the session once when the refresh itself fails', async () => {
     server.use(
       http.get('*/careers', () => HttpResponse.json({ message: 'unauthorized' }, { status: 401 })),
       http.get('*/progress', () => HttpResponse.json({ message: 'unauthorized' }, { status: 401 })),
@@ -97,7 +86,6 @@ describe('axios refresh flow', () => {
     )
 
     useAuthStore.getState().setAuth(testUser, 'stale-token')
-    const restoreLocation = stubLocation()
 
     const results = await Promise.allSettled([api.get('/careers'), api.get('/progress')])
 
@@ -105,9 +93,7 @@ describe('axios refresh flow', () => {
     expect(results[1].status).toBe('rejected')
     expect(useAuthStore.getState().accessToken).toBeNull()
     expect(useAuthStore.getState().user).toBeNull()
-    expect(window.location.href).toBe('/login')
-
-    restoreLocation()
+    expect(onSessionExpired).toHaveBeenCalledTimes(1)
   })
 
   it('does not loop when /auth/refresh itself returns 401', async () => {
@@ -121,33 +107,53 @@ describe('axios refresh flow', () => {
     )
 
     useAuthStore.getState().setAuth(testUser, 'stale-token')
-    const restoreLocation = stubLocation()
 
     await expect(api.get('/careers')).rejects.toBeTruthy()
     expect(refreshCallCount).toBe(1)
-
-    restoreLocation()
   })
 })
-describe('axios auth endpoints', () => {
-  it.each(['/auth/verify-email', '/auth/resend-verification'])(
-    'does not try to refresh the session when %s returns 401',
-    async (path) => {
-      let refreshCallCount = 0
-      server.use(
-        http.post(`*${path}`, () => HttpResponse.json({ message: 'unauthorized' }, { status: 401 })),
-        http.post('*/auth/refresh', () => {
-          refreshCallCount += 1
-          return HttpResponse.json({ data: { accessToken: 'fresh' } })
-        })
-      )
-      const restoreLocation = stubLocation()
 
-      await expect(api.post(path, {})).rejects.toBeTruthy()
+describe('skipAuthRefresh', () => {
+  it('rejects a 401 without refreshing or ending the session', async () => {
+    let refreshCallCount = 0
+    server.use(
+      http.post('*/auth/some-new-endpoint', () =>
+        HttpResponse.json({ message: 'unauthorized' }, { status: 401 })
+      ),
+      http.post('*/auth/refresh', () => {
+        refreshCallCount += 1
+        return HttpResponse.json({ data: { accessToken: 'fresh' } })
+      })
+    )
+    useAuthStore.getState().setAuth(testUser, 'token')
 
-      expect(refreshCallCount).toBe(0)
-      expect(window.location.href).not.toBe('/login')
-      restoreLocation()
-    }
-  )
+    await expect(
+      api.post('/auth/some-new-endpoint', {}, { skipAuthRefresh: true })
+    ).rejects.toMatchObject({ response: { status: 401 } })
+
+    expect(refreshCallCount).toBe(0)
+    expect(onSessionExpired).not.toHaveBeenCalled()
+    expect(useAuthStore.getState().accessToken).toBe('token')
+  })
+
+  it('still refreshes the same request when the flag is not set', async () => {
+    let refreshCallCount = 0
+    server.use(
+      http.post('*/auth/some-new-endpoint', ({ request }) =>
+        request.headers.get('Authorization') === 'Bearer fresh'
+          ? HttpResponse.json({ ok: true })
+          : HttpResponse.json({ message: 'unauthorized' }, { status: 401 })
+      ),
+      http.post('*/auth/refresh', () => {
+        refreshCallCount += 1
+        return HttpResponse.json({ data: { accessToken: 'fresh' } })
+      })
+    )
+    useAuthStore.getState().setAuth(testUser, 'stale')
+
+    const response = await api.post('/auth/some-new-endpoint', {})
+
+    expect(response.data).toEqual({ ok: true })
+    expect(refreshCallCount).toBe(1)
+  })
 })
