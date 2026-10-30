@@ -29,12 +29,14 @@ function CountBadge({ count }: { count: number }) {
   );
 }
 
-/** Learner reports come from the API; everything else in admin is saved in this browser only. */
+/** Reports and the team (members and invites) come from the API; careers, drafts and reviews are saved in this browser only. */
+const API_BACKED_PATHS = ["/admin/reports", "/admin/team"];
+
 function LocalPreviewNotice() {
-  const onReports = useRouterState({
-    select: (s) => s.location.pathname.startsWith("/admin/reports"),
+  const onApiBackedPage = useRouterState({
+    select: (s) => API_BACKED_PATHS.some((path) => s.location.pathname.startsWith(path)),
   });
-  if (onReports) return null;
+  if (onApiBackedPage) return null;
   return (
     <p
       role="note"
@@ -42,8 +44,8 @@ function LocalPreviewNotice() {
     >
       <Info className="size-4 shrink-0" aria-hidden />
       <span>
-        <strong className="font-semibold">Local preview only.</strong> Careers, drafts, reviews and
-        team changes are saved in this browser, not to the server, until the backend supports them.
+        <strong className="font-semibold">Local preview only.</strong> Careers, drafts and reviews are
+        saved in this browser, not to the server, until the backend supports them.
       </span>
     </p>
   );
