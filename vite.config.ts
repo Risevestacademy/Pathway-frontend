@@ -2,7 +2,7 @@
 import path from "node:path";
 import { execSync } from "node:child_process";
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
@@ -27,52 +27,59 @@ const sentryEnvironment =
   process.env.VITE_SENTRY_ENVIRONMENT ?? process.env.VERCEL_ENV;
 
 // https://vite.dev/config/
-export default defineConfig({
-  plugins: [
-    tanstackRouter({
-      target: "react",
-      autoCodeSplitting: true,
-    }),
-    react(),
-    tailwindcss(),
-    sentryVitePlugin({
-      disable: !sentryAuthToken,
-      org: process.env.SENTRY_ORG,
-      project: process.env.SENTRY_PROJECT,
-      authToken: sentryAuthToken,
-      release: { name: release },
-      sourcemaps: {
-        filesToDeleteAfterUpload: ["./dist/**/*.map"],
-      },
-    }),
-  ],
-  server: {
-    proxy: {
-      "/api": {
-        target: process.env.VITE_DEV_API_BASE_URL,
-        changeOrigin: true,
-        secure: true,
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd());
+  const apiTarget =
+    env.VITE_DEV_API_BASE_URL ||
+    "https://pathway-backend-a89a738.onrender.com/";
+
+  return {
+    plugins: [
+      tanstackRouter({
+        target: "react",
+        autoCodeSplitting: true,
+      }),
+      react(),
+      tailwindcss(),
+      sentryVitePlugin({
+        disable: !sentryAuthToken,
+        org: process.env.SENTRY_ORG,
+        project: process.env.SENTRY_PROJECT,
+        authToken: sentryAuthToken,
+        release: { name: release },
+        sourcemaps: {
+          filesToDeleteAfterUpload: ["./dist/**/*.map"],
+        },
+      }),
+    ],
+    server: {
+      proxy: {
+        "/api": {
+          target: apiTarget,
+          changeOrigin: true,
+          secure: true,
+        },
       },
     },
-  },
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "./src"),
+      },
     },
-  },
-  define: {
-    "import.meta.env.VITE_APP_VERSION": JSON.stringify(release),
-    ...(sentryEnvironment
-      ? {
-          "import.meta.env.VITE_SENTRY_ENVIRONMENT":
-            JSON.stringify(sentryEnvironment),
-        }
-      : {}),
-  },
-  build: {
-    sourcemap: "hidden",
-  },
-  test: {
-    environment: "jsdom",
-  },
+    define: {
+      "import.meta.env.VITE_APP_VERSION": JSON.stringify(release),
+      ...(sentryEnvironment
+        ? {
+            "import.meta.env.VITE_SENTRY_ENVIRONMENT":
+              JSON.stringify(sentryEnvironment),
+          }
+        : {}),
+    },
+    build: {
+      sourcemap: "hidden",
+    },
+    test: {
+      environment: "jsdom",
+    },
+  };
 });
