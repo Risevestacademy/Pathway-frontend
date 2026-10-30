@@ -6,7 +6,6 @@ import publishedArt from "../../../assets/images/admin-art-published.png";
 import reviewArt from "../../../assets/images/admin-art-review.png";
 import linksArt from "../../../assets/images/admin-art-links.png";
 import reportsArt from "../../../assets/images/admin-art-reports.png";
-import { attentionItems, overviewStats, recentActivity } from "../admin.mock";
 import { countUpdatedThisWeek } from "../admin.utils";
 import { isOpenFeedback } from "../adminFeedback.types";
 import { useAdminCareers } from "../hooks/useAdminCareers";
@@ -64,11 +63,14 @@ function StatCard({
 function ListCard({
   title,
   subtitle,
+  empty,
   children,
 }: {
   title: string;
   subtitle: string;
-  children: ReactNode;
+  /** Shown when there are no rows. */
+  empty: string;
+  children: ReactNode[];
 }) {
   return (
     <section className="overflow-hidden rounded-2xl border border-line-strong">
@@ -76,11 +78,15 @@ function ListCard({
         <h2 className="font-medium text-ink">{title}</h2>
         <p className="mt-1 text-sm text-ink-muted">{subtitle}</p>
       </div>
-      <ul className="divide-y divide-line border-t border-line">{children}</ul>
+      <ul className="divide-y divide-line border-t border-line">
+        {children.length > 0 ? children : <li className="px-5 py-4 text-sm text-ink-muted">{empty}</li>}
+      </ul>
     </section>
   );
 }
 
+// Review queue, link checks and the activity feed have no backend data yet, so
+// they show 0 or empty rather than made-up figures. Wire each up as its endpoint lands.
 export function OverviewPage() {
   const { rows, isPending, isError } = useAdminCareers();
   const published = rows.filter((r) => r.status === "published").length;
@@ -100,7 +106,6 @@ export function OverviewPage() {
       badge: r.sources?.health === "missing" ? "Missing" : "Stale source",
       tone: "warning" as const,
     }));
-  const attention = [...staleItems, ...attentionItems];
 
   return (
     <main className="flex flex-1 flex-col gap-8 px-page-mobile py-6 sm:px-page-tablet lg:p-8">
@@ -120,15 +125,15 @@ export function OverviewPage() {
         />
         <StatCard
           label="Waiting for review"
-          value={overviewStats.waitingForReview.count}
-          note={overviewStats.waitingForReview.note}
+          value={0}
+          note=""
           tint="border-pink-300 bg-pink-50"
           art={<Art src={reviewArt} />}
         />
         <StatCard
           label="Broken Links"
-          value={overviewStats.brokenLinks.count}
-          note={overviewStats.brokenLinks.note}
+          value={0}
+          note=""
           tint="border-amber-300 bg-amber-50"
           art={<Art src={linksArt} />}
         />
@@ -154,8 +159,12 @@ export function OverviewPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <ListCard title="Needs attention" subtitle="Fix these before they reach learners">
-          {attention.map((item) => (
+        <ListCard
+          title="Needs attention"
+          subtitle="Fix these before they reach learners"
+          empty="Nothing needs attention."
+        >
+          {staleItems.map((item) => (
             <li key={item.id} className="flex items-center justify-between gap-4 px-5 py-4">
               <div>
                 <p className="font-medium text-ink">{item.title}</p>
@@ -166,13 +175,8 @@ export function OverviewPage() {
           ))}
         </ListCard>
 
-        <ListCard title="Recent activity" subtitle="Last 7 days">
-          {recentActivity.map((item) => (
-            <li key={item.id} className="px-5 py-4">
-              <p className="font-medium text-ink">{item.title}</p>
-              <p className="mt-0.5 text-sm text-ink-muted">{item.when}</p>
-            </li>
-          ))}
+        <ListCard title="Recent activity" subtitle="Last 7 days" empty="No activity to show yet.">
+          {[]}
         </ListCard>
       </div>
     </main>
