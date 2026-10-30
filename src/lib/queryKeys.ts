@@ -35,5 +35,6 @@ export const queryKeys = {
       list: (params: FetchInvitesParams) => ["admin", "invites", params] as const,
       accepted: ["admin", "invites", "accepted"] as const,
     },
+    revisionDiff: (revisionId: string) => ["admin", "revisions", revisionId, "diff"] as const,
   },
 };
