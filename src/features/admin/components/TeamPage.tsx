@@ -75,7 +75,7 @@ export function TeamPage() {
       </div>
 
       {notice && (
-        <p role="status" className="text-sm text-ink-muted">
+        <p role="status" className="text-sm text-ink">
           {notice}
         </p>
       )}
@@ -92,8 +92,12 @@ export function TeamPage() {
       <InviteDialog
         open={inviting}
         onOpenChange={setInviting}
-        onSubmitted={(email) =>
-          setNotice(`Invite for ${email} wasn’t sent. Sending invites isn’t available yet.`)
+        onSent={(invite) =>
+          setNotice(
+            invite.emailSent
+              ? `Invite sent to ${invite.email}.`
+              : `Invite created for ${invite.email}, but the email couldn’t be sent. Invite them again to retry.`,
+          )
         }
       />
     </main>
@@ -165,7 +169,7 @@ function MembersTab({ canManage }: { canManage: boolean }) {
                     </td>
                     <td className="px-6 py-4 text-right">
                       {/* Roles of people who joined by invite come from the server. */}
-                      {canManage && !m.fromInvite && (
+                      {canManage && !m.serverManaged && (
                         <LinkButton
                           isPrimary={false}
                           to="/admin/team/$memberId"

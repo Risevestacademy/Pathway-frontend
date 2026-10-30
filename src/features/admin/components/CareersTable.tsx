@@ -44,9 +44,10 @@ interface CareersTableProps {
   rows: AdminCareerRow[];
   onPublish: (row: AdminCareerRow) => void;
   onRetire: (row: AdminCareerRow) => void;
+  onDelete: (row: AdminCareerRow) => void;
 }
 
-export function CareersTable({ rows, onPublish, onRetire }: CareersTableProps) {
+export function CareersTable({ rows, onPublish, onRetire, onDelete }: CareersTableProps) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[920px] text-left text-sm">
@@ -100,6 +101,11 @@ export function CareersTable({ rows, onPublish, onRetire }: CareersTableProps) {
                   {row.status === "draft" && (
                     <Button isPrimary={false} onClick={() => onPublish(row)}>
                       Publish
+                    </Button>
+                  )}
+                  {row.status === "draft" && (
+                    <Button isPrimary={false} onClick={() => onDelete(row)}>
+                      Delete
                     </Button>
                   )}
                   {row.status === "published" && (

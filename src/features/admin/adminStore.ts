@@ -3,9 +3,7 @@ import { persist } from "zustand/middleware";
 import type { CareerDraft } from "./admin.editor";
 import type { AdminCareerRow, AdminStatus } from "./admin.utils";
 import {
-  getOwnerMember,
   getSeedMembers,
-  OWNER_MEMBER_ID,
   SEED_REPORTS,
   SEED_REVIEWS,
   type ReportItem,
@@ -39,6 +37,8 @@ interface AdminState {
   members: TeamMember[];
 
   addCareer: (input: NewCareerInput) => void;
+  /** Forgets a career's local copy, status change and saved draft. */
+  removeCareer: (id: string) => void;
   setStatus: (id: string, status: AdminStatus) => void;
   saveDraft: (id: string, draft: CareerDraft) => void;
 
@@ -47,7 +47,6 @@ interface AdminState {
 
   replaceResourceLink: (careerId: string, resourceId: string, url: string) => void;
 
-  addMember: (member: Omit<TeamMember, "id">) => void;
   updateMember: (id: string, patch: Partial<TeamMember>) => void;
   removeMember: (id: string) => void;
 
@@ -91,6 +90,18 @@ export const useAdminStore = create<AdminState>()(
         })),
       setStatus: (id, status) =>
         set((state) => ({ statusOverrides: { ...state.statusOverrides, [id]: status } })),
+      removeCareer: (id) =>
+        set((state) => {
+          const statusOverrides = { ...state.statusOverrides };
+          const drafts = { ...state.drafts };
+          delete statusOverrides[id];
+          delete drafts[id];
+          return {
+            created: state.created.filter((c) => c.id !== id),
+            statusOverrides,
+            drafts,
+          };
+        }),
       saveDraft: (id, draft) =>
         set((state) => ({ drafts: { ...state.drafts, [id]: draft } })),
 
@@ -132,8 +143,6 @@ export const useAdminStore = create<AdminState>()(
           };
         }),
 
-      addMember: (member) =>
-        set((state) => ({ members: [...state.members, { ...member, id: newId("member") }] })),
       updateMember: (id, patch) =>
         set((state) => ({
           members: state.members.map((m) => (m.id === id ? { ...m, ...patch } : m)),
@@ -150,17 +159,11 @@ export const useAdminStore = create<AdminState>()(
     }),
     {
       name: "pathway-admin-dummy-data",
-      version: 3,
-      // Browsers with a saved team list get the owner from the current env,
-      // replacing any earlier owner entry (e.g. a hardcoded one).
-      migrate: (persisted) => {
-        const state = persisted as Partial<AdminState>;
-        const owner = getOwnerMember();
-        const others = (state.members ?? []).filter(
-          (m) => m.id !== OWNER_MEMBER_ID && m.id !== "member-esther",
-        );
-        return { ...state, members: owner ? [owner, ...others] : others } as AdminState;
-      },
+      version: 5,
+      // Earlier versions saved dummy team members in the browser. The team is
+      // now just the configured admin, plus whoever accepted an invite.
+      migrate: (persisted) =>
+        ({ ...(persisted as Partial<AdminState>), members: getSeedMembers() }) as AdminState,
     },
   ),
 );

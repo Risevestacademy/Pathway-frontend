@@ -66,6 +66,22 @@ describe("InvitesSection", () => {
     expect(useAdminInvites).toHaveBeenLastCalledWith({ status: "EXPIRED", page: 1, limit: 6 });
   });
 
+  it("goes back to the last page when the current one is past the end", async () => {
+    let total = 13;
+    useAdminInvites.mockImplementation(({ page }: { page: number }) =>
+      ok(page * 6 > total + 5 ? [] : [invite("a")], total, page),
+    );
+    const { rerender } = render(<InvitesSection />);
+    await userEvent.click(screen.getByRole("button", { name: "Next page" }));
+    await userEvent.click(screen.getByRole("button", { name: "Next page" }));
+    expect(useAdminInvites).toHaveBeenLastCalledWith({ status: undefined, page: 3, limit: 6 });
+
+    // The only invite on page 3 is revoked, leaving 12 invites on 2 pages.
+    total = 12;
+    rerender(<InvitesSection />);
+    expect(useAdminInvites).toHaveBeenLastCalledWith({ status: undefined, page: 2, limit: 6 });
+  });
+
   it("shows the total, not just the visible page", () => {
     useAdminInvites.mockReturnValue(ok([invite("a"), invite("b")], 42));
     render(<InvitesSection />);

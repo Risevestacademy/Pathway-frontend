@@ -15,6 +15,9 @@ export interface AuthUser {
   id: string;
   email: string;
   role: string;
+  /** Present when the backend sends the person's name. */
+  fullName?: string;
+  name?: string;
 }
 
 export interface RegisterResponse {
@@ -101,6 +104,7 @@ export async function registerUser(
     const { data } = await api.post<RegisterResponse | { data: RegisterResponse }>(
       "/auth/register",
       credentials,
+      { skipAuthRefresh: true },
     );
 
     return "data" in data ? data.data : data;
@@ -116,6 +120,7 @@ export async function loginUser(
     const { data } = await api.post<AuthResponse | { data: AuthResponse }>(
       "/auth/login",
       credentials,
+      { skipAuthRefresh: true },
     );
 
     return "data" in data ? data.data : data;
@@ -129,6 +134,7 @@ export async function loginWithGoogle(idToken: string): Promise<AuthResponse> {
     const { data } = await api.post<AuthResponse | { data: AuthResponse }>(
       "/auth/google",
       { idToken },
+      { skipAuthRefresh: true },
     );
 
     return "data" in data ? data.data : data;
@@ -145,6 +151,7 @@ export async function verifyEmail(
     const { data } = await api.post<AuthResponse | { data: AuthResponse }>(
       "/auth/verify-email",
       { email, otp },
+      { skipAuthRefresh: true },
     );
 
     return "data" in data ? data.data : data;
@@ -163,7 +170,11 @@ export async function verifyEmail(
 
 export async function resendVerification(email: string): Promise<void> {
   try {
-    await api.post("/auth/resend-verification", { email });
+    await api.post(
+      "/auth/resend-verification",
+      { email },
+      { skipAuthRefresh: true },
+    );
   } catch (error) {
     throw getAuthRequestError(
       error,
@@ -178,7 +189,10 @@ export async function logoutWithToken(accessToken: string): Promise<void> {
     await api.post(
       "/auth/logout",
       {},
-      { headers: { Authorization: `Bearer ${accessToken}` } },
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        skipAuthRefresh: true,
+      },
     );
   } catch {
     // Best effort: the caller only wants the session gone.
@@ -226,9 +240,11 @@ async function hydrateAuth(): Promise<void> {
 }
 
 export async function passwordResetRequest(email: string): Promise<void> {
-  await api.post("/auth/password-reset/request", {
-    email,
-  });
+  await api.post(
+    "/auth/password-reset/request",
+    { email },
+    { skipAuthRefresh: true },
+  );
 }
 
 export async function passwordResetConfirm(
@@ -236,10 +252,11 @@ export async function passwordResetConfirm(
   token: string,
 ): Promise<void> {
   try {
-    await api.post("/auth/password-reset/confirm", {
-      newPassword,
-      token,
-    });
+    await api.post(
+      "/auth/password-reset/confirm",
+      { newPassword, token },
+      { skipAuthRefresh: true },
+    );
   } catch (error) {
     if (isAxiosError(error)) {
       if (error.response?.data?.error === "VALIDATION_ERROR") {

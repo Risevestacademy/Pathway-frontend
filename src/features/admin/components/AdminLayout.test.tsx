@@ -38,6 +38,16 @@ describe("AdminLayout local preview notice", () => {
     expect(screen.queryByRole("note")).toBeNull();
   });
 
+  it("is hidden on the team pages, which come from the API", () => {
+    for (const path of ["/admin/team", "/admin/team/invites"]) {
+      pathname = path;
+      render(<AdminLayout />);
+
+      expect(screen.queryByRole("note")).toBeNull();
+      cleanup();
+    }
+  });
+
   it("shows the signed-in admin's name instead of a generic title", () => {
     pathname = "/admin";
     fullName = "Ada Lovelace";

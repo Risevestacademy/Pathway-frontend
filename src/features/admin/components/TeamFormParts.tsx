@@ -104,3 +104,52 @@ export function CareerAccessPicker({
     </div>
   );
 }
+
+/** Radio cards for picking exactly one role. */
+export function RoleRadioCards({
+  value,
+  onChange,
+  name = "role",
+}: {
+  value: Role | null;
+  onChange: (role: Role) => void;
+  name?: string;
+}) {
+  return (
+    <div role="radiogroup" aria-label="Role" className="flex flex-col gap-3">
+      {ROLES.map((role) => {
+        const checked = value === role.id;
+        return (
+          <label
+            key={role.id}
+            className={clsx(
+              "flex cursor-pointer gap-3 rounded-xl border px-4 py-2.5 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-500",
+              checked ? "border-brand-500 bg-brand-50" : "border-line-strong hover:border-brand-300",
+            )}
+          >
+            <input
+              type="radio"
+              name={name}
+              checked={checked}
+              onChange={() => onChange(role.id)}
+              className="sr-only"
+            />
+            <span
+              aria-hidden
+              className={clsx(
+                "mt-0.5 grid size-5 shrink-0 place-items-center rounded-full border",
+                checked ? "border-brand-600 bg-brand-600 text-white" : "border-line-strong bg-surface",
+              )}
+            >
+              {checked && <Check className="size-3.5" />}
+            </span>
+            <span>
+              <span className="block font-medium text-ink">{role.label}</span>
+              <span className="block text-sm text-ink-muted">{role.description}</span>
+            </span>
+          </label>
+        );
+      })}
+    </div>
+  );
+}

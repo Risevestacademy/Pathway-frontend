@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { TeamMember } from "../admin.workflow";
 import { TeamPage } from "./TeamPage";
@@ -26,6 +26,11 @@ vi.mock("../hooks/useAdminCareers", () => ({
 }));
 vi.mock("./InvitesSection", () => ({ InvitesSection: () => <div>Invites list</div> }));
 
+const createMutate = vi.fn();
+vi.mock("../hooks/useAdminInvites", () => ({
+  useCreateInvite: () => ({ mutate: createMutate, isPending: false, isError: false, error: null }),
+}));
+
 const member = (id: string, over: Partial<TeamMember> = {}): TeamMember => ({
   id,
   name: id,
@@ -37,7 +42,8 @@ const member = (id: string, over: Partial<TeamMember> = {}): TeamMember => ({
 });
 
 beforeEach(() => {
-  members = [member("amaka"), member("ada", { fromInvite: true })];
+  createMutate.mockReset();
+  members = [member("amaka"), member("ada", { serverManaged: true })];
   isAdmin = true;
 });
 afterEach(cleanup);
@@ -65,16 +71,35 @@ describe("TeamPage", () => {
     expect(screen.queryByText("Invites list")).toBeNull();
   });
 
-  it("takes an invite but adds nobody to the list, and says it was not sent", async () => {
+  async function invite(emailSent: boolean) {
+    createMutate.mockImplementation((_input, options) =>
+      options.onSuccess({
+        id: "1",
+        email: "new.person@example.com",
+        role: "EDITOR",
+        expiresAt: "",
+        emailSent,
+      }),
+    );
     render(<TeamPage />);
 
     await userEvent.click(screen.getByRole("button", { name: "Invite someone" }));
     await userEvent.type(screen.getByLabelText("Email"), "new.person@example.com");
-    await userEvent.click(within(screen.getByRole("group", { name: "Roles" })).getByText("Editor"));
+    await userEvent.click(screen.getByRole("radio", { name: /Editor/ }));
     await userEvent.click(screen.getByRole("button", { name: "Send invite" }));
+  }
 
-    expect(screen.queryByText("new.person@example.com")).toBeNull();
-    expect(screen.getByRole("status").textContent).toContain("new.person@example.com");
-    expect(screen.getByRole("status").textContent).toContain("wasn’t sent");
+  it("tells the admin when an invite was sent, without adding them as a member", async () => {
+    await invite(true);
+
+    expect(screen.getByRole("status").textContent).toBe("Invite sent to new.person@example.com.");
+    // They join the Members list only after accepting.
+    expect(screen.queryByText("new.person@example.com", { selector: "p.text-ink-muted" })).toBeNull();
+  });
+
+  it("warns when the invite was created but the email could not be sent", async () => {
+    await invite(false);
+
+    expect(screen.getByRole("status").textContent).toContain("couldn’t be sent");
   });
 });

@@ -14,7 +14,7 @@ import {
 import { useAdminCareers } from "../hooks/useAdminCareers";
 import { AddCareerButton } from "./AddCareerButton";
 import { PageHeader } from "./AdminLayout";
-import { PublishCareerDialog, RetireCareerDialog } from "./CareerStatusDialogs";
+import { DeleteCareerDialog, PublishCareerDialog, RetireCareerDialog } from "./CareerStatusDialogs";
 import { CareersTable, CareersTableSkeleton } from "./CareersTable";
 
 const SUBTITLE = "Every career learners can explore. Only published careers are visible.";
@@ -34,6 +34,8 @@ export function CareersPage() {
   const [page, setPage] = useState(1);
   const [publishing, setPublishing] = useState<AdminCareerRow | null>(null);
   const [retiring, setRetiring] = useState<AdminCareerRow | null>(null);
+  const [deleting, setDeleting] = useState<AdminCareerRow | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   if (isError) {
     return (
@@ -111,6 +113,12 @@ export function CareersPage() {
         </div>
       </div>
 
+      {notice && (
+        <p role="status" className="text-sm text-ink">
+          {notice}
+        </p>
+      )}
+
       <section className="overflow-hidden rounded-3xl border border-line-strong">
         {isPending ? (
           <CareersTableSkeleton />
@@ -126,6 +134,10 @@ export function CareersPage() {
               rows={current.items}
               onPublish={(row) => setPublishing(row)}
               onRetire={(row) => setRetiring(row)}
+              onDelete={(row) => {
+                setNotice(null);
+                setDeleting(row);
+              }}
             />
             <div className="flex flex-wrap items-center justify-end gap-3 border-t border-line px-6 py-4">
               <p className="text-sm text-ink-muted">
@@ -167,6 +179,11 @@ export function CareersPage() {
 
       <PublishCareerDialog career={publishing} onClose={() => setPublishing(null)} />
       <RetireCareerDialog career={retiring} onClose={() => setRetiring(null)} />
+      <DeleteCareerDialog
+        career={deleting}
+        onClose={() => setDeleting(null)}
+        onDeleted={(career) => setNotice(`Deleted ${career.title}.`)}
+      />
     </main>
   );
 }
