@@ -6,6 +6,7 @@ import { NAV_CTA, NAV_LINKS, type NavLink } from "../landing.copy";
 import { hashScrollOptions } from "../landing.utils";
 import { LandingLinkButton } from "./LandingButton";
 import logo from "@/assets/landing/logo-nav.svg";
+import { selectIsAuthenticated, useAuthStore } from "@/lib/stores/authStore";
 
 const linkBase =
   "font-landing-body text-base font-medium leading-none transition-colors duration-150 motion-reduce:transition-none";
@@ -35,6 +36,21 @@ function NavItem({ link, onNavigate, className }: { link: NavLink; onNavigate?: 
   return (
     <Link to={link.to} onClick={onNavigate} className={clsx(linkBase, "focus-ring rounded text-ink hover:text-brand-600", className)}>
       {link.label}
+    </Link>
+  );
+}
+
+/** "Log in" for visitors; signed-in users get a way back into the app instead. */
+function AccountLink({ onNavigate, className }: { onNavigate?: () => void; className?: string }) {
+  const signedIn = useAuthStore(selectIsAuthenticated);
+
+  return signedIn ? (
+    <Link to="/careers" onClick={onNavigate} className={className}>
+      {NAV_CTA.openApp}
+    </Link>
+  ) : (
+    <Link to="/login" search={{ redirect: "/careers" }} onClick={onNavigate} className={className}>
+      {NAV_CTA.login}
     </Link>
   );
 }
@@ -96,13 +112,9 @@ export default function LandingNav() {
           </nav>
 
           <div className="flex items-center gap-3 max-[359px]:gap-1 sm:gap-4">
-            <Link
-              to="/login"
-              search={{ redirect: "/careers" }}
+            <AccountLink
               className={clsx(linkBase, "focus-ring hidden rounded text-ink hover:text-brand-600 md:inline")}
-            >
-              {NAV_CTA.login}
-            </Link>
+            />
             <LandingLinkButton to="/careers/onboarding" size="md" className="max-[359px]:px-3">
               {NAV_CTA.getStarted}
               <ArrowRightRegular aria-hidden size={16} className="max-[359px]:hidden" />
@@ -134,14 +146,10 @@ export default function LandingNav() {
               </li>
             ))}
             <li>
-              <Link
-                to="/login"
-                search={{ redirect: "/careers" }}
-                onClick={() => setOpen(false)}
+              <AccountLink
+                onNavigate={() => setOpen(false)}
                 className={clsx(linkBase, "focus-ring block rounded py-1 text-ink hover:text-brand-600")}
-              >
-                {NAV_CTA.login}
-              </Link>
+              />
             </li>
           </ul>
         </nav>

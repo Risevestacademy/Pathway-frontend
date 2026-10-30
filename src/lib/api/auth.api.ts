@@ -183,6 +183,14 @@ export async function resendVerification(email: string): Promise<void> {
   }
 }
 
+/**
+ * Revokes the refresh token and clears its cookie. Throws on failure, because
+ * a surviving cookie would sign the user straight back in on the next reload.
+ */
+export async function logout(): Promise<void> {
+  await api.post("/auth/logout", {}, { skipAuthRefresh: true });
+}
+
 /** Ends a session started with a token that was never stored (e.g. a probe login). */
 export async function logoutWithToken(accessToken: string): Promise<void> {
   try {
@@ -225,12 +233,23 @@ export function ensureAuthHydrated(): Promise<void> {
   return hydrationPromise;
 }
 
+async function fetchCurrentUser(): Promise<AuthUser> {
+  const { data } = await api.get<AuthUser | { data: AuthUser }>("/auth/me");
+  const user = "data" in data ? data.data : data;
+
+  if (!user?.id) {
+    throw new Error("GET /auth/me returned no user");
+  }
+
+  return user;
+}
+
 async function hydrateAuth(): Promise<void> {
   try {
     const accessToken = await refreshAccessToken();
+    const user = await fetchCurrentUser();
 
-    const userResponse = await api.get("/auth/me");
-    useAuthStore.getState().setAuth(userResponse.data.data, accessToken);
+    useAuthStore.getState().setAuth(user, accessToken);
   } catch {
     useAuthStore.getState().clearAuth();
     hydrationPromise = null;

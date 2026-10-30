@@ -10,6 +10,7 @@ import type { ComponentType, SVGProps } from "react";
 import { selectIsAuthenticated, useAuthStore } from "../lib/stores/authStore";
 import { NavIcon } from "./NavIcon";
 import { FeedbackButton } from "../features/feedback/components/FeedbackButton";
+import { SignOutButton } from "../features/auth/components/SignOutButton";
 
 type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -48,6 +49,8 @@ export default function AppTopNav() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const email = useAuthStore((state) => state.user?.email);
   const signedIn = useAuthStore(selectIsAuthenticated);
+  // Until the session is restored after a reload, don't offer "Sign in".
+  const restoringSession = useAuthStore((state) => state.isHydrating) && !signedIn;
   const visibleItems = signedIn ? NAV_ITEMS : NAV_ITEMS.filter((item) => item.to !== null);
   const initial = email?.trim().charAt(0).toUpperCase() ?? "";
 
@@ -103,7 +106,14 @@ export default function AppTopNav() {
 
       <div className="flex items-center gap-3 lg:gap-2">
         <FeedbackButton />
-        {signedIn ? (
+        {signedIn && <SignOutButton />}
+        {restoringSession ? (
+          <div
+            role="status"
+            aria-label="Checking your sign-in"
+            className="size-10 shrink-0 animate-pulse rounded-full bg-grey-50 motion-reduce:animate-none"
+          />
+        ) : signedIn ? (
           <>
             {avatarUrl ? (
               <img
