@@ -2,8 +2,10 @@ import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import {
+  AcceptInviteError,
   EmailAlreadyRegisteredError,
   InvalidCredentialsError,
+  acceptInvite,
   loginUser,
   loginWithGoogle,
   passwordResetConfirm,
@@ -155,5 +157,76 @@ describe("auth API", () => {
 
     await expect(call()).rejects.toBeTruthy();
     expect(refreshCallCount).toBe(0);
+  });
+});
+
+describe("acceptInvite", () => {
+  const session = {
+    accessToken: "new-token",
+    user: { id: "u1", email: "ada@example.com", role: "EDITOR" },
+  };
+
+  it("POSTs the token from the link and returns the fresh session", async () => {
+    let received: unknown;
+    server.use(
+      http.post("*/auth/invites/accept", async ({ request }) => {
+        received = await request.json();
+        return HttpResponse.json(session);
+      }),
+    );
+
+    await expect(acceptInvite("tok-123")).resolves.toEqual(session);
+    expect(received).toEqual({ token: "tok-123" });
+  });
+
+  it("accepts a response wrapped in data", async () => {
+    server.use(http.post("*/auth/invites/accept", () => HttpResponse.json({ data: session })));
+
+    await expect(acceptInvite("tok")).resolves.toEqual(session);
+  });
+
+  it.each([
+    [
+      403,
+      "INVITE_EMAIL_MISMATCH",
+      "This invite was sent to a different email address. Sign in with the email it was sent to.",
+    ],
+    [
+      403,
+      "EMAIL_NOT_VERIFIED",
+      "Verify your email address first, then open the invite link again.",
+    ],
+    [
+      404,
+      "INVITE_NOT_FOUND",
+      "This invite link isn’t valid, or it was revoked. Ask the person who invited you to send a new one.",
+    ],
+    [409, "INVITE_ALREADY_ACCEPTED", "This invite has already been accepted."],
+    [
+      410,
+      "INVITE_EXPIRED",
+      "This invite has expired. Ask the person who invited you to send a new one.",
+    ],
+    [500, undefined, "We couldn’t accept this invite. Please try again."],
+  ])("explains a %i %s in plain words and keeps the code", async (status, code, message) => {
+    server.use(
+      http.post("*/auth/invites/accept", () =>
+        HttpResponse.json({ code, message: "raw server text" }, { status }),
+      ),
+    );
+
+    const error = (await acceptInvite("tok").catch((e: unknown) => e)) as AcceptInviteError;
+
+    expect(error).toBeInstanceOf(AcceptInviteError);
+    expect(error.message).toBe(message);
+    expect(error.code).toBe(code);
+  });
+
+  it("explains a network failure", async () => {
+    server.use(http.post("*/auth/invites/accept", () => HttpResponse.error()));
+
+    await expect(acceptInvite("tok")).rejects.toThrow(
+      "We couldn’t reach the server. Check your connection and try again.",
+    );
   });
 });
