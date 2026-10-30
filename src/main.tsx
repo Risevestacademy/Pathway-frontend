@@ -8,14 +8,16 @@ import {
   MutationCache,
 } from "@tanstack/react-query";
 import { routeTree } from "./routeTree.gen.ts";
-import { PostHogProvider } from "@posthog/react";
 import { captureErrorResponse, initSentry } from "./lib/monitoring/sentry";
+import { initAnalytics } from "./lib/monitoring/events";
+import { setSessionExpiredHandler } from "./lib/api/axios";
+import { handleSessionExpired } from "./lib/api/sessionExpiry";
 import { retryUnlessClientError } from "./lib/queryRetry";
 import "./index.css";
 
 initSentry();
 
-const options = {
+const analyticsOptions = {
   api_host: import.meta.env.VITE_POSTHOG_HOST,
   capture_pageview: "history_change",
   defaults: "2026-05-30",
@@ -38,6 +40,10 @@ const queryClient = new QueryClient({
   }),
 });
 
+setSessionExpiredHandler(() => {
+  void handleSessionExpired(router, queryClient);
+});
+
 declare module "@tanstack/react-router" {
   interface Register {
     router: typeof router;
@@ -53,12 +59,12 @@ if (!rootElement) {
 createRoot(rootElement).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <PostHogProvider
-        apiKey={import.meta.env.VITE_POSTHOG_PROJECT_TOKEN}
-        options={options}
-      >
-        <RouterProvider router={router} />
-      </PostHogProvider>
+      <RouterProvider router={router} />
     </QueryClientProvider>
   </StrictMode>,
+);
+
+void initAnalytics(
+  import.meta.env.VITE_POSTHOG_PROJECT_TOKEN,
+  analyticsOptions,
 );

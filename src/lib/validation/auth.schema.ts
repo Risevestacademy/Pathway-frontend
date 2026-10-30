@@ -1,7 +1,9 @@
-import { z } from "zod";
+// zod/mini: the login route validates its search in the entry chunk, and the
+// classic build would add ~75 KB there.
+import { z } from "zod/mini";
 
 export const loginSearchSchema = z.object({
-  redirect: z.string().optional(),
+  redirect: z.optional(z.string()),
 });
 
 const emailSchema = z.email("Invalid email address");
