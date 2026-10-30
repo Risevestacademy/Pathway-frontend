@@ -52,7 +52,7 @@ function LocalPreviewNotice() {
 }
 
 export function AdminLayout() {
-  const pendingReviews = useAdminStore((s) => s.reviews.filter((r) => r.status === "pending").length);
+  const pendingReviews = useAdminStore((s) => s.reviews.filter((r) => r.status === "pending" && !r.careerDeletedAt).length);
   const { fullName } = useCurrentMember();
   const openReports = useAdminFeedback().data?.filter(isOpenFeedback).length ?? 0;
 

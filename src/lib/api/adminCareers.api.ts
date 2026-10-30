@@ -1,5 +1,6 @@
 import { isAxiosError } from "axios";
 import { api } from "./axios";
+import type { CreateCareerInput, CreatedCareer } from "../../features/admin/adminCareers.types";
 import type {
   CareerRevisionSnapshot,
   SavedRevision,
@@ -121,5 +122,70 @@ export async function saveCareerRevision(
     return "data" in data ? data.data : data;
   } catch (error) {
     throw getRevisionError(error);
+  }
+}
+
+/** An error from creating a career, with the server's code so a form can point at the field. */
+export class CreateCareerError extends Error {
+  /** e.g. FIELD_NOT_FOUND, CAREER_TITLE_TAKEN or CAREER_SLUG_TAKEN. */
+  readonly code?: string;
+
+  constructor(message: string, code?: string) {
+    super(message);
+    this.name = "CreateCareerError";
+    this.code = code;
+  }
+}
+
+function getCreateCareerError(error: unknown): CreateCareerError {
+  const status = isAxiosError(error) ? error.response?.status : undefined;
+  const body = (isAxiosError(error) ? error.response?.data : undefined) as
+    | { code?: unknown }
+    | undefined;
+  const code = typeof body?.code === "string" ? body.code : undefined;
+
+  switch (status) {
+    case 400:
+      return new CreateCareerError(
+        code === "FIELD_NOT_FOUND"
+          ? "That field no longer exists. Pick another one."
+          : "Check the career details and try again.",
+        code,
+      );
+    case 401:
+      return new CreateCareerError("Your session has expired. Sign in again to continue.", code);
+    case 403:
+      return new CreateCareerError("Only editors and above can create careers.", code);
+    case 409:
+      return new CreateCareerError(
+        code === "CAREER_SLUG_TAKEN"
+          ? "Another career already uses this slug."
+          : "Another career already has this title.",
+        code,
+      );
+    default:
+      return new CreateCareerError(
+        isAxiosError(error) && !error.response
+          ? "We couldn’t reach the server. Check your connection and try again."
+          : "We couldn’t create this career. Please try again.",
+        code,
+      );
+  }
+}
+
+/**
+ * POST /admin/careers. Editors and above. Creates the career as a DRAFT at
+ * version 1 together with its first draft revision, in one write. The title and
+ * the slug must each be unique, ignoring case (409).
+ */
+export async function createAdminCareer(input: CreateCareerInput): Promise<CreatedCareer> {
+  try {
+    const { data } = await api.post<CreatedCareer | { data: CreatedCareer }>(
+      "/admin/careers",
+      input,
+    );
+    return "data" in data ? data.data : data;
+  } catch (error) {
+    throw getCreateCareerError(error);
   }
 }

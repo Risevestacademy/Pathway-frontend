@@ -37,7 +37,10 @@ export function useAdminCareers({ detailFor = "all" }: { detailFor?: "all" | str
   const apiRows = (items ?? []).map((c, i) => toAdminRow(c, details[i].data));
 
   // Saved editor drafts show up in the list, like a real save would.
-  const rows: AdminCareerRow[] = [...created, ...apiRows].map((row) => {
+  // A career created through the API stops being a local copy once the list returns it.
+  const apiIds = new Set(apiRows.map((row) => row.id));
+  const localRows = created.filter((row) => !apiIds.has(row.id));
+  const rows: AdminCareerRow[] = [...localRows, ...apiRows].map((row) => {
     const draft = drafts[row.id];
     return {
       ...row,

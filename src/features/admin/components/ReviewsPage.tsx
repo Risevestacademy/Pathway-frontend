@@ -18,6 +18,8 @@ export function ReviewsPage() {
   const pending = reviews
     .filter((r) => r.status === "pending")
     .sort((a, b) => new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime());
+  // Reviews of a deleted career stay listed for transparency, but nobody can act on them.
+  const actionable = pending.filter((r) => !r.careerDeletedAt).length;
 
   return (
     <main className="flex flex-1 flex-col gap-8 px-page-mobile py-6 sm:px-page-tablet lg:p-8">
@@ -47,10 +49,17 @@ export function ReviewsPage() {
               </thead>
               <tbody className="divide-y divide-line">
                 {pending.map((r) => (
-                  <tr key={r.id}>
+                  <tr key={r.id} className={r.careerDeletedAt ? "bg-surface-muted/50" : undefined}>
                     <td className="px-6 py-4">
-                      <p className="font-medium text-ink">{r.title}</p>
+                      <p className={r.careerDeletedAt ? "font-medium text-ink-muted" : "font-medium text-ink"}>
+                        {r.title}
+                      </p>
                       <p className="text-ink-muted">{r.summary}</p>
+                      {r.careerDeletedAt && (
+                        <p className="mt-1">
+                          <Badge tone="danger">Career deleted</Badge>
+                        </p>
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       <Badge tone={REVIEW_TONE[r.type]}>{REVIEW_TYPE_LABEL[r.type]}</Badge>
@@ -58,13 +67,17 @@ export function ReviewsPage() {
                     <td className="px-6 py-4 text-ink">{r.submittedBy}</td>
                     <td className="px-6 py-4 text-ink">{waitingLabel(r.submittedAt)}</td>
                     <td className="px-6 py-4 text-right">
-                      <LinkButton
-                        isPrimary={false}
-                        to="/admin/reviews/$reviewId"
-                        params={{ reviewId: r.id }}
-                      >
-                        Review
-                      </LinkButton>
+                      {r.careerDeletedAt ? (
+                        <span className="text-ink-subtle">Unavailable</span>
+                      ) : (
+                        <LinkButton
+                          isPrimary={false}
+                          to="/admin/reviews/$reviewId"
+                          params={{ reviewId: r.id }}
+                        >
+                          Review
+                        </LinkButton>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -74,7 +87,7 @@ export function ReviewsPage() {
         )}
         <p className="flex items-center gap-2 border-t border-line px-6 py-4 text-sm text-ink-subtle">
           <Info className="size-4 shrink-0" aria-hidden />
-          {pending.length} change{pending.length === 1 ? "" : "s"} waiting. You can’t approve your
+          {actionable} change{actionable === 1 ? "" : "s"} waiting. You can’t approve your
           own changes. Only people with the Reviewer role can approve.
         </p>
       </section>

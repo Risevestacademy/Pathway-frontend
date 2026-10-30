@@ -2,10 +2,13 @@ import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import {
+  CreateCareerError,
   RevisionSaveError,
+  createAdminCareer,
   deleteAdminCareer,
   saveCareerRevision,
 } from "./adminCareers.api";
+import type { CreateCareerInput } from "../../features/admin/adminCareers.types";
 import type { CareerRevisionSnapshot } from "../../features/admin/careerRevision.types";
 
 const server = setupServer();
@@ -175,6 +178,93 @@ describe("saveCareerRevision", () => {
     server.use(http.put("*/admin/careers/abc/revision", () => HttpResponse.error()));
 
     await expect(saveCareerRevision("abc", snapshot)).rejects.toThrow(
+      "We couldn’t reach the server. Check your connection and try again.",
+    );
+  });
+});
+
+const newCareer: CreateCareerInput = {
+  title: "DevOps Engineer",
+  slug: "devops-engineer",
+  fieldId: "field-1",
+  description: "Automates how software is built, tested and deployed.",
+  roleSummary: "Builds and runs the pipelines that ship software.",
+  targetLevels: ["RECENT_GRAD", "EARLY_CAREER"],
+};
+
+const created = {
+  id: "career-1",
+  slug: "devops-engineer",
+  title: "DevOps Engineer",
+  description: newCareer.description,
+  roleSummary: null,
+  fieldId: "field-1",
+  targetLevels: ["RECENT_GRAD"],
+  status: "DRAFT",
+  version: 1,
+  createdAt: "2026-10-28T10:30:00.000Z",
+  revision: { id: "rev-1", status: "DRAFT", baseVersion: 1 },
+};
+
+describe("createAdminCareer", () => {
+  it("POSTs the career and returns it with its first revision", async () => {
+    let received: unknown;
+    let method = "";
+    server.use(
+      http.post("*/admin/careers", async ({ request }) => {
+        method = request.method;
+        received = await request.json();
+        return HttpResponse.json(created, { status: 201 });
+      }),
+    );
+
+    await expect(createAdminCareer(newCareer)).resolves.toEqual(created);
+    expect(method).toBe("POST");
+    expect(received).toEqual(newCareer);
+  });
+
+  it("accepts a response wrapped in data", async () => {
+    server.use(http.post("*/admin/careers", () => HttpResponse.json({ data: created })));
+
+    await expect(createAdminCareer(newCareer)).resolves.toEqual(created);
+  });
+
+  it.each([
+    [400, "FIELD_NOT_FOUND", "That field no longer exists. Pick another one."],
+    [400, "VALIDATION_ERROR", "Check the career details and try again."],
+    [403, undefined, "Only editors and above can create careers."],
+    [409, "CAREER_TITLE_TAKEN", "Another career already has this title."],
+    [409, "CAREER_SLUG_TAKEN", "Another career already uses this slug."],
+    [500, undefined, "We couldn’t create this career. Please try again."],
+  ])("explains a %i %s in plain words and keeps the code", async (status, code, message) => {
+    server.use(
+      http.post("*/admin/careers", () =>
+        HttpResponse.json({ code, message: "raw server text" }, { status }),
+      ),
+    );
+
+    const error = (await createAdminCareer(newCareer).catch((e: unknown) => e)) as CreateCareerError;
+
+    expect(error).toBeInstanceOf(CreateCareerError);
+    expect(error.message).toBe(message);
+    expect(error.code).toBe(code);
+  });
+
+  it("explains an expired session once a token refresh fails", async () => {
+    server.use(
+      http.post("*/admin/careers", () => HttpResponse.json({}, { status: 401 })),
+      http.post("*/auth/refresh", () => HttpResponse.json({}, { status: 401 })),
+    );
+
+    await expect(createAdminCareer(newCareer)).rejects.toThrow(
+      "Your session has expired. Sign in again to continue.",
+    );
+  });
+
+  it("explains a network failure", async () => {
+    server.use(http.post("*/admin/careers", () => HttpResponse.error()));
+
+    await expect(createAdminCareer(newCareer)).rejects.toThrow(
       "We couldn’t reach the server. Check your connection and try again.",
     );
   });

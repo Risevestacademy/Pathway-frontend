@@ -102,12 +102,17 @@ export function SelectField<T extends string>({
   onChange,
   options,
   disabled,
+  placeholder,
+  error,
 }: {
   label: string;
   value: T;
   onChange: (value: T) => void;
   options: { value: T; label: string }[];
   disabled?: boolean;
+  /** Shown while nothing is selected. */
+  placeholder?: string;
+  error?: string;
 }) {
   const id = useId();
   return (
@@ -120,8 +125,12 @@ export function SelectField<T extends string>({
         onValueChange={(v) => onChange(v as T)}
         disabled={disabled}
       >
-        <SelectTrigger aria-labelledby={id} className="w-full">
-          <SelectValue />
+        <SelectTrigger
+          aria-labelledby={id}
+          aria-invalid={error ? true : undefined}
+          className={clsx("w-full", error && "!border-danger-600")}
+        >
+          <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
           {options.map((o) => (
@@ -131,6 +140,7 @@ export function SelectField<T extends string>({
           ))}
         </SelectContent>
       </Select>
+      <FieldMessage error={error} />
     </div>
   );
 }
