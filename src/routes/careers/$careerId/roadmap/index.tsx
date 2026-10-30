@@ -14,6 +14,8 @@ import { REPORT_REASONS } from "../../../../features/feedback/feedback.utils";
 import { analytics } from "@/lib/monitoring/events";
 import { useEffect } from "react";
 import { withLoaderErrorReporting } from "@/lib/monitoring/sentry";
+import RoadmapProgressPanel from "../../../../features/progress/components/RoadmapProgressPanel";
+import { useCareerProgress } from "../../../../features/progress/hooks/useCareerProgress";
 
 export const Route = createFileRoute("/careers/$careerId/roadmap/")({
   loader: ({ params }) =>
@@ -27,7 +29,9 @@ export const Route = createFileRoute("/careers/$careerId/roadmap/")({
 });
 
 function RoadmapRoute() {
+  const { careerId: routeCareerId } = Route.useParams();
   const result = Route.useLoaderData();
+  const { progress, retry } = useCareerProgress(routeCareerId);
   const roadmapId = result?.roadmap?.id;
   const careerId = result?.career.id;
   const careerTitle = result?.career.title;
@@ -94,7 +98,27 @@ function RoadmapRoute() {
         step to look ahead.
       </p>
 
-      <RoadmapStepList careerId={career.id} steps={roadmap.steps} />
+      <RoadmapProgressPanel
+        careerId={career.id}
+        careerTitle={career.title}
+        steps={roadmap.steps}
+        progress={progress}
+        onRetry={retry}
+      />
+
+      <RoadmapStepList
+        careerId={career.id}
+        steps={roadmap.steps}
+        tracking={
+          progress.kind === "active"
+            ? {
+                statuses: progress.statuses,
+                nextStepId: progress.progress.nextStepId,
+                startStepId: progress.progress.startStepId,
+              }
+            : undefined
+        }
+      />
 
       <ReportIssueLink
         className="mt-8"
