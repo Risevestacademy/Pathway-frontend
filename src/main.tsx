@@ -11,6 +11,7 @@ import { routeTree } from "./routeTree.gen.ts";
 import { captureErrorResponse, initSentry } from "./lib/monitoring/sentry";
 import { initAnalytics } from "./lib/monitoring/events";
 import { setSessionExpiredHandler } from "./lib/api/axios";
+import { handleSessionExpired } from "./lib/api/sessionExpiry";
 import { retryUnlessClientError } from "./lib/queryRetry";
 import "./index.css";
 
@@ -39,15 +40,8 @@ const queryClient = new QueryClient({
   }),
 });
 
-// A refresh failed and auth is already cleared: send them to log in and back.
 setSessionExpiredHandler(() => {
-  const { pathname, href } = router.state.location;
-  if (pathname === "/login") return;
-
-  void router
-    .navigate({ to: "/login", search: { redirect: href }, replace: true })
-    // Drop the old session's cached data once its pages have unmounted.
-    .then(() => queryClient.clear());
+  void handleSessionExpired(router, queryClient);
 });
 
 declare module "@tanstack/react-router" {
