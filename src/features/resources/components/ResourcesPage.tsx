@@ -1,5 +1,5 @@
-import { Link } from "@tanstack/react-router";
-import { ChevronLeft, SearchX } from "lucide-react";
+import { SearchX } from "lucide-react";
+import { BackLinkTo } from "../../skillCheck/components/BackLink";
 import RoadmapPage from "../../pathway/components/RoadmapPage";
 import StateMessage from "../../../components/StateMessage";
 import ResourceCard from "./ResourceCard";
@@ -25,6 +25,11 @@ export default function ResourcesPage({
   if (!result || !context) {
     return (
       <RoadmapPage>
+        <BackLinkTo
+          to="/careers/$careerId/roadmap"
+          params={{ careerId }}
+          label="Roadmap"
+        />
         <StateMessage
           icon={SearchX}
           title="Resources not found"
@@ -36,14 +41,11 @@ export default function ResourcesPage({
 
   return (
     <RoadmapPage>
-      <Link
+      <BackLinkTo
         to="/careers/$careerId/roadmap/$stepId"
         params={{ careerId, stepId }}
-        className="mb-4 inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink"
-      >
-        <ChevronLeft className="size-4" aria-hidden />
-        Back to step
-      </Link>
+        label="Back to step"
+      />
 
       <p className="text-sm font-medium text-brand-700">{context.step.title}</p>
       <h1 className="mt-1 font-display text-2xl font-semibold tracking-tight text-ink md:text-3xl">
