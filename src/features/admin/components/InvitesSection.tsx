@@ -59,10 +59,13 @@ export function InvitesSection() {
     });
   };
 
-  const forbidden =isError && isAxiosError(error) && error.response?.status === 403;
+  const forbidden = isError && isAxiosError(error) && error.response?.status === 403;
   const items = data?.items ?? [];
   const total = data?.total ?? 0;
   const pageCount = Math.max(1, Math.ceil(total / INVITES_PAGE_SIZE));
+
+  // Revoking or filtering can leave the current page past the last one.
+  if (data && page > pageCount) setPage(pageCount);
 
   return (
     <section aria-labelledby="invites-heading" className="flex flex-col gap-4">

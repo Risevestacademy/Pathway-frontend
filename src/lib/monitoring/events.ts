@@ -1,4 +1,41 @@
-import posthog from "posthog-js";
+import type { PostHog, PostHogConfig } from "posthog-js";
+
+// PostHog is ~280 KB, so it loads in its own chunk after the app starts.
+// Calls made while it loads are queued; calls made when analytics was never
+// started (no project token) are dropped.
+let client: PostHog | null = null;
+let queued: Array<(posthog: PostHog) => void> | null = null;
+
+function withClient(call: (posthog: PostHog) => void) {
+  if (client) {
+    call(client);
+  } else {
+    queued?.push(call);
+  }
+}
+
+export function initAnalytics(
+  apiKey: string | undefined,
+  config: Partial<PostHogConfig>,
+): Promise<void> {
+  if (!apiKey || client || queued) {
+    return Promise.resolve();
+  }
+
+  queued = [];
+  return import("posthog-js")
+    .then(({ default: posthog }) => {
+      posthog.init(apiKey, config);
+      client = posthog;
+      queued?.forEach((call) => call(posthog));
+    })
+    .catch(() => {
+      // Analytics is optional; a blocked or failed chunk shouldn't surface.
+    })
+    .finally(() => {
+      queued = null;
+    });
+}
 
 export interface CustomEvents {
   career_detail_viewed: {
@@ -44,24 +81,15 @@ export const analytics = {
     eventName: K,
     properties: CustomEvents[K],
   ) => {
-    // the internal variable `__loaded` is used intentionally used here.
-    // There is currently no public API from posthog for checking this,
-    // and this is a recommended way provided the risk is understood
-    if (posthog.__loaded) {
-      posthog.capture(eventName, properties);
-    }
+    withClient((posthog) => posthog.capture(eventName, properties));
   },
 
   identify: (userId: string, userProperties?: UserTraits) => {
-    if (posthog.__loaded) {
-      posthog.identify(userId, userProperties);
-    }
+    withClient((posthog) => posthog.identify(userId, userProperties));
   },
 
   logout: () => {
-    if (posthog.__loaded) {
-      posthog.reset();
-    }
+    withClient((posthog) => posthog.reset());
   },
 
   trackFeature: {
