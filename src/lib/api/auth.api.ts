@@ -183,6 +183,18 @@ export async function resendVerification(email: string): Promise<void> {
   }
 }
 
+/**
+ * Revokes the refresh token and clears its cookie. Throws on failure, because
+ * a surviving cookie would sign the user straight back in on the next reload.
+ *
+ * The endpoint only reads the refresh cookie and has no JWT guard, so an
+ * expired access token can't 401 here. skipAuthRefresh stops a pointless
+ * refresh that would mint a new refresh token just to revoke it.
+ */
+export async function logout(): Promise<void> {
+  await api.post("/auth/logout", {}, { skipAuthRefresh: true });
+}
+
 /** Ends a session started with a token that was never stored (e.g. a probe login). */
 export async function logoutWithToken(accessToken: string): Promise<void> {
   try {
@@ -225,12 +237,23 @@ export function ensureAuthHydrated(): Promise<void> {
   return hydrationPromise;
 }
 
+async function fetchCurrentUser(): Promise<AuthUser> {
+  const { data } = await api.get<AuthUser | { data: AuthUser }>("/auth/me");
+  const user = "data" in data ? data.data : data;
+
+  if (!user?.id) {
+    throw new Error("GET /auth/me returned no user");
+  }
+
+  return user;
+}
+
 async function hydrateAuth(): Promise<void> {
   try {
     const accessToken = await refreshAccessToken();
+    const user = await fetchCurrentUser();
 
-    const userResponse = await api.get("/auth/me");
-    useAuthStore.getState().setAuth(userResponse.data.data, accessToken);
+    useAuthStore.getState().setAuth(user, accessToken);
   } catch {
     useAuthStore.getState().clearAuth();
     hydrationPromise = null;
@@ -275,5 +298,86 @@ export async function passwordResetConfirm(
       }
     }
     throw error;
+  }
+}
+
+/** An error from accepting an invite, with the server's code when it sends one. */
+export class AcceptInviteError extends Error {
+  readonly code?: string;
+
+  constructor(message: string, code?: string) {
+    super(message);
+    this.name = "AcceptInviteError";
+    this.code = code;
+  }
+}
+
+function getAcceptInviteError(error: unknown): AcceptInviteError {
+  const status = isAxiosError(error) ? error.response?.status : undefined;
+  const body = (isAxiosError(error) ? error.response?.data : undefined) as
+    | { code?: unknown }
+    | undefined;
+  const code = typeof body?.code === "string" ? body.code : undefined;
+
+  switch (status) {
+    case 401:
+      return new AcceptInviteError("Your session has expired. Sign in again to accept.", code);
+    case 403:
+      // Only the documented codes get a specific message; anything else is generic.
+      if (code === "INVITE_EMAIL_MISMATCH") {
+        return new AcceptInviteError(
+          "This invite was sent to a different email address. Sign in with the email it was sent to.",
+          code,
+        );
+      }
+      if (code === "EMAIL_NOT_VERIFIED") {
+        return new AcceptInviteError(
+          "Verify your email address first, then open the invite link again.",
+          code,
+        );
+      }
+      return new AcceptInviteError("We couldn’t accept this invite. Please try again.", code);
+    case 404:
+      return new AcceptInviteError(
+        "This invite link isn’t valid, or it was revoked. Ask the person who invited you to send a new one.",
+        code,
+      );
+    case 409:
+      return new AcceptInviteError(
+        code === "INVITE_ALREADY_ACCEPTED"
+          ? "This invite has already been accepted."
+          : "We couldn’t accept this invite. Please try again.",
+        code,
+      );
+    case 410:
+      return new AcceptInviteError(
+        "This invite has expired. Ask the person who invited you to send a new one.",
+        code,
+      );
+    default:
+      return new AcceptInviteError(
+        isAxiosError(error) && !error.response
+          ? "We couldn’t reach the server. Check your connection and try again."
+          : "We couldn’t accept this invite. Please try again.",
+        code,
+      );
+  }
+}
+
+/**
+ * POST /auth/invites/accept. For the signed-in person, whose verified email
+ * must be the one the invite was sent to. It sets their role from the invite
+ * and returns a fresh session, so the new role applies immediately.
+ */
+export async function acceptInvite(token: string): Promise<AuthResponse> {
+  try {
+    const { data } = await api.post<AuthResponse | { data: AuthResponse }>(
+      "/auth/invites/accept",
+      { token },
+    );
+
+    return "data" in data ? data.data : data;
+  } catch (error) {
+    throw getAcceptInviteError(error);
   }
 }

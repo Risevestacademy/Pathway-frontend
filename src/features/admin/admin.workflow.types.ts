@@ -24,6 +24,8 @@ export interface ReviewItem {
   bannerBody?: string;
   decisionNote?: string;
   decidedAt?: string;
+  /** Set when the career was deleted. The review stays visible but can no longer be opened or decided. */
+  careerDeletedAt?: string;
 }
 
 export const REVIEW_TYPE_LABEL: Record<ReviewType, string> = {

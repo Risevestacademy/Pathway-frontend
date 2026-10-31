@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ChevronLeft, Hourglass, MapPinOff } from "lucide-react";
+import { Hourglass, MapPinOff } from "lucide-react";
+import { BackLink } from "../../../../features/skillCheck/components/BackLink";
 import { Button } from "../../../../components/ui/Button";
 import RoadmapPage from "../../../../features/pathway/components/RoadmapPage";
 import RoadmapStepList from "../../../../features/pathway/components/RoadmapStepList";
@@ -8,7 +9,6 @@ import { mapPathwayToRoadmap } from "../../../../features/pathway/pathway.utils"
 import RoadmapError from "../../../../features/pathway/components/RoadmapError";
 import RoadmapSkeleton from "../../../../features/pathway/components/RoadmapSkeleton";
 import { fetchPathwayOrNull } from "../../../../lib/api/pathways.api";
-import { Link } from "@tanstack/react-router";
 import { ReportIssueLink } from "../../../../features/feedback/components/ReportIssueLink";
 import { REPORT_REASONS } from "../../../../features/feedback/feedback.utils";
 import { analytics } from "@/lib/monitoring/events";
@@ -81,14 +81,7 @@ function RoadmapRoute() {
 
   return (
     <RoadmapPage>
-      <Link
-        to="/careers/$careerId"
-        params={{ careerId: career.id }}
-        className="mb-4 inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink"
-      >
-        <ChevronLeft className="size-4" aria-hidden />
-        Career details
-      </Link>
+      <BackLink to="/careers/$careerId" careerId={career.id} label="Career details" />
 
       <p className="text-sm font-medium text-brand-700">{career.title}</p>
       <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">

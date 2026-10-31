@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/react";
 import { isAxiosError, isCancel } from "axios";
+import { redactDeep } from "./redact";
 
 const isEnabled =
   import.meta.env.PROD || import.meta.env.VITE_SENTRY_ENABLE_DEV === "true";
@@ -26,6 +27,11 @@ export function initSentry() {
         response: false,
       },
     },
+
+    // The page URL, referrers and navigation breadcrumbs can carry one-time
+    // tokens (/accept-invite?token=…), so scrub them before anything leaves.
+    beforeSend: (event) => redactDeep(event),
+    beforeBreadcrumb: (breadcrumb) => redactDeep(breadcrumb),
 
     ignoreErrors: [
       "ResizeObserver loop limit exceeded",
