@@ -6,18 +6,15 @@ import type { CreatedCareer } from "../adminCareers.types";
 import { AddCareerDialog } from "./AddCareerDialog";
 
 const mutate = vi.fn();
-const addCareer = vi.fn();
+const reset = vi.fn();
 let createState: { isPending: boolean; isError: boolean; error: Error | null };
 let fieldsState: { isPending: boolean; isError: boolean; data?: { id: string; name: string }[] };
 
 vi.mock("../hooks/useCreateCareer", () => ({
-  useCreateCareer: () => ({ mutate, ...createState }),
+  useCreateCareer: () => ({ mutate, reset, ...createState }),
 }));
 vi.mock("../../catalog/hooks/useFields", () => ({
   useFields: () => ({ refetch: vi.fn(), ...fieldsState }),
-}));
-vi.mock("../adminStore", () => ({
-  useAdminStore: (select: (s: { addCareer: typeof addCareer }) => unknown) => select({ addCareer }),
 }));
 // Radix Select is awkward in jsdom, so the field list is a native select here.
 vi.mock("./FormFields", async (importOriginal) => ({
@@ -66,7 +63,7 @@ const career: CreatedCareer = {
 
 beforeEach(() => {
   mutate.mockReset();
-  addCareer.mockReset();
+  reset.mockReset();
   createState = { isPending: false, isError: false, error: null };
   fieldsState = { isPending: false, isError: false, data: [{ id: "field-1", name: "Technology" }] };
 });
@@ -90,6 +87,40 @@ describe("AddCareerDialog", () => {
     await userEvent.type(screen.getByLabelText("Career name"), "DevOps Engineer");
 
     expect((screen.getByLabelText(/^Slug/) as HTMLInputElement).value).toBe("devops-engineer");
+  });
+
+  it("clears an old server error when the name, slug or field changes", async () => {
+    open();
+
+    await userEvent.type(screen.getByLabelText("Career name"), "D");
+    expect(reset).toHaveBeenCalled();
+
+    reset.mockClear();
+    await userEvent.type(screen.getByLabelText(/^Slug/), "x");
+    expect(reset).toHaveBeenCalled();
+
+    reset.mockClear();
+    await userEvent.selectOptions(screen.getByLabelText("Field"), "field-1");
+    expect(reset).toHaveBeenCalled();
+  });
+
+  it("does not clear it for other fields", async () => {
+    open();
+
+    await userEvent.type(screen.getByLabelText("One-line summary"), "Automates");
+    await userEvent.type(screen.getByLabelText("What they do"), "Builds");
+
+    expect(reset).not.toHaveBeenCalled();
+  });
+
+  it("shows the missing-description error on the field itself", async () => {
+    open();
+
+    await userEvent.click(screen.getByRole("button", { name: "Create draft" }));
+
+    const field = screen.getByLabelText(/What they do/) as HTMLTextAreaElement;
+    expect(field.getAttribute("aria-invalid")).toBe("true");
+    expect(field.closest("label")?.textContent).toContain("Say what people in this role do.");
   });
 
   it("stops following the name once the slug is edited", async () => {
@@ -131,7 +162,7 @@ describe("AddCareerDialog", () => {
     );
   });
 
-  it("shows the draft in the list and closes once it is created", async () => {
+  it("closes once it is created, leaving the admin list to refresh itself", async () => {
     const onOpenChange = vi.fn();
     mutate.mockImplementation((_input, options) => options.onSuccess(career));
     open(onOpenChange);
@@ -139,11 +170,6 @@ describe("AddCareerDialog", () => {
     await fillForm();
     await userEvent.click(screen.getByRole("button", { name: "Create draft" }));
 
-    expect(addCareer).toHaveBeenCalledWith({
-      id: "career-1",
-      title: "DevOps Engineer",
-      shortDescription: "Automates delivery.",
-    });
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 

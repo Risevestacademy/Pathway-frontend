@@ -1,6 +1,15 @@
 import { isAxiosError } from "axios";
 import { api } from "./axios";
-import type { CreateCareerInput, CreatedCareer } from "../../features/admin/adminCareers.types";
+import { toAdminCareerView } from "../../features/admin/adminCareers.mapping";
+import type {
+  AdminApiStatus,
+  AdminCareerDetailResponse,
+  AdminCareerListItem,
+  AdminCareerPage,
+  AdminCareerView,
+  CreateCareerInput,
+  CreatedCareer,
+} from "../../features/admin/adminCareers.types";
 import type {
   CareerRevisionSnapshot,
   SavedRevision,
@@ -88,12 +97,17 @@ function getRevisionError(error: unknown): RevisionSaveError {
     case 404:
       return new RevisionSaveError("This career no longer exists.", { code });
     case 409:
-      return new RevisionSaveError(
-        code === "CAREER_RETIRED"
-          ? "This career is retired, so it can’t be changed."
-          : "These changes are in review. Recall them before editing.",
-        { code, revisionId },
-      );
+      // Only the documented codes get a specific message; anything else is generic.
+      if (code === "REVISION_IN_REVIEW") {
+        return new RevisionSaveError("These changes are in review. Recall them before editing.", {
+          code,
+          revisionId,
+        });
+      }
+      if (code === "CAREER_RETIRED") {
+        return new RevisionSaveError("This career is retired, so it can’t be changed.", { code });
+      }
+      return new RevisionSaveError("We couldn’t save this career. Please try again.", { code });
     default:
       return new RevisionSaveError(
         isAxiosError(error) && !error.response
@@ -157,12 +171,14 @@ function getCreateCareerError(error: unknown): CreateCareerError {
     case 403:
       return new CreateCareerError("Only editors and above can create careers.", code);
     case 409:
-      return new CreateCareerError(
-        code === "CAREER_SLUG_TAKEN"
-          ? "Another career already uses this slug."
-          : "Another career already has this title.",
-        code,
-      );
+      // Only the documented codes get a specific message; anything else is generic.
+      if (code === "CAREER_TITLE_TAKEN") {
+        return new CreateCareerError("Another career already has this title.", code);
+      }
+      if (code === "CAREER_SLUG_TAKEN") {
+        return new CreateCareerError("Another career already uses this slug.", code);
+      }
+      return new CreateCareerError("We couldn’t create this career. Please try again.", code);
     default:
       return new CreateCareerError(
         isAxiosError(error) && !error.response
@@ -188,4 +204,64 @@ export async function createAdminCareer(input: CreateCareerInput): Promise<Creat
   } catch (error) {
     throw getCreateCareerError(error);
   }
+}
+
+export interface FetchAdminCareersParams {
+  status?: AdminApiStatus;
+  /** Matches the title or slug, ignoring case. */
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+/**
+ * GET /admin/careers. Editors and above. Careers in any status, including the
+ * drafts and retired ones the public catalogue never returns, most recently
+ * updated first.
+ */
+export async function fetchAdminCareers(
+  params: FetchAdminCareersParams = {},
+): Promise<AdminCareerPage> {
+  const { data } = await api.get<AdminCareerPage | { data: AdminCareerPage }>("/admin/careers", {
+    params,
+  });
+  const body = "data" in data ? data.data : data;
+  const items = Array.isArray(body?.items) ? body.items : [];
+  return {
+    items,
+    total: typeof body?.total === "number" ? body.total : items.length,
+    page: typeof body?.page === "number" ? body.page : (params.page ?? 1),
+    limit: typeof body?.limit === "number" ? body.limit : (params.limit ?? items.length),
+  };
+}
+
+const ALL_PAGE_SIZE = 100;
+/** Safety stop in case the server keeps answering with pages. */
+const MAX_PAGES = 100;
+
+/** Every career, following pages until `total` are collected. */
+export async function fetchAllAdminCareers(): Promise<AdminCareerListItem[]> {
+  const all = new Map<string, AdminCareerListItem>();
+
+  for (let page = 1; page <= MAX_PAGES; page += 1) {
+    const current = await fetchAdminCareers({ page, limit: ALL_PAGE_SIZE });
+
+    const before = all.size;
+    for (const career of current.items) all.set(career.id, career);
+    // An empty page, a repeated page or reaching `total` all mean we are done.
+    if (current.items.length === 0 || all.size === before || all.size >= current.total) break;
+  }
+
+  return [...all.values()];
+}
+
+/**
+ * GET /admin/careers/{id}. Editors and above. The career with its skills,
+ * outlook and pathway steps, whatever its status.
+ */
+export async function fetchAdminCareer(id: string): Promise<AdminCareerView> {
+  const { data } = await api.get<AdminCareerDetailResponse | { data: AdminCareerDetailResponse }>(
+    `/admin/careers/${encodeURIComponent(id)}`,
+  );
+  return toAdminCareerView("data" in data ? data.data : data);
 }

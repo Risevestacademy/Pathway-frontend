@@ -6,8 +6,7 @@ import { Badge } from "../../../components/ui/Badge";
 import { Button, LinkButton } from "../../../components/ui/Button";
 import { Skeleton } from "../../../components/ui/Skeleton";
 import { StateMessage } from "../../../components/ui/StateMessage";
-import { fetchCareer } from "../../../lib/api/careers.api";
-import { fetchPathwayOrNull } from "../../../lib/api/pathways.api";
+import { fetchAdminCareer } from "../../../lib/api/adminCareers.api";
 import { queryKeys } from "../../../lib/queryKeys";
 import {
   describeFixes,
@@ -54,24 +53,17 @@ export function CareerEditorPage({
   const saved = useAdminStore((s) => s.drafts[careerId]);
   const isLocal = careerId.startsWith(LOCAL_ID_PREFIX);
 
-  const detail = useQuery({
-    queryKey: queryKeys.careers.detail(careerId),
-    queryFn: () => fetchCareer(careerId),
+  // The admin endpoint returns a career in any status, with its pathway steps.
+  const career = useQuery({
+    queryKey: queryKeys.admin.careers.detail(careerId),
+    queryFn: () => fetchAdminCareer(careerId),
     enabled: !isLocal,
-    staleTime: 15 * 60 * 1000,
-    refetchOnWindowFocus: false,
-  });
-
-  const pathway = useQuery({
-    queryKey: queryKeys.pathway(careerId),
-    queryFn: () => fetchPathwayOrNull(careerId),
-    enabled: !isLocal,
-    staleTime: 15 * 60 * 1000,
+    staleTime: 60 * 1000,
     refetchOnWindowFocus: false,
   });
 
   const row = rows.find((r) => r.id === careerId);
-  const loading = rowsPending || (!isLocal && (detail.isPending || pathway.isPending));
+  const loading = rowsPending || (!isLocal && career.isPending);
 
   if (loading) {
     return (
@@ -83,7 +75,7 @@ export function CareerEditorPage({
     );
   }
 
-  if (!row || (!isLocal && detail.isError && !saved)) {
+  if (!row || (!isLocal && career.isError && !saved)) {
     return (
       <main className="flex flex-1 flex-col gap-6 px-page-mobile py-6 sm:px-page-tablet lg:p-8">
         <BackButton />
@@ -98,8 +90,8 @@ export function CareerEditorPage({
 
   const initial: EditableCareer = saved
     ? normalizeDraft(saved)
-    : detail.data
-      ? seedFromDetail(detail.data, pathway.data)
+    : career.data
+      ? seedFromDetail(career.data.detail, career.data.pathway)
       : seedFromRow(row);
 
   return (
@@ -109,7 +101,7 @@ export function CareerEditorPage({
       initial={initial}
       initialTab={TABS.find((t) => t === initialTab) ?? "Details"}
       savedAt={saved?.savedAt ?? null}
-      checkedAt={detail.data ? formatDate(detail.data.updatedAt) : null}
+      checkedAt={career.data ? formatDate(career.data.detail.updatedAt) : null}
     />
   );
 }

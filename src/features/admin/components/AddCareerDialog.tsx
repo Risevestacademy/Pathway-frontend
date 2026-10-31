@@ -4,7 +4,6 @@ import { Dialog } from "../../../components/ui/Dialog";
 import { CreateCareerError } from "../../../lib/api/adminCareers.api";
 import { useFields } from "../../catalog/hooks/useFields";
 import { TARGET_LEVEL_OPTIONS, slugify } from "../adminCareers.types";
-import { useAdminStore } from "../adminStore";
 import { useCreateCareer } from "../hooks/useCreateCareer";
 import { SelectField, TextAreaField, TextField } from "./FormFields";
 
@@ -30,7 +29,6 @@ export function AddCareerDialog({ open, onOpenChange }: AddCareerDialogProps) {
 function AddCareerForm({ onClose }: { onClose: () => void }) {
   const fields = useFields();
   const create = useCreateCareer();
-  const addCareer = useAdminStore((s) => s.addCareer);
 
   const [title, setTitle] = useState("");
   const [slugInput, setSlugInput] = useState<string | null>(null);
@@ -93,11 +91,8 @@ function AddCareerForm({ onClose }: { onClose: () => void }) {
         targetLevels: levels,
       },
       {
-        onSuccess: (career) => {
-          // The list shows careers from the public API, which has no drafts yet.
-          addCareer({ id: career.id, title: career.title, shortDescription: career.description });
-          onClose();
-        },
+        // The admin list refreshes itself and now includes the new draft.
+        onSuccess: onClose,
       },
     );
   };
@@ -111,7 +106,10 @@ function AddCareerForm({ onClose }: { onClose: () => void }) {
       <TextField
         label="Career name"
         value={title}
-        onChange={setTitle}
+        onChange={(value) => {
+          create.reset();
+          setTitle(value);
+        }}
         placeholder="Technical Writer"
         error={show(errors.title, serverCode === "CAREER_TITLE_TAKEN")}
       />
@@ -119,7 +117,10 @@ function AddCareerForm({ onClose }: { onClose: () => void }) {
       <TextField
         label="Slug"
         value={slug}
-        onChange={(value) => setSlugInput(value.toLowerCase().replace(/[^a-z0-9-]+/g, "-"))}
+        onChange={(value) => {
+          create.reset();
+          setSlugInput(value.toLowerCase().replace(/[^a-z0-9-]+/g, "-"));
+        }}
         placeholder="technical-writer"
         hint="Used in the career’s web address. Letters, numbers and dashes."
         error={show(errors.slug, serverCode === "CAREER_SLUG_TAKEN")}
@@ -138,7 +139,10 @@ function AddCareerForm({ onClose }: { onClose: () => void }) {
         <SelectField
           label="Field"
           value={fieldId}
-          onChange={setFieldId}
+          onChange={(value) => {
+            create.reset();
+            setFieldId(value);
+          }}
           options={(fields.data ?? []).map((f) => ({ value: f.id, label: f.name }))}
           placeholder={fields.isPending ? "Loading fields..." : "Pick a field"}
           error={show(errors.field, serverCode === "FIELD_NOT_FOUND")}
@@ -158,12 +162,8 @@ function AddCareerForm({ onClose }: { onClose: () => void }) {
         value={roleSummary}
         onChange={setRoleSummary}
         placeholder="Writes the guides and docs that help people use a product."
+        error={show(errors.roleSummary, false)}
       />
-      {attempted && errors.roleSummary && (
-        <span role="alert" className="-mt-4 text-sm text-danger-700">
-          {errors.roleSummary}
-        </span>
-      )}
 
       <fieldset className="flex flex-col gap-2">
         <legend className="font-medium text-ink">Who it’s for</legend>

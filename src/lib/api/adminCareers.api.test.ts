@@ -6,6 +6,9 @@ import {
   RevisionSaveError,
   createAdminCareer,
   deleteAdminCareer,
+  fetchAdminCareer,
+  fetchAdminCareers,
+  fetchAllAdminCareers,
   saveCareerRevision,
 } from "./adminCareers.api";
 import type { CreateCareerInput } from "../../features/admin/adminCareers.types";
@@ -152,6 +155,10 @@ describe("saveCareerRevision", () => {
     [403, undefined, "Only editors and above can save changes."],
     [404, undefined, "This career no longer exists."],
     [409, "CAREER_RETIRED", "This career is retired, so it can’t be changed."],
+    [409, "REVISION_IN_REVIEW", "These changes are in review. Recall them before editing."],
+    // Other 409 codes are not guessed at.
+    [409, "SOMETHING_ELSE", "We couldn’t save this career. Please try again."],
+    [409, undefined, "We couldn’t save this career. Please try again."],
     [500, undefined, "We couldn’t save this career. Please try again."],
   ])("explains a %i (%s) in plain words", async (status, code, message) => {
     server.use(
@@ -235,6 +242,9 @@ describe("createAdminCareer", () => {
     [403, undefined, "Only editors and above can create careers."],
     [409, "CAREER_TITLE_TAKEN", "Another career already has this title."],
     [409, "CAREER_SLUG_TAKEN", "Another career already uses this slug."],
+    // Other 409 codes are not guessed at.
+    [409, "SOMETHING_ELSE", "We couldn’t create this career. Please try again."],
+    [409, undefined, "We couldn’t create this career. Please try again."],
     [500, undefined, "We couldn’t create this career. Please try again."],
   ])("explains a %i %s in plain words and keeps the code", async (status, code, message) => {
     server.use(
@@ -267,5 +277,199 @@ describe("createAdminCareer", () => {
     await expect(createAdminCareer(newCareer)).rejects.toThrow(
       "We couldn’t reach the server. Check your connection and try again.",
     );
+  });
+});
+
+const listItem = (id: string, status = "DRAFT") => ({
+  id,
+  slug: id,
+  title: `Career ${id}`,
+  status,
+  version: 1,
+  updatedAt: "2026-10-28T10:30:00.000Z",
+  field: { name: "Technology", slug: "technology" },
+});
+
+describe("fetchAdminCareers", () => {
+  it("returns careers in any status and sends the filters it is given", async () => {
+    let query = "";
+    server.use(
+      http.get("*/admin/careers", ({ request }) => {
+        query = new URL(request.url).search;
+        return HttpResponse.json({
+          items: [listItem("a", "DRAFT"), listItem("b", "RETIRED")],
+          total: 2,
+          page: 1,
+          limit: 20,
+        });
+      }),
+    );
+
+    const result = await fetchAdminCareers({ status: "DRAFT", search: "dev", page: 2, limit: 20 });
+
+    expect(result.items.map((c) => c.status)).toEqual(["DRAFT", "RETIRED"]);
+    const params = new URLSearchParams(query);
+    expect(params.get("status")).toBe("DRAFT");
+    expect(params.get("search")).toBe("dev");
+    expect(params.get("page")).toBe("2");
+    expect(params.get("limit")).toBe("20");
+  });
+
+  it("copes with a response that leaves out the paging fields", async () => {
+    server.use(http.get("*/admin/careers", () => HttpResponse.json({ items: [listItem("a")] })));
+
+    await expect(fetchAdminCareers()).resolves.toMatchObject({ total: 1, page: 1 });
+  });
+});
+
+describe("fetchAllAdminCareers", () => {
+  it("follows pages until it has every career", async () => {
+    const pages: number[] = [];
+    server.use(
+      http.get("*/admin/careers", ({ request }) => {
+        const page = Number(new URL(request.url).searchParams.get("page"));
+        pages.push(page);
+        return HttpResponse.json({
+          items: page === 1 ? [listItem("a"), listItem("b")] : [listItem("c")],
+          total: 3,
+          page,
+          limit: 2,
+        });
+      }),
+    );
+
+    const all = await fetchAllAdminCareers();
+
+    expect(all.map((c) => c.id)).toEqual(["a", "b", "c"]);
+    expect(pages).toEqual([1, 2]);
+  });
+
+  it("stops when a page repeats instead of looping forever", async () => {
+    let calls = 0;
+    server.use(
+      http.get("*/admin/careers", () => {
+        calls += 1;
+        return HttpResponse.json({ items: [listItem("a")], total: 99, page: 1, limit: 1 });
+      }),
+    );
+
+    await expect(fetchAllAdminCareers()).resolves.toHaveLength(1);
+    expect(calls).toBe(2);
+  });
+});
+
+describe("fetchAdminCareer", () => {
+  const raw = {
+    ...listItem("abc"),
+    description: "Automates delivery.",
+    roleSummary: null,
+    exampleActivities: [],
+    typicalEducationNote: null,
+    certificationsNote: null,
+    targetLevels: ["STUDENT"],
+    publishedAt: null,
+    createdAt: "2026-10-28T10:30:00.000Z",
+    field: { id: "f1", name: "Technology", slug: "technology" },
+    skills: [{ id: "s1", name: "Git", importance: "REQUIRED" }],
+    outlook: [
+      {
+        id: "o1",
+        type: "SALARY",
+        geography: "Lagos",
+        period: "2026",
+        median: "230000.00",
+        percentile25: null,
+        percentile75: null,
+        currency: "NGN",
+        payPeriod: "MONTHLY",
+        grossOrNet: null,
+        experienceLevel: null,
+        baseYear: null,
+        baseValue: null,
+        projectedYear: null,
+        projectedValue: null,
+        growthPercent: null,
+        demandLevel: null,
+        updatedAt: "2026-10-01T00:00:00.000Z",
+        source: { id: "src1", name: "Jobberman 2026", url: "https://example.com", lastCheckedAt: null },
+      },
+    ],
+    pathway: {
+      id: "p1",
+      title: "DevOps Roadmap",
+      description: "Learn it.",
+      steps: [
+        {
+          id: "st1",
+          order: 1,
+          title: "Linux",
+          description: null,
+          learningObjective: "Use a shell",
+          prerequisites: null,
+          expectedActivity: "Practice",
+          skills: [{ id: "s1", name: "Git" }],
+          resources: [
+            {
+              id: "r1",
+              title: "Course",
+              url: "https://example.com/c",
+              type: "COURSE",
+              provider: "Acme",
+              costStatus: "FREE",
+              status: "ACTIVE",
+              lastCheckedDate: "2026-10-01",
+            },
+            {
+              id: "r2",
+              title: "Old course",
+              url: "https://example.com/old",
+              type: "COURSE",
+              provider: "Acme",
+              costStatus: "FREE",
+              status: "WITHDRAWN",
+              lastCheckedDate: "2026-01-01",
+            },
+          ],
+        },
+      ],
+    },
+  };
+
+  it("loads a draft, which the public endpoint would 404 on", async () => {
+    server.use(http.get("*/admin/careers/abc", () => HttpResponse.json(raw)));
+
+    const view = await fetchAdminCareer("abc");
+
+    expect(view.detail.status).toBe("DRAFT");
+    expect(view.version).toBe(1);
+  });
+
+  it("turns the admin shapes into the ones the editor uses", async () => {
+    server.use(http.get("*/admin/careers/abc", () => HttpResponse.json({ data: raw })));
+
+    const { detail, pathway } = await fetchAdminCareer("abc");
+
+    // Null text becomes empty text; the outlook's source object becomes a name and a link.
+    expect(detail.roleSummary).toBe("");
+    expect(detail.typicalEducationNote).toBe("");
+    expect(detail.outlook[0]).toMatchObject({ source: "Jobberman 2026", sourceUrl: "https://example.com" });
+    expect(detail.pathway).toEqual({ id: "p1", title: "DevOps Roadmap", stepCount: 1 });
+    // The pathway comes along with its steps, without the withdrawn resource.
+    expect(pathway?.steps[0].description).toBe("");
+    expect(pathway?.steps[0].resources.map((r) => r.id)).toEqual(["r1"]);
+  });
+
+  it("copes with a career that has no pathway or source yet", async () => {
+    server.use(
+      http.get("*/admin/careers/abc", () =>
+        HttpResponse.json({ ...raw, pathway: null, outlook: [{ ...raw.outlook[0], source: null }] }),
+      ),
+    );
+
+    const { detail, pathway } = await fetchAdminCareer("abc");
+
+    expect(pathway).toBeNull();
+    expect(detail.pathway).toBeNull();
+    expect(detail.outlook[0]).toMatchObject({ source: "", sourceUrl: null });
   });
 });

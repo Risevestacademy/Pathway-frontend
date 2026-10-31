@@ -49,7 +49,7 @@ export function ReviewsPage() {
               </thead>
               <tbody className="divide-y divide-line">
                 {pending.map((r) => (
-                  <tr key={r.id} className={r.careerDeletedAt ? "bg-surface-muted/50" : undefined}>
+                  <tr key={r.id}>
                     <td className="px-6 py-4">
                       <p className={r.careerDeletedAt ? "font-medium text-ink-muted" : "font-medium text-ink"}>
                         {r.title}
@@ -68,7 +68,7 @@ export function ReviewsPage() {
                     <td className="px-6 py-4 text-ink">{waitingLabel(r.submittedAt)}</td>
                     <td className="px-6 py-4 text-right">
                       {r.careerDeletedAt ? (
-                        <span className="text-ink-subtle">Unavailable</span>
+                        <span className="text-ink-muted">Unavailable</span>
                       ) : (
                         <LinkButton
                           isPrimary={false}

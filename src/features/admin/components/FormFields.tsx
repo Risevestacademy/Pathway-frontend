@@ -81,7 +81,8 @@ export function TextAreaField({
   value,
   onChange,
   placeholder,
-}: Pick<TextFieldProps, "label" | "value" | "onChange" | "placeholder">) {
+  error,
+}: Pick<TextFieldProps, "label" | "value" | "onChange" | "placeholder" | "error">) {
   return (
     <label className={labelClass}>
       {label}
@@ -90,8 +91,10 @@ export function TextAreaField({
         placeholder={placeholder}
         rows={3}
         onChange={(e) => onChange(e.target.value)}
-        className={clsx(inputClass, "resize-none")}
+        aria-invalid={error ? true : undefined}
+        className={clsx(inputClass, "resize-none", error && "!border-danger-600")}
       />
+      <FieldMessage error={error} />
     </label>
   );
 }
