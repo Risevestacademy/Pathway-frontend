@@ -89,3 +89,27 @@ export async function setStepStatus(
   );
   return data;
 }
+
+export interface StartingPointResponseDto {
+  careerId: string;
+  /** The step they start from, or null once the starting point is cleared. */
+  startStepId: string | null;
+  /** The updated progress for the saved pathway. */
+  progress: PathwayProgressDto;
+}
+
+/**
+ * Sets, changes or (with null) clears the step the signed-in user starts from
+ * in a pathway they saved. 400 if the step isn't in the pathway, 404 if the
+ * pathway isn't saved.
+ */
+export async function setStartingPoint(
+  careerId: string,
+  stepId: string | null,
+): Promise<StartingPointResponseDto> {
+  const { data } = await api.put<StartingPointResponseDto>(
+    `/me/pathways/${encodeURIComponent(careerId)}/starting-point`,
+    { stepId },
+  );
+  return data;
+}

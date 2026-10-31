@@ -22,12 +22,18 @@ interface NavItem {
   label: string;
   iconName: string;
   fallback: IconComponent;
-  to: "/careers" | "/skill-check" | null;
+  to: "/dashboard" | "/careers" | "/skill-check" | null;
   match: string | null;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard", iconName: "dashboard", fallback: Layout3Regular, to: null, match: null },
+  {
+    label: "Dashboard",
+    iconName: "dashboard",
+    fallback: Layout3Regular,
+    to: "/dashboard",
+    match: "/dashboard",
+  },
   { label: "Explore", iconName: "explore", fallback: TelescopeRegular, to: "/careers", match: "/careers" },
   {
     label: "My Pathway",
