@@ -81,7 +81,8 @@ export function TextAreaField({
   value,
   onChange,
   placeholder,
-}: Pick<TextFieldProps, "label" | "value" | "onChange" | "placeholder">) {
+  error,
+}: Pick<TextFieldProps, "label" | "value" | "onChange" | "placeholder" | "error">) {
   return (
     <label className={labelClass}>
       {label}
@@ -90,8 +91,10 @@ export function TextAreaField({
         placeholder={placeholder}
         rows={3}
         onChange={(e) => onChange(e.target.value)}
-        className={clsx(inputClass, "resize-none")}
+        aria-invalid={error ? true : undefined}
+        className={clsx(inputClass, "resize-none", error && "!border-danger-600")}
       />
+      <FieldMessage error={error} />
     </label>
   );
 }
@@ -102,12 +105,17 @@ export function SelectField<T extends string>({
   onChange,
   options,
   disabled,
+  placeholder,
+  error,
 }: {
   label: string;
   value: T;
   onChange: (value: T) => void;
   options: { value: T; label: string }[];
   disabled?: boolean;
+  /** Shown while nothing is selected. */
+  placeholder?: string;
+  error?: string;
 }) {
   const id = useId();
   return (
@@ -120,8 +128,12 @@ export function SelectField<T extends string>({
         onValueChange={(v) => onChange(v as T)}
         disabled={disabled}
       >
-        <SelectTrigger aria-labelledby={id} className="w-full">
-          <SelectValue />
+        <SelectTrigger
+          aria-labelledby={id}
+          aria-invalid={error ? true : undefined}
+          className={clsx("w-full", error && "!border-danger-600")}
+        >
+          <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
           {options.map((o) => (
@@ -131,6 +143,7 @@ export function SelectField<T extends string>({
           ))}
         </SelectContent>
       </Select>
+      <FieldMessage error={error} />
     </div>
   );
 }
