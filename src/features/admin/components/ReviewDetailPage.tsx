@@ -71,6 +71,7 @@ export function ReviewDetailPage({ reviewId }: { reviewId: string }) {
 
   const isOwn = review.submittedBy === displayName;
   const decided = review.status !== "pending";
+  const careerDeleted = Boolean(review.careerDeletedAt);
   const blockedReason = decided
     ? null
     : isOwn
@@ -104,13 +105,13 @@ export function ReviewDetailPage({ reviewId }: { reviewId: string }) {
         <div className="flex gap-3">
           <Button
             isPrimary={false}
-            disabled={decided || blockedReason !== null}
+            disabled={decided || careerDeleted || blockedReason !== null}
             onClick={() => decide("changes-requested", review)}
           >
             Request changes
           </Button>
           <Button
-            disabled={decided || blockedReason !== null}
+            disabled={decided || careerDeleted || blockedReason !== null}
             onClick={() => decide("approved", review)}
           >
             Approve and publish
@@ -126,7 +127,14 @@ export function ReviewDetailPage({ reviewId }: { reviewId: string }) {
           {review.decisionNote || "No note was left for the author."}
         </Banner>
       )}
-      {blockedReason && (
+      {careerDeleted && (
+        <Banner tone="warning" title="This career was deleted">
+          {decided
+            ? "The career no longer exists. This review is kept for the record."
+            : "The career no longer exists, so this review can’t be approved or sent back. It is kept for the record."}
+        </Banner>
+      )}
+      {blockedReason && !careerDeleted && (
         <Banner tone="warning" title="You can’t decide on this one">
           {blockedReason}
         </Banner>
@@ -171,7 +179,7 @@ export function ReviewDetailPage({ reviewId }: { reviewId: string }) {
         </Banner>
       )}
 
-      {review.careerId && (
+      {review.careerId && !careerDeleted && (
         <LinkButton
           isPrimary={false}
           className="self-start"

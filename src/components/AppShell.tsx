@@ -12,7 +12,6 @@ const PLAIN_SIDEBAR_ROUTES = [
   "/login",
   "/signup",
   "/reset-password",
-  "/reset-password/reset",
 ];
 
 /**
@@ -37,14 +36,28 @@ interface AppShellProps {
 }
 
 const shellStyles = {
-  wide: { aside: "lg:w-sidebar lg:items-start lg:justify-between lg:px-6 lg:pt-10 lg:pb-8" },
-  auto: { aside: "lg:w-sidebar-slim lg:items-center lg:px-0 lg:pt-10" },
-} satisfies Record<Exclude<AppShellVariant, "none">, { aside: string }>;
+  wide: {
+    aside:
+      "lg:w-sidebar lg:items-start lg:justify-between lg:px-6 lg:pt-10 lg:pb-8",
+    fullOnly: "hidden lg:block",
+    logo: "",
+    mark: "hidden",
+  },
+  auto: {
+    aside: clsx(
+      "lg:w-sidebar-slim lg:items-center lg:px-0 lg:pt-10",
+      "shell:w-sidebar shell:items-start shell:justify-between shell:px-6 shell:pb-8",
+    ),
+    fullOnly: "hidden shell:block",
+    logo: "lg:hidden shell:block",
+    mark: "hidden lg:block shell:hidden",
+  },
+} satisfies Record<Exclude<AppShellVariant, "none">, Record<string, string>>;
 
-/** In the full ("wide") sidebar the illustration and copyright show from `lg`. */
-const FULL_SIDEBAR_ONLY = "hidden lg:block";
-
-export default function AppShell({ children, variant = "auto" }: AppShellProps) {
+export default function AppShell({
+  children,
+  variant = "auto",
+}: AppShellProps) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const showIllustration = !PLAIN_SIDEBAR_ROUTES.some((route) =>
     pathname.startsWith(route),
@@ -109,11 +122,11 @@ export default function AppShell({ children, variant = "auto" }: AppShellProps) 
             )}
           </Link>
 
-          {fullSidebar && (
-            <p className={clsx("relative text-sm text-grey-600", FULL_SIDEBAR_ONLY)}>
-              ©{new Date().getFullYear()} Pathway
-            </p>
-          )}
+          <p
+            className={clsx("relative text-sm text-grey-600", styles.fullOnly)}
+          >
+            ©{new Date().getFullYear()} Pathway
+          </p>
         </aside>
 
         <div

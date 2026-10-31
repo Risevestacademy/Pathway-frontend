@@ -41,5 +41,10 @@ export const queryKeys = {
       list: (params: FetchInvitesParams) => ["admin", "invites", params] as const,
       accepted: ["admin", "invites", "accepted"] as const,
     },
+    careers: {
+      all: ["admin", "careers"] as const,
+      list: ["admin", "careers", "list"] as const,
+      detail: (careerId: string) => ["admin", "careers", "detail", careerId] as const,
+    },
   },
 };

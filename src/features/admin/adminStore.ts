@@ -24,6 +24,8 @@ export interface NewCareerInput {
   shortDescription: string;
   /** Copy roadmap and sources from this career. */
   copyFrom?: AdminCareerRow;
+  /** The server's id for a career already created through the API; without it the career is browser-only. */
+  id?: string;
 }
 
 interface AdminState {
@@ -37,7 +39,7 @@ interface AdminState {
   members: TeamMember[];
 
   addCareer: (input: NewCareerInput) => void;
-  /** Forgets a career's local copy, status change and saved draft. */
+  /** Forgets a career's local copy, status change, saved draft, and marks its reviews as deleted. */
   removeCareer: (id: string) => void;
   setStatus: (id: string, status: AdminStatus) => void;
   saveDraft: (id: string, draft: CareerDraft) => void;
@@ -72,18 +74,18 @@ export const useAdminStore = create<AdminState>()(
       drafts: {},
       ...initialWorkflow(),
 
-      addCareer: ({ title, shortDescription, copyFrom }) =>
+      addCareer: ({ title, shortDescription, copyFrom, id }) =>
         set((state) => ({
           created: [
             {
-              id: newId("local"),
+              id: id ?? newId("local"),
               title,
               shortDescription,
               status: "draft",
               stepCount: copyFrom?.stepCount ?? 0,
               sources: copyFrom?.sources ?? { health: "missing", label: "Missing outlook" },
               updatedAt: new Date().toISOString(),
-              isLocal: true,
+              isLocal: id === undefined,
             },
             ...state.created,
           ],
@@ -100,6 +102,12 @@ export const useAdminStore = create<AdminState>()(
             created: state.created.filter((c) => c.id !== id),
             statusOverrides,
             drafts,
+            // Reviews for a deleted draft stay in the list, marked, so the history is clear.
+            reviews: state.reviews.map((r) =>
+              r.careerId === id && !r.careerDeletedAt
+                ? { ...r, careerDeletedAt: new Date().toISOString() }
+                : r,
+            ),
           };
         }),
       saveDraft: (id, draft) =>

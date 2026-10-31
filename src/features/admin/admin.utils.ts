@@ -1,5 +1,6 @@
 import type { ApiCareerDetail } from "../careerDetail/career.types";
 import type { CareerListItem } from "../catalog/catalog.types";
+import type { AdminCareerListItem } from "./adminCareers.types";
 
 /** Backend roles allowed into /admin. USER (a learner) is the only one left out. */
 const ADMIN_ROLES = new Set(["ADMIN", "EDITOR", "REVIEWER", "PUBLISHER"]);
@@ -72,6 +73,27 @@ export function toAdminRow(
     stepCount: detail ? (detail.pathway?.stepCount ?? 0) : null,
     sources: detail ? getSourceHealth(detail.outlook, now) : null,
     updatedAt: detail?.updatedAt ?? null,
+  };
+}
+
+/**
+ * A table row from GET /admin/careers, which includes drafts and retired
+ * careers. The status is known from the list itself; the summary, step count and
+ * source freshness need the career's detail.
+ */
+export function toAdminRowFromList(
+  item: AdminCareerListItem,
+  detail: ApiCareerDetail | undefined,
+  now = new Date(),
+): AdminCareerRow {
+  return {
+    id: item.id,
+    title: item.title,
+    shortDescription: detail?.description ?? "",
+    status: STATUS_FROM_API[item.status],
+    stepCount: detail ? (detail.pathway?.stepCount ?? 0) : null,
+    sources: detail ? getSourceHealth(detail.outlook, now) : null,
+    updatedAt: item.updatedAt,
   };
 }
 

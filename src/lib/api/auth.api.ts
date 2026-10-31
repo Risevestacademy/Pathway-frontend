@@ -300,3 +300,84 @@ export async function passwordResetConfirm(
     throw error;
   }
 }
+
+/** An error from accepting an invite, with the server's code when it sends one. */
+export class AcceptInviteError extends Error {
+  readonly code?: string;
+
+  constructor(message: string, code?: string) {
+    super(message);
+    this.name = "AcceptInviteError";
+    this.code = code;
+  }
+}
+
+function getAcceptInviteError(error: unknown): AcceptInviteError {
+  const status = isAxiosError(error) ? error.response?.status : undefined;
+  const body = (isAxiosError(error) ? error.response?.data : undefined) as
+    | { code?: unknown }
+    | undefined;
+  const code = typeof body?.code === "string" ? body.code : undefined;
+
+  switch (status) {
+    case 401:
+      return new AcceptInviteError("Your session has expired. Sign in again to accept.", code);
+    case 403:
+      // Only the documented codes get a specific message; anything else is generic.
+      if (code === "INVITE_EMAIL_MISMATCH") {
+        return new AcceptInviteError(
+          "This invite was sent to a different email address. Sign in with the email it was sent to.",
+          code,
+        );
+      }
+      if (code === "EMAIL_NOT_VERIFIED") {
+        return new AcceptInviteError(
+          "Verify your email address first, then open the invite link again.",
+          code,
+        );
+      }
+      return new AcceptInviteError("We couldn’t accept this invite. Please try again.", code);
+    case 404:
+      return new AcceptInviteError(
+        "This invite link isn’t valid, or it was revoked. Ask the person who invited you to send a new one.",
+        code,
+      );
+    case 409:
+      return new AcceptInviteError(
+        code === "INVITE_ALREADY_ACCEPTED"
+          ? "This invite has already been accepted."
+          : "We couldn’t accept this invite. Please try again.",
+        code,
+      );
+    case 410:
+      return new AcceptInviteError(
+        "This invite has expired. Ask the person who invited you to send a new one.",
+        code,
+      );
+    default:
+      return new AcceptInviteError(
+        isAxiosError(error) && !error.response
+          ? "We couldn’t reach the server. Check your connection and try again."
+          : "We couldn’t accept this invite. Please try again.",
+        code,
+      );
+  }
+}
+
+/**
+ * POST /auth/invites/accept. For the signed-in person, whose verified email
+ * must be the one the invite was sent to. It sets their role from the invite
+ * and returns a fresh session, so the new role applies immediately.
+ */
+export async function acceptInvite(token: string): Promise<AuthResponse> {
+  try {
+    const { data } = await api.post<AuthResponse | { data: AuthResponse }>(
+      "/auth/invites/accept",
+      { token },
+    );
+
+    return "data" in data ? data.data : data;
+  } catch (error) {
+    throw getAcceptInviteError(error);
+  }
+}
