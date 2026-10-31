@@ -10,6 +10,8 @@ import {
 import { routeTree } from "./routeTree.gen.ts";
 import { captureErrorResponse, initSentry } from "./lib/monitoring/sentry";
 import { initAnalytics } from "./lib/monitoring/events";
+import { redactDeep } from "./lib/monitoring/redact";
+import type { CaptureResult } from "posthog-js";
 import { setSessionExpiredHandler } from "./lib/api/axios";
 import { handleSessionExpired } from "./lib/api/sessionExpiry";
 import { retryUnlessClientError } from "./lib/queryRetry";
@@ -22,6 +24,8 @@ const analyticsOptions = {
   capture_pageview: "history_change",
   defaults: "2026-05-30",
   debug: import.meta.env.DEV,
+  // Page views record the URL; keep one-time tokens (/accept-invite?token=…) out of it.
+  before_send: (event: CaptureResult | null) => (event ? redactDeep(event) : event),
 } as const;
 
 const router = createRouter({ routeTree });

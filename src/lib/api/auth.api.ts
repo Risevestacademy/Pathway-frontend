@@ -183,6 +183,13 @@ export async function resendVerification(email: string): Promise<void> {
   }
 }
 
+/** Signs the current person out: ends the session on the server (best effort) and clears it here. */
+export async function signOut(): Promise<void> {
+  const { accessToken } = useAuthStore.getState();
+  if (accessToken) await logoutWithToken(accessToken);
+  useAuthStore.getState().clearAuth();
+}
+
 /** Ends a session started with a token that was never stored (e.g. a probe login). */
 export async function logoutWithToken(accessToken: string): Promise<void> {
   try {
@@ -300,19 +307,32 @@ function getAcceptInviteError(error: unknown): AcceptInviteError {
     case 401:
       return new AcceptInviteError("Your session has expired. Sign in again to accept.", code);
     case 403:
-      return new AcceptInviteError(
-        code === "EMAIL_NOT_VERIFIED"
-          ? "Verify your email address first, then open the invite link again."
-          : "This invite was sent to a different email address. Sign in with the email it was sent to.",
-        code,
-      );
+      // Only the documented codes get a specific message; anything else is generic.
+      if (code === "INVITE_EMAIL_MISMATCH") {
+        return new AcceptInviteError(
+          "This invite was sent to a different email address. Sign in with the email it was sent to.",
+          code,
+        );
+      }
+      if (code === "EMAIL_NOT_VERIFIED") {
+        return new AcceptInviteError(
+          "Verify your email address first, then open the invite link again.",
+          code,
+        );
+      }
+      return new AcceptInviteError("We couldn’t accept this invite. Please try again.", code);
     case 404:
       return new AcceptInviteError(
         "This invite link isn’t valid, or it was revoked. Ask the person who invited you to send a new one.",
         code,
       );
     case 409:
-      return new AcceptInviteError("This invite has already been accepted.", code);
+      return new AcceptInviteError(
+        code === "INVITE_ALREADY_ACCEPTED"
+          ? "This invite has already been accepted."
+          : "We couldn’t accept this invite. Please try again.",
+        code,
+      );
     case 410:
       return new AcceptInviteError(
         "This invite has expired. Ask the person who invited you to send a new one.",

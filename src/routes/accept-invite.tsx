@@ -1,7 +1,12 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { z } from "zod/mini";
-import { AcceptInvitePage } from "../features/admin/components/AcceptInvitePage";
-import { ensureAuthHydrated } from "../lib/api/auth.api";
+import {
+  AcceptInvitePage,
+  AcceptInvitePending,
+} from "../features/admin/components/AcceptInvitePage";
+import { ensureAuthHydrated, signOut } from "../lib/api/auth.api";
+import { analytics } from "../lib/monitoring/events";
 import { selectIsAuthenticated, useAuthStore } from "../lib/stores/authStore";
 
 const acceptInviteSearchSchema = z.object({
@@ -18,10 +23,28 @@ export const Route = createFileRoute("/accept-invite")({
       throw redirect({ to: "/login", search: { redirect: location.href } });
     }
   },
+  // Checking the session can wait on a backend that is still waking up.
+  pendingComponent: AcceptInvitePending,
+  pendingMs: 200,
   component: AcceptInviteRoute,
 });
 
 function AcceptInviteRoute() {
   const { token } = Route.useSearch();
-  return <AcceptInvitePage token={token} />;
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const useDifferentAccount = async () => {
+    await signOut();
+    analytics.logout();
+    // Nothing cached for the old account should show for the next one.
+    queryClient.clear();
+    await navigate({
+      to: "/login",
+      search: { redirect: `/accept-invite?token=${encodeURIComponent(token ?? "")}` },
+      replace: true,
+    });
+  };
+
+  return <AcceptInvitePage token={token} onUseDifferentAccount={useDifferentAccount} />;
 }

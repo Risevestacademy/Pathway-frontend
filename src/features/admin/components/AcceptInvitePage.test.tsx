@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { AcceptInvitePage } from "./AcceptInvitePage";
+import { AcceptInvitePage, AcceptInvitePending } from "./AcceptInvitePage";
 
 const mutate = vi.fn();
+const onUseDifferentAccount = vi.fn();
 let acceptState: {
   isPending: boolean;
   isError: boolean;
@@ -24,13 +25,21 @@ vi.mock("../../../lib/stores/authStore", () => ({
 
 beforeEach(() => {
   mutate.mockReset();
+  onUseDifferentAccount.mockReset();
+  onUseDifferentAccount.mockResolvedValue(undefined);
   acceptState = { isPending: false, isError: false, isSuccess: false, error: null };
 });
 afterEach(cleanup);
 
+/** `null` renders a link with no token. */
+const page = (token: string | null = "tok-123") =>
+  render(
+    <AcceptInvitePage token={token ?? undefined} onUseDifferentAccount={onUseDifferentAccount} />,
+  );
+
 describe("AcceptInvitePage", () => {
   it("shows who is signed in and accepts with the token from the link", async () => {
-    render(<AcceptInvitePage token="tok-123" />);
+    page();
 
     expect(screen.getByText("ada@example.com")).toBeTruthy();
     await userEvent.click(screen.getByRole("button", { name: "Accept invite" }));
@@ -38,40 +47,72 @@ describe("AcceptInvitePage", () => {
     expect(mutate).toHaveBeenCalledWith("tok-123");
   });
 
+  it("lets them switch to a different account", async () => {
+    page();
+
+    await userEvent.click(screen.getByRole("button", { name: "Use a different account" }));
+
+    expect(onUseDifferentAccount).toHaveBeenCalledTimes(1);
+  });
+
+  it("offers the switch after a wrong-email error too, next to the message", () => {
+    acceptState = {
+      ...acceptState,
+      isError: true,
+      error: new Error("This invite was sent to a different email address."),
+    };
+    page();
+
+    expect(screen.getByRole("alert").textContent).toContain("different email address");
+    expect(screen.getByRole("button", { name: "Use a different account" })).toBeTruthy();
+  });
+
   it("explains a link without a token and offers no way to accept", () => {
-    render(<AcceptInvitePage token={undefined} />);
+    page(null);
 
     expect(screen.getByText("This invite link is incomplete")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Accept invite" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Use a different account" })).toBeNull();
   });
 
-  it("disables the button while accepting", () => {
+  it("disables both buttons while accepting", () => {
     acceptState = { ...acceptState, isPending: true };
-    render(<AcceptInvitePage token="tok" />);
+    page();
 
     expect((screen.getByRole("button", { name: "Accepting..." }) as HTMLButtonElement).disabled).toBe(
       true,
     );
+    expect(
+      (screen.getByRole("button", { name: "Use a different account" }) as HTMLButtonElement).disabled,
+    ).toBe(true);
   });
 
   it("shows why it failed and lets them try again", () => {
     acceptState = {
       ...acceptState,
       isError: true,
-      error: new Error("This invite was already used, has expired or was revoked. Ask for a new one."),
+      error: new Error("This invite has already been accepted."),
     };
-    render(<AcceptInvitePage token="tok" />);
+    page();
 
-    expect(screen.getByRole("alert").textContent).toContain("already used");
+    expect(screen.getByRole("alert").textContent).toContain("already been accepted");
     expect(screen.getByRole("button", { name: "Accept invite" })).toBeTruthy();
   });
 
   it("confirms they joined and links to the admin area", () => {
     acceptState = { ...acceptState, isSuccess: true };
-    render(<AcceptInvitePage token="tok" />);
+    page();
 
     expect(screen.getByText("You’ve joined the team")).toBeTruthy();
     expect(screen.getByRole("link", { name: "Go to admin" })).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Accept invite" })).toBeNull();
+  });
+});
+
+describe("AcceptInvitePending", () => {
+  it("shows a loading state while the session is checked", () => {
+    render(<AcceptInvitePending />);
+
+    expect(screen.getByRole("status").textContent).toContain("Loading your invite");
   });
 });
