@@ -5,7 +5,7 @@ import {
   AcceptInvitePage,
   AcceptInvitePending,
 } from "../features/admin/components/AcceptInvitePage";
-import { ensureAuthHydrated, signOut } from "../lib/api/auth.api";
+import { ensureAuthHydrated, logout } from "../lib/api/auth.api";
 import { analytics } from "../lib/monitoring/events";
 import { selectIsAuthenticated, useAuthStore } from "../lib/stores/authStore";
 
@@ -35,7 +35,10 @@ function AcceptInviteRoute() {
   const queryClient = useQueryClient();
 
   const useDifferentAccount = async () => {
-    await signOut();
+    // Throws if the server can't revoke the session: a surviving cookie would sign them straight back in.
+    await logout();
+    // Cleared before leaving: the login page sends anyone who is still signed in away.
+    useAuthStore.getState().clearAuth();
     analytics.logout();
     // Nothing cached for the old account should show for the next one.
     queryClient.clear();

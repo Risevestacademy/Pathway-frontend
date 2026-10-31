@@ -183,11 +183,6 @@ export async function resendVerification(email: string): Promise<void> {
   }
 }
 
-/** Signs the current person out: ends the session on the server (best effort) and clears it here. */
-export async function signOut(): Promise<void> {
-  const { accessToken } = useAuthStore.getState();
-  if (accessToken) await logoutWithToken(accessToken);
-  useAuthStore.getState().clearAuth();
 /**
  * Revokes the refresh token and clears its cookie. Throws on failure, because
  * a surviving cookie would sign the user straight back in on the next reload.

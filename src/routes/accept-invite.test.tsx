@@ -13,7 +13,7 @@ const ensureAuthHydrated = vi.fn();
 
 vi.mock("../lib/api/auth.api", () => ({
   ensureAuthHydrated: () => ensureAuthHydrated(),
-  signOut: vi.fn(),
+  logout: vi.fn(),
 }));
 vi.mock("../lib/monitoring/events", () => ({ analytics: { logout: vi.fn() } }));
 

@@ -12,10 +12,8 @@ import {
   passwordResetRequest,
   registerUser,
   resendVerification,
-  signOut,
   verifyEmail,
 } from "./auth.api";
-import { useAuthStore } from "../stores/authStore";
 
 const server = setupServer();
 
@@ -235,53 +233,5 @@ describe("acceptInvite", () => {
     await expect(acceptInvite("tok")).rejects.toThrow(
       "We couldn’t reach the server. Check your connection and try again.",
     );
-  });
-});
-
-describe("signOut", () => {
-  const signIn = () =>
-    useAuthStore
-      .getState()
-      .setAuth({ id: "u1", email: "ada@example.com", role: "EDITOR" }, "access-token");
-
-  it("ends the session on the server and clears it here", async () => {
-    let authorization: string | null = null;
-    server.use(
-      http.post("*/auth/logout", ({ request }) => {
-        authorization = request.headers.get("authorization");
-        return HttpResponse.json({});
-      }),
-    );
-    signIn();
-
-    await signOut();
-
-    expect(authorization).toBe("Bearer access-token");
-    expect(useAuthStore.getState().user).toBeNull();
-    expect(useAuthStore.getState().accessToken).toBeNull();
-  });
-
-  it("still clears the session when the server can't be reached", async () => {
-    server.use(http.post("*/auth/logout", () => HttpResponse.error()));
-    signIn();
-
-    await signOut();
-
-    expect(useAuthStore.getState().user).toBeNull();
-  });
-
-  it("makes no request when nobody is signed in", async () => {
-    let called = false;
-    server.use(
-      http.post("*/auth/logout", () => {
-        called = true;
-        return HttpResponse.json({});
-      }),
-    );
-    useAuthStore.getState().clearAuth();
-
-    await signOut();
-
-    expect(called).toBe(false);
   });
 });

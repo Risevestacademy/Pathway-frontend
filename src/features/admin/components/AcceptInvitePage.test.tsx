@@ -55,6 +55,16 @@ describe("AcceptInvitePage", () => {
     expect(onUseDifferentAccount).toHaveBeenCalledTimes(1);
   });
 
+  it("says so when signing out fails, and stays on the page", async () => {
+    onUseDifferentAccount.mockRejectedValue(new Error("network"));
+    page();
+
+    await userEvent.click(screen.getByRole("button", { name: "Use a different account" }));
+
+    expect(screen.getByRole("alert").textContent).toContain("We couldn’t sign you out");
+    expect(screen.getByRole("button", { name: "Use a different account" })).toBeTruthy();
+  });
+
   it("offers the switch after a wrong-email error too, next to the message", () => {
     acceptState = {
       ...acceptState,

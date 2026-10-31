@@ -29,11 +29,15 @@ export function AcceptInvitePage({
   const email = useAuthStore((s) => s.user?.email);
   const accept = useAcceptInvite();
   const [switching, setSwitching] = useState(false);
+  const [switchFailed, setSwitchFailed] = useState(false);
 
   const switchAccount = async () => {
     setSwitching(true);
+    setSwitchFailed(false);
     try {
       await onUseDifferentAccount();
+    } catch {
+      setSwitchFailed(true);
     } finally {
       setSwitching(false);
     }
@@ -81,6 +85,12 @@ export function AcceptInvitePage({
             {accept.isError && (
               <p role="alert" className="text-sm text-danger-700">
                 {accept.error.message}
+              </p>
+            )}
+
+            {switchFailed && (
+              <p role="alert" className="text-sm text-danger-700">
+                We couldn’t sign you out. Check your connection and try again.
               </p>
             )}
 
