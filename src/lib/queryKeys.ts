@@ -15,6 +15,11 @@ export const queryKeys = {
   fields: ["fields"] as const,
   onboardingOptions: ["onboarding-options"] as const,
   pathway: (careerId: string) => ["pathway", careerId] as const,
+  progress: {
+    all: ["progress"] as const,
+    active: (userId: string) => ["progress", userId, "active"] as const,
+    saved: (userId: string) => ["progress", userId, "saved"] as const,
+  },
   realRoadmap: (careerId: string | null) => ["real-roadmap", careerId] as const,
   roadmapPreview: (userId: string, careerId: string) =>
     ["roadmap-preview", userId, careerId] as const,
@@ -34,6 +39,11 @@ export const queryKeys = {
       all: ["admin", "invites"] as const,
       list: (params: FetchInvitesParams) => ["admin", "invites", params] as const,
       accepted: ["admin", "invites", "accepted"] as const,
+    },
+    careers: {
+      all: ["admin", "careers"] as const,
+      list: ["admin", "careers", "list"] as const,
+      detail: (careerId: string) => ["admin", "careers", "detail", careerId] as const,
     },
   },
 };

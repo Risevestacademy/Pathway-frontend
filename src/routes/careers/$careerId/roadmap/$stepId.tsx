@@ -9,7 +9,6 @@ import {
   ArrowLeft,
   ArrowRight,
   BookOpen,
-  ChevronLeft,
   ClipboardCheck,
   ListChecks,
   Lock,
@@ -31,6 +30,8 @@ import { fetchPathwayOrNull } from "../../../../lib/api/pathways.api";
 import { ReportIssueLink } from "../../../../features/feedback/components/ReportIssueLink";
 import { REPORT_REASONS } from "../../../../features/feedback/feedback.utils";
 import { withLoaderErrorReporting } from "@/lib/monitoring/sentry";
+import StepProgressSection from "../../../../features/progress/components/StepProgressSection";
+import { BackLinkTo } from "@/features/skillCheck/components/BackLink";
 
 export const Route = createFileRoute("/careers/$careerId/roadmap/$stepId")({
   loader: async ({ params }) =>
@@ -91,14 +92,11 @@ function StepRoute() {
 
   return (
     <RoadmapPage>
-      <Link
+      <BackLinkTo
         to="/careers/$careerId/roadmap"
         params={{ careerId }}
-        className="mb-4 inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink"
-      >
-        <ChevronLeft className="size-4" aria-hidden />
-        Roadmap
-      </Link>
+        label="Roadmap"
+      />
 
       <p className="text-sm font-medium text-brand-700">
         Step {number} of {totalSteps}
@@ -157,6 +155,17 @@ function StepRoute() {
 
         <StepEstimate estimate={step.estimate} />
       </div>
+
+      {career && (
+        <div className="mt-6">
+          <StepProgressSection
+            careerId={career.id}
+            careerTitle={career.title}
+            stepId={step.stepId}
+            stepTitle={step.title}
+          />
+        </div>
+      )}
 
       <div className="mt-8">
         {step.resourceIds.length > 0 ? (

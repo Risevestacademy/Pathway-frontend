@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ChevronLeft, Hourglass, MapPinOff } from "lucide-react";
+import { Hourglass, MapPinOff } from "lucide-react";
+import { BackLink } from "../../../../features/skillCheck/components/BackLink";
 import { Button } from "../../../../components/ui/Button";
 import RoadmapPage from "../../../../features/pathway/components/RoadmapPage";
 import RoadmapStepList from "../../../../features/pathway/components/RoadmapStepList";
@@ -8,12 +9,13 @@ import { mapPathwayToRoadmap } from "../../../../features/pathway/pathway.utils"
 import RoadmapError from "../../../../features/pathway/components/RoadmapError";
 import RoadmapSkeleton from "../../../../features/pathway/components/RoadmapSkeleton";
 import { fetchPathwayOrNull } from "../../../../lib/api/pathways.api";
-import { Link } from "@tanstack/react-router";
 import { ReportIssueLink } from "../../../../features/feedback/components/ReportIssueLink";
 import { REPORT_REASONS } from "../../../../features/feedback/feedback.utils";
 import { analytics } from "@/lib/monitoring/events";
 import { useEffect } from "react";
 import { withLoaderErrorReporting } from "@/lib/monitoring/sentry";
+import RoadmapProgressPanel from "../../../../features/progress/components/RoadmapProgressPanel";
+import { useCareerProgress } from "../../../../features/progress/hooks/useCareerProgress";
 
 export const Route = createFileRoute("/careers/$careerId/roadmap/")({
   loader: ({ params }) =>
@@ -30,6 +32,9 @@ function RoadmapRoute() {
   const result = Route.useLoaderData();
   const roadmapId = result?.roadmap?.id;
   const careerId = result?.career.id;
+  // Compare progress with the loaded career's id, never the URL param, which
+  // could be a slug. With no career loaded, nothing below shows progress.
+  const { progress, retry } = useCareerProgress(careerId ?? "");
   const careerTitle = result?.career.title;
 
   useEffect(() => {
@@ -76,14 +81,7 @@ function RoadmapRoute() {
 
   return (
     <RoadmapPage>
-      <Link
-        to="/careers/$careerId"
-        params={{ careerId: career.id }}
-        className="mb-4 inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink"
-      >
-        <ChevronLeft className="size-4" aria-hidden />
-        Career details
-      </Link>
+      <BackLink to="/careers/$careerId" careerId={career.id} label="Career details" />
 
       <p className="text-sm font-medium text-brand-700">{career.title}</p>
       <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">
@@ -94,7 +92,27 @@ function RoadmapRoute() {
         step to look ahead.
       </p>
 
-      <RoadmapStepList careerId={career.id} steps={roadmap.steps} />
+      <RoadmapProgressPanel
+        careerId={career.id}
+        careerTitle={career.title}
+        steps={roadmap.steps}
+        progress={progress}
+        onRetry={retry}
+      />
+
+      <RoadmapStepList
+        careerId={career.id}
+        steps={roadmap.steps}
+        tracking={
+          progress.kind === "active"
+            ? {
+                statuses: progress.statuses,
+                nextStepId: progress.progress.nextStepId,
+                startStepId: progress.progress.startStepId,
+              }
+            : undefined
+        }
+      />
 
       <ReportIssueLink
         className="mt-8"
