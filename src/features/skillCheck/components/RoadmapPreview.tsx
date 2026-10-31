@@ -4,6 +4,7 @@ import clsx from "clsx";
 import { ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { StateMessage } from "../../../components/ui/StateMessage";
+import { StepStatusError } from "../../../lib/api/progress.api";
 import { useRealRoadmap } from "../hooks/useRealCareer";
 import { useCompletedSteps, useSetStepComplete } from "../hooks/useRoadmapPreview";
 import { getRoadmapPreviewState } from "../roadmapPreview.utils";
@@ -74,7 +75,12 @@ export function RoadmapPreview({
 
   function complete(step: SkillCheckStep) {
     setComplete.mutate(
-      { stepOrder: step.order, complete: true },
+      {
+        stepOrder: step.order,
+        complete: true,
+        // The real step this one stands for, so the server records it too.
+        realStepId: realRoadmap.steps[step.order - 1]?.stepId,
+      },
       {
         onSuccess: () => {
           if (career.skills.some((skill) => skill.stepOrder === step.order)) {
@@ -209,7 +215,9 @@ export function RoadmapPreview({
               </div>
               {setComplete.isError && (
                 <p role="alert" className="text-sm leading-5 text-danger-600">
-                  We could not save that. Try again.
+                  {setComplete.error instanceof StepStatusError
+                    ? setComplete.error.message
+                    : "We could not save that. Try again."}
                 </p>
               )}
             </div>

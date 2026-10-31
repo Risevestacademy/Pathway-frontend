@@ -16,17 +16,17 @@ const PLAIN_SIDEBAR_ROUTES = [
 ];
 
 /**
- * auto → logo-mark rail up to 1440px, full sidebar above (the `shell` breakpoint).
- * wide → always the full sidebar: logo, copyright and desk illustration.
+ * auto → a slim rail with only the P logo mark, at every width. No wordmark,
+ *        copyright or illustration. This is what most screens use.
+ * wide → the full sidebar: logo, copyright and desk illustration. Only the
+ *        create account, log in and verify email screens use it.
  * none → no shell; the route renders its own chrome.
- *
- * Wider-than-1440 behaviour is pending designer confirmation.
  */
 export type AppShellVariant = "auto" | "wide" | "none";
 
 declare module "@tanstack/react-router" {
   interface StaticDataRouteOption {
-    /** Routes that always need the full sidebar (e.g. auth) set "wide". */
+    /** Create account, log in and verify email set "wide" to keep the full sidebar. */
     shellVariant?: AppShellVariant;
   }
 }
@@ -36,24 +36,13 @@ interface AppShellProps {
   variant?: AppShellVariant;
 }
 
-// From `lg`, the full sidebar shows always for "wide" and only above 1440px for "auto".
 const shellStyles = {
-  wide: {
-    aside: "lg:w-sidebar lg:items-start lg:justify-between lg:px-6 lg:pt-10 lg:pb-8",
-    fullOnly: "hidden lg:block",
-    logo: "",
-    mark: "hidden",
-  },
-  auto: {
-    aside: clsx(
-      "lg:w-sidebar-slim lg:items-center lg:px-0 lg:pt-10",
-      "shell:w-sidebar shell:items-start shell:justify-between shell:px-6 shell:pb-8",
-    ),
-    fullOnly: "hidden shell:block",
-    logo: "lg:hidden shell:block",
-    mark: "hidden lg:block shell:hidden",
-  },
-} satisfies Record<Exclude<AppShellVariant, "none">, Record<string, string>>;
+  wide: { aside: "lg:w-sidebar lg:items-start lg:justify-between lg:px-6 lg:pt-10 lg:pb-8" },
+  auto: { aside: "lg:w-sidebar-slim lg:items-center lg:px-0 lg:pt-10" },
+} satisfies Record<Exclude<AppShellVariant, "none">, { aside: string }>;
+
+/** In the full ("wide") sidebar the illustration and copyright show from `lg`. */
+const FULL_SIDEBAR_ONLY = "hidden lg:block";
 
 export default function AppShell({ children, variant = "auto" }: AppShellProps) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -67,6 +56,8 @@ export default function AppShell({ children, variant = "auto" }: AppShellProps) 
 
   const isAuthRoute = pathname === "/login" || pathname === "/signup";
   const styles = shellStyles[variant];
+  // Only create account, log in and verify email keep the full sidebar.
+  const fullSidebar = variant === "wide";
 
   return (
     <div
@@ -90,7 +81,7 @@ export default function AppShell({ children, variant = "auto" }: AppShellProps) 
             styles.aside,
           )}
         >
-          {showIllustration && (
+          {fullSidebar && showIllustration && (
             <img
               src={deskSupplies}
               alt=""
@@ -101,7 +92,7 @@ export default function AppShell({ children, variant = "auto" }: AppShellProps) 
               className={clsx(
                 "pointer-events-none absolute bottom-0 left-0 h-[min(819px,85svh)] w-auto max-w-none select-none",
                 "animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out motion-reduce:animate-none",
-                styles.fullOnly,
+                FULL_SIDEBAR_ONLY,
               )}
             />
           )}
@@ -111,21 +102,18 @@ export default function AppShell({ children, variant = "auto" }: AppShellProps) 
             aria-label="Pathway home"
             className="relative inline-flex rounded cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-brand-50"
           >
-            <img
-              className={clsx("h-6.5 w-auto", styles.logo)}
-              src={logo}
-              alt="Pathway"
-            />
-            <img
-              className={clsx("size-6", styles.mark)}
-              src={logoMark}
-              alt="Pathway"
-            />
+            {fullSidebar ? (
+              <img className="h-6.5 w-auto" src={logo} alt="Pathway" />
+            ) : (
+              <img className="size-6" src={logoMark} alt="Pathway" />
+            )}
           </Link>
 
-          <p className={clsx("relative text-sm text-grey-600", styles.fullOnly)}>
-            ©{new Date().getFullYear()} Pathway
-          </p>
+          {fullSidebar && (
+            <p className={clsx("relative text-sm text-grey-600", FULL_SIDEBAR_ONLY)}>
+              ©{new Date().getFullYear()} Pathway
+            </p>
+          )}
         </aside>
 
         <div
