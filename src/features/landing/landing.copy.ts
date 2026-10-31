@@ -10,7 +10,7 @@ export const NAV_LINKS: readonly NavLink[] = [
   { label: "Mentors", comingSoon: true },
 ];
 
-export const NAV_CTA = { login: "Log in", getStarted: "Get Started" } as const;
+export const NAV_CTA = { login: "Log in", openApp: "Open app", getStarted: "Get Started" } as const;
 
 export const HERO = {
   /** Rendered as `headingLead` / `headingStart [briefcase] headingEnd [send]`. */
