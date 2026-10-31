@@ -60,7 +60,7 @@ describe("activateOnServer", () => {
     await expect(activateOnServer(queryClient, "frontend-developer")).resolves.toBe(true);
 
     expect(setActivePathway).toHaveBeenCalledWith("uuid-frontend");
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.me.pathways });
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.progress.all });
   });
 
   it("does nothing, and says so, for a career the catalogue doesn’t have", async () => {

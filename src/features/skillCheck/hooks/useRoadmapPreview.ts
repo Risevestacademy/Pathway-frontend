@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { setPathwayStepStatus, StepStatusError } from "../../../lib/api/progress.api";
+import { setStepStatus } from "../../../lib/api/progress.api";
+import { httpStatus } from "../../../lib/api/progressErrors";
 import { fetchCompletedSteps, setStepComplete } from "../../../lib/api/roadmapPreview.api";
 import { queryKeys } from "../../../lib/queryKeys";
 import { activateOnServer } from "./activePathwaySync";
@@ -28,11 +29,11 @@ export function useSetStepComplete(careerId: string) {
       if (input.realStepId) {
         const status = input.complete ? "COMPLETED" : "NOT_STARTED";
         try {
-          await setPathwayStepStatus(input.realStepId, status);
+          await setStepStatus(input.realStepId, status);
         } catch (error) {
-          if (!(error instanceof StepStatusError) || error.status !== 409) throw error;
+          if (httpStatus(error) !== 409) throw error;
           await activateOnServer(queryClient, careerId);
-          await setPathwayStepStatus(input.realStepId, status);
+          await setStepStatus(input.realStepId, status);
         }
       }
       return setStepComplete(userId, careerId, input.stepOrder, input.complete);
@@ -40,8 +41,7 @@ export function useSetStepComplete(careerId: string) {
     onSuccess: (steps, input) => {
       queryClient.setQueryData(queryKeys.roadmapPreview(userId, careerId), steps);
       if (input.realStepId) {
-        void queryClient.invalidateQueries({ queryKey: queryKeys.me.pathways });
-        void queryClient.invalidateQueries({ queryKey: queryKeys.me.activePathway });
+        void queryClient.invalidateQueries({ queryKey: queryKeys.progress.all });
       }
     },
   });

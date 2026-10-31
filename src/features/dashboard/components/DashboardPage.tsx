@@ -8,6 +8,7 @@ import { Badge } from "../../../components/ui/Badge";
 import { Button, LinkButton } from "../../../components/ui/Button";
 import { Skeleton } from "../../../components/ui/Skeleton";
 import { StateMessage } from "../../../components/ui/StateMessage";
+import { progressErrorMessage } from "../../../lib/api/progressErrors";
 import { useAuthStore } from "../../../lib/stores/authStore";
 import { useActivePathway } from "../../progress/hooks/useActivePathway";
 import { useMyPathways } from "../../progress/hooks/useMyPathways";
@@ -340,7 +341,7 @@ export function DashboardPage() {
           <StateMessage
             kind="error"
             title="Couldn’t load your progress"
-            body={error.message}
+            body={progressErrorMessage(error, "pathways")}
             action={<Button onClick={() => void refetch()}>Try again</Button>}
           />
         </div>

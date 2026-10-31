@@ -4,18 +4,14 @@ import { queryKeys } from "../../../lib/queryKeys";
 
 /**
  * Chooses the step a person starts from in a saved pathway, or clears it with
- * a null `stepId`. The saved-pathways list and the active pathway are refreshed,
- * since both carry the starting step.
+ * a null `stepId`. Everything about progress is refreshed, since the saved
+ * pathways and the active pathway both carry the starting step.
  */
 export function useSetStartingPoint() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ careerId, stepId }: { careerId: string; stepId: string | null }) =>
       setStartingPoint(careerId, stepId),
-    onSuccess: () =>
-      Promise.all([
-        queryClient.invalidateQueries({ queryKey: queryKeys.me.pathways }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.me.activePathway }),
-      ]),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.progress.all }),
   });
 }

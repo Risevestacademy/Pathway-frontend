@@ -4,7 +4,8 @@ import clsx from "clsx";
 import { ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { StateMessage } from "../../../components/ui/StateMessage";
-import { StepStatusError } from "../../../lib/api/progress.api";
+import { isAxiosError } from "axios";
+import { progressErrorMessage } from "../../../lib/api/progressErrors";
 import { useRealRoadmap } from "../hooks/useRealCareer";
 import { useCompletedSteps, useSetStepComplete } from "../hooks/useRoadmapPreview";
 import { getRoadmapPreviewState } from "../roadmapPreview.utils";
@@ -215,8 +216,8 @@ export function RoadmapPreview({
               </div>
               {setComplete.isError && (
                 <p role="alert" className="text-sm leading-5 text-danger-600">
-                  {setComplete.error instanceof StepStatusError
-                    ? setComplete.error.message
+                  {isAxiosError(setComplete.error)
+                    ? progressErrorMessage(setComplete.error, "step")
                     : "We could not save that. Try again."}
                 </p>
               )}

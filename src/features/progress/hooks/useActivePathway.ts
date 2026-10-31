@@ -1,20 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
-import { ActivePathwayError, fetchActivePathway } from "../../../lib/api/progress.api";
+import { fetchActivePathway } from "../../../lib/api/progress.api";
 import { queryKeys } from "../../../lib/queryKeys";
+import { retryUnlessClientError } from "../../../lib/queryRetry";
+import { useAuthStore } from "../../../lib/stores/authStore";
 
 /**
  * The pathway the signed-in person follows, with its steps and where they are
- * in it. It is refreshed when a step is marked, a pathway is chosen or a
- * starting point changes. Only failures with no response (a dropped
- * connection) are tried again, twice: an expired session won't clear on a retry.
+ * in it. It shares its cache with the roadmap pages (`queryKeys.progress.active`),
+ * so a step marked there shows up here. A 401, 403 or 404 won't clear on a
+ * retry, so only other failures are tried again.
  */
 export function useActivePathway(enabled = true) {
+  const userId = useAuthStore((state) => state.user?.id ?? "");
   return useQuery({
-    queryKey: queryKeys.me.activePathway,
+    queryKey: queryKeys.progress.active(userId),
     queryFn: fetchActivePathway,
-    enabled,
+    enabled: enabled && userId !== "",
     staleTime: 30 * 1000,
-    retry: (failureCount, error) =>
-      failureCount < 2 && error instanceof ActivePathwayError && error.status === undefined,
+    retry: retryUnlessClientError,
   });
 }

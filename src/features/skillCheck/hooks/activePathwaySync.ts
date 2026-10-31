@@ -2,11 +2,11 @@ import type { QueryClient } from "@tanstack/react-query";
 import { fetchCareers } from "../../../lib/api/careers.api";
 import { fetchPathwayOrNull } from "../../../lib/api/pathways.api";
 import {
-  StartingPointError,
   setActivePathway,
-  setPathwayStepStatus,
   setStartingPoint,
+  setStepStatus,
 } from "../../../lib/api/progress.api";
+import { httpStatus } from "../../../lib/api/progressErrors";
 import { fetchCompletedSteps } from "../../../lib/api/roadmapPreview.api";
 import { fetchSkillCheckRecord } from "../../../lib/api/skillCheck.api";
 import { queryKeys } from "../../../lib/queryKeys";
@@ -42,10 +42,7 @@ export async function realStepIdsFor(
 
 /** The saved pathways and the active pathway both carry progress, so both are refreshed. */
 async function refreshProgress(queryClient: QueryClient): Promise<void> {
-  await Promise.all([
-    queryClient.invalidateQueries({ queryKey: queryKeys.me.pathways }),
-    queryClient.invalidateQueries({ queryKey: queryKeys.me.activePathway }),
-  ]);
+  await queryClient.invalidateQueries({ queryKey: queryKeys.progress.all });
 }
 
 /**
@@ -64,7 +61,7 @@ export async function activateOnServer(
   if (!realId) return false;
 
   await setActivePathway(realId);
-  await queryClient.invalidateQueries({ queryKey: queryKeys.me.pathways });
+  await refreshProgress(queryClient);
   return true;
 }
 
@@ -88,7 +85,7 @@ export async function startingPointOnServer(
   try {
     await setStartingPoint(realId, stepId);
   } catch (error) {
-    if (!(error instanceof StartingPointError) || error.status !== 404) throw error;
+    if (httpStatus(error) !== 404) throw error;
     await activateOnServer(queryClient, skillCheckCareerId);
     await setStartingPoint(realId, stepId);
   }
@@ -134,7 +131,7 @@ export async function syncLocalProgress(
   for (const order of [...completedOrders].sort((a, b) => a - b)) {
     const stepId = stepIds[order - 1];
     if (stepId && !doneOnServer.has(stepId)) {
-      await setPathwayStepStatus(stepId, "COMPLETED");
+      await setStepStatus(stepId, "COMPLETED");
       changed = true;
     }
   }

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
-import { StartingPointError } from "../../../lib/api/progress.api";
+import { AxiosError, type AxiosResponse } from "axios";
 import { queryKeys } from "../../../lib/queryKeys";
 import type { ActivePathway } from "../../progress/progress.types";
 import { startingPointOnServer, syncLocalProgress } from "./activePathwaySync";
@@ -13,7 +13,7 @@ const fetchCareers = vi.fn();
 const fetchPathwayOrNull = vi.fn();
 const setActivePathway = vi.fn();
 const setStartingPoint = vi.fn();
-const setPathwayStepStatus = vi.fn();
+const setStepStatus = vi.fn();
 const fetchCompletedSteps = vi.fn();
 const fetchSkillCheckRecord = vi.fn();
 const resolveStartingPoint = vi.fn();
@@ -29,7 +29,7 @@ vi.mock("../../../lib/api/progress.api", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../../../lib/api/progress.api")>()),
   setActivePathway: (...args: unknown[]) => setActivePathway(...args),
   setStartingPoint: (...args: unknown[]) => setStartingPoint(...args),
-  setPathwayStepStatus: (...args: unknown[]) => setPathwayStepStatus(...args),
+  setStepStatus: (...args: unknown[]) => setStepStatus(...args),
 }));
 vi.mock("../../../lib/api/roadmapPreview.api", () => ({
   fetchCompletedSteps: (...args: unknown[]) => fetchCompletedSteps(...args),
@@ -41,6 +41,16 @@ vi.mock("../../../lib/api/skillCheck.api", async (importOriginal) => ({
   resolveStartingPoint: (...args: unknown[]) => resolveStartingPoint(...args),
   fetchActiveCareerId: (...args: unknown[]) => fetchActiveCareerId(...args),
 }));
+
+/** A failed request the server answered with `status`. */
+const answered = (status: number) =>
+  new AxiosError("Request failed", "ERR_BAD_RESPONSE", undefined, undefined, {
+    status,
+    data: {},
+    statusText: "",
+    headers: {},
+    config: {},
+  } as AxiosResponse);
 
 const catalogue = [
   { id: "uuid-fe", slug: "frontend-engineer", title: "Frontend Engineer", shortDescription: "" },
@@ -80,7 +90,7 @@ beforeEach(() => {
   fetchPathwayOrNull.mockResolvedValue(pathwayFromServer);
   setActivePathway.mockResolvedValue({});
   setStartingPoint.mockResolvedValue({});
-  setPathwayStepStatus.mockResolvedValue({});
+  setStepStatus.mockResolvedValue({});
   fetchCompletedSteps.mockResolvedValue([]);
   fetchSkillCheckRecord.mockResolvedValue(null);
   resolveStartingPoint.mockImplementation(async () => ({ careerId: "frontend-developer" }));
@@ -101,8 +111,7 @@ describe("startingPointOnServer", () => {
     await expect(startingPointOnServer(queryClient, "frontend-developer", 3)).resolves.toBe(true);
 
     expect(setStartingPoint).toHaveBeenCalledWith("uuid-fe", "s3");
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.me.pathways });
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.me.activePathway });
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.progress.all });
   });
 
   it("does nothing, and says so, for a career or step the catalogue doesn’t have", async () => {
@@ -114,7 +123,7 @@ describe("startingPointOnServer", () => {
 
   it("saves the pathway and tries again, once, when the server says it isn't saved", async () => {
     setStartingPoint
-      .mockRejectedValueOnce(new StartingPointError("Save this pathway first.", 404))
+      .mockRejectedValueOnce(answered(404))
       .mockResolvedValueOnce({});
 
     await expect(startingPointOnServer(client(), "frontend-developer", 2)).resolves.toBe(true);
@@ -124,11 +133,11 @@ describe("startingPointOnServer", () => {
   });
 
   it("lets any other refusal through without saving anything", async () => {
-    setStartingPoint.mockRejectedValue(new StartingPointError("That step isn’t part of this pathway.", 400));
+    setStartingPoint.mockRejectedValue(answered(400));
 
-    await expect(startingPointOnServer(client(), "frontend-developer", 2)).rejects.toThrow(
-      "isn’t part of this pathway",
-    );
+    await expect(startingPointOnServer(client(), "frontend-developer", 2)).rejects.toMatchObject({
+      response: { status: 400 },
+    });
     expect(setActivePathway).not.toHaveBeenCalled();
   });
 });
@@ -145,11 +154,11 @@ describe("syncLocalProgress", () => {
     expect(changed).toBe(true);
     expect(setStartingPoint).toHaveBeenCalledWith("uuid-fe", "s2");
     // Done in order, and each only once.
-    expect(setPathwayStepStatus.mock.calls).toEqual([
+    expect(setStepStatus.mock.calls).toEqual([
       ["s2", "COMPLETED"],
       ["s3", "COMPLETED"],
     ]);
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.me.activePathway });
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.progress.all });
   });
 
   it("leaves out what the server already has", async () => {
@@ -169,7 +178,7 @@ describe("syncLocalProgress", () => {
     await syncLocalProgress(client(), "u1", "frontend-developer", onServer);
 
     expect(setStartingPoint).not.toHaveBeenCalled();
-    expect(setPathwayStepStatus.mock.calls).toEqual([["s2", "COMPLETED"]]);
+    expect(setStepStatus.mock.calls).toEqual([["s2", "COMPLETED"]]);
   });
 
   it("sends nothing, and doesn’t refresh, when the server is already up to date", async () => {
@@ -182,7 +191,7 @@ describe("syncLocalProgress", () => {
 
     expect(changed).toBe(false);
     expect(setStartingPoint).not.toHaveBeenCalled();
-    expect(setPathwayStepStatus).not.toHaveBeenCalled();
+    expect(setStepStatus).not.toHaveBeenCalled();
     expect(invalidate).not.toHaveBeenCalled();
   });
 
@@ -204,7 +213,7 @@ describe("syncLocalProgress", () => {
     await expect(syncLocalProgress(client(), "u1", "frontend-developer", other)).resolves.toBe(false);
 
     expect(setStartingPoint).not.toHaveBeenCalled();
-    expect(setPathwayStepStatus).not.toHaveBeenCalled();
+    expect(setStepStatus).not.toHaveBeenCalled();
   });
 });
 
@@ -246,7 +255,7 @@ describe("useResolveStartingPoint", () => {
   });
 
   it("changes nothing in My Pathway when the server refuses", async () => {
-    setStartingPoint.mockRejectedValue(new StartingPointError("That step isn’t part of this pathway.", 400));
+    setStartingPoint.mockRejectedValue(answered(400));
     const { result } = setupHook(() => useResolveStartingPoint("frontend-developer"));
 
     result.current.mutate({ stepOrder: 3, source: "ACCEPTED" });
@@ -290,10 +299,10 @@ describe("useSyncLocalProgress", () => {
 
   it("gives up quietly when the server refuses", async () => {
     localState();
-    setStartingPoint.mockRejectedValue(new StartingPointError("Save this pathway first.", 404));
+    setStartingPoint.mockRejectedValue(answered(404));
     setupHook(() => useSyncLocalProgress(active()));
 
     await waitFor(() => expect(setStartingPoint).toHaveBeenCalledTimes(1));
-    expect(setPathwayStepStatus).not.toHaveBeenCalled();
+    expect(setStepStatus).not.toHaveBeenCalled();
   });
 });

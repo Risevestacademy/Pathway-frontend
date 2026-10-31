@@ -15,11 +15,12 @@ export const queryKeys = {
   fields: ["fields"] as const,
   onboardingOptions: ["onboarding-options"] as const,
   pathway: (careerId: string) => ["pathway", careerId] as const,
-  me: {
-    /** The signed-in person's saved pathways and their progress. */
-    pathways: ["me", "pathways"] as const,
+  progress: {
+    all: ["progress"] as const,
     /** The pathway the signed-in person follows, with its steps and their state. */
-    activePathway: ["me", "active-pathway"] as const,
+    active: (userId: string) => ["progress", userId, "active"] as const,
+    /** The signed-in person's saved pathways and their progress. */
+    saved: (userId: string) => ["progress", userId, "saved"] as const,
   },
   realRoadmap: (careerId: string | null) => ["real-roadmap", careerId] as const,
   roadmapPreview: (userId: string, careerId: string) =>

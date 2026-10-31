@@ -1,20 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
-import { MyPathwaysError, fetchMyPathways } from "../../../lib/api/progress.api";
+import { fetchSavedPathways } from "../../../lib/api/progress.api";
 import { queryKeys } from "../../../lib/queryKeys";
+import { retryUnlessClientError } from "../../../lib/queryRetry";
+import { useAuthStore } from "../../../lib/stores/authStore";
 
 /**
- * The signed-in person's saved pathways with their progress. It is refreshed
- * when a step is marked done, so the numbers stay in step with the roadmap.
- * An expired session or a server error won't clear on a retry, so only
- * failures with no response (a dropped connection) are tried again, twice.
+ * The signed-in person's saved pathways with their progress. It shares its
+ * cache with the roadmap pages (`queryKeys.progress.saved`), so marking a step
+ * done anywhere keeps the numbers here in step. A 401, 403 or 404 won't clear
+ * on a retry, so only other failures are tried again.
  */
 export function useMyPathways(enabled = true) {
+  const userId = useAuthStore((state) => state.user?.id ?? "");
   return useQuery({
-    queryKey: queryKeys.me.pathways,
-    queryFn: fetchMyPathways,
-    enabled,
+    queryKey: queryKeys.progress.saved(userId),
+    queryFn: fetchSavedPathways,
+    enabled: enabled && userId !== "",
     staleTime: 30 * 1000,
-    retry: (failureCount, error) =>
-      failureCount < 2 && error instanceof MyPathwaysError && error.status === undefined,
+    retry: retryUnlessClientError,
   });
 }
