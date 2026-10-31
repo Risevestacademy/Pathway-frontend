@@ -6,4 +6,10 @@ export * from "./admin.workflow.types";
 export * from "./admin.workflow.validation";
 export * from "./admin.workflow.state";
 export * from "./admin.workflow.seed";
-export { shortName, initials, waitingLabel, dayLabel, timeLabel } from "./admin.workflow.format";
+export {
+  shortName,
+  initials,
+  waitingLabel,
+  dayLabel,
+  timeLabel,
+} from "./admin.workflow.format";

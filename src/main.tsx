@@ -13,6 +13,7 @@ import { initAnalytics } from "./lib/monitoring/events";
 import { redactDeep } from "./lib/monitoring/redact";
 import type { CaptureResult } from "posthog-js";
 import { setSessionExpiredHandler } from "./lib/api/axios";
+import { ensureAuthHydrated } from "./lib/api/auth.api";
 import { handleSessionExpired } from "./lib/api/sessionExpiry";
 import { retryUnlessClientError } from "./lib/queryRetry";
 import "./index.css";
@@ -47,6 +48,10 @@ const queryClient = new QueryClient({
 setSessionExpiredHandler(() => {
   void handleSessionExpired(router, queryClient);
 });
+
+// Restore the session from the refresh cookie on every page load. Public pages
+// render straight away and update when it lands; protected routes await it.
+void ensureAuthHydrated();
 
 declare module "@tanstack/react-router" {
   interface Register {
