@@ -6,7 +6,7 @@ import { useSearch } from "@tanstack/react-router";
 export default function ChangePasswordComponent() {
   const [isPasswordChanged, setIsPasswordChanged] = useState(false);
   const { token } = useSearch({
-    from: "/(auth)/reset-password_/reset",
+    from: "/(auth)/reset-password",
   });
 
   return (
