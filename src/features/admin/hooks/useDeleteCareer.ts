@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteAdminCareer } from "../../../lib/api/adminCareers.api";
 import type { AdminCareerRow } from "../admin.utils";
+import { queryKeys } from "../../../lib/queryKeys";
 import { useAdminStore } from "../adminStore";
 
 /**
@@ -17,8 +18,8 @@ export function useDeleteCareer() {
     },
     onSuccess: (_data, row) => {
       removeCareer(row.id);
-      queryClient.removeQueries({ queryKey: ["career", row.id] });
-      void queryClient.invalidateQueries({ queryKey: ["careers"] });
+      queryClient.removeQueries({ queryKey: queryKeys.admin.careers.detail(row.id) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.admin.careers.list });
     },
   });
 }
