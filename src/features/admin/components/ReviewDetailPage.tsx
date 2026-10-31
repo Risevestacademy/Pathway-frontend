@@ -171,15 +171,27 @@ export function ReviewDetailPage({ reviewId }: { reviewId: string }) {
         </Banner>
       )}
 
-      {review.careerId && (
-        <LinkButton
-          isPrimary={false}
-          className="self-start"
-          to="/admin/careers/$careerId"
-          params={{ careerId: review.careerId }}
-        >
-          Open in editor
-        </LinkButton>
+      {(review.careerId || review.revisionId) && (
+        <div className="flex flex-wrap gap-3 self-start">
+          {review.revisionId && (
+            <LinkButton
+              isPrimary={false}
+              to="/admin/revisions/$revisionId"
+              params={{ revisionId: review.revisionId }}
+            >
+              View full diff
+            </LinkButton>
+          )}
+          {review.careerId && (
+            <LinkButton
+              isPrimary={false}
+              to="/admin/careers/$careerId"
+              params={{ careerId: review.careerId }}
+            >
+              Open in editor
+            </LinkButton>
+          )}
+        </div>
       )}
     </main>
   );

@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   changedSections,
+  describeDiffItem,
   formatDiffValue,
   noticeText,
+  sectionLabel,
   type DiffSection,
   type RevisionDiff,
 } from "./revisionDiff.types";
@@ -84,5 +86,27 @@ describe("changedSections", () => {
     );
 
     expect(result.map((s) => s.name)).toEqual(["career", "badges"]);
+  });
+});
+
+describe("sectionLabel", () => {
+  it("names the known sections and tidies an unknown one", () => {
+    expect(sectionLabel("career")).toBe("Career details");
+    expect(sectionLabel("outlook")).toBe("Outlook and salary");
+    expect(sectionLabel("badges")).toBe("Badges");
+  });
+});
+
+describe("describeDiffItem", () => {
+  it("uses the first name-like field", () => {
+    expect(describeDiffItem({ label: "Linux basics", title: "ignored" })).toBe("Linux basics");
+    expect(describeDiffItem({ id: "x", title: "Learn Git" })).toBe("Learn Git");
+    expect(describeDiffItem({ name: "Docker" })).toBe("Docker");
+  });
+
+  it("falls back to any text it can find, then to a plain placeholder", () => {
+    expect(describeDiffItem({ order: 2, note: "Second step" })).toBe("Second step");
+    expect(describeDiffItem({ order: 2 })).toBe("Unnamed item");
+    expect(describeDiffItem({ title: "   " })).toBe("Unnamed item");
   });
 });

@@ -24,6 +24,8 @@ export interface ReviewItem {
   bannerBody?: string;
   decisionNote?: string;
   decidedAt?: string;
+  /** The server revision behind this review, when there is one. Opens the full diff. */
+  revisionId?: string;
 }
 
 export const REVIEW_TYPE_LABEL: Record<ReviewType, string> = {

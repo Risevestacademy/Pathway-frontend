@@ -111,3 +111,28 @@ export function changedSections(
     return count > 0 ? [{ name, section }] : [];
   });
 }
+
+/** What each section of a diff is called on screen. */
+export const SECTION_LABEL: Record<string, string> = {
+  career: "Career details",
+  pathway: "Roadmap",
+  steps: "Roadmap steps",
+  skills: "Skills",
+  outlook: "Outlook and salary",
+  resources: "Resources",
+};
+
+export const sectionLabel = (name: string) =>
+  SECTION_LABEL[name] ?? name.charAt(0).toUpperCase() + name.slice(1);
+
+const NAME_KEYS = ["label", "title", "name", "text", "field"];
+
+/** A short name for an added, removed or moved item, whatever shape the section gives it. */
+export function describeDiffItem(item: DiffItem): string {
+  for (const key of NAME_KEYS) {
+    const value = item[key];
+    if (typeof value === "string" && value.trim()) return value;
+  }
+  const first = Object.values(item).find((v) => typeof v === "string" && v.trim());
+  return typeof first === "string" ? first : "Unnamed item";
+}
