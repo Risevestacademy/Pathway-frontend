@@ -7,7 +7,11 @@ import {
   TelescopeRegular,
 } from "@mingcute/react/core-regular";
 import type { ComponentType, SVGProps } from "react";
-import { selectIsAuthenticated, useAuthStore } from "../lib/stores/authStore";
+import {
+  selectIsAuthenticated,
+  selectIsRestoringSession,
+  useAuthStore,
+} from "../lib/stores/authStore";
 import { NavIcon } from "./NavIcon";
 import { FeedbackButton } from "../features/feedback/components/FeedbackButton";
 import { SignOutButton } from "../features/auth/components/SignOutButton";
@@ -50,7 +54,7 @@ export default function AppTopNav() {
   const email = useAuthStore((state) => state.user?.email);
   const signedIn = useAuthStore(selectIsAuthenticated);
   // Until the session is restored after a reload, don't offer "Sign in".
-  const restoringSession = useAuthStore((state) => state.isHydrating) && !signedIn;
+  const restoringSession = useAuthStore(selectIsRestoringSession);
   const visibleItems = signedIn ? NAV_ITEMS : NAV_ITEMS.filter((item) => item.to !== null);
   const initial = email?.trim().charAt(0).toUpperCase() ?? "";
 

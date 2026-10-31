@@ -6,7 +6,11 @@ import { NAV_CTA, NAV_LINKS, type NavLink } from "../landing.copy";
 import { hashScrollOptions } from "../landing.utils";
 import { LandingLinkButton } from "./LandingButton";
 import logo from "@/assets/landing/logo-nav.svg";
-import { selectIsAuthenticated, useAuthStore } from "@/lib/stores/authStore";
+import {
+  selectIsAuthenticated,
+  selectIsRestoringSession,
+  useAuthStore,
+} from "@/lib/stores/authStore";
 
 const linkBase =
   "font-landing-body text-base font-medium leading-none transition-colors duration-150 motion-reduce:transition-none";
@@ -40,9 +44,36 @@ function NavItem({ link, onNavigate, className }: { link: NavLink; onNavigate?: 
   );
 }
 
-/** "Log in" for visitors; signed-in users get a way back into the app instead. */
-function AccountLink({ onNavigate, className }: { onNavigate?: () => void; className?: string }) {
+/**
+ * "Log in" for visitors; signed-in users get a way back into the app instead.
+ * While a reload restores the session it shows a placeholder, so the link
+ * doesn't flick from "Log in" to "Open app".
+ */
+function AccountLink({
+  onNavigate,
+  className,
+  placeholderClassName,
+}: {
+  onNavigate?: () => void;
+  className?: string;
+  /** Sizing and visibility for the placeholder, matching the link it stands in for. */
+  placeholderClassName?: string;
+}) {
   const signedIn = useAuthStore(selectIsAuthenticated);
+  const restoringSession = useAuthStore(selectIsRestoringSession);
+
+  if (restoringSession) {
+    return (
+      <span
+        role="status"
+        aria-label="Checking your sign-in"
+        className={clsx(
+          "h-4 w-16 animate-pulse rounded bg-grey-100 motion-reduce:animate-none",
+          placeholderClassName,
+        )}
+      />
+    );
+  }
 
   return signedIn ? (
     <Link to="/careers" onClick={onNavigate} className={className}>
@@ -114,6 +145,7 @@ export default function LandingNav() {
           <div className="flex items-center gap-3 max-[359px]:gap-1 sm:gap-4">
             <AccountLink
               className={clsx(linkBase, "focus-ring hidden rounded text-ink hover:text-brand-600 md:inline")}
+              placeholderClassName="hidden md:inline-block"
             />
             <LandingLinkButton to="/careers/onboarding" size="md" className="max-[359px]:px-3">
               {NAV_CTA.getStarted}
@@ -149,6 +181,7 @@ export default function LandingNav() {
               <AccountLink
                 onNavigate={() => setOpen(false)}
                 className={clsx(linkBase, "focus-ring block rounded py-1 text-ink hover:text-brand-600")}
+                placeholderClassName="my-1 block"
               />
             </li>
           </ul>

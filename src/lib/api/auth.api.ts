@@ -186,6 +186,10 @@ export async function resendVerification(email: string): Promise<void> {
 /**
  * Revokes the refresh token and clears its cookie. Throws on failure, because
  * a surviving cookie would sign the user straight back in on the next reload.
+ *
+ * The endpoint only reads the refresh cookie and has no JWT guard, so an
+ * expired access token can't 401 here. skipAuthRefresh stops a pointless
+ * refresh that would mint a new refresh token just to revoke it.
  */
 export async function logout(): Promise<void> {
   await api.post("/auth/logout", {}, { skipAuthRefresh: true });
