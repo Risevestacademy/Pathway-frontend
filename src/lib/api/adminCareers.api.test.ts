@@ -79,7 +79,6 @@ const saved = {
   careerId: "abc",
   status: "DRAFT",
   baseVersion: 3,
-  created: false,
   updatedAt: "2026-10-28T17:30:00.000Z",
 };
 
@@ -88,7 +87,7 @@ describe("saveCareerRevision", () => {
     let received: unknown;
     let method = "";
     server.use(
-      http.put("*/admin/careers/abc/revision", async ({ request }) => {
+      http.put("*/admin/revisions/abc", async ({ request }) => {
         method = request.method;
         received = await request.json();
         return HttpResponse.json(saved);
@@ -100,9 +99,23 @@ describe("saveCareerRevision", () => {
     expect(received).toEqual(snapshot);
   });
 
+  it("keeps an unusual id from changing the request path", async () => {
+    let path = "";
+    server.use(
+      http.put("*/admin/revisions/*", ({ request }) => {
+        path = new URL(request.url).pathname;
+        return HttpResponse.json(saved);
+      }),
+    );
+
+    await saveCareerRevision("a/b", snapshot);
+
+    expect(path.endsWith("/admin/revisions/a%2Fb")).toBe(true);
+  });
+
   it("accepts a response wrapped in data", async () => {
     server.use(
-      http.put("*/admin/careers/abc/revision", () => HttpResponse.json({ data: saved })),
+      http.put("*/admin/revisions/abc", () => HttpResponse.json({ data: saved })),
     );
 
     await expect(saveCareerRevision("abc", snapshot)).resolves.toEqual(saved);
@@ -110,7 +123,7 @@ describe("saveCareerRevision", () => {
 
   it("returns what is wrong with an inconsistent snapshot", async () => {
     server.use(
-      http.put("*/admin/careers/abc/revision", () =>
+      http.put("*/admin/revisions/abc", () =>
         HttpResponse.json(
           {
             error: "BAD_REQUEST",
@@ -133,7 +146,7 @@ describe("saveCareerRevision", () => {
 
   it("says which revision is in review so it can be recalled", async () => {
     server.use(
-      http.put("*/admin/careers/abc/revision", () =>
+      http.put("*/admin/revisions/abc", () =>
         HttpResponse.json(
           { code: "REVISION_IN_REVIEW", details: { revisionId: "rev-9" } },
           { status: 409 },
@@ -153,7 +166,7 @@ describe("saveCareerRevision", () => {
   it.each([
     [400, undefined, "Check the career details and try again."],
     [403, undefined, "Only editors and above can save changes."],
-    [404, undefined, "This career no longer exists."],
+    [404, undefined, "This draft or its career no longer exists."],
     [409, "CAREER_RETIRED", "This career is retired, so it can’t be changed."],
     [409, "REVISION_IN_REVIEW", "These changes are in review. Recall them before editing."],
     // Other 409 codes are not guessed at.
@@ -162,7 +175,7 @@ describe("saveCareerRevision", () => {
     [500, undefined, "We couldn’t save this career. Please try again."],
   ])("explains a %i (%s) in plain words", async (status, code, message) => {
     server.use(
-      http.put("*/admin/careers/abc/revision", () =>
+      http.put("*/admin/revisions/abc", () =>
         HttpResponse.json({ code, message: "raw server text" }, { status }),
       ),
     );
@@ -172,7 +185,7 @@ describe("saveCareerRevision", () => {
 
   it("explains an expired session once a token refresh fails", async () => {
     server.use(
-      http.put("*/admin/careers/abc/revision", () => HttpResponse.json({}, { status: 401 })),
+      http.put("*/admin/revisions/abc", () => HttpResponse.json({}, { status: 401 })),
       http.post("*/auth/refresh", () => HttpResponse.json({}, { status: 401 })),
     );
 
@@ -182,7 +195,7 @@ describe("saveCareerRevision", () => {
   });
 
   it("explains a network failure", async () => {
-    server.use(http.put("*/admin/careers/abc/revision", () => HttpResponse.error()));
+    server.use(http.put("*/admin/revisions/abc", () => HttpResponse.error()));
 
     await expect(saveCareerRevision("abc", snapshot)).rejects.toThrow(
       "We couldn’t reach the server. Check your connection and try again.",

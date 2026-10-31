@@ -95,7 +95,7 @@ function getRevisionError(error: unknown): RevisionSaveError {
     case 403:
       return new RevisionSaveError("Only editors and above can save changes.", { code });
     case 404:
-      return new RevisionSaveError("This career no longer exists.", { code });
+      return new RevisionSaveError("This draft or its career no longer exists.", { code });
     case 409:
       // Only the documented codes get a specific message; anything else is generic.
       if (code === "REVISION_IN_REVIEW") {
@@ -119,18 +119,22 @@ function getRevisionError(error: unknown): RevisionSaveError {
 }
 
 /**
- * PUT /admin/careers/{careerId}/revision. Editors and above. `snapshot` is the
- * whole proposed career and replaces the stored one. It updates the open DRAFT
- * revision, or opens one based on the live version. A revision in review is not
- * edited (409): recall it first.
+ * PUT /admin/revisions/{revisionId}. Editors and above. `snapshot` is the whole
+ * proposed career and replaces the stored one; it is not a patch. A revision in
+ * review is not edited (409): recall it first.
+ *
+ * `revisionId` is the open draft's id, which the server returns when the career
+ * is created and on each save. The API text also says this call can open a
+ * revision when none exists, which a path that takes a revision id can't do:
+ * confirm with the backend how the first revision for an existing career is made.
  */
 export async function saveCareerRevision(
-  careerId: string,
+  revisionId: string,
   snapshot: CareerRevisionSnapshot,
 ): Promise<SavedRevision> {
   try {
     const { data } = await api.put<SavedRevision | { data: SavedRevision }>(
-      `/admin/careers/${careerId}/revision`,
+      `/admin/revisions/${encodeURIComponent(revisionId)}`,
       snapshot,
     );
     return "data" in data ? data.data : data;

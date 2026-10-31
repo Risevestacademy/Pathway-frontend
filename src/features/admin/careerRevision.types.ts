@@ -1,8 +1,8 @@
-/** Request and response shapes for PUT /admin/careers/{careerId}/revision. */
+/** Request and response shapes for PUT /admin/revisions/{revisionId}. */
 
 export const REVISION_SCHEMA_VERSION = 1;
 
-export type RevisionStatus = "DRAFT" | "IN_REVIEW";
+export type RevisionStatus = "DRAFT" | "IN_REVIEW" | "APPROVED" | "REJECTED" | "PUBLISHED";
 
 export interface RevisionCareer {
   title: string;
@@ -98,7 +98,5 @@ export interface SavedRevision {
   status: RevisionStatus;
   /** The live career version this revision was started from. */
   baseVersion: number;
-  /** True when this save opened a new revision rather than updating the open draft. */
-  created: boolean;
   updatedAt: string;
 }
