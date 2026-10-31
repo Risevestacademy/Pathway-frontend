@@ -29,11 +29,12 @@ export const Route = createFileRoute("/careers/$careerId/roadmap/")({
 });
 
 function RoadmapRoute() {
-  const { careerId: routeCareerId } = Route.useParams();
   const result = Route.useLoaderData();
-  const { progress, retry } = useCareerProgress(routeCareerId);
   const roadmapId = result?.roadmap?.id;
   const careerId = result?.career.id;
+  // Compare progress with the loaded career's id, never the URL param, which
+  // could be a slug. With no career loaded, nothing below shows progress.
+  const { progress, retry } = useCareerProgress(careerId ?? "");
   const careerTitle = result?.career.title;
 
   useEffect(() => {
