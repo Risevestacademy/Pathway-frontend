@@ -13,10 +13,13 @@ import { selectIsAuthenticated } from "../../lib/stores/authStore";
 export const Route = createFileRoute("/(auth)/login")({
   staticData: { shellVariant: "wide" },
   validateSearch: loginSearchSchema,
-  beforeLoad: async () => {
+  beforeLoad: async ({ search }) => {
     await ensureAuthHydrated();
     if (selectIsAuthenticated(useAuthStore.getState())) {
-      throw redirect({ to: "/careers" });
+      // Already signed in: go back where the user came from, not to /careers.
+      throw search.redirect
+        ? redirect({ href: normalizeRedirect(search.redirect), replace: true })
+        : redirect({ to: "/careers", replace: true });
     }
   },
   component: RouteComponent,

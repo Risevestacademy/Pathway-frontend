@@ -1,4 +1,5 @@
 import { Link, useCanGoBack, useNavigate, useRouter } from "@tanstack/react-router";
+import type { LinkComponentProps } from "@tanstack/react-router";
 import { ChevronsLeft } from "lucide-react";
 
 const backClass =
@@ -46,5 +47,18 @@ export function BackLink({
       <ChevronsLeft aria-hidden className="size-6" />
       {label}
     </button>
+  );
+}
+
+/** The same back link, pointing at any route (e.g. a roadmap step). */
+export function BackLinkTo({
+  label,
+  ...props
+}: Omit<LinkComponentProps<"a">, "children" | "className"> & { label: string }) {
+  return (
+    <Link {...props} className={backClass}>
+      <ChevronsLeft aria-hidden className="size-6" />
+      {label}
+    </Link>
   );
 }

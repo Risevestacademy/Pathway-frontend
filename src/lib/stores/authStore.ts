@@ -31,3 +31,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
 
 export const selectIsAuthenticated = (state: AuthState) =>
   Boolean(state.user && state.accessToken)
+
+/** True while a reload's session restore is still running, so navs can hold off on "Log in". */
+export const selectIsRestoringSession = (state: AuthState) =>
+  state.isHydrating && !selectIsAuthenticated(state)
