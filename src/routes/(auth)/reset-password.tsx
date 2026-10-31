@@ -5,7 +5,9 @@ import ChangePasswordComponent from "@/features/auth/components/ChangePassword";
 
 export const Route = createFileRoute("/(auth)/reset-password")({
   validateSearch: z.object({
-    token: z.optional(z.string().check(z.minLength(1))),
+    token: z.optional(
+      z.union([z.string().check(z.minLength(1)), z.literal("")]),
+    ),
   }),
   component: ResetPasswordRoute,
 });
