@@ -15,17 +15,17 @@ const PLAIN_SIDEBAR_ROUTES = [
 ];
 
 /**
- * auto → a slim rail with only the P logo mark, at every width. No wordmark,
- *        copyright or illustration. This is what most screens use.
- * wide → the full sidebar: logo, copyright and desk illustration. Only the
- *        create account, log in and verify email screens use it.
+ * auto → logo-mark rail up to 1440px, full sidebar above (the `shell` breakpoint).
+ * wide → always the full sidebar: logo, copyright and desk illustration.
  * none → no shell; the route renders its own chrome.
+ *
+ * Wider-than-1440 behaviour is pending designer confirmation.
  */
 export type AppShellVariant = "auto" | "wide" | "none";
 
 declare module "@tanstack/react-router" {
   interface StaticDataRouteOption {
-    /** Create account, log in and verify email set "wide" to keep the full sidebar. */
+    /** Routes that always need the full sidebar (e.g. auth) set "wide". */
     shellVariant?: AppShellVariant;
   }
 }
@@ -35,6 +35,7 @@ interface AppShellProps {
   variant?: AppShellVariant;
 }
 
+// From `lg`, the full sidebar shows always for "wide" and only above 1440px for "auto".
 const shellStyles = {
   wide: {
     aside:
@@ -69,8 +70,6 @@ export default function AppShell({
 
   const isAuthRoute = pathname === "/login" || pathname === "/signup";
   const styles = shellStyles[variant];
-  // Only create account, log in and verify email keep the full sidebar.
-  const fullSidebar = variant === "wide";
 
   return (
     <div
@@ -94,7 +93,7 @@ export default function AppShell({
             styles.aside,
           )}
         >
-          {fullSidebar && showIllustration && (
+          {showIllustration && (
             <img
               src={deskSupplies}
               alt=""
@@ -105,7 +104,7 @@ export default function AppShell({
               className={clsx(
                 "pointer-events-none absolute bottom-0 left-0 h-[min(819px,85svh)] w-auto max-w-none select-none",
                 "animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out motion-reduce:animate-none",
-                FULL_SIDEBAR_ONLY,
+                styles.fullOnly,
               )}
             />
           )}
@@ -115,11 +114,16 @@ export default function AppShell({
             aria-label="Pathway home"
             className="relative inline-flex rounded cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-brand-50"
           >
-            {fullSidebar ? (
-              <img className="h-6.5 w-auto" src={logo} alt="Pathway" />
-            ) : (
-              <img className="size-6" src={logoMark} alt="Pathway" />
-            )}
+            <img
+              className={clsx("h-6.5 w-auto", styles.logo)}
+              src={logo}
+              alt="Pathway"
+            />
+            <img
+              className={clsx("size-6", styles.mark)}
+              src={logoMark}
+              alt="Pathway"
+            />
           </Link>
 
           <p
