@@ -12,7 +12,6 @@ const PLAIN_SIDEBAR_ROUTES = [
   "/login",
   "/signup",
   "/reset-password",
-  "/reset-password/reset",
 ];
 
 /**
@@ -39,7 +38,8 @@ interface AppShellProps {
 // From `lg`, the full sidebar shows always for "wide" and only above 1440px for "auto".
 const shellStyles = {
   wide: {
-    aside: "lg:w-sidebar lg:items-start lg:justify-between lg:px-6 lg:pt-10 lg:pb-8",
+    aside:
+      "lg:w-sidebar lg:items-start lg:justify-between lg:px-6 lg:pt-10 lg:pb-8",
     fullOnly: "hidden lg:block",
     logo: "",
     mark: "hidden",
@@ -55,7 +55,10 @@ const shellStyles = {
   },
 } satisfies Record<Exclude<AppShellVariant, "none">, Record<string, string>>;
 
-export default function AppShell({ children, variant = "auto" }: AppShellProps) {
+export default function AppShell({
+  children,
+  variant = "auto",
+}: AppShellProps) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const showIllustration = !PLAIN_SIDEBAR_ROUTES.some((route) =>
     pathname.startsWith(route),
@@ -123,7 +126,9 @@ export default function AppShell({ children, variant = "auto" }: AppShellProps) 
             />
           </Link>
 
-          <p className={clsx("relative text-sm text-grey-600", styles.fullOnly)}>
+          <p
+            className={clsx("relative text-sm text-grey-600", styles.fullOnly)}
+          >
             ©{new Date().getFullYear()} Pathway
           </p>
         </aside>
