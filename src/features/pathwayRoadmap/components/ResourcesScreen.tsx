@@ -35,7 +35,6 @@ export function ResourcesScreen({
             <ResourceStepCard
               key={group.stepId}
               careerId={careerId}
-              careerTitle={careerTitle}
               group={group}
               status={statuses ? getStepStatus(statuses, group.stepId) : null}
             />

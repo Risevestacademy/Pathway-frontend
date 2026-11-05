@@ -1,14 +1,23 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import type { ResourceGroup } from "../resourceGroups.utils";
 import { ResourceStepCard } from "./ResourceStepCard";
 
-vi.mock("../../resources/components/ResourceCard", () => ({
-  default: ({ resource, context }: { resource: { title: string }; context?: { stepTitle: string } }) => (
-    <article aria-label={resource.title}>
+const toggle = vi.fn();
+let tickedIds: string[] = [];
+
+vi.mock("../hooks/useResourceTicks", () => ({
+  useResourceTicks: () => ({
+    isTicked: (id: string) => tickedIds.includes(id),
+    countTicked: (ids: string[]) => ids.filter((id) => tickedIds.includes(id)).length,
+    toggle: (id: string) => toggle(id),
+  }),
+}));
+vi.mock("./ResourceRow", () => ({
+  ResourceRow: ({ resource, ticked, onToggle }: { resource: { id: string; title: string }; ticked: boolean; onToggle: () => void }) => (
+    <button type="button" aria-label={`row ${resource.id}`} aria-pressed={ticked} onClick={onToggle}>
       {resource.title}
-      <span data-testid="context">{context?.stepTitle}</span>
-    </article>
+    </button>
   ),
 }));
 vi.mock("../../progress/components/StepCompletionButton", () => ({
@@ -17,7 +26,11 @@ vi.mock("../../progress/components/StepCompletionButton", () => ({
   ),
 }));
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  toggle.mockReset();
+  tickedIds = [];
+});
 
 const group: ResourceGroup = {
   stepId: "s2",
@@ -31,8 +44,10 @@ const group: ResourceGroup = {
 
 const card = (status: Parameters<typeof ResourceStepCard>[0]["status"] = null, over: Partial<ResourceGroup> = {}) =>
   render(
-    <ResourceStepCard careerId="c1" careerTitle="Product Designer" group={{ ...group, ...over }} status={status} />,
+    <ResourceStepCard careerId="c1" group={{ ...group, ...over }} status={status} />,
   );
+
+const PROMPT = "Everything in this step is ticked. Mark the step complete when you feel done.";
 
 describe("ResourceStepCard", () => {
   it("is a section named after its step, with the step's number", () => {
@@ -54,33 +69,97 @@ describe("ResourceStepCard", () => {
     expect(screen.getByText("1 resource")).toBeTruthy();
   });
 
-  it("lists each resource, telling it which step it is under", () => {
+  it("lists a row for each resource, in order", () => {
     card();
 
     const section = screen.getByRole("region");
-    expect(within(section).getByRole("article", { name: "Laws of UX" })).toBeTruthy();
-    expect(within(section).getByRole("article", { name: "Don't Make Me Think" })).toBeTruthy();
-    expect(screen.getAllByTestId("context").map((el) => el.textContent)).toEqual([
-      "How people think",
-      "How people think",
+    expect(within(section).getAllByRole("button", { name: /^row / }).map((b) => b.textContent)).toEqual([
+      "Laws of UX",
+      "Don't Make Me Think",
     ]);
   });
 
-  it.each([
-    ["NOT_STARTED", "Not started"],
-    ["IN_PROGRESS", "In Progress"],
-    ["COMPLETED", "Done"],
-  ] as const)("shows a %s step as %s, with a way to change it", (status, label) => {
-    card(status);
+  it("shows each row ticked or not, and passes a tick through", () => {
+    tickedIds = ["r2"];
+    card();
 
-    expect(screen.getByText(label)).toBeTruthy();
-    expect(screen.getByRole("button", { name: `complete s2 (${status})` })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "row r1" }).getAttribute("aria-pressed")).toBe("false");
+    expect(screen.getByRole("button", { name: "row r2" }).getAttribute("aria-pressed")).toBe("true");
+
+    fireEvent.click(screen.getByRole("button", { name: "row r1" }));
+    expect(toggle).toHaveBeenCalledWith("r1");
   });
 
-  it("shows no status or button when the person isn't tracking this pathway", () => {
-    card(null);
+  describe("the chip", () => {
+    it.each([
+      ["NOT_STARTED", "Not started"],
+      ["IN_PROGRESS", "In Progress"],
+    ] as const)("says a %s step with nothing ticked is %s", (status, label) => {
+      card(status);
 
-    expect(screen.queryByText("Not started")).toBeNull();
-    expect(screen.queryByRole("button")).toBeNull();
+      expect(screen.getByText(label)).toBeTruthy();
+    });
+
+    it("says how many are ticked once some are", () => {
+      tickedIds = ["r1"];
+      card("NOT_STARTED");
+
+      expect(screen.getByText("1 of 2 ticked")).toBeTruthy();
+      expect(screen.queryByText("Not started")).toBeNull();
+    });
+
+    it("says Done for a step they marked complete, whatever is ticked", () => {
+      tickedIds = ["r1"];
+      card("COMPLETED");
+
+      expect(screen.getByText("Done")).toBeTruthy();
+      expect(screen.queryByText("1 of 2 ticked")).toBeNull();
+    });
+
+    it("shows how many are ticked even when they aren't tracking this pathway", () => {
+      tickedIds = ["r1"];
+      card(null);
+
+      expect(screen.getByText("1 of 2 ticked")).toBeTruthy();
+    });
+
+    it("shows no chip when they aren't tracking this pathway and nothing is ticked", () => {
+      card(null);
+
+      expect(screen.queryByText(/ticked|Not started|Done|In Progress/)).toBeNull();
+    });
+  });
+
+  describe("marking the step complete", () => {
+    it("offers it once every resource is ticked", () => {
+      tickedIds = ["r1", "r2"];
+      card("IN_PROGRESS");
+
+      expect(screen.getByText(PROMPT)).toBeTruthy();
+      expect(screen.getByRole("button", { name: "complete s2 (IN_PROGRESS)" })).toBeTruthy();
+    });
+
+    it("doesn't offer it while some are not ticked", () => {
+      tickedIds = ["r1"];
+      card("NOT_STARTED");
+
+      expect(screen.queryByText(PROMPT)).toBeNull();
+      expect(screen.queryByRole("button", { name: /complete s2/ })).toBeNull();
+    });
+
+    it("lets them undo a step they marked complete, without the prompt", () => {
+      card("COMPLETED");
+
+      expect(screen.queryByText(PROMPT)).toBeNull();
+      expect(screen.getByRole("button", { name: "complete s2 (COMPLETED)" })).toBeTruthy();
+    });
+
+    it("never offers it when they aren't tracking this pathway", () => {
+      tickedIds = ["r1", "r2"];
+      card(null);
+
+      expect(screen.queryByText(PROMPT)).toBeNull();
+      expect(screen.queryByRole("button", { name: /complete s2/ })).toBeNull();
+    });
   });
 });
