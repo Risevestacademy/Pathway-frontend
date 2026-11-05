@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ResourcesPage } from "../../../../features/pathwayRoadmap/components/ResourcesPage";
+import { ResourcesPage } from "../../../../../features/pathwayRoadmap/components/ResourcesPage";
 
-export const Route = createFileRoute("/_protected/my-pathway/$careerId/resources")({
+export const Route = createFileRoute("/_protected/my-pathway/$careerId/resources/")({
   component: ResourcesRoute,
 });
 
