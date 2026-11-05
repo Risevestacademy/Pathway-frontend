@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { Check } from "lucide-react";
-import { useId, useState } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import StepCompletionButton from "../../progress/components/StepCompletionButton";
 
@@ -33,10 +33,13 @@ export function CompletedCard({
   careerId,
   steps,
   resources,
+  startWith,
 }: {
   careerId: string;
   steps: CompletedStep[];
   resources: TickedResource[];
+  /** What to offer when nothing is completed yet: which step to begin with, and a way to start it. */
+  startWith?: { stepNumber: number; action: ReactNode };
 }) {
   const headingId = useId();
   const [tab, setTab] = useState<Tab>("steps");
@@ -81,7 +84,14 @@ export function CompletedCard({
       <div role="tabpanel" className="border-t border-line">
         {tab === "steps" ? (
           steps.length === 0 ? (
-            <p className="p-6 text-sm text-ink-muted">No steps marked complete yet</p>
+            <div className="flex flex-col items-center gap-2 px-6 py-10 text-center">
+              <p className="font-display text-lg font-medium text-ink">Nothing completed yet</p>
+              <p className="text-sm text-ink-muted">
+                When you mark a step complete, it shows up here.
+                {startWith ? ` Start with step ${startWith.stepNumber}.` : ""}
+              </p>
+              {startWith && <div className="mt-2">{startWith.action}</div>}
+            </div>
           ) : (
             <ul className="divide-y divide-line">
               {steps.map((step) => (

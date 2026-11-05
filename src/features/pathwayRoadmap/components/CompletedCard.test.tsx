@@ -55,11 +55,27 @@ describe("CompletedCard", () => {
     expect(panel.getByRole("button", { name: "undo s5 (COMPLETED)" }).getAttribute("data-variant")).toBe("undo");
   });
 
-  it("says so when no step has been marked complete", () => {
+  it("says nothing is completed yet, and where a completed step will show up", () => {
     card({ steps: [] });
 
-    expect(screen.getByText("No steps marked complete yet")).toBeTruthy();
+    expect(screen.getByText("Nothing completed yet")).toBeTruthy();
+    expect(screen.getByText("When you mark a step complete, it shows up here.")).toBeTruthy();
     expect(screen.queryByRole("listitem")).toBeNull();
+  });
+
+  it("points to the step to start with, with a way to start it", () => {
+    card({ steps: [], startWith: { stepNumber: 1, action: <button type="button">Start step 1</button> } });
+
+    expect(
+      screen.getByText("When you mark a step complete, it shows up here. Start with step 1."),
+    ).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Start step 1" })).toBeTruthy();
+  });
+
+  it("doesn't offer to start a step once something is completed", () => {
+    card({ startWith: { stepNumber: 1, action: <button type="button">Start step 1</button> } });
+
+    expect(screen.queryByRole("button", { name: "Start step 1" })).toBeNull();
   });
 
   it("lists the resources they ticked, saying which step each is in, when Resources is chosen", () => {
