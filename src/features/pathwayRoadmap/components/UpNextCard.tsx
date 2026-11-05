@@ -51,17 +51,11 @@ export function UpNextCard({ careerId, step, started, activation }: UpNextCardPr
           activeCareerTitle={activation.activeCareerTitle}
           label={label}
           onStarted={() =>
-            void navigate({
-              to: "/careers/$careerId/roadmap/$stepId",
-              params: { careerId, stepId: step.id },
-            })
+            void navigate({ to: "/my-pathway/$careerId/resources", params: { careerId } })
           }
         />
       ) : (
-        <LinkButton
-          to="/careers/$careerId/roadmap/$stepId"
-          params={{ careerId, stepId: step.id }}
-        >
+        <LinkButton to="/my-pathway/$careerId/resources" params={{ careerId }}>
           {label}
         </LinkButton>
       )}

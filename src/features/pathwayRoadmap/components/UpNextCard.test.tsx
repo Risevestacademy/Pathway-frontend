@@ -83,7 +83,7 @@ describe("UpNextCard", () => {
     card({ started: false });
 
     const link = screen.getByRole("link", { name: "Start step 1" });
-    expect(link.getAttribute("href")).toBe("/careers/$careerId/roadmap/$stepId");
+    expect(link.getAttribute("href")).toBe("/my-pathway/$careerId/resources");
   });
 
   it("offers to continue the step once they have started", () => {
@@ -124,8 +124,8 @@ describe("UpNextCard", () => {
       fireEvent.click(screen.getByRole("button", { name: "Start step 1" }));
 
       expect(navigate).toHaveBeenCalledWith({
-        to: "/careers/$careerId/roadmap/$stepId",
-        params: { careerId: "career-1", stepId: "step-1" },
+        to: "/my-pathway/$careerId/resources",
+        params: { careerId: "career-1" },
       });
     });
 
