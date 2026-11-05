@@ -11,7 +11,7 @@ const linkTab = clsx(
 );
 const soonTab = clsx(tab, "cursor-not-allowed text-ink-muted");
 
-/** The sections of one career's pathway. Practice tasks and Progress have no screens yet. */
+/** The sections of one career's pathway. Practice tasks has no screen yet. */
 export function OverviewTabs({
   careerId,
   current,
@@ -56,10 +56,9 @@ export function OverviewTabs({
               Progress
             </span>
           ) : (
-            <span aria-disabled="true" title="Coming soon" className={soonTab}>
+            <Link to="/my-pathway/$careerId/progress" params={{ careerId }} className={linkTab}>
               Progress
-              <span className="sr-only"> (coming soon)</span>
-            </span>
+            </Link>
           )}
         </li>
       </ul>

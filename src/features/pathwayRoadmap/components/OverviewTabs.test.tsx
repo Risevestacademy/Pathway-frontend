@@ -52,6 +52,18 @@ describe("OverviewTabs", () => {
     );
   });
 
+  it("links to Progress from the other screens", () => {
+    tabs("overview");
+
+    expect(screen.getByRole("link", { name: "Progress" }).getAttribute("href")).toBe("/my-pathway/c1/progress");
+  });
+
+  it("links to Progress from Resources too", () => {
+    tabs("resources");
+
+    expect(screen.getByRole("link", { name: "Progress" }).getAttribute("href")).toBe("/my-pathway/c1/progress");
+  });
+
   it("shows Progress as current on the Progress screen, with the others as links", () => {
     tabs("progress");
 
