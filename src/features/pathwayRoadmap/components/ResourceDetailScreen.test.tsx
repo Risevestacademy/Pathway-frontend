@@ -4,9 +4,19 @@ import type { ResourceDetail } from "../resourceDetail.utils";
 import { ResourceDetailScreen } from "./ResourceDetailScreen";
 
 const resourceOpened = vi.fn();
+const toggle = vi.fn();
+let tickedIds: string[] = [];
+let unsavedIds: string[] = [];
 
 vi.mock("@/lib/monitoring/events", () => ({
   analytics: { trackFeature: { resourceOpened: (...args: unknown[]) => resourceOpened(...args) } },
+}));
+vi.mock("../hooks/useResourceTicks", () => ({
+  useResourceTicks: () => ({
+    isTicked: (id: string) => tickedIds.includes(id),
+    isUnsaved: (id: string) => unsavedIds.includes(id),
+    toggle: (id: string) => toggle(id),
+  }),
 }));
 vi.mock("../../skillCheck/components/BackLink", () => ({
   BackLinkTo: ({ label, to }: { label: string; to: string }) => <a href={to}>{label}</a>,
@@ -20,6 +30,9 @@ vi.mock("../../feedback/components/ReportIssueLink", () => ({
 afterEach(() => {
   cleanup();
   resourceOpened.mockReset();
+  toggle.mockReset();
+  tickedIds = [];
+  unsavedIds = [];
 });
 
 const detail: ResourceDetail = {
@@ -156,5 +169,45 @@ describe("ResourceDetailScreen", () => {
     expect(
       screen.getByRole("button", { name: "Report a problem with this resource | Laws of UX | c1" }),
     ).toBeTruthy();
+  });
+
+  describe("the tick box", () => {
+    it("lets them say they have done the resource, and that the tick is only theirs", () => {
+      screenOf();
+
+      const box = screen.getByRole("checkbox", { name: /I have done this resource/ }) as HTMLInputElement;
+      expect(box.checked).toBe(false);
+      expect(screen.getByText("Your own tick. Only you see it.")).toBeTruthy();
+    });
+
+    it("shows the tick when the resource has been ticked, on the list or here", () => {
+      tickedIds = ["r1"];
+      screenOf();
+
+      expect((screen.getByRole("checkbox") as HTMLInputElement).checked).toBe(true);
+    });
+
+    it("ticks and unticks the resource when it is clicked", () => {
+      screenOf();
+
+      fireEvent.click(screen.getByRole("checkbox"));
+
+      expect(toggle).toHaveBeenCalledWith("r1");
+    });
+
+    it("says when the browser couldn't save the tick", () => {
+      tickedIds = ["r1"];
+      unsavedIds = ["r1"];
+      screenOf();
+
+      expect(screen.getByText("Not saved")).toBeTruthy();
+    });
+
+    it("says nothing of the kind when it is saved", () => {
+      tickedIds = ["r1"];
+      screenOf();
+
+      expect(screen.queryByText("Not saved")).toBeNull();
+    });
   });
 });

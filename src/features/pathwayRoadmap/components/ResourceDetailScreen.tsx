@@ -7,6 +7,7 @@ import { ReportIssueLink } from "../../feedback/components/ReportIssueLink";
 import { REPORT_REASONS } from "../../feedback/feedback.utils";
 import type { Resource } from "../../resources/resources.types";
 import { BackLinkTo } from "../../skillCheck/components/BackLink";
+import { useResourceTicks } from "../hooks/useResourceTicks";
 import { formatCheckedDate, type ResourceDetail } from "../resourceDetail.utils";
 import { KIND_LABEL, costChip, costTone } from "../resourceLabels";
 
@@ -43,6 +44,7 @@ export function ResourceDetailScreen({
   detail: ResourceDetail;
 }) {
   const { step, resource, description, curationRationale, lastChecked, skills } = detail;
+  const { isTicked, isUnsaved, toggle } = useResourceTicks(careerId);
 
   const trackOpened = () =>
     analytics.trackFeature.resourceOpened(resource.id, resource.title, resource.provider, resource.kind);
@@ -114,6 +116,20 @@ export function ResourceDetailScreen({
             Opens on the provider’s site. Opening it does not mark it done.
           </p>
           <p className="text-ink-muted">Last checked {formatCheckedDate(lastChecked)}</p>
+
+          <label className="flex cursor-pointer items-start gap-3 border-t border-line pt-4">
+            <input
+              type="checkbox"
+              checked={isTicked(resource.id)}
+              onChange={() => toggle(resource.id)}
+              className="focus-ring mt-0.5 size-6 shrink-0 cursor-pointer rounded-md border border-line-strong accent-brand-600"
+            />
+            <span className="flex flex-col">
+              <span className="text-lg font-medium text-ink">I have done this resource</span>
+              <span className="text-ink-muted">Your own tick. Only you see it.</span>
+            </span>
+            {isUnsaved(resource.id) && <Badge tone="warning">Not saved</Badge>}
+          </label>
 
           <div className="border-t border-line pt-4">
             <ReportIssueLink
