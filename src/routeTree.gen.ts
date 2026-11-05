@@ -22,6 +22,8 @@ import { Route as ProtectedProgressRouteImport } from './routes/_protected/progr
 import { Route as CareersIndexRouteImport } from './routes/careers/index'
 import { Route as ExploreIndexRouteImport } from './routes/explore/index'
 import { Route as ExploreCareerIdRouteImport } from './routes/explore/$careerId'
+import { Route as SkillCheckIndexRouteImport } from './routes/skill-check/index'
+import { Route as SkillCheckSplatRouteImport } from './routes/skill-check/$'
 import { Route as ProtectedAdminIndexRouteImport } from './routes/_protected/admin/index'
 import { Route as ProtectedMyPathwayIndexRouteImport } from './routes/_protected/my-pathway/index'
 import { Route as CareersCareerIdIndexRouteImport } from './routes/careers/$careerId/index'
@@ -110,6 +112,16 @@ const ExploreIndexRoute = ExploreIndexRouteImport.update({
 const ExploreCareerIdRoute = ExploreCareerIdRouteImport.update({
   id: '/explore/$careerId',
   path: '/explore/$careerId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SkillCheckIndexRoute = SkillCheckIndexRouteImport.update({
+  id: '/skill-check/',
+  path: '/skill-check/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SkillCheckSplatRoute = SkillCheckSplatRouteImport.update({
+  id: '/skill-check/$',
+  path: '/skill-check/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProtectedAdminIndexRoute = ProtectedAdminIndexRouteImport.update({
@@ -266,8 +278,10 @@ export interface FileRoutesByFullPath {
   '/my-pathway': typeof ProtectedMyPathwayRouteWithChildren
   '/progress': typeof ProtectedProgressRoute
   '/explore/$careerId': typeof ExploreCareerIdRoute
+  '/skill-check/$': typeof SkillCheckSplatRoute
   '/careers/': typeof CareersIndexRoute
   '/explore/': typeof ExploreIndexRoute
+  '/skill-check/': typeof SkillCheckIndexRoute
   '/careers/$careerId/details': typeof CareersCareerIdDetailsRoute
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
   '/careers/onboarding/goals': typeof CareersOnboardingGoalsRoute
@@ -303,8 +317,10 @@ export interface FileRoutesByTo {
   '/verify-email': typeof authVerifyEmailRoute
   '/progress': typeof ProtectedProgressRoute
   '/explore/$careerId': typeof ExploreCareerIdRoute
+  '/skill-check/$': typeof SkillCheckSplatRoute
   '/careers': typeof CareersIndexRoute
   '/explore': typeof ExploreIndexRoute
+  '/skill-check': typeof SkillCheckIndexRoute
   '/careers/$careerId/details': typeof CareersCareerIdDetailsRoute
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
   '/careers/onboarding/goals': typeof CareersOnboardingGoalsRoute
@@ -344,8 +360,10 @@ export interface FileRoutesById {
   '/_protected/my-pathway': typeof ProtectedMyPathwayRouteWithChildren
   '/_protected/progress': typeof ProtectedProgressRoute
   '/explore/$careerId': typeof ExploreCareerIdRoute
+  '/skill-check/$': typeof SkillCheckSplatRoute
   '/careers/': typeof CareersIndexRoute
   '/explore/': typeof ExploreIndexRoute
+  '/skill-check/': typeof SkillCheckIndexRoute
   '/careers/$careerId/details': typeof CareersCareerIdDetailsRoute
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
   '/careers/onboarding/goals': typeof CareersOnboardingGoalsRoute
@@ -385,8 +403,10 @@ export interface FileRouteTypes {
     | '/my-pathway'
     | '/progress'
     | '/explore/$careerId'
+    | '/skill-check/$'
     | '/careers/'
     | '/explore/'
+    | '/skill-check/'
     | '/careers/$careerId/details'
     | '/careers/onboarding/about'
     | '/careers/onboarding/goals'
@@ -422,8 +442,10 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/progress'
     | '/explore/$careerId'
+    | '/skill-check/$'
     | '/careers'
     | '/explore'
+    | '/skill-check'
     | '/careers/$careerId/details'
     | '/careers/onboarding/about'
     | '/careers/onboarding/goals'
@@ -462,8 +484,10 @@ export interface FileRouteTypes {
     | '/_protected/my-pathway'
     | '/_protected/progress'
     | '/explore/$careerId'
+    | '/skill-check/$'
     | '/careers/'
     | '/explore/'
+    | '/skill-check/'
     | '/careers/$careerId/details'
     | '/careers/onboarding/about'
     | '/careers/onboarding/goals'
@@ -500,8 +524,10 @@ export interface RootRouteChildren {
   authSignupRoute: typeof authSignupRoute
   authVerifyEmailRoute: typeof authVerifyEmailRoute
   ExploreCareerIdRoute: typeof ExploreCareerIdRoute
+  SkillCheckSplatRoute: typeof SkillCheckSplatRoute
   CareersIndexRoute: typeof CareersIndexRoute
   ExploreIndexRoute: typeof ExploreIndexRoute
+  SkillCheckIndexRoute: typeof SkillCheckIndexRoute
   CareersCareerIdDetailsRoute: typeof CareersCareerIdDetailsRoute
   CareersOnboardingAboutRoute: typeof CareersOnboardingAboutRoute
   CareersOnboardingGoalsRoute: typeof CareersOnboardingGoalsRoute
@@ -602,6 +628,20 @@ declare module '@tanstack/react-router' {
       path: '/explore/$careerId'
       fullPath: '/explore/$careerId'
       preLoaderRoute: typeof ExploreCareerIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/skill-check/': {
+      id: '/skill-check/'
+      path: '/skill-check'
+      fullPath: '/skill-check/'
+      preLoaderRoute: typeof SkillCheckIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/skill-check/$': {
+      id: '/skill-check/$'
+      path: '/skill-check/$'
+      fullPath: '/skill-check/$'
+      preLoaderRoute: typeof SkillCheckSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_protected/admin/': {
@@ -882,8 +922,10 @@ const rootRouteChildren: RootRouteChildren = {
   authSignupRoute: authSignupRoute,
   authVerifyEmailRoute: authVerifyEmailRoute,
   ExploreCareerIdRoute: ExploreCareerIdRoute,
+  SkillCheckSplatRoute: SkillCheckSplatRoute,
   CareersIndexRoute: CareersIndexRoute,
   ExploreIndexRoute: ExploreIndexRoute,
+  SkillCheckIndexRoute: SkillCheckIndexRoute,
   CareersCareerIdDetailsRoute: CareersCareerIdDetailsRoute,
   CareersOnboardingAboutRoute: CareersOnboardingAboutRoute,
   CareersOnboardingGoalsRoute: CareersOnboardingGoalsRoute,
