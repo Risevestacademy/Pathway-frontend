@@ -2,6 +2,7 @@ import { BackLink } from "../../skillCheck/components/BackLink";
 import type { PathwayOverview } from "../overview.utils";
 import { OverallProgressCard } from "./OverallProgressCard";
 import { OverviewHero } from "./OverviewHero";
+import { OverviewTabs } from "./OverviewTabs";
 import { UpNextCard } from "./UpNextCard";
 import { YourRoadmapCard } from "./YourRoadmapCard";
 
@@ -21,6 +22,7 @@ export function OverviewScreen({
     <div className="flex flex-col gap-6">
       <BackLink fallbackTo="/my-pathway" />
       <OverviewHero title={careerTitle} stepCount={steps.length} />
+      <OverviewTabs />
 
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <YourRoadmapCard careerId={careerId} steps={steps} nextStepId={nextStepId} />

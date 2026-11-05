@@ -41,6 +41,16 @@ describe("OverviewScreen", () => {
     expect(screen.getByText("2 steps. You mark each step complete yourself.")).toBeTruthy();
   });
 
+  it("shows the pathway's sections under the hero, with Overview current", () => {
+    screenOf();
+
+    const tabs = screen.getByRole("navigation", { name: "Pathway sections" });
+    expect(tabs.textContent).toContain("Resources");
+    expect(screen.getByText("Overview").getAttribute("aria-current")).toBe("page");
+    const hero = screen.getByRole("heading", { level: 1 });
+    expect(hero.compareDocumentPosition(tabs) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it("lists the roadmap", () => {
     screenOf();
 
