@@ -15,10 +15,10 @@ afterEach(() => {
   useAuthStore.setState({ user: null, accessToken: null, isHydrating: true });
 });
 
-async function renderNav() {
+async function renderNav(path = "/careers/c1") {
   const router = createRouter({
     routeTree: createRootRoute({ component: AppTopNav }),
-    history: createMemoryHistory({ initialEntries: ["/careers/c1"] }),
+    history: createMemoryHistory({ initialEntries: [path] }),
   });
   render(
     <QueryClientProvider client={new QueryClient()}>
@@ -42,6 +42,45 @@ describe("AppTopNav", () => {
     act(() => useAuthStore.getState().finishHydrating());
 
     expect(screen.getByRole("link", { name: "Sign in" })).toBeTruthy();
+  });
+
+  describe("the My Pathway item", () => {
+    const myPathway = () => screen.getByRole("link", { name: /My Pathway/ });
+    const explore = () => screen.getByRole("link", { name: /Explore/ });
+
+    it("opens My Pathway itself, where Roadmap is the default tab", async () => {
+      await renderNav();
+      act(() => {
+        useAuthStore.getState().setAuth({ id: "u1", email: "a@b.c", role: "USER" }, "token");
+        useAuthStore.getState().finishHydrating();
+      });
+
+      expect(myPathway().getAttribute("href")).toBe("/my-pathway");
+    });
+
+    it.each(["/my-pathway", "/my-pathway/skill-check", "/my-pathway/skill-check/c1/result"])(
+      "is current on %s",
+      async (path) => {
+        await renderNav(path);
+        act(() => {
+          useAuthStore.getState().setAuth({ id: "u1", email: "a@b.c", role: "USER" }, "token");
+          useAuthStore.getState().finishHydrating();
+        });
+
+        expect(myPathway().getAttribute("aria-current")).toBe("page");
+        expect(explore().getAttribute("aria-current")).toBeNull();
+      },
+    );
+
+    it("isn't current on a path that only starts the same way", async () => {
+      await renderNav("/my-pathways");
+      act(() => {
+        useAuthStore.getState().setAuth({ id: "u1", email: "a@b.c", role: "USER" }, "token");
+        useAuthStore.getState().finishHydrating();
+      });
+
+      expect(myPathway().getAttribute("aria-current")).toBeNull();
+    });
   });
 
   it("shows the signed-in state as soon as the session is restored", async () => {

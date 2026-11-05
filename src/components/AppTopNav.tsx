@@ -22,9 +22,13 @@ interface NavItem {
   label: string;
   iconName: string;
   fallback: IconComponent;
-  to: "/careers" | "/my-pathway/skill-check" | null;
+  to: "/careers" | "/my-pathway" | null;
+  /** The path this item covers, along with everything under it. */
   match: string | null;
 }
+
+const isUnder = (pathname: string, path: string) =>
+  pathname === path || pathname.startsWith(`${path}/`);
 
 const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", iconName: "dashboard", fallback: Layout3Regular, to: null, match: null },
@@ -33,7 +37,7 @@ const NAV_ITEMS: NavItem[] = [
     label: "My Pathway",
     iconName: "my-pathway",
     fallback: Directions2Regular,
-    to: "/my-pathway/skill-check",
+    to: "/my-pathway",
     match: "/my-pathway",
   },
   { label: "Opportunities", iconName: "opportunities", fallback: BriefcaseRegular, to: null, match: null },
@@ -63,7 +67,7 @@ export default function AppTopNav() {
       <nav aria-label="Main">
         <ul className="flex items-center gap-2 rounded-[10px] bg-grey-50 p-1">
           {visibleItems.map((item, index) => {
-            const isActive = item.match !== null && pathname.startsWith(item.match);
+            const isActive = item.match !== null && isUnder(pathname, item.match);
             const label = (
               <>
                 <NavIcon
