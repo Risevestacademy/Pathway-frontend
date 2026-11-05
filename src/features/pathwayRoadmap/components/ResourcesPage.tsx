@@ -17,6 +17,7 @@ export function ResourcesPage({ careerId }: { careerId: string }) {
         stepCount={state.stepCount}
         groups={state.groups}
         statuses={state.statuses}
+        progress={state.progress}
       />
     );
   }

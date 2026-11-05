@@ -9,6 +9,7 @@ import { OverviewTabs } from "./OverviewTabs";
 import { PaidCoursesCard } from "./PaidCoursesCard";
 import { ResourceStepCard } from "./ResourceStepCard";
 import { ResourceStepNav } from "./ResourceStepNav";
+import { StepCompleteDialog } from "./StepCompleteDialog";
 
 /** One career's pathway resources: the steps down the side, and the one picked shown beside them. */
 export function ResourcesScreen({
@@ -17,6 +18,7 @@ export function ResourcesScreen({
   stepCount,
   groups,
   statuses,
+  progress,
 }: {
   careerId: string;
   careerTitle: string;
@@ -24,12 +26,19 @@ export function ResourcesScreen({
   groups: ResourceGroup[];
   /** Each step's saved status, or null when they aren't tracking this pathway. */
   statuses: Record<string, PathwayStepStatus> | null;
+  /** How many steps they have completed out of how many, or null when that isn't known. */
+  progress: { completed: number; total: number } | null;
 }) {
-  const { countTicked } = useResourceTicks(careerId);
+  const { countTicked, isTicked } = useResourceTicks(careerId);
   const [pickedStepId, setPickedStepId] = useState<string | null>(null);
+  const [completedStepId, setCompletedStepId] = useState<string | null>(null);
 
   // Until one is picked, or if the one picked has gone, it is the first step.
   const selected = groups.find((group) => group.stepId === pickedStepId) ?? groups[0];
+
+  const completedIndex = groups.findIndex((group) => group.stepId === completedStepId);
+  const completed = completedIndex === -1 ? null : groups[completedIndex];
+  const next = completedIndex === -1 ? undefined : groups[completedIndex + 1];
 
   return (
     <div className="flex flex-col gap-6">
@@ -57,6 +66,7 @@ export function ResourcesScreen({
               careerId={careerId}
               group={selected}
               status={statuses ? getStepStatus(statuses, selected.stepId) : null}
+              onStepCompleted={() => setCompletedStepId(selected.stepId)}
             />
             <PaidCoursesCard
               careerId={careerId}
@@ -65,6 +75,27 @@ export function ResourcesScreen({
             />
           </div>
         </div>
+      )}
+
+      {completed && (
+        <StepCompleteDialog
+          open
+          onOpenChange={(open) => {
+            if (!open) setCompletedStepId(null);
+          }}
+          step={{ number: completed.number, title: completed.title }}
+          resources={completed.resources.map((resource) => ({
+            id: resource.id,
+            title: resource.title,
+            ticked: isTicked(resource.id),
+          }))}
+          progress={progress}
+          nextStep={next ? { title: next.title } : null}
+          onNextStep={() => {
+            if (next) setPickedStepId(next.stepId);
+            setCompletedStepId(null);
+          }}
+        />
       )}
     </div>
   );

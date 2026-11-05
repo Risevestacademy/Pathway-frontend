@@ -19,11 +19,56 @@ vi.mock("../../skillCheck/components/BackLink", () => ({
   BackLinkTo: ({ label, to }: { label: string; to: string }) => <a href={to}>{label}</a>,
 }));
 vi.mock("./ResourceStepCard", () => ({
-  ResourceStepCard: ({ group, status }: { group: ResourceGroup; status: string | null }) => (
-    <section aria-label={`step ${group.number}`}>{`${group.title} [${status ?? "untracked"}]`}</section>
+  ResourceStepCard: ({
+    group,
+    status,
+    onStepCompleted,
+  }: {
+    group: ResourceGroup;
+    status: string | null;
+    onStepCompleted?: () => void;
+  }) => (
+    <>
+      <section aria-label={`step ${group.number}`}>{`${group.title} [${status ?? "untracked"}]`}</section>
+      <button type="button" onClick={onStepCompleted}>
+        mark complete
+      </button>
+    </>
   ),
 }));
-
+vi.mock("./StepCompleteDialog", () => ({
+  StepCompleteDialog: ({
+    open,
+    onOpenChange,
+    step,
+    resources,
+    progress,
+    nextStep,
+    onNextStep,
+  }: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    step: { number: number; title: string };
+    resources: { id: string; ticked: boolean }[];
+    progress: { completed: number; total: number } | null;
+    nextStep: { title: string } | null;
+    onNextStep: () => void;
+  }) =>
+    open ? (
+      <div role="dialog" aria-label="step complete">
+        <p>{`${step.number}|${step.title}`}</p>
+        <p>{resources.map((r) => `${r.id}:${r.ticked}`).join(",")}</p>
+        <p>{progress ? `${progress.completed}/${progress.total}` : "no progress"}</p>
+        <p>{nextStep ? `next:${nextStep.title}` : "no next step"}</p>
+        <button type="button" onClick={onNextStep}>
+          go next
+        </button>
+        <button type="button" onClick={() => onOpenChange(false)}>
+          stay
+        </button>
+      </div>
+    ) : null,
+}));
 vi.mock("./PaidCoursesCard", () => ({
   PaidCoursesCard: ({ resources, hasFreeResources }: { resources: { id: string }[]; hasFreeResources: boolean }) =>
     resources.length === 0 ? null : (
@@ -60,6 +105,7 @@ const screenOf = (over: Partial<Parameters<typeof ResourcesScreen>[0]> = {}) =>
       stepCount={16}
       groups={groups}
       statuses={null}
+      progress={{ completed: 2, total: 16 }}
       {...over}
     />,
   );
@@ -166,5 +212,77 @@ describe("ResourcesScreen", () => {
     expect(screen.getByText("No resources for this roadmap yet")).toBeTruthy();
     expect(screen.queryByRole("navigation", { name: "Steps" })).toBeNull();
     expect(screen.queryByRole("region")).toBeNull();
+  });
+
+  describe("when a step is marked complete", () => {
+    const complete = () => fireEvent.click(screen.getByRole("button", { name: "mark complete" }));
+    const dialog = () => within(screen.getByRole("dialog", { name: "step complete" }));
+
+    it("shows nothing about it until then", () => {
+      screenOf();
+
+      expect(screen.queryByRole("dialog")).toBeNull();
+    });
+
+    it("tells them which step, which resources they ticked, how far they are, and what's next", () => {
+      tickedIds = ["a"];
+      screenOf();
+
+      complete();
+
+      expect(dialog().getByText("1|What design is for")).toBeTruthy();
+      expect(dialog().getByText("a:true")).toBeTruthy();
+      expect(dialog().getByText("2/16")).toBeTruthy();
+      expect(dialog().getByText("next:Get comfortable in Figma")).toBeTruthy();
+    });
+
+    it("is about the step that was picked", () => {
+      screenOf();
+      fireEvent.click(steps().getByRole("button", { name: /Step 3/ }));
+
+      complete();
+
+      expect(dialog().getByText("3|Get comfortable in Figma")).toBeTruthy();
+      expect(dialog().getByText("b:false,c:false")).toBeTruthy();
+      expect(dialog().getByText("next:Only paid")).toBeTruthy();
+    });
+
+    it("goes to the next step in the sidebar, and closes", () => {
+      screenOf();
+      complete();
+
+      fireEvent.click(dialog().getByRole("button", { name: "go next" }));
+
+      expect(screen.queryByRole("dialog")).toBeNull();
+      expect(cards()).toEqual(["Get comfortable in Figma [untracked]"]);
+      expect(steps().getByRole("button", { name: /Step 3/ }).getAttribute("aria-current")).toBe("true");
+    });
+
+    it("stays on the same step when they choose to stay", () => {
+      screenOf();
+      complete();
+
+      fireEvent.click(dialog().getByRole("button", { name: "stay" }));
+
+      expect(screen.queryByRole("dialog")).toBeNull();
+      expect(cards()).toEqual(["What design is for [untracked]"]);
+    });
+
+    it("has no next step after the last one", () => {
+      screenOf();
+      fireEvent.click(steps().getByRole("button", { name: /Step 5/ }));
+
+      complete();
+
+      expect(dialog().getByText("no next step")).toBeTruthy();
+    });
+
+    it("leaves the overall progress out when it isn't known", () => {
+      screenOf({ progress: null });
+
+      complete();
+
+      expect(dialog().getByText("no progress")).toBeTruthy();
+    });
   });
 });
