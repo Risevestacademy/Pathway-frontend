@@ -35,12 +35,13 @@ const resource = (id: string) => ({
   provider: "Acme",
   kind: "article" as const,
   url: `https://example.com/${id}`,
+  description: null,
   lastChecked: "2026-09-12",
 });
 
 const groups: ResourceGroup[] = [
-  { stepId: "s1", number: 1, title: "What design is for", resources: [resource("a")] },
-  { stepId: "s3", number: 3, title: "Get comfortable in Figma", resources: [resource("b"), resource("c")] },
+  { stepId: "s1", number: 1, title: "What design is for", resources: [resource("a")], paid: [] },
+  { stepId: "s3", number: 3, title: "Get comfortable in Figma", resources: [resource("b"), resource("c")], paid: [] },
 ];
 
 const screenOf = (over: Partial<Parameters<typeof ResourcesScreen>[0]> = {}) =>

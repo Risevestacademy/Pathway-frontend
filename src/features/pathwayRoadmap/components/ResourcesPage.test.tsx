@@ -70,7 +70,7 @@ describe("ResourcesPage", () => {
       kind: "ready",
       careerTitle: "Product Designer",
       stepCount: 2,
-      groups: [{ stepId: "s1", number: 1, title: "Step 1", resources: [] }],
+      groups: [{ stepId: "s1", number: 1, title: "Step 1", resources: [], paid: [] }],
       statuses: null,
     });
 

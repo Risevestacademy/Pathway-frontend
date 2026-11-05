@@ -36,9 +36,10 @@ const group: ResourceGroup = {
   stepId: "s2",
   number: 2,
   title: "How people think",
+  paid: [],
   resources: [
-    { id: "r1", title: "Laws of UX", provider: "Jon Yablonski", kind: "article", url: "https://a", lastChecked: "2026-09-12" },
-    { id: "r2", title: "Don't Make Me Think", provider: "Steve Krug", kind: "book", url: "https://b", lastChecked: "2026-09-12" },
+    { id: "r1", title: "Laws of UX", provider: "Jon Yablonski", kind: "article", url: "https://a", description: null, lastChecked: "2026-09-12" },
+    { id: "r2", title: "Don't Make Me Think", provider: "Steve Krug", kind: "book", url: "https://b", description: null, lastChecked: "2026-09-12" },
   ],
 };
 

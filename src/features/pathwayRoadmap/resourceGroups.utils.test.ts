@@ -59,7 +59,7 @@ describe("buildResourceGroups", () => {
 
   it("shapes each resource the way the step pages show it", () => {
     const [group] = buildResourceGroups(
-      pathway([step("s1", 1, [resource("a", { type: "VIDEO", costStatus: "PAID" })])]),
+      pathway([step("s1", 1, [resource("a", { type: "VIDEO", costStatus: "FREE" })])]),
     );
 
     expect(group.resources[0]).toMatchObject({
@@ -68,7 +68,7 @@ describe("buildResourceGroups", () => {
       provider: "Acme",
       kind: "video",
       url: "https://example.com/a",
-      costLabel: "Course: paid",
+      costLabel: "Course: free",
     });
   });
 
@@ -78,6 +78,53 @@ describe("buildResourceGroups", () => {
     );
 
     expect(group.resources[0].lastChecked).toBe("2026-09-12");
+  });
+
+  describe("paid resources", () => {
+    it("keeps them apart from the step's free ones, which are the ones to tick", () => {
+      const [group] = buildResourceGroups(
+        pathway([
+          step("s1", 1, [
+            resource("free", { costStatus: "FREE" }),
+            resource("paid", { costStatus: "PAID" }),
+            resource("unknown", { costStatus: "UNKNOWN" }),
+          ]),
+        ]),
+      );
+
+      expect(group.resources.map((r) => r.id)).toEqual(["free", "unknown"]);
+      expect(group.paid.map((r) => r.id)).toEqual(["paid"]);
+    });
+
+    it("has none when every resource is free", () => {
+      const [group] = buildResourceGroups(pathway([step("s1", 1, [resource("a")])]));
+
+      expect(group.paid).toEqual([]);
+    });
+
+    it("still lists a step whose resources are all paid", () => {
+      const [group] = buildResourceGroups(
+        pathway([step("s1", 1, [resource("paid", { costStatus: "PAID" })])]),
+      );
+
+      expect(group.stepId).toBe("s1");
+      expect(group.resources).toEqual([]);
+      expect(group.paid.map((r) => r.id)).toEqual(["paid"]);
+    });
+  });
+
+  it("carries what each resource covers, or null when the backend gave nothing", () => {
+    const [group] = buildResourceGroups(
+      pathway([
+        step("s1", 1, [
+          resource("a", { description: " A full beginner programme. " }),
+          resource("b", { description: null }),
+          resource("c", { description: "  " }),
+        ]),
+      ]),
+    );
+
+    expect(group.resources.map((r) => r.description)).toEqual(["A full beginner programme.", null, null]);
   });
 
   it("leaves out a step that has no resources, but keeps its number", () => {

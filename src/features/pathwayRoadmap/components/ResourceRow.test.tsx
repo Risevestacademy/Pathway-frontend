@@ -18,6 +18,7 @@ const resource: GroupedResource = {
   kind: "article",
   url: "https://lawsofux.com",
   costLabel: "Course: free",
+  description: null,
   lastChecked: "2026-09-12",
 };
 
