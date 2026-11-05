@@ -47,7 +47,6 @@ import { Route as ProtectedMyPathwayCareerIdResourcesIndexRouteImport } from './
 import { Route as ProtectedMyPathwayCareerIdResourcesResourceIdRouteImport } from './routes/_protected/my-pathway/$careerId/resources/$resourceId'
 import { Route as ProtectedMyPathwaySkillCheckCareerIdIndexRouteImport } from './routes/_protected/my-pathway/skill-check/$careerId/index'
 import { Route as ProtectedMyPathwaySkillCheckCareerIdResultRouteImport } from './routes/_protected/my-pathway/skill-check/$careerId/result'
-import { Route as ProtectedMyPathwaySkillCheckCareerIdRoadmapRouteImport } from './routes/_protected/my-pathway/skill-check/$careerId/roadmap'
 import { Route as CareersCareerIdRoadmapStepIdResourcesRouteImport } from './routes/careers/$careerId/roadmap/$stepId/resources'
 
 const IndexRoute = IndexRouteImport.update({
@@ -254,12 +253,6 @@ const ProtectedMyPathwaySkillCheckCareerIdResultRoute =
     path: '/skill-check/$careerId/result',
     getParentRoute: () => ProtectedMyPathwayRoute,
   } as any)
-const ProtectedMyPathwaySkillCheckCareerIdRoadmapRoute =
-  ProtectedMyPathwaySkillCheckCareerIdRoadmapRouteImport.update({
-    id: '/skill-check/$careerId/roadmap',
-    path: '/skill-check/$careerId/roadmap',
-    getParentRoute: () => ProtectedMyPathwayRoute,
-  } as any)
 const CareersCareerIdRoadmapStepIdResourcesRoute =
   CareersCareerIdRoadmapStepIdResourcesRouteImport.update({
     id: '/resources',
@@ -303,7 +296,6 @@ export interface FileRoutesByFullPath {
   '/careers/$careerId/roadmap/': typeof CareersCareerIdRoadmapIndexRoute
   '/my-pathway/$careerId/resources/$resourceId': typeof ProtectedMyPathwayCareerIdResourcesResourceIdRoute
   '/my-pathway/skill-check/$careerId/result': typeof ProtectedMyPathwaySkillCheckCareerIdResultRoute
-  '/my-pathway/skill-check/$careerId/roadmap': typeof ProtectedMyPathwaySkillCheckCareerIdRoadmapRoute
   '/careers/$careerId/roadmap/$stepId/resources': typeof CareersCareerIdRoadmapStepIdResourcesRoute
   '/my-pathway/$careerId/resources/': typeof ProtectedMyPathwayCareerIdResourcesIndexRoute
   '/my-pathway/skill-check/$careerId/': typeof ProtectedMyPathwaySkillCheckCareerIdIndexRoute
@@ -342,7 +334,6 @@ export interface FileRoutesByTo {
   '/careers/$careerId/roadmap': typeof CareersCareerIdRoadmapIndexRoute
   '/my-pathway/$careerId/resources/$resourceId': typeof ProtectedMyPathwayCareerIdResourcesResourceIdRoute
   '/my-pathway/skill-check/$careerId/result': typeof ProtectedMyPathwaySkillCheckCareerIdResultRoute
-  '/my-pathway/skill-check/$careerId/roadmap': typeof ProtectedMyPathwaySkillCheckCareerIdRoadmapRoute
   '/careers/$careerId/roadmap/$stepId/resources': typeof CareersCareerIdRoadmapStepIdResourcesRoute
   '/my-pathway/$careerId/resources': typeof ProtectedMyPathwayCareerIdResourcesIndexRoute
   '/my-pathway/skill-check/$careerId': typeof ProtectedMyPathwaySkillCheckCareerIdIndexRoute
@@ -385,7 +376,6 @@ export interface FileRoutesById {
   '/careers/$careerId/roadmap/': typeof CareersCareerIdRoadmapIndexRoute
   '/_protected/my-pathway/$careerId/resources/$resourceId': typeof ProtectedMyPathwayCareerIdResourcesResourceIdRoute
   '/_protected/my-pathway/skill-check/$careerId/result': typeof ProtectedMyPathwaySkillCheckCareerIdResultRoute
-  '/_protected/my-pathway/skill-check/$careerId/roadmap': typeof ProtectedMyPathwaySkillCheckCareerIdRoadmapRoute
   '/careers/$careerId/roadmap/$stepId/resources': typeof CareersCareerIdRoadmapStepIdResourcesRoute
   '/_protected/my-pathway/$careerId/resources/': typeof ProtectedMyPathwayCareerIdResourcesIndexRoute
   '/_protected/my-pathway/skill-check/$careerId/': typeof ProtectedMyPathwaySkillCheckCareerIdIndexRoute
@@ -428,7 +418,6 @@ export interface FileRouteTypes {
     | '/careers/$careerId/roadmap/'
     | '/my-pathway/$careerId/resources/$resourceId'
     | '/my-pathway/skill-check/$careerId/result'
-    | '/my-pathway/skill-check/$careerId/roadmap'
     | '/careers/$careerId/roadmap/$stepId/resources'
     | '/my-pathway/$careerId/resources/'
     | '/my-pathway/skill-check/$careerId/'
@@ -467,7 +456,6 @@ export interface FileRouteTypes {
     | '/careers/$careerId/roadmap'
     | '/my-pathway/$careerId/resources/$resourceId'
     | '/my-pathway/skill-check/$careerId/result'
-    | '/my-pathway/skill-check/$careerId/roadmap'
     | '/careers/$careerId/roadmap/$stepId/resources'
     | '/my-pathway/$careerId/resources'
     | '/my-pathway/skill-check/$careerId'
@@ -509,7 +497,6 @@ export interface FileRouteTypes {
     | '/careers/$careerId/roadmap/'
     | '/_protected/my-pathway/$careerId/resources/$resourceId'
     | '/_protected/my-pathway/skill-check/$careerId/result'
-    | '/_protected/my-pathway/skill-check/$careerId/roadmap'
     | '/careers/$careerId/roadmap/$stepId/resources'
     | '/_protected/my-pathway/$careerId/resources/'
     | '/_protected/my-pathway/skill-check/$careerId/'
@@ -805,13 +792,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedMyPathwaySkillCheckCareerIdResultRouteImport
       parentRoute: typeof ProtectedMyPathwayRoute
     }
-    '/_protected/my-pathway/skill-check/$careerId/roadmap': {
-      id: '/_protected/my-pathway/skill-check/$careerId/roadmap'
-      path: '/skill-check/$careerId/roadmap'
-      fullPath: '/my-pathway/skill-check/$careerId/roadmap'
-      preLoaderRoute: typeof ProtectedMyPathwaySkillCheckCareerIdRoadmapRouteImport
-      parentRoute: typeof ProtectedMyPathwayRoute
-    }
     '/careers/$careerId/roadmap/$stepId/resources': {
       id: '/careers/$careerId/roadmap/$stepId/resources'
       path: '/resources'
@@ -856,7 +836,6 @@ interface ProtectedMyPathwayRouteChildren {
   ProtectedMyPathwaySkillCheckIndexRoute: typeof ProtectedMyPathwaySkillCheckIndexRoute
   ProtectedMyPathwayCareerIdResourcesResourceIdRoute: typeof ProtectedMyPathwayCareerIdResourcesResourceIdRoute
   ProtectedMyPathwaySkillCheckCareerIdResultRoute: typeof ProtectedMyPathwaySkillCheckCareerIdResultRoute
-  ProtectedMyPathwaySkillCheckCareerIdRoadmapRoute: typeof ProtectedMyPathwaySkillCheckCareerIdRoadmapRoute
   ProtectedMyPathwayCareerIdResourcesIndexRoute: typeof ProtectedMyPathwayCareerIdResourcesIndexRoute
   ProtectedMyPathwaySkillCheckCareerIdIndexRoute: typeof ProtectedMyPathwaySkillCheckCareerIdIndexRoute
 }
@@ -871,8 +850,6 @@ const ProtectedMyPathwayRouteChildren: ProtectedMyPathwayRouteChildren = {
     ProtectedMyPathwayCareerIdResourcesResourceIdRoute,
   ProtectedMyPathwaySkillCheckCareerIdResultRoute:
     ProtectedMyPathwaySkillCheckCareerIdResultRoute,
-  ProtectedMyPathwaySkillCheckCareerIdRoadmapRoute:
-    ProtectedMyPathwaySkillCheckCareerIdRoadmapRoute,
   ProtectedMyPathwayCareerIdResourcesIndexRoute:
     ProtectedMyPathwayCareerIdResourcesIndexRoute,
   ProtectedMyPathwaySkillCheckCareerIdIndexRoute:
