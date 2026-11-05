@@ -52,7 +52,7 @@ describe("ProgressPill", () => {
       const bar = screen.getByRole("progressbar");
       expect(bar.className).toContain("w-24");
       expect(bar.className).toContain("shrink-0");
-      expect(bar.className).not.toMatch(/w-(40|48|56|64)/);
+      expect(bar.className).not.toMatch(/w-(40|48|56|64)/);
     });
 
     it("only appears where the top bar has room for it", () => {
