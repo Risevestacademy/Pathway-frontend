@@ -4,6 +4,7 @@ import type { ResourceGroup } from "../resourceGroups.utils";
 import { ResourcesScreen } from "./ResourcesScreen";
 
 let tickedIds: string[] = [];
+const playSound = vi.fn();
 
 vi.mock("../hooks/useResourceTicks", () => ({
   useResourceTicks: () => ({
@@ -34,6 +35,16 @@ vi.mock("./ResourceStepCard", () => ({
         mark complete
       </button>
     </>
+  ),
+}));
+vi.mock("../stepCompleteSound", () => ({ playStepCompleteSound: () => playSound() }));
+vi.mock("./Confetti", () => ({
+  Confetti: ({ onDone }: { onDone?: () => void }) => (
+    <div data-testid="confetti">
+      <button type="button" onClick={onDone}>
+        confetti done
+      </button>
+    </div>
   ),
 }));
 vi.mock("./StepCompleteDialog", () => ({
@@ -78,6 +89,7 @@ vi.mock("./PaidCoursesCard", () => ({
 
 afterEach(() => {
   cleanup();
+  playSound.mockReset();
   tickedIds = [];
 });
 
@@ -222,6 +234,40 @@ describe("ResourcesScreen", () => {
       screenOf();
 
       expect(screen.queryByRole("dialog")).toBeNull();
+      expect(screen.queryByTestId("confetti")).toBeNull();
+      expect(playSound).not.toHaveBeenCalled();
+    });
+
+    it("celebrates with confetti and a chime, once", () => {
+      screenOf();
+
+      complete();
+
+      expect(screen.getByTestId("confetti")).toBeTruthy();
+      expect(playSound).toHaveBeenCalledOnce();
+    });
+
+    it("takes the confetti away when it has finished, leaving the dialog", () => {
+      screenOf();
+      complete();
+
+      fireEvent.click(screen.getByRole("button", { name: "confetti done" }));
+
+      expect(screen.queryByTestId("confetti")).toBeNull();
+      expect(screen.getByRole("dialog", { name: "step complete" })).toBeTruthy();
+      expect(playSound).toHaveBeenCalledOnce();
+    });
+
+    it("celebrates again for the next step they complete", () => {
+      screenOf();
+      complete();
+      fireEvent.click(screen.getByRole("button", { name: "confetti done" }));
+      fireEvent.click(dialog().getByRole("button", { name: "stay" }));
+
+      complete();
+
+      expect(screen.getByTestId("confetti")).toBeTruthy();
+      expect(playSound).toHaveBeenCalledTimes(2);
     });
 
     it("tells them which step, which resources they ticked, how far they are, and what's next", () => {

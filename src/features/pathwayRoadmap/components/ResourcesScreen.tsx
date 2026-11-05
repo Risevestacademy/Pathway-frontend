@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import type { PathwayStepStatus } from "../../../lib/api/progress.api";
 import { getStepStatus } from "../../progress/progress.utils";
 import { BackLinkTo } from "../../skillCheck/components/BackLink";
 import { useResourceTicks } from "../hooks/useResourceTicks";
 import type { ResourceGroup } from "../resourceGroups.utils";
+import { playStepCompleteSound } from "../stepCompleteSound";
+import { Confetti } from "./Confetti";
 import { OverviewHero } from "./OverviewHero";
 import { OverviewTabs } from "./OverviewTabs";
 import { PaidCoursesCard } from "./PaidCoursesCard";
@@ -32,6 +34,15 @@ export function ResourcesScreen({
   const { countTicked, isTicked } = useResourceTicks(careerId);
   const [pickedStepId, setPickedStepId] = useState<string | null>(null);
   const [completedStepId, setCompletedStepId] = useState<string | null>(null);
+  const [celebrating, setCelebrating] = useState(false);
+  const stopCelebrating = useCallback(() => setCelebrating(false), []);
+
+  // Marking a step complete is worth a little celebration: confetti, and a chime.
+  const stepCompleted = (stepId: string) => {
+    setCompletedStepId(stepId);
+    setCelebrating(true);
+    playStepCompleteSound();
+  };
 
   // Until one is picked, or if the one picked has gone, it is the first step.
   const selected = groups.find((group) => group.stepId === pickedStepId) ?? groups[0];
@@ -66,7 +77,7 @@ export function ResourcesScreen({
               careerId={careerId}
               group={selected}
               status={statuses ? getStepStatus(statuses, selected.stepId) : null}
-              onStepCompleted={() => setCompletedStepId(selected.stepId)}
+              onStepCompleted={() => stepCompleted(selected.stepId)}
             />
             <PaidCoursesCard
               careerId={careerId}
@@ -76,6 +87,8 @@ export function ResourcesScreen({
           </div>
         </div>
       )}
+
+      {celebrating && <Confetti onDone={stopCelebrating} />}
 
       {completed && (
         <StepCompleteDialog
