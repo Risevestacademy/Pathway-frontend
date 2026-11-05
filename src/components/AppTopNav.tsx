@@ -15,6 +15,7 @@ import {
 import { NavIcon } from "./NavIcon";
 import { FeedbackButton } from "../features/feedback/components/FeedbackButton";
 import { SignOutButton } from "../features/auth/components/SignOutButton";
+import { CareerProgressPill } from "../features/pathwayRoadmap/components/CareerProgressPill";
 
 type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -22,9 +23,13 @@ interface NavItem {
   label: string;
   iconName: string;
   fallback: IconComponent;
-  to: "/careers" | "/skill-check" | null;
+  to: "/careers" | "/my-pathway" | null;
+  /** The path this item covers, along with everything under it. */
   match: string | null;
 }
+
+const isUnder = (pathname: string, path: string) =>
+  pathname === path || pathname.startsWith(`${path}/`);
 
 const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", iconName: "dashboard", fallback: Layout3Regular, to: null, match: null },
@@ -33,8 +38,8 @@ const NAV_ITEMS: NavItem[] = [
     label: "My Pathway",
     iconName: "my-pathway",
     fallback: Directions2Regular,
-    to: "/skill-check",
-    match: "/skill-check",
+    to: "/my-pathway",
+    match: "/my-pathway",
   },
   { label: "Opportunities", iconName: "opportunities", fallback: BriefcaseRegular, to: null, match: null },
 ];
@@ -45,6 +50,10 @@ const avatarFiles = import.meta.glob("/src/assets/images/avatar.svg", {
   import: "default",
 }) as Record<string, string>;
 const avatarUrl = Object.values(avatarFiles)[0] ?? null;
+
+// The career in /my-pathway/{careerId}/…, but not the Skill Check screens under /my-pathway/skill-check.
+const careerIdIn = (pathname: string) =>
+  /^\/my-pathway\/(?!skill-check(?:\/|$))([^/]+)/.exec(pathname)?.[1] ?? null;
 
 const itemBase =
   "flex h-10 items-center gap-1.5 rounded-lg py-2 pr-3 pl-2 text-base leading-5 font-medium whitespace-nowrap";
@@ -57,13 +66,14 @@ export default function AppTopNav() {
   const restoringSession = useAuthStore(selectIsRestoringSession);
   const visibleItems = signedIn ? NAV_ITEMS : NAV_ITEMS.filter((item) => item.to !== null);
   const initial = email?.trim().charAt(0).toUpperCase() ?? "";
+  const pathwayCareerId = signedIn ? careerIdIn(pathname) : null;
 
   return (
     <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-grey-50 bg-surface px-page-mobile py-4 sm:px-page-tablet lg:px-8 lg:py-8">
       <nav aria-label="Main">
         <ul className="flex items-center gap-2 rounded-[10px] bg-grey-50 p-1">
           {visibleItems.map((item, index) => {
-            const isActive = item.match !== null && pathname.startsWith(item.match);
+            const isActive = item.match !== null && isUnder(pathname, item.match);
             const label = (
               <>
                 <NavIcon
@@ -107,6 +117,8 @@ export default function AppTopNav() {
           })}
         </ul>
       </nav>
+
+      {pathwayCareerId && <CareerProgressPill careerId={pathwayCareerId} />}
 
       <div className="flex items-center gap-3 lg:gap-2">
         <FeedbackButton />

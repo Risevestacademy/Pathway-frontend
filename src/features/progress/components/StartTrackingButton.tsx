@@ -10,6 +10,8 @@ type StartTrackingButtonProps = {
   /** The pathway this would replace, if another one is active. */
   activeCareerTitle: string | null;
   label: string;
+  /** Called once the career has been made their active pathway. */
+  onStarted?: () => void;
 };
 
 export default function StartTrackingButton({
@@ -17,12 +19,18 @@ export default function StartTrackingButton({
   careerTitle,
   activeCareerTitle,
   label,
+  onStarted,
 }: StartTrackingButtonProps) {
   const mutation = useStartTracking(careerId);
   const [confirming, setConfirming] = useState(false);
 
   const start = () =>
-    mutation.mutate(undefined, { onSuccess: () => setConfirming(false) });
+    mutation.mutate(undefined, {
+      onSuccess: () => {
+        setConfirming(false);
+        onStarted?.();
+      },
+    });
 
   const errorMessage = (
     <p role="alert" className="text-sm text-danger-700">

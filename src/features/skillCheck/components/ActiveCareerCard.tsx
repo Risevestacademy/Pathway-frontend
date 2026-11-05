@@ -140,7 +140,7 @@ function ResultSummary({
       </div>
       <div className="flex flex-col gap-3 sm:flex-row">
         <SkillLink
-          to="/skill-check/$careerId/result"
+          to="/my-pathway/skill-check/$careerId/result"
           params={{ careerId: career.careerId }}
           className="flex-1"
         >
