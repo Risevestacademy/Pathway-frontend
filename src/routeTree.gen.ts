@@ -37,6 +37,7 @@ import { Route as ProtectedAdminReviewsIndexRouteImport } from './routes/_protec
 import { Route as ProtectedAdminReviewsReviewIdRouteImport } from './routes/_protected/admin/reviews/$reviewId'
 import { Route as ProtectedAdminTeamIndexRouteImport } from './routes/_protected/admin/team/index'
 import { Route as ProtectedAdminTeamMemberIdRouteImport } from './routes/_protected/admin/team/$memberId'
+import { Route as ProtectedMyPathwayCareerIdOverviewRouteImport } from './routes/_protected/my-pathway/$careerId/overview'
 import { Route as ProtectedMyPathwaySkillCheckIndexRouteImport } from './routes/_protected/my-pathway/skill-check/index'
 import { Route as CareersCareerIdRoadmapIndexRouteImport } from './routes/careers/$careerId/roadmap/index'
 import { Route as CareersCareerIdRoadmapStepIdRouteImport } from './routes/careers/$careerId/roadmap/$stepId'
@@ -191,6 +192,12 @@ const ProtectedAdminTeamMemberIdRoute =
     path: '/team/$memberId',
     getParentRoute: () => ProtectedAdminRoute,
   } as any)
+const ProtectedMyPathwayCareerIdOverviewRoute =
+  ProtectedMyPathwayCareerIdOverviewRouteImport.update({
+    id: '/$careerId/overview',
+    path: '/$careerId/overview',
+    getParentRoute: () => ProtectedMyPathwayRoute,
+  } as any)
 const ProtectedMyPathwaySkillCheckIndexRoute =
   ProtectedMyPathwaySkillCheckIndexRouteImport.update({
     id: '/skill-check/',
@@ -258,6 +265,7 @@ export interface FileRoutesByFullPath {
   '/admin/reports/$reportId': typeof ProtectedAdminReportsReportIdRoute
   '/admin/reviews/$reviewId': typeof ProtectedAdminReviewsReviewIdRoute
   '/admin/team/$memberId': typeof ProtectedAdminTeamMemberIdRoute
+  '/my-pathway/$careerId/overview': typeof ProtectedMyPathwayCareerIdOverviewRoute
   '/careers/$careerId/roadmap/$stepId': typeof CareersCareerIdRoadmapStepIdRouteWithChildren
   '/admin/careers/': typeof ProtectedAdminCareersIndexRoute
   '/admin/reports/': typeof ProtectedAdminReportsIndexRoute
@@ -292,6 +300,7 @@ export interface FileRoutesByTo {
   '/admin/reports/$reportId': typeof ProtectedAdminReportsReportIdRoute
   '/admin/reviews/$reviewId': typeof ProtectedAdminReviewsReviewIdRoute
   '/admin/team/$memberId': typeof ProtectedAdminTeamMemberIdRoute
+  '/my-pathway/$careerId/overview': typeof ProtectedMyPathwayCareerIdOverviewRoute
   '/careers/$careerId/roadmap/$stepId': typeof CareersCareerIdRoadmapStepIdRouteWithChildren
   '/admin/careers': typeof ProtectedAdminCareersIndexRoute
   '/admin/reports': typeof ProtectedAdminReportsIndexRoute
@@ -330,6 +339,7 @@ export interface FileRoutesById {
   '/_protected/admin/reports/$reportId': typeof ProtectedAdminReportsReportIdRoute
   '/_protected/admin/reviews/$reviewId': typeof ProtectedAdminReviewsReviewIdRoute
   '/_protected/admin/team/$memberId': typeof ProtectedAdminTeamMemberIdRoute
+  '/_protected/my-pathway/$careerId/overview': typeof ProtectedMyPathwayCareerIdOverviewRoute
   '/careers/$careerId/roadmap/$stepId': typeof CareersCareerIdRoadmapStepIdRouteWithChildren
   '/_protected/admin/careers/': typeof ProtectedAdminCareersIndexRoute
   '/_protected/admin/reports/': typeof ProtectedAdminReportsIndexRoute
@@ -368,6 +378,7 @@ export interface FileRouteTypes {
     | '/admin/reports/$reportId'
     | '/admin/reviews/$reviewId'
     | '/admin/team/$memberId'
+    | '/my-pathway/$careerId/overview'
     | '/careers/$careerId/roadmap/$stepId'
     | '/admin/careers/'
     | '/admin/reports/'
@@ -402,6 +413,7 @@ export interface FileRouteTypes {
     | '/admin/reports/$reportId'
     | '/admin/reviews/$reviewId'
     | '/admin/team/$memberId'
+    | '/my-pathway/$careerId/overview'
     | '/careers/$careerId/roadmap/$stepId'
     | '/admin/careers'
     | '/admin/reports'
@@ -439,6 +451,7 @@ export interface FileRouteTypes {
     | '/_protected/admin/reports/$reportId'
     | '/_protected/admin/reviews/$reviewId'
     | '/_protected/admin/team/$memberId'
+    | '/_protected/my-pathway/$careerId/overview'
     | '/careers/$careerId/roadmap/$stepId'
     | '/_protected/admin/careers/'
     | '/_protected/admin/reports/'
@@ -670,6 +683,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedAdminTeamMemberIdRouteImport
       parentRoute: typeof ProtectedAdminRoute
     }
+    '/_protected/my-pathway/$careerId/overview': {
+      id: '/_protected/my-pathway/$careerId/overview'
+      path: '/$careerId/overview'
+      fullPath: '/my-pathway/$careerId/overview'
+      preLoaderRoute: typeof ProtectedMyPathwayCareerIdOverviewRouteImport
+      parentRoute: typeof ProtectedMyPathwayRoute
+    }
     '/_protected/my-pathway/skill-check/': {
       id: '/_protected/my-pathway/skill-check/'
       path: '/skill-check'
@@ -752,6 +772,7 @@ const ProtectedAdminRouteWithChildren = ProtectedAdminRoute._addFileChildren(
 
 interface ProtectedMyPathwayRouteChildren {
   ProtectedMyPathwayIndexRoute: typeof ProtectedMyPathwayIndexRoute
+  ProtectedMyPathwayCareerIdOverviewRoute: typeof ProtectedMyPathwayCareerIdOverviewRoute
   ProtectedMyPathwaySkillCheckIndexRoute: typeof ProtectedMyPathwaySkillCheckIndexRoute
   ProtectedMyPathwaySkillCheckCareerIdResultRoute: typeof ProtectedMyPathwaySkillCheckCareerIdResultRoute
   ProtectedMyPathwaySkillCheckCareerIdRoadmapRoute: typeof ProtectedMyPathwaySkillCheckCareerIdRoadmapRoute
@@ -760,6 +781,8 @@ interface ProtectedMyPathwayRouteChildren {
 
 const ProtectedMyPathwayRouteChildren: ProtectedMyPathwayRouteChildren = {
   ProtectedMyPathwayIndexRoute: ProtectedMyPathwayIndexRoute,
+  ProtectedMyPathwayCareerIdOverviewRoute:
+    ProtectedMyPathwayCareerIdOverviewRoute,
   ProtectedMyPathwaySkillCheckIndexRoute:
     ProtectedMyPathwaySkillCheckIndexRoute,
   ProtectedMyPathwaySkillCheckCareerIdResultRoute:
