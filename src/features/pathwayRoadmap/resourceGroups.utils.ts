@@ -2,12 +2,15 @@ import type { CareerPathwayDto } from "../../lib/api/pathways.api";
 import { mapPathwayResource } from "../resources/resources.utils";
 import type { Resource } from "../resources/resources.types";
 
+/** A resource as a row shows it: its details, and when it was last checked (YYYY-MM-DD). */
+export type GroupedResource = Resource & { lastChecked: string };
+
 export interface ResourceGroup {
   stepId: string;
   /** The step's place in the pathway, starting at 1. */
   number: number;
   title: string;
-  resources: Resource[];
+  resources: GroupedResource[];
 }
 
 /** The pathway's resources, grouped under the step each belongs to. Steps with none are left out. */
@@ -22,7 +25,10 @@ export function buildResourceGroups(pathway: CareerPathwayDto["pathway"]): Resou
               stepId: step.id,
               number: index + 1,
               title: step.title,
-              resources: step.resources.map(mapPathwayResource),
+              resources: step.resources.map((resource) => ({
+                ...mapPathwayResource(resource),
+                lastChecked: resource.lastCheckedDate,
+              })),
             },
           ],
     );

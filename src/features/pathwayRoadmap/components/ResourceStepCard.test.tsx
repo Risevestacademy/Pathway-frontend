@@ -24,8 +24,8 @@ const group: ResourceGroup = {
   number: 2,
   title: "How people think",
   resources: [
-    { id: "r1", title: "Laws of UX", provider: "Jon Yablonski", kind: "article", url: "https://a" },
-    { id: "r2", title: "Don't Make Me Think", provider: "Steve Krug", kind: "book", url: "https://b" },
+    { id: "r1", title: "Laws of UX", provider: "Jon Yablonski", kind: "article", url: "https://a", lastChecked: "2026-09-12" },
+    { id: "r2", title: "Don't Make Me Think", provider: "Steve Krug", kind: "book", url: "https://b", lastChecked: "2026-09-12" },
   ],
 };
 

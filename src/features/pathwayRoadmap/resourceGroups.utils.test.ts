@@ -72,6 +72,14 @@ describe("buildResourceGroups", () => {
     });
   });
 
+  it("carries when each resource was last checked, for the rows to show", () => {
+    const [group] = buildResourceGroups(
+      pathway([step("s1", 1, [resource("a", { lastCheckedDate: "2026-09-12" })])]),
+    );
+
+    expect(group.resources[0].lastChecked).toBe("2026-09-12");
+  });
+
   it("leaves out a step that has no resources, but keeps its number", () => {
     const groups = buildResourceGroups(
       pathway([step("s1", 1, []), step("s2", 2, [resource("a")])]),
