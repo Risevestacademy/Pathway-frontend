@@ -29,7 +29,7 @@ export function SettledPanel({
         {note && <p className="text-sm leading-5 text-grey-600">{note}</p>}
       </div>
       <div className="flex flex-col gap-3">
-        <SkillLink to="/my-pathway/skill-check/$careerId/roadmap" params={{ careerId: career.careerId }}>
+        <SkillLink to="/my-pathway/$careerId/overview" params={{ careerId: career.careerId }}>
           Go to roadmap
           <ArrowRightRegular aria-hidden className="size-5" />
         </SkillLink>
