@@ -1,0 +1,34 @@
+import { BackLink } from "../../skillCheck/components/BackLink";
+import type { PathwayOverview } from "../overview.utils";
+import { OverallProgressCard } from "./OverallProgressCard";
+import { OverviewHero } from "./OverviewHero";
+import { UpNextCard } from "./UpNextCard";
+import { YourRoadmapCard } from "./YourRoadmapCard";
+
+/** One career's pathway: its roadmap, the step to do next, and overall progress. */
+export function OverviewScreen({
+  careerId,
+  careerTitle,
+  overview,
+}: {
+  careerId: string;
+  careerTitle: string;
+  overview: PathwayOverview;
+}) {
+  const { steps, nextStepId, completed, total, started, upNext } = overview;
+
+  return (
+    <div className="flex flex-col gap-6">
+      <BackLink fallbackTo="/my-pathway" />
+      <OverviewHero title={careerTitle} stepCount={steps.length} />
+
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <YourRoadmapCard careerId={careerId} steps={steps} nextStepId={nextStepId} />
+        <div className="flex flex-col gap-6">
+          {upNext && <UpNextCard careerId={careerId} step={upNext} started={started} />}
+          <OverallProgressCard completed={completed} total={total} />
+        </div>
+      </div>
+    </div>
+  );
+}
