@@ -14,7 +14,7 @@ type StepCompletionButtonProps = {
   stepTitle: string;
   /** The last status the server confirmed. */
   status: PathwayStepStatus;
-  /** "primary" is a plain primary button; once the step is done it becomes the way to undo it. */
+  /** "primary" is a plain primary button; once the step is done it becomes a small Undo. */
   variant?: "compact" | "full" | "primary";
   /** Called once a save that marks the step complete has been confirmed. */
   onCompleted?: () => void;
@@ -108,6 +108,27 @@ export default function StepCompletionButton({
             {mutation.isPending ? "Saving" : "Mark this step done"}
           </Button>
         )}
+        {error}
+        {liveRegion}
+      </div>
+    );
+  }
+
+  if (variant === "primary" && done) {
+    return (
+      <div className="flex flex-col gap-2">
+        <p className="flex flex-wrap items-center gap-2 text-sm text-ink-muted">
+          You marked this step complete.
+          <button
+            type="button"
+            disabled={mutation.isPending}
+            onClick={() => save("NOT_STARTED")}
+            className="focus-ring cursor-pointer rounded text-sm font-medium text-brand-700 underline disabled:cursor-wait disabled:opacity-70"
+          >
+            {mutation.isPending ? "Undoing" : "Undo"}{" "}
+            <span className="sr-only">marking {stepTitle} complete</span>
+          </button>
+        </p>
         {error}
         {liveRegion}
       </div>
