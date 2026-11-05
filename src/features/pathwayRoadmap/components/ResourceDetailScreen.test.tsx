@@ -118,6 +118,17 @@ describe("ResourceDetailScreen", () => {
     expect(link.getAttribute("rel")).toBe("noopener noreferrer");
   });
 
+  it("styles the open button as a primary button", () => {
+    screenOf();
+
+    const link = screen.getByRole("link", { name: /Open article/ });
+    expect(link.className).toContain("border-b-4");
+    expect(link.className).toContain("border-brand-700");
+    expect(link.className).toContain("bg-brand-600");
+    expect(link.className).toContain("text-white");
+    expect(link.className).not.toContain("bg-surface");
+  });
+
   it("names the button for the kind of resource", () => {
     screenOf({}, { kind: "course" });
 

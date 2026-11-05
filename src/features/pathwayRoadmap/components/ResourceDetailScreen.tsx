@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useId } from "react";
 import { Badge } from "../../../components/ui/Badge";
+import { ExternalLinkButton } from "../../../components/ui/Button";
 import { analytics } from "@/lib/monitoring/events";
 import { ReportIssueLink } from "../../feedback/components/ReportIssueLink";
 import { REPORT_REASONS } from "../../feedback/feedback.utils";
@@ -100,15 +101,14 @@ export function ResourceDetailScreen({
             {resource.certificationLabel && <Badge tone="warning">{resource.certificationLabel}</Badge>}
           </div>
 
-          <a
+          <ExternalLinkButton
             href={resource.url}
-            target="_blank"
-            rel="noopener noreferrer"
+            size="lg"
             onClick={trackOpened}
-            className="focus-ring inline-flex w-fit items-center justify-center rounded-lg bg-brand-500 px-5 py-2.5 text-lg font-medium text-white hover:bg-brand-600"
+            className="w-fit"
           >
             {OPEN_LABEL[resource.kind]}
-          </a>
+          </ExternalLinkButton>
 
           <p className="text-ink-muted">
             Opens on the provider’s site. Opening it does not mark it done.
