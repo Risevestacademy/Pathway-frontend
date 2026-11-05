@@ -127,16 +127,21 @@ describe("buildResourceGroups", () => {
     expect(group.resources.map((r) => r.description)).toEqual(["A full beginner programme.", null, null]);
   });
 
-  it("leaves out a step that has no resources, but keeps its number", () => {
+  it("keeps a step that has no resources, with its number, so it can still be completed", () => {
     const groups = buildResourceGroups(
       pathway([step("s1", 1, []), step("s2", 2, [resource("a")])]),
     );
 
-    expect(groups.map((g) => [g.stepId, g.number])).toEqual([["s2", 2]]);
+    expect(groups.map((g) => [g.stepId, g.number])).toEqual([
+      ["s1", 1],
+      ["s2", 2],
+    ]);
+    expect(groups[0].resources).toEqual([]);
+    expect(groups[0].paid).toEqual([]);
   });
 
-  it("is empty when no step has a resource", () => {
-    expect(buildResourceGroups(pathway([step("s1", 1, [])]))).toEqual([]);
+  it("lists every step even when none has a resource, and nothing when there are no steps", () => {
+    expect(buildResourceGroups(pathway([step("s1", 1, [])])).map((g) => g.stepId)).toEqual(["s1"]);
     expect(buildResourceGroups(pathway([]))).toEqual([]);
   });
 });

@@ -99,7 +99,7 @@ describe("usePathwayProgress", () => {
     expect(state.careerTitle).toBe("Product Designer");
     expect(state.overview.completed).toBe(1);
     expect(state.overview.steps.map((s) => s.status)).toEqual(["COMPLETED", "NOT_STARTED"]);
-    expect(state.groups.map((g) => g.stepId)).toEqual(["s1"]);
+    expect(state.groups.map((g) => g.stepId)).toEqual(["s1", "s2"]);
   });
 
   it("needs no activation when it already is their active pathway", () => {

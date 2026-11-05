@@ -178,7 +178,7 @@ describe("ResourcesScreen", () => {
     expect(steps().getAllByRole("button").map((b) => b.textContent)).toEqual([
       "Step 1 · What design is for0 of 1",
       "Step 3 · Get comfortable in Figma1 of 2",
-      "Step 5 · Only paid0 of 0",
+      "Step 5 · Only paidNo resources",
     ]);
   });
 

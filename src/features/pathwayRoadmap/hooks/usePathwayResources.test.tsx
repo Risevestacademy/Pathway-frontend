@@ -86,6 +86,7 @@ describe("usePathwayResources", () => {
     expect(state.stepCount).toBe(2);
     expect(state.groups.map((g) => [g.stepId, g.number, g.resources.map((r) => r.id)])).toEqual([
       ["s1", 1, ["a"]],
+      ["s2", 2, []],
     ]);
   });
 

@@ -41,7 +41,7 @@ export function ResourceStepNav({
                   Step {item.number} · {item.title}
                 </span>
                 <span className={clsx("shrink-0 text-sm", selected ? "text-brand-700" : "text-ink-muted")}>
-                  {item.ticked} of {item.total}
+                  {item.total === 0 ? "No resources" : `${item.ticked} of ${item.total}`}
                 </span>
               </button>
             </li>

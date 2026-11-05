@@ -25,21 +25,15 @@ const toGrouped = (resource: PathwayResourceDto): GroupedResource => ({
   lastChecked: resource.lastCheckedDate,
 });
 
-/** The pathway's resources, grouped under the step each belongs to. Steps with none are left out. */
+/** Every step of the pathway with its resources, split into free and paid. A step with none is kept, so it can still be completed. */
 export function buildResourceGroups(pathway: CareerPathwayDto["pathway"]): ResourceGroup[] {
   return [...pathway.steps]
     .sort((a, b) => a.order - b.order)
-    .flatMap((step, index) =>
-      step.resources.length === 0
-        ? []
-        : [
-            {
-              stepId: step.id,
-              number: index + 1,
-              title: step.title,
-              resources: step.resources.filter((r) => r.costStatus !== "PAID").map(toGrouped),
-              paid: step.resources.filter((r) => r.costStatus === "PAID").map(toGrouped),
-            },
-          ],
-    );
+    .map((step, index) => ({
+      stepId: step.id,
+      number: index + 1,
+      title: step.title,
+      resources: step.resources.filter((r) => r.costStatus !== "PAID").map(toGrouped),
+      paid: step.resources.filter((r) => r.costStatus === "PAID").map(toGrouped),
+    }));
 }

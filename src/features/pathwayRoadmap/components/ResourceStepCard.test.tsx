@@ -187,6 +187,44 @@ describe("ResourceStepCard", () => {
       expect(screen.getByRole("button", { name: "complete s2 (COMPLETED)" })).toBeTruthy();
     });
 
+    describe("a step with no free resources to tick", () => {
+      const NONE = "This step has no resources to tick. Mark the step complete when you feel done.";
+
+      it("says so, and still offers marking the step complete, since nothing else could", () => {
+        card("NOT_STARTED", { resources: [] });
+
+        expect(screen.getByText("No resources to tick in this step")).toBeTruthy();
+        expect(screen.getByText(NONE)).toBeTruthy();
+        expect(screen.getByRole("button", { name: "complete s2 (NOT_STARTED)" })).toBeTruthy();
+      });
+
+      it("counts a step with only paid resources the same way", () => {
+        card("NOT_STARTED", { resources: [], paid: [group.resources[0]] });
+
+        expect(screen.getByText(NONE)).toBeTruthy();
+      });
+
+      it("lets them undo it once it is complete, without the prompt", () => {
+        card("COMPLETED", { resources: [] });
+
+        expect(screen.queryByText(NONE)).toBeNull();
+        expect(screen.getByRole("button", { name: "complete s2 (COMPLETED)" })).toBeTruthy();
+      });
+
+      it("never offers it when they aren't tracking this pathway", () => {
+        card(null, { resources: [] });
+
+        expect(screen.queryByRole("button", { name: /complete s2/ })).toBeNull();
+        expect(screen.queryByText(NONE)).toBeNull();
+      });
+
+      it("says 0 resources, not a count of resources it doesn't have", () => {
+        card("NOT_STARTED", { resources: [] });
+
+        expect(screen.getByText("0 resources")).toBeTruthy();
+      });
+    });
+
     it("never offers it when they aren't tracking this pathway", () => {
       tickedIds = ["r1", "r2"];
       card(null);

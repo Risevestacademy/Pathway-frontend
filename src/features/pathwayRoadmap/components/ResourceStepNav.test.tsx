@@ -55,4 +55,17 @@ describe("ResourceStepNav", () => {
 
     expect(onSelect).toHaveBeenCalledWith("s4");
   });
+
+  it("says a step has no resources, instead of 0 of 0", () => {
+    render(
+      <ResourceStepNav
+        items={[{ stepId: "s9", number: 9, title: "Present your work", ticked: 0, total: 0 }]}
+        selectedStepId="s9"
+        onSelect={() => {}}
+      />,
+    );
+
+    expect(screen.getByText("No resources")).toBeTruthy();
+    expect(screen.queryByText("0 of 0")).toBeNull();
+  });
 });

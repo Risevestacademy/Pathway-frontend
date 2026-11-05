@@ -28,8 +28,10 @@ export function ResourceStepCard({
   const ticked = countTicked(group.resources.map((resource) => resource.id));
   const done = status === "COMPLETED";
   const allTicked = count > 0 && ticked === count;
-  // Ticking even one resource is enough to offer marking the step complete.
-  const readyToComplete = status !== null && !done && ticked > 0;
+  // Ticking even one resource is enough to offer marking the step complete. A step
+  // with nothing to tick can be completed straight away, as nothing else could.
+  const hasNothingToTick = count === 0;
+  const readyToComplete = status !== null && !done && (ticked > 0 || hasNothingToTick);
 
   const chip = done
     ? STEP_STATUS.COMPLETED
@@ -68,6 +70,9 @@ export function ResourceStepCard({
       </header>
 
       <div className="divide-y divide-line border-t border-line">
+        {hasNothingToTick && (
+          <p className="px-6 py-5 text-sm text-ink-muted">No resources to tick in this step</p>
+        )}
         {group.resources.map((resource) => (
           <ResourceRow
             key={resource.id}
@@ -89,9 +94,11 @@ export function ResourceStepCard({
         >
           {readyToComplete && (
             <p className="text-sm text-ink">
-              {allTicked
-                ? "Everything in this step is ticked. Mark the step complete when you feel done."
-                : `You've ticked ${ticked} of ${count} resources. Mark the step complete when you feel done.`}
+              {hasNothingToTick
+                ? "This step has no resources to tick. Mark the step complete when you feel done."
+                : allTicked
+                  ? "Everything in this step is ticked. Mark the step complete when you feel done."
+                  : `You've ticked ${ticked} of ${count} resources. Mark the step complete when you feel done.`}
             </p>
           )}
           <StepCompletionButton
