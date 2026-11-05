@@ -19,10 +19,21 @@ export interface UpNextCardProps {
    * makes it active first, asking before it replaces another active pathway.
    */
   activation?: { careerTitle: string; activeCareerTitle: string | null };
+  /** What the small label above the title says. */
+  eyebrow?: string;
+  /** Whether to say how many resources the step has. */
+  showResources?: boolean;
 }
 
 /** The step to do next, and a way into it. */
-export function UpNextCard({ careerId, step, started, activation }: UpNextCardProps) {
+export function UpNextCard({
+  careerId,
+  step,
+  started,
+  activation,
+  eyebrow = "Up next",
+  showResources = true,
+}: UpNextCardProps) {
   const headingId = useId();
   const navigate = useNavigate();
   const label = `${started ? "Continue" : "Start"} step ${step.number}`;
@@ -31,13 +42,13 @@ export function UpNextCard({ careerId, step, started, activation }: UpNextCardPr
       aria-labelledby={headingId}
       className="flex flex-col items-start gap-4 rounded-3xl border border-brand-100 bg-brand-50 p-6"
     >
-      <p className="text-sm font-medium text-brand-700">Up next</p>
+      <p className="text-sm font-medium text-brand-700">{eyebrow}</p>
 
       <div className="flex flex-col gap-1.5">
         <h2 id={headingId} className="font-display text-xl font-medium text-ink">
           Step {step.number} · {step.title}
         </h2>
-        {step.resourceCount > 0 && (
+        {showResources && step.resourceCount > 0 && (
           <p className="text-sm text-ink-muted">
             {step.resourceCount} {step.resourceCount === 1 ? "resource" : "resources"}
           </p>

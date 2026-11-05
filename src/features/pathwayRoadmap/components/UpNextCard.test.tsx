@@ -50,6 +50,19 @@ describe("UpNextCard", () => {
     expect(screen.getByText("Up next")).toBeTruthy();
   });
 
+  it("can call itself Next up instead, as the Progress screen does", () => {
+    card({ eyebrow: "Next up" });
+
+    expect(screen.getByText("Next up")).toBeTruthy();
+    expect(screen.queryByText("Up next")).toBeNull();
+  });
+
+  it("can leave the resource count out", () => {
+    card({ showResources: false });
+
+    expect(screen.queryByText(/resource/)).toBeNull();
+  });
+
   it("names the step with its number", () => {
     card();
 
