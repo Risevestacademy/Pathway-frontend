@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { PathwayStepStatus } from "../../../lib/api/progress.api";
 import { getStepStatus } from "../../progress/progress.utils";
-import { BackLink } from "../../skillCheck/components/BackLink";
+import { BackLinkTo } from "../../skillCheck/components/BackLink";
 import { useResourceTicks } from "../hooks/useResourceTicks";
 import type { ResourceGroup } from "../resourceGroups.utils";
 import { OverviewHero } from "./OverviewHero";
@@ -33,7 +33,7 @@ export function ResourcesScreen({
 
   return (
     <div className="flex flex-col gap-6">
-      <BackLink fallbackTo="/my-pathway" />
+      <BackLinkTo to="/my-pathway" label="Back" />
       <OverviewHero title={careerTitle} stepCount={stepCount} />
       <OverviewTabs careerId={careerId} current="resources" />
 

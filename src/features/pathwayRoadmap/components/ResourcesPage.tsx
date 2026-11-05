@@ -1,7 +1,7 @@
 import { Button } from "../../../components/ui/Button";
 import { Skeleton } from "../../../components/ui/Skeleton";
 import { StateMessage } from "../../../components/ui/StateMessage";
-import { BackLink } from "../../skillCheck/components/BackLink";
+import { BackLinkTo } from "../../skillCheck/components/BackLink";
 import { usePathwayResources } from "../hooks/usePathwayResources";
 import { ResourcesScreen } from "./ResourcesScreen";
 
@@ -23,7 +23,7 @@ export function ResourcesPage({ careerId }: { careerId: string }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <BackLink fallbackTo="/my-pathway" />
+      <BackLinkTo to="/my-pathway" label="Back" />
       {state.kind === "loading" && (
         <div role="status" className="flex flex-col gap-6">
           <span className="sr-only">Loading the resources</span>

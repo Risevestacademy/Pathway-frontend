@@ -1,4 +1,4 @@
-import { BackLink } from "../../skillCheck/components/BackLink";
+import { BackLinkTo } from "../../skillCheck/components/BackLink";
 import type { PathwayOverview } from "../overview.utils";
 import { OverallProgressCard } from "./OverallProgressCard";
 import { OverviewHero } from "./OverviewHero";
@@ -22,7 +22,7 @@ export function OverviewScreen({
 
   return (
     <div className="flex flex-col gap-6">
-      <BackLink fallbackTo="/my-pathway" />
+      <BackLinkTo to="/my-pathway" label="Back" />
       <OverviewHero title={careerTitle} stepCount={steps.length} />
       <OverviewTabs careerId={careerId} current="overview" />
 

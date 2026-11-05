@@ -9,7 +9,7 @@ vi.mock("../hooks/usePathwayResources", () => ({
   usePathwayResources: (careerId: string) => usePathwayResources(careerId),
 }));
 vi.mock("../../skillCheck/components/BackLink", () => ({
-  BackLink: ({ label = "Back" }: { label?: string }) => <button type="button">{label}</button>,
+  BackLinkTo: ({ label, to }: { label: string; to: string }) => <a href={to}>{label}</a>,
 }));
 vi.mock("./ResourcesScreen", () => ({
   ResourcesScreen: ({ careerTitle, groups }: { careerTitle: string; groups: unknown[] }) => (
@@ -42,7 +42,7 @@ describe("ResourcesPage", () => {
     render(<ResourcesPage careerId="c1" />);
 
     expect(screen.getByRole("status").textContent).toContain("Loading the resources");
-    expect(screen.getByRole("button", { name: "Back" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Back" })).toBeTruthy();
   });
 
   it("offers a retry when the resources can't be loaded", () => {
@@ -53,7 +53,7 @@ describe("ResourcesPage", () => {
     expect(screen.getByRole("alert").textContent).toContain("We couldn’t load these resources");
     fireEvent.click(screen.getByRole("button", { name: "Try again" }));
     expect(retry).toHaveBeenCalledOnce();
-    expect(screen.getByRole("button", { name: "Back" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Back" })).toBeTruthy();
   });
 
   it("says so when the career has no roadmap yet", () => {
@@ -62,7 +62,7 @@ describe("ResourcesPage", () => {
     render(<ResourcesPage careerId="c1" />);
 
     expect(screen.getByText("Roadmap coming soon")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Back" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Back" })).toBeTruthy();
   });
 
   it("shows the career's resources once loaded", () => {

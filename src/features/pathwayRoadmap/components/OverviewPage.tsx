@@ -1,7 +1,7 @@
 import { Button } from "../../../components/ui/Button";
 import { Skeleton } from "../../../components/ui/Skeleton";
 import { StateMessage } from "../../../components/ui/StateMessage";
-import { BackLink } from "../../skillCheck/components/BackLink";
+import { BackLinkTo } from "../../skillCheck/components/BackLink";
 import { usePathwayOverview } from "../hooks/usePathwayOverview";
 import { OverviewScreen } from "./OverviewScreen";
 
@@ -17,7 +17,7 @@ export function OverviewPage({ careerId }: { careerId: string }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <BackLink fallbackTo="/my-pathway" />
+      <BackLinkTo to="/my-pathway" label="Back" />
       {state.kind === "loading" && (
         <div role="status" className="flex flex-col gap-6">
           <span className="sr-only">Loading your roadmap</span>

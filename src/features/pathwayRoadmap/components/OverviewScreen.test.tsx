@@ -7,7 +7,7 @@ vi.mock("@tanstack/react-router", () => ({
   Link: ({ children, to }: { children: React.ReactNode; to: string }) => <a href={to}>{children}</a>,
 }));
 vi.mock("../../skillCheck/components/BackLink", () => ({
-  BackLink: ({ label = "Back" }: { label?: string }) => <button type="button">{label}</button>,
+  BackLinkTo: ({ label, to }: { label: string; to: string }) => <a href={to}>{label}</a>,
 }));
 
 afterEach(cleanup);
@@ -31,7 +31,13 @@ describe("OverviewScreen", () => {
   it("has a way back", () => {
     screenOf();
 
-    expect(screen.getByRole("button", { name: "Back" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Back" })).toBeTruthy();
+  });
+
+  it("goes back to My Pathway, not to wherever the browser was before, which could be the tab it came from", () => {
+    screenOf();
+
+    expect(screen.getByRole("link", { name: "Back" }).getAttribute("href")).toBe("/my-pathway");
   });
 
   it("is headed with the career, and says how many steps it has", () => {

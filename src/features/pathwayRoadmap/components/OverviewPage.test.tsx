@@ -12,7 +12,7 @@ vi.mock("@tanstack/react-router", () => ({
   Link: ({ children, to }: { children: React.ReactNode; to: string }) => <a href={to}>{children}</a>,
 }));
 vi.mock("../../skillCheck/components/BackLink", () => ({
-  BackLink: ({ label = "Back" }: { label?: string }) => <button type="button">{label}</button>,
+  BackLinkTo: ({ label, to }: { label: string; to: string }) => <a href={to}>{label}</a>,
 }));
 
 afterEach(() => {
@@ -40,7 +40,7 @@ describe("OverviewPage", () => {
     render(<OverviewPage careerId="c1" />);
 
     expect(screen.getByRole("status").textContent).toContain("Loading your roadmap");
-    expect(screen.getByRole("button", { name: "Back" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Back" })).toBeTruthy();
   });
 
   it("offers a retry when the roadmap can't be loaded", () => {
@@ -51,7 +51,7 @@ describe("OverviewPage", () => {
     expect(screen.getByRole("alert").textContent).toContain("We couldn’t load this roadmap");
     fireEvent.click(screen.getByRole("button", { name: "Try again" }));
     expect(retry).toHaveBeenCalledOnce();
-    expect(screen.getByRole("button", { name: "Back" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Back" })).toBeTruthy();
   });
 
   it("says so when the career has no roadmap yet", () => {
@@ -60,7 +60,7 @@ describe("OverviewPage", () => {
     render(<OverviewPage careerId="c1" />);
 
     expect(screen.getByText("Roadmap coming soon")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Back" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Back" })).toBeTruthy();
   });
 
   it("shows the career's pathway overview once loaded", () => {

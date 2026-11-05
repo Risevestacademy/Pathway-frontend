@@ -12,7 +12,7 @@ export function BackLink({
   careerId,
 }: {
   label?: string;
-  fallbackTo?: "/my-pathway" | "/my-pathway/skill-check" | "/careers";
+  fallbackTo?: "/my-pathway/skill-check" | "/careers";
   to?: "/careers" | "/careers/$careerId";
   careerId?: string;
 }) {
