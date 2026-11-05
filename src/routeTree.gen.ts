@@ -23,6 +23,7 @@ import { Route as CareersIndexRouteImport } from './routes/careers/index'
 import { Route as ExploreIndexRouteImport } from './routes/explore/index'
 import { Route as ExploreCareerIdRouteImport } from './routes/explore/$careerId'
 import { Route as ProtectedAdminIndexRouteImport } from './routes/_protected/admin/index'
+import { Route as ProtectedMyPathwayIndexRouteImport } from './routes/_protected/my-pathway/index'
 import { Route as CareersCareerIdIndexRouteImport } from './routes/careers/$careerId/index'
 import { Route as CareersCareerIdDetailsRouteImport } from './routes/careers/$careerId/details'
 import { Route as CareersOnboardingIndexRouteImport } from './routes/careers/onboarding/index'
@@ -112,6 +113,11 @@ const ProtectedAdminIndexRoute = ProtectedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => ProtectedAdminRoute,
+} as any)
+const ProtectedMyPathwayIndexRoute = ProtectedMyPathwayIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProtectedMyPathwayRoute,
 } as any)
 const CareersCareerIdIndexRoute = CareersCareerIdIndexRouteImport.update({
   id: '/careers/$careerId/',
@@ -245,6 +251,7 @@ export interface FileRoutesByFullPath {
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
   '/careers/onboarding/goals': typeof CareersOnboardingGoalsRoute
   '/admin/': typeof ProtectedAdminIndexRoute
+  '/my-pathway/': typeof ProtectedMyPathwayIndexRoute
   '/careers/$careerId/': typeof CareersCareerIdIndexRoute
   '/careers/onboarding/': typeof CareersOnboardingIndexRoute
   '/admin/careers/$careerId': typeof ProtectedAdminCareersCareerIdRoute
@@ -270,7 +277,6 @@ export interface FileRoutesByTo {
   '/reset-password': typeof authResetPasswordRoute
   '/signup': typeof authSignupRoute
   '/verify-email': typeof authVerifyEmailRoute
-  '/my-pathway': typeof ProtectedMyPathwayRouteWithChildren
   '/progress': typeof ProtectedProgressRoute
   '/explore/$careerId': typeof ExploreCareerIdRoute
   '/careers': typeof CareersIndexRoute
@@ -279,6 +285,7 @@ export interface FileRoutesByTo {
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
   '/careers/onboarding/goals': typeof CareersOnboardingGoalsRoute
   '/admin': typeof ProtectedAdminIndexRoute
+  '/my-pathway': typeof ProtectedMyPathwayIndexRoute
   '/careers/$careerId': typeof CareersCareerIdIndexRoute
   '/careers/onboarding': typeof CareersOnboardingIndexRoute
   '/admin/careers/$careerId': typeof ProtectedAdminCareersCareerIdRoute
@@ -316,6 +323,7 @@ export interface FileRoutesById {
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
   '/careers/onboarding/goals': typeof CareersOnboardingGoalsRoute
   '/_protected/admin/': typeof ProtectedAdminIndexRoute
+  '/_protected/my-pathway/': typeof ProtectedMyPathwayIndexRoute
   '/careers/$careerId/': typeof CareersCareerIdIndexRoute
   '/careers/onboarding/': typeof CareersOnboardingIndexRoute
   '/_protected/admin/careers/$careerId': typeof ProtectedAdminCareersCareerIdRoute
@@ -353,6 +361,7 @@ export interface FileRouteTypes {
     | '/careers/onboarding/about'
     | '/careers/onboarding/goals'
     | '/admin/'
+    | '/my-pathway/'
     | '/careers/$careerId/'
     | '/careers/onboarding/'
     | '/admin/careers/$careerId'
@@ -378,7 +387,6 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/verify-email'
-    | '/my-pathway'
     | '/progress'
     | '/explore/$careerId'
     | '/careers'
@@ -387,6 +395,7 @@ export interface FileRouteTypes {
     | '/careers/onboarding/about'
     | '/careers/onboarding/goals'
     | '/admin'
+    | '/my-pathway'
     | '/careers/$careerId'
     | '/careers/onboarding'
     | '/admin/careers/$careerId'
@@ -423,6 +432,7 @@ export interface FileRouteTypes {
     | '/careers/onboarding/about'
     | '/careers/onboarding/goals'
     | '/_protected/admin/'
+    | '/_protected/my-pathway/'
     | '/careers/$careerId/'
     | '/careers/onboarding/'
     | '/_protected/admin/careers/$careerId'
@@ -561,6 +571,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof ProtectedAdminIndexRouteImport
       parentRoute: typeof ProtectedAdminRoute
+    }
+    '/_protected/my-pathway/': {
+      id: '/_protected/my-pathway/'
+      path: '/'
+      fullPath: '/my-pathway/'
+      preLoaderRoute: typeof ProtectedMyPathwayIndexRouteImport
+      parentRoute: typeof ProtectedMyPathwayRoute
     }
     '/careers/$careerId/': {
       id: '/careers/$careerId/'
@@ -734,6 +751,7 @@ const ProtectedAdminRouteWithChildren = ProtectedAdminRoute._addFileChildren(
 )
 
 interface ProtectedMyPathwayRouteChildren {
+  ProtectedMyPathwayIndexRoute: typeof ProtectedMyPathwayIndexRoute
   ProtectedMyPathwaySkillCheckIndexRoute: typeof ProtectedMyPathwaySkillCheckIndexRoute
   ProtectedMyPathwaySkillCheckCareerIdResultRoute: typeof ProtectedMyPathwaySkillCheckCareerIdResultRoute
   ProtectedMyPathwaySkillCheckCareerIdRoadmapRoute: typeof ProtectedMyPathwaySkillCheckCareerIdRoadmapRoute
@@ -741,6 +759,7 @@ interface ProtectedMyPathwayRouteChildren {
 }
 
 const ProtectedMyPathwayRouteChildren: ProtectedMyPathwayRouteChildren = {
+  ProtectedMyPathwayIndexRoute: ProtectedMyPathwayIndexRoute,
   ProtectedMyPathwaySkillCheckIndexRoute:
     ProtectedMyPathwaySkillCheckIndexRoute,
   ProtectedMyPathwaySkillCheckCareerIdResultRoute:
