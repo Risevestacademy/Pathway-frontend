@@ -14,8 +14,12 @@ type StepCompletionButtonProps = {
   stepTitle: string;
   /** The last status the server confirmed. */
   status: PathwayStepStatus;
-  /** "primary" is a plain primary button; once the step is done it becomes a small Undo. */
-  variant?: "compact" | "full" | "primary";
+  /**
+   * "primary" is a plain primary button; once the step is done it becomes a
+   * small Undo with a note. "undo" is only that small Undo, and nothing at all
+   * for a step that isn't done.
+   */
+  variant?: "compact" | "full" | "primary" | "undo";
   /** Called once a save that marks the step complete has been confirmed. */
   onCompleted?: () => void;
 };
@@ -114,20 +118,35 @@ export default function StepCompletionButton({
     );
   }
 
+  const undoButton = (
+    <button
+      type="button"
+      disabled={mutation.isPending}
+      onClick={() => save("NOT_STARTED")}
+      className="focus-ring cursor-pointer rounded text-sm font-medium text-brand-700 underline disabled:cursor-wait disabled:opacity-70"
+    >
+      {mutation.isPending ? "Undoing" : "Undo"}{" "}
+      <span className="sr-only">marking {stepTitle} complete</span>
+    </button>
+  );
+
+  if (variant === "undo") {
+    if (!done) return null;
+    return (
+      <div className="flex flex-col items-end gap-1">
+        {undoButton}
+        {error}
+        {liveRegion}
+      </div>
+    );
+  }
+
   if (variant === "primary" && done) {
     return (
       <div className="flex flex-col gap-2">
         <p className="flex flex-wrap items-center gap-2 text-sm text-ink-muted">
           You marked this step complete.
-          <button
-            type="button"
-            disabled={mutation.isPending}
-            onClick={() => save("NOT_STARTED")}
-            className="focus-ring cursor-pointer rounded text-sm font-medium text-brand-700 underline disabled:cursor-wait disabled:opacity-70"
-          >
-            {mutation.isPending ? "Undoing" : "Undo"}{" "}
-            <span className="sr-only">marking {stepTitle} complete</span>
-          </button>
+          {undoButton}
         </p>
         {error}
         {liveRegion}

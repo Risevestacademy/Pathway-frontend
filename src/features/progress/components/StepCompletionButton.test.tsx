@@ -50,7 +50,7 @@ beforeEach(() => {
 
 function renderButton(
   status: "COMPLETED" | "NOT_STARTED" = "NOT_STARTED",
-  extra: { variant?: "compact" | "full" | "primary"; onCompleted?: () => void } = {},
+  extra: { variant?: "compact" | "full" | "primary" | "undo"; onCompleted?: () => void } = {},
 ) {
   return render(
     <QueryClientProvider client={queryClient}>
@@ -223,6 +223,49 @@ describe("StepCompletionButton", () => {
 
       const alert = await screen.findByRole("alert");
       expect(alert.textContent).toContain("still marked done");
+      expect(screen.getByRole("button", { name: /try again/i })).toBeTruthy();
+    });
+  });
+
+  describe("the undo variant", () => {
+    it("is just a small Undo in the primary colour for a completed step", () => {
+      renderButton("COMPLETED", { variant: "undo" });
+
+      const undo = screen.getByRole("button", { name: "Undo marking HTML complete" });
+      expect(undo.textContent).toContain("Undo");
+      expect(undo.className).toContain("text-brand-700");
+      expect(screen.queryByText("You marked this step complete.")).toBeNull();
+    });
+
+    it("shows nothing for a step that isn't complete, since there is nothing to undo", () => {
+      const { container } = renderButton("NOT_STARTED", { variant: "undo" });
+
+      expect(container.firstChild).toBeNull();
+    });
+
+    it("marks the step not complete when chosen", async () => {
+      const bodies: unknown[] = [];
+      server.use(
+        http.put("*/me/pathway-steps/s1", async ({ request }) => {
+          bodies.push(await request.json());
+          return HttpResponse.json({ stepId: "s1", status: "NOT_STARTED", progress });
+        }),
+        http.get("*/me/*", () => HttpResponse.json({}, { status: 500 })),
+      );
+      renderButton("COMPLETED", { variant: "undo" });
+
+      await userEvent.click(screen.getByRole("button", { name: /undo/i }));
+
+      await waitFor(() => expect(bodies).toEqual([{ status: "NOT_STARTED" }]));
+    });
+
+    it("keeps the step complete and offers to try again when undoing can't be saved", async () => {
+      server.use(http.put("*/me/pathway-steps/s1", () => HttpResponse.json({}, { status: 500 })));
+      renderButton("COMPLETED", { variant: "undo" });
+
+      await userEvent.click(screen.getByRole("button", { name: /undo/i }));
+
+      expect((await screen.findByRole("alert")).textContent).toContain("still marked done");
       expect(screen.getByRole("button", { name: /try again/i })).toBeTruthy();
     });
   });
