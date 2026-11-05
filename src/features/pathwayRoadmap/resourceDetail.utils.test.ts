@@ -1,6 +1,22 @@
 import { describe, expect, it } from "vitest";
 import type { PathwayResourceDto, PathwayStepDto } from "../../lib/api/pathways.api";
-import { findResourceDetail } from "./resourceDetail.utils";
+import { findResourceDetail, formatCheckedDate } from "./resourceDetail.utils";
+
+describe("formatCheckedDate", () => {
+  it("writes the day, short month and year", () => {
+    expect(formatCheckedDate("2026-09-12")).toBe("12 Sep 2026");
+    expect(formatCheckedDate("2026-01-05")).toBe("5 Jan 2026");
+  });
+
+  it("reads the date as written, whatever the time zone", () => {
+    expect(formatCheckedDate("2026-12-31T23:30:00.000Z")).toBe("31 Dec 2026");
+  });
+
+  it("gives back what it was given when it isn't a date", () => {
+    expect(formatCheckedDate("sometime")).toBe("sometime");
+    expect(formatCheckedDate("")).toBe("");
+  });
+});
 
 const resource = (id: string, over: Partial<PathwayResourceDto> = {}): PathwayResourceDto => ({
   id,

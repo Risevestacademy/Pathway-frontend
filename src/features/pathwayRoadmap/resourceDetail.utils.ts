@@ -36,3 +36,13 @@ export function findResourceDetail(
   }
   return null;
 }
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/** "2026-09-12" as "12 Sep 2026". The date is read as written, so the time zone can't shift it. */
+export function formatCheckedDate(value: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+  if (!match) return value;
+  const month = MONTHS[Number(match[2]) - 1];
+  return month ? `${Number(match[3])} ${month} ${match[1]}` : value;
+}
