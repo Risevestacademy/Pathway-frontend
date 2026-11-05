@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
@@ -9,6 +9,10 @@ import {
 } from "@tanstack/react-router";
 import { useAuthStore } from "../lib/stores/authStore";
 import AppTopNav from "./AppTopNav";
+
+vi.mock("../features/pathwayRoadmap/components/CareerProgressPill", () => ({
+  CareerProgressPill: ({ careerId }: { careerId: string }) => <p>{`progress pill for ${careerId}`}</p>,
+}));
 
 afterEach(() => {
   cleanup();
@@ -42,6 +46,42 @@ describe("AppTopNav", () => {
     act(() => useAuthStore.getState().finishHydrating());
 
     expect(screen.getByRole("link", { name: "Sign in" })).toBeTruthy();
+  });
+
+  describe("the progress pill", () => {
+    const signIn = () =>
+      act(() => {
+        useAuthStore.getState().setAuth({ id: "u1", email: "a@b.c", role: "USER" }, "token");
+        useAuthStore.getState().finishHydrating();
+      });
+
+    it.each([
+      ["/my-pathway/c1/overview", "c1"],
+      ["/my-pathway/c1/resources", "c1"],
+      ["/my-pathway/c2/resources/r1", "c2"],
+    ])("is for the career on %s", async (path, careerId) => {
+      await renderNav(path);
+      signIn();
+
+      expect(screen.getByText(`progress pill for ${careerId}`)).toBeTruthy();
+    });
+
+    it.each(["/my-pathway", "/my-pathway/skill-check", "/my-pathway/skill-check/c1/result", "/careers/c1"])(
+      "isn't shown on %s, which isn't one career's pathway",
+      async (path) => {
+        await renderNav(path);
+        signIn();
+
+        expect(screen.queryByText(/progress pill for/)).toBeNull();
+      },
+    );
+
+    it("isn't shown to someone who isn't signed in", async () => {
+      await renderNav("/my-pathway/c1/overview");
+      act(() => useAuthStore.getState().finishHydrating());
+
+      expect(screen.queryByText(/progress pill for/)).toBeNull();
+    });
   });
 
   describe("the My Pathway item", () => {

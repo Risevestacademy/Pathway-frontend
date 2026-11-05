@@ -15,6 +15,7 @@ import {
 import { NavIcon } from "./NavIcon";
 import { FeedbackButton } from "../features/feedback/components/FeedbackButton";
 import { SignOutButton } from "../features/auth/components/SignOutButton";
+import { CareerProgressPill } from "../features/pathwayRoadmap/components/CareerProgressPill";
 
 type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -50,6 +51,10 @@ const avatarFiles = import.meta.glob("/src/assets/images/avatar.svg", {
 }) as Record<string, string>;
 const avatarUrl = Object.values(avatarFiles)[0] ?? null;
 
+// The career in /my-pathway/{careerId}/…, but not the Skill Check screens under /my-pathway/skill-check.
+const careerIdIn = (pathname: string) =>
+  /^\/my-pathway\/(?!skill-check(?:\/|$))([^/]+)/.exec(pathname)?.[1] ?? null;
+
 const itemBase =
   "flex h-10 items-center gap-1.5 rounded-lg py-2 pr-3 pl-2 text-base leading-5 font-medium whitespace-nowrap";
 
@@ -61,6 +66,7 @@ export default function AppTopNav() {
   const restoringSession = useAuthStore(selectIsRestoringSession);
   const visibleItems = signedIn ? NAV_ITEMS : NAV_ITEMS.filter((item) => item.to !== null);
   const initial = email?.trim().charAt(0).toUpperCase() ?? "";
+  const pathwayCareerId = signedIn ? careerIdIn(pathname) : null;
 
   return (
     <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-grey-50 bg-surface px-page-mobile py-4 sm:px-page-tablet lg:px-8 lg:py-8">
@@ -111,6 +117,8 @@ export default function AppTopNav() {
           })}
         </ul>
       </nav>
+
+      {pathwayCareerId && <CareerProgressPill careerId={pathwayCareerId} />}
 
       <div className="flex items-center gap-3 lg:gap-2">
         <FeedbackButton />
