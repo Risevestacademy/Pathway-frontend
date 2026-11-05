@@ -146,4 +146,46 @@ describe("ProgressScreen", () => {
     expect(screen.getByRole("region", { name: "You finished your pathway" })).toBeTruthy();
     expect(screen.queryByText("Up next")).toBeNull();
   });
+
+  it("calls the next card Next up, without a resource count, as in the design", () => {
+    screenOf();
+
+    expect(screen.getByText("Next up")).toBeTruthy();
+    expect(screen.queryByText("Up next")).toBeNull();
+    expect(screen.queryByText(/1 resource/)).toBeNull();
+  });
+
+  describe("when nothing is completed yet", () => {
+    const fresh: PathwayOverview = {
+      ...overview,
+      steps: overview.steps.map((step) => ({ ...step, status: "NOT_STARTED" as const })),
+      nextStepId: "s1",
+      completed: 0,
+      started: false,
+      upNext: { id: "s1", number: 1, title: "What design is for", resourceCount: 1 },
+    };
+
+    it("says so, pointing to the first step and offering to start it", () => {
+      screenOf({ overview: fresh });
+
+      const completed = within(screen.getByRole("region", { name: "Completed" }));
+      expect(completed.getByText("Nothing completed yet")).toBeTruthy();
+      expect(
+        completed.getByText("When you mark a step complete, it shows up here. Start with step 1."),
+      ).toBeTruthy();
+      expect(completed.getByRole("link", { name: "Start step 1" })).toBeTruthy();
+    });
+
+    it("also offers to start it in the next card", () => {
+      screenOf({ overview: fresh });
+
+      expect(screen.getAllByRole("link", { name: "Start step 1" })).toHaveLength(2);
+    });
+
+    it("makes the career active first, from either button, when that is needed", () => {
+      screenOf({ overview: fresh, activation: { activeCareerTitle: null } });
+
+      expect(screen.getAllByRole("button", { name: "Start step 1" })).toHaveLength(2);
+    });
+  });
 });

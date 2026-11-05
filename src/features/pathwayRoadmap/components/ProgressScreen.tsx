@@ -8,6 +8,7 @@ import { OverallProgressCard } from "./OverallProgressCard";
 import { OverviewHero } from "./OverviewHero";
 import { OverviewTabs } from "./OverviewTabs";
 import { PathwayCompleteCard } from "./PathwayCompleteCard";
+import { StartStepButton } from "./StartStepButton";
 import { UpNextCard } from "./UpNextCard";
 
 /** One career's progress: how far they are, what they have completed, and what comes next. */
@@ -28,6 +29,7 @@ export function ProgressScreen({
   const { isTicked } = useResourceTicks(careerId);
   const { steps, completed, total, started, upNext } = overview;
   const finished = total > 0 && completed >= total;
+  const startActivation = activation ? { careerTitle, activeCareerTitle: activation.activeCareerTitle } : undefined;
 
   return (
     <div className="flex flex-col gap-6">
@@ -46,13 +48,30 @@ export function ProgressScreen({
             careerId={careerId}
             steps={completedSteps(steps)}
             resources={tickedResources(groups, isTicked)}
+            startWith={
+              upNext
+                ? {
+                    stepNumber: upNext.number,
+                    action: (
+                      <StartStepButton
+                        careerId={careerId}
+                        stepNumber={upNext.number}
+                        started={started}
+                        activation={startActivation}
+                      />
+                    ),
+                  }
+                : undefined
+            }
           />
           {upNext ? (
             <UpNextCard
               careerId={careerId}
               step={upNext}
               started={started}
-              activation={activation ? { careerTitle, activeCareerTitle: activation.activeCareerTitle } : undefined}
+              activation={startActivation}
+              eyebrow="Next up"
+              showResources={false}
             />
           ) : (
             finished && <PathwayCompleteCard total={total} />
