@@ -1,0 +1,36 @@
+import { Button } from "@/components/ui/Button";
+import type { Opportunity } from "../opportunities.type";
+import OpportunityCard from "./OpportunityCard";
+
+export default function Opportunities({
+  opportunities,
+}: {
+  opportunities: Opportunity[];
+}) {
+  return (
+    <section>
+      {opportunities.length > 0 ? (
+        <div className="grid grid-cols-3 gap-4">
+          {opportunities.map((each) => (
+            <OpportunityCard key={each.id} opportunity={each} />
+          ))}
+        </div>
+      ) : (
+        <div className="py-15 px-8 flex items-center justify-center rounded-3xl border border-grey-100">
+          <div className="max-w-max text-center flex flex-col gap-6">
+            <div className="flex flex-col gap-3">
+              <h2 className="text-[24px] font-medium leading-6">
+                No opportunities match your pathway
+              </h2>
+              <p className="text-grey-600 max-w-[389px]">
+                We add listings as employers confirm them. Finish a few more
+                topics and we will show roles that fit.
+              </p>
+            </div>
+            <Button className="w-full">Get notified of new roles</Button>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
