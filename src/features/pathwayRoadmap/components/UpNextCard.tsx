@@ -1,7 +1,5 @@
 import { useId } from "react";
-import { useNavigate } from "@tanstack/react-router";
-import { LinkButton } from "../../../components/ui/Button";
-import StartTrackingButton from "../../progress/components/StartTrackingButton";
+import { StartStepButton } from "./StartStepButton";
 
 export interface UpNextCardProps {
   careerId: string;
@@ -35,8 +33,6 @@ export function UpNextCard({
   showResources = true,
 }: UpNextCardProps) {
   const headingId = useId();
-  const navigate = useNavigate();
-  const label = `${started ? "Continue" : "Start"} step ${step.number}`;
   return (
     <section
       aria-labelledby={headingId}
@@ -55,21 +51,12 @@ export function UpNextCard({
         )}
       </div>
 
-      {activation ? (
-        <StartTrackingButton
-          careerId={careerId}
-          careerTitle={activation.careerTitle}
-          activeCareerTitle={activation.activeCareerTitle}
-          label={label}
-          onStarted={() =>
-            void navigate({ to: "/my-pathway/$careerId/resources", params: { careerId } })
-          }
-        />
-      ) : (
-        <LinkButton to="/my-pathway/$careerId/resources" params={{ careerId }}>
-          {label}
-        </LinkButton>
-      )}
+      <StartStepButton
+        careerId={careerId}
+        stepNumber={step.number}
+        started={started}
+        activation={activation}
+      />
     </section>
   );
 }
