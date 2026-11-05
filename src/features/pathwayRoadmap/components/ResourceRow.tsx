@@ -9,11 +9,14 @@ export function ResourceRow({
   careerId,
   resource,
   ticked,
+  unsaved,
   onToggle,
 }: {
   careerId: string;
   resource: GroupedResource;
   ticked: boolean;
+  /** Whether the browser couldn't save this tick. */
+  unsaved: boolean;
   onToggle: () => void;
 }) {
   return (
@@ -39,6 +42,8 @@ export function ResourceRow({
           </span>
         </div>
       </div>
+
+      {unsaved && <Badge tone="warning">Not saved</Badge>}
 
       <LinkButton
         to="/my-pathway/$careerId/resources/$resourceId"

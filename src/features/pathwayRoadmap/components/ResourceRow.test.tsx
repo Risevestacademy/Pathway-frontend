@@ -22,8 +22,16 @@ const resource: GroupedResource = {
   lastChecked: "2026-09-12",
 };
 
-const row = (over: Partial<GroupedResource> = {}, ticked = false, onToggle = vi.fn()) => {
-  render(<ResourceRow careerId="c1" resource={{ ...resource, ...over }} ticked={ticked} onToggle={onToggle} />);
+const row = (over: Partial<GroupedResource> = {}, ticked = false, onToggle = vi.fn(), unsaved = false) => {
+  render(
+    <ResourceRow
+      careerId="c1"
+      resource={{ ...resource, ...over }}
+      ticked={ticked}
+      unsaved={unsaved}
+      onToggle={onToggle}
+    />,
+  );
   return onToggle;
 };
 
@@ -82,5 +90,17 @@ describe("ResourceRow", () => {
     fireEvent.click(screen.getByRole("checkbox"));
 
     expect(onToggle).toHaveBeenCalledOnce();
+  });
+
+  it("says Not saved when the browser couldn't save its tick", () => {
+    row({}, true, vi.fn(), true);
+
+    expect(screen.getByText("Not saved")).toBeTruthy();
+  });
+
+  it("says nothing of the kind when the tick is saved", () => {
+    row({}, true);
+
+    expect(screen.queryByText("Not saved")).toBeNull();
   });
 });

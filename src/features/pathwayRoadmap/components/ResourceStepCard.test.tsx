@@ -5,17 +5,19 @@ import { ResourceStepCard } from "./ResourceStepCard";
 
 const toggle = vi.fn();
 let tickedIds: string[] = [];
+let unsavedIds: string[] = [];
 
 vi.mock("../hooks/useResourceTicks", () => ({
   useResourceTicks: () => ({
     isTicked: (id: string) => tickedIds.includes(id),
+    isUnsaved: (id: string) => unsavedIds.includes(id),
     countTicked: (ids: string[]) => ids.filter((id) => tickedIds.includes(id)).length,
     toggle: (id: string) => toggle(id),
   }),
 }));
 vi.mock("./ResourceRow", () => ({
-  ResourceRow: ({ resource, ticked, onToggle }: { resource: { id: string; title: string }; ticked: boolean; onToggle: () => void }) => (
-    <button type="button" aria-label={`row ${resource.id}`} aria-pressed={ticked} onClick={onToggle}>
+  ResourceRow: ({ resource, ticked, unsaved, onToggle }: { resource: { id: string; title: string }; ticked: boolean; unsaved: boolean; onToggle: () => void }) => (
+    <button type="button" aria-label={`row ${resource.id}`} aria-pressed={ticked} data-unsaved={unsaved} onClick={onToggle}>
       {resource.title}
     </button>
   ),
@@ -30,6 +32,7 @@ afterEach(() => {
   cleanup();
   toggle.mockReset();
   tickedIds = [];
+  unsavedIds = [];
 });
 
 const group: ResourceGroup = {
@@ -89,6 +92,15 @@ describe("ResourceStepCard", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "row r1" }));
     expect(toggle).toHaveBeenCalledWith("r1");
+  });
+
+  it("tells each row whether its tick is unsaved", () => {
+    tickedIds = ["r1"];
+    unsavedIds = ["r1"];
+    card();
+
+    expect(screen.getByRole("button", { name: "row r1" }).getAttribute("data-unsaved")).toBe("true");
+    expect(screen.getByRole("button", { name: "row r2" }).getAttribute("data-unsaved")).toBe("false");
   });
 
   describe("the chip", () => {

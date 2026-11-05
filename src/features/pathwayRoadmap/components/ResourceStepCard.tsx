@@ -19,7 +19,7 @@ export function ResourceStepCard({
   status: PathwayStepStatus | null;
 }) {
   const headingId = useId();
-  const { isTicked, countTicked, toggle } = useResourceTicks(careerId);
+  const { isTicked, isUnsaved, countTicked, toggle } = useResourceTicks(careerId);
 
   const count = group.resources.length;
   const ticked = countTicked(group.resources.map((resource) => resource.id));
@@ -70,6 +70,7 @@ export function ResourceStepCard({
             careerId={careerId}
             resource={resource}
             ticked={isTicked(resource.id)}
+            unsaved={isUnsaved(resource.id)}
             onToggle={() => toggle(resource.id)}
           />
         ))}
