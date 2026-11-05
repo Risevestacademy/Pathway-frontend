@@ -77,10 +77,24 @@ describe("OverviewScreen", () => {
     expect(screen.getByText("1 of 2 steps complete")).toBeTruthy();
   });
 
-  it("leaves out the up next card when there is no step up next", () => {
+  it("says they finished, in place of the up next card, once every step is complete", () => {
     screenOf({ upNext: null, nextStepId: null, completed: 2 });
 
     expect(screen.queryByText("Up next")).toBeNull();
+    expect(screen.getByRole("region", { name: "You finished your pathway" })).toBeTruthy();
     expect(screen.getByRole("region", { name: "Overall progress" })).toBeTruthy();
+  });
+
+  it("doesn't say they finished while a step is still up next", () => {
+    screenOf({ completed: 1 });
+
+    expect(screen.queryByText("You finished your pathway")).toBeNull();
+  });
+
+  it("shows neither card for a roadmap with no steps", () => {
+    screenOf({ steps: [], upNext: null, nextStepId: null, completed: 0, total: 0 });
+
+    expect(screen.queryByText("Up next")).toBeNull();
+    expect(screen.queryByText("You finished your pathway")).toBeNull();
   });
 });

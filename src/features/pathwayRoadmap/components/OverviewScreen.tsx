@@ -3,6 +3,7 @@ import type { PathwayOverview } from "../overview.utils";
 import { OverallProgressCard } from "./OverallProgressCard";
 import { OverviewHero } from "./OverviewHero";
 import { OverviewTabs } from "./OverviewTabs";
+import { PathwayCompleteCard } from "./PathwayCompleteCard";
 import { UpNextCard } from "./UpNextCard";
 import { YourRoadmapCard } from "./YourRoadmapCard";
 
@@ -17,6 +18,7 @@ export function OverviewScreen({
   overview: PathwayOverview;
 }) {
   const { steps, nextStepId, completed, total, started, upNext } = overview;
+  const finished = total > 0 && completed >= total;
 
   return (
     <div className="flex flex-col gap-6">
@@ -27,7 +29,11 @@ export function OverviewScreen({
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <YourRoadmapCard careerId={careerId} steps={steps} nextStepId={nextStepId} />
         <div className="flex flex-col gap-6">
-          {upNext && <UpNextCard careerId={careerId} step={upNext} started={started} />}
+          {upNext ? (
+            <UpNextCard careerId={careerId} step={upNext} started={started} />
+          ) : (
+            finished && <PathwayCompleteCard total={total} />
+          )}
           <OverallProgressCard completed={completed} total={total} />
         </div>
       </div>
