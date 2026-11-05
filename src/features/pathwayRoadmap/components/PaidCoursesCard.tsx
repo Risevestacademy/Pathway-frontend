@@ -21,14 +21,14 @@ function PaidCourse({ careerId, resource }: { careerId: string; resource: Groupe
       </div>
 
       <div>
-        <h3 id={headingId} className="font-display text-lg font-medium text-ink">
+        <h3 id={headingId} className="font-display text-base font-medium text-ink">
           {resource.title}
         </h3>
-        <p className="text-ink-muted">by {resource.provider}</p>
+        <p className="text-sm text-ink-muted">by {resource.provider}</p>
       </div>
 
       <div className="flex flex-1 flex-col gap-2 border-y border-line py-4">
-        {resource.description && <p className="text-ink">{resource.description}</p>}
+        {resource.description && <p className="text-sm text-ink">{resource.description}</p>}
         <p className="text-sm text-ink-muted">
           Price on the provider’s site · checked {formatCheckedDate(resource.lastChecked)}
         </p>
@@ -67,7 +67,7 @@ export function PaidCoursesCard({
       className="flex flex-col gap-4 rounded-3xl border border-line bg-surface p-6"
     >
       <div className="flex flex-wrap items-center gap-3">
-        <h2 id={headingId} className="font-display text-2xl font-medium text-ink">
+        <h2 id={headingId} className="font-display text-xl font-medium text-ink">
           Optional: paid courses to go further
         </h2>
         <span className="rounded-lg bg-grey-100 px-2.5 py-1 text-sm text-ink-muted">
@@ -75,7 +75,7 @@ export function PaidCoursesCard({
         </span>
       </div>
 
-      <p className="text-ink-muted">
+      <p className="text-sm text-ink-muted">
         {hasFreeResources ? "Every step above can be finished for free. " : ""}
         These courses are extra if you want more depth and can afford them. Your progress never
         depends on them.

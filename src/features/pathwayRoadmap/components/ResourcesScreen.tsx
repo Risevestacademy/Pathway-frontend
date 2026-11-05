@@ -65,7 +65,7 @@ export function ResourcesScreen({
       <OverviewTabs careerId={careerId} current="resources" />
 
       {!selected ? (
-        <p className="text-ink-muted">No resources for this roadmap yet</p>
+        <p className="text-sm text-ink-muted">No resources for this roadmap yet</p>
       ) : (
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,3fr)]">
           <ResourceStepNav

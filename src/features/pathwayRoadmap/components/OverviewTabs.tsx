@@ -3,7 +3,7 @@ import clsx from "clsx";
 
 export type PathwaySection = "overview" | "resources";
 
-const tab = "block px-4 pb-3 text-lg";
+const tab = "block px-4 pb-3 text-base";
 const currentTab = clsx(tab, "-mb-px border-b-2 border-brand-600 font-medium text-brand-700");
 const linkTab = clsx(
   tab,

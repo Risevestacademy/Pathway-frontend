@@ -30,8 +30,8 @@ export function ResourceRow({
       />
 
       <div className="min-w-0 flex-1">
-        <p className="font-display text-lg font-medium text-ink">{resource.title}</p>
-        <p className="text-ink-muted">by {resource.provider}</p>
+        <p className="font-display text-base font-medium text-ink">{resource.title}</p>
+        <p className="text-sm text-ink-muted">by {resource.provider}</p>
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <Badge tone="brand">{KIND_LABEL[resource.kind]}</Badge>
           {resource.costLabel && (

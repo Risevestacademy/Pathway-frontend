@@ -32,7 +32,7 @@ export function ResourceStepNav({
                 onClick={() => onSelect(item.stepId)}
                 aria-current={selected ? "true" : undefined}
                 className={clsx(
-                  "focus-ring flex w-full cursor-pointer items-center justify-between gap-3 rounded-2xl px-4 py-3 text-left text-lg",
+                  "focus-ring flex w-full cursor-pointer items-center justify-between gap-3 rounded-2xl px-4 py-3 text-left text-base",
                   "transition-colors duration-200 ease-out motion-reduce:transition-none",
                   selected ? "bg-brand-100 text-brand-700" : "text-ink hover:bg-surface-muted",
                 )}
@@ -40,7 +40,7 @@ export function ResourceStepNav({
                 <span className="min-w-0">
                   Step {item.number} · {item.title}
                 </span>
-                <span className={clsx("shrink-0 text-base", selected ? "text-brand-700" : "text-ink-muted")}>
+                <span className={clsx("shrink-0 text-sm", selected ? "text-brand-700" : "text-ink-muted")}>
                   {item.ticked} of {item.total}
                 </span>
               </button>

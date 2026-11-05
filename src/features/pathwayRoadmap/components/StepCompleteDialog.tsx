@@ -44,7 +44,7 @@ export function StepCompleteDialog({
             className="flex flex-col gap-3 rounded-2xl bg-surface-muted p-5"
           >
             {resources.map((resource) => (
-              <li key={resource.id} className="flex items-center gap-3 text-ink">
+              <li key={resource.id} className="flex items-center gap-3 text-sm text-ink">
                 {resource.ticked ? (
                   <>
                     <span
@@ -74,7 +74,7 @@ export function StepCompleteDialog({
 
         {progress && (
           <div className="flex flex-col gap-3">
-            <p className="text-lg text-ink">{describeProgress(progress.completed, progress.total)}</p>
+            <p className="text-base text-ink">{describeProgress(progress.completed, progress.total)}</p>
             <ProgressBar
               completed={progress.completed}
               total={progress.total}

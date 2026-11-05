@@ -31,14 +31,14 @@ export function UpNextCard({ careerId, step, started, activation }: UpNextCardPr
       aria-labelledby={headingId}
       className="flex flex-col items-start gap-4 rounded-3xl border border-brand-100 bg-brand-50 p-6"
     >
-      <p className="text-base text-brand-700">Up next</p>
+      <p className="text-sm font-medium text-brand-700">Up next</p>
 
       <div className="flex flex-col gap-1.5">
-        <h2 id={headingId} className="font-display text-2xl font-medium text-ink">
+        <h2 id={headingId} className="font-display text-xl font-medium text-ink">
           Step {step.number} · {step.title}
         </h2>
         {step.resourceCount > 0 && (
-          <p className="text-ink-muted">
+          <p className="text-sm text-ink-muted">
             {step.resourceCount} {step.resourceCount === 1 ? "resource" : "resources"}
           </p>
         )}

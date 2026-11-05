@@ -14,8 +14,8 @@ export function SaveFailedBanner({
       className="flex flex-col gap-4 rounded-2xl border border-danger-600/30 bg-danger-50 p-5 sm:flex-row sm:items-center sm:justify-between"
     >
       <div>
-        <p className="text-lg font-medium text-danger-700">We could not save your last change</p>
-        <p className="text-ink">
+        <p className="text-base font-medium text-danger-700">We could not save your last change</p>
+        <p className="text-sm text-ink">
           Your tick on “{resourceTitle}” is not saved yet. Check your connection and try again.
         </p>
       </div>

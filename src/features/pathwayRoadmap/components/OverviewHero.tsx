@@ -16,8 +16,8 @@ export function OverviewHero({ title, stepCount }: { title: string; stepCount: n
       />
 
       <div className="relative max-w-xl">
-        <h1 className="font-display text-5xl font-semibold tracking-tight text-ink">{title}</h1>
-        <p className="mt-3 text-xl text-ink">{steps}. You mark each step complete yourself.</p>
+        <h1 className="font-display text-3xl leading-10 font-semibold text-ink sm:text-4xl">{title}</h1>
+        <p className="mt-3 text-base text-ink">{steps}. You mark each step complete yourself.</p>
       </div>
 
       <dl
@@ -25,8 +25,8 @@ export function OverviewHero({ title, stepCount }: { title: string; stepCount: n
         aria-label="Roadmap size"
         className="relative flex min-w-40 flex-col items-center gap-1 rounded-2xl bg-surface px-8 py-5 shadow-card"
       >
-        <dt className="text-lg text-ink-muted">Steps</dt>
-        <dd className="font-display text-4xl font-medium text-ink">{stepCount}</dd>
+        <dt className="text-sm text-ink-muted">Steps</dt>
+        <dd className="font-display text-2xl font-medium text-ink">{stepCount}</dd>
       </dl>
     </header>
   );

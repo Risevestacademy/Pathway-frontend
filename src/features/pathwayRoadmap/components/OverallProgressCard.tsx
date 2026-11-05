@@ -25,13 +25,13 @@ export function OverallProgressCard({
         </span>
       </div>
 
-      <p className="font-display text-2xl font-medium text-ink">
+      <p className="font-display text-xl font-medium text-ink">
         {describeProgress(completed, total)}
       </p>
 
       <ProgressBar completed={completed} total={total} label="Overall progress" />
 
-      <p className="text-ink-muted">
+      <p className="text-sm text-ink-muted">
         Progress counts the steps you mark complete. We do not check that you finished them.
       </p>
     </section>

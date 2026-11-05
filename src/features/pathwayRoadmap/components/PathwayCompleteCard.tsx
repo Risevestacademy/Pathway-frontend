@@ -9,10 +9,10 @@ export function PathwayCompleteCard({ total }: { total: number }) {
       aria-labelledby={headingId}
       className="flex flex-col gap-2 rounded-3xl border border-brand-100 bg-brand-50 p-6"
     >
-      <h2 id={headingId} className="font-display text-2xl font-medium text-ink">
+      <h2 id={headingId} className="font-display text-xl font-medium text-ink">
         You finished your pathway
       </h2>
-      <p className="text-ink-muted">
+      <p className="text-sm text-ink-muted">
         You marked {steps} complete. This is your own record, not a certificate.
       </p>
     </section>

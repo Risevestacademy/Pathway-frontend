@@ -36,7 +36,7 @@ export function PathwayCard({
             <img src={icon.src} alt="" aria-hidden draggable={false} className="max-h-6 w-auto" />
           </span>
         )}
-        <h2 id={headingId} className="font-display text-2xl font-medium text-ink">
+        <h2 id={headingId} className="font-display text-xl font-medium text-ink">
           {title}
         </h2>
         {isActive && (
@@ -51,16 +51,16 @@ export function PathwayCard({
         {currentStep ? (
           <div className="mt-3 flex items-center justify-between gap-4">
             <div className="border-l-4 border-success-600 pl-3">
-              <p className="text-lg font-medium text-ink">{currentStep.title}</p>
-              <p className="text-ink-muted">{currentStep.description}</p>
+              <p className="text-base font-medium text-ink">{currentStep.title}</p>
+              <p className="text-sm text-ink-muted">{currentStep.description}</p>
             </div>
-            <p className="flex shrink-0 items-center gap-2 rounded-lg border border-line bg-surface px-3 py-2 text-ink-muted">
+            <p className="text-sm flex shrink-0 items-center gap-2 rounded-lg border border-line bg-surface px-3 py-2 text-ink-muted">
               <Compass className="size-4 text-brand-500" aria-hidden />
               {xp} XP
             </p>
           </div>
         ) : (
-          <p className="mt-3 text-ink-muted">No steps to show yet</p>
+          <p className="mt-3 text-sm text-ink-muted">No steps to show yet</p>
         )}
       </div>
 

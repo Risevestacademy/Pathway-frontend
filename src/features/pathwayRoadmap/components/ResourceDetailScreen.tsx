@@ -57,24 +57,24 @@ export function ResourceDetailScreen({
         <p className="text-brand-700">
           Step {step.number} · {step.title}
         </p>
-        <h1 className="mt-1 font-display text-5xl font-semibold tracking-tight text-ink">
+        <h1 className="mt-1 font-display text-3xl leading-10 font-semibold text-ink sm:text-4xl">
           {resource.title}
         </h1>
-        <p className="mt-2 text-lg text-ink-muted">by {resource.provider}</p>
+        <p className="mt-2 text-base text-ink-muted">by {resource.provider}</p>
       </header>
 
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <div className="flex flex-col gap-6">
           {description && (
             <InfoCard title="What it covers">
-              <p className="text-lg text-ink">{description}</p>
+              <p className="text-base text-ink">{description}</p>
             </InfoCard>
           )}
           {skills.length > 0 && (
             <InfoCard title="Skills you'll practise">
               <ol className="flex flex-col gap-4">
                 {skills.map((skill, index) => (
-                  <li key={skill} className="flex items-center gap-4 text-lg text-ink">
+                  <li key={skill} className="flex items-center gap-4 text-base text-ink">
                     <span
                       aria-hidden
                       className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-100 text-sm font-medium text-brand-700"
@@ -89,7 +89,7 @@ export function ResourceDetailScreen({
           )}
           {curationRationale.trim() && (
             <InfoCard title="How to use it">
-              <p className="text-lg text-ink">{curationRationale}</p>
+              <p className="text-base text-ink">{curationRationale}</p>
             </InfoCard>
           )}
         </div>
@@ -112,10 +112,10 @@ export function ResourceDetailScreen({
             {OPEN_LABEL[resource.kind]}
           </ExternalLinkButton>
 
-          <p className="text-ink-muted">
+          <p className="text-sm text-ink-muted">
             Opens on the provider’s site. Opening it does not mark it done.
           </p>
-          <p className="text-ink-muted">Last checked {formatCheckedDate(lastChecked)}</p>
+          <p className="text-sm text-ink-muted">Last checked {formatCheckedDate(lastChecked)}</p>
 
           <label className="flex cursor-pointer items-start gap-3 border-t border-line pt-4">
             <input
@@ -125,8 +125,8 @@ export function ResourceDetailScreen({
               className="focus-ring mt-0.5 size-6 shrink-0 cursor-pointer rounded-md border border-line-strong accent-brand-600"
             />
             <span className="flex flex-col">
-              <span className="text-lg font-medium text-ink">I have done this resource</span>
-              <span className="text-ink-muted">Your own tick. Only you see it.</span>
+              <span className="text-base font-medium text-ink">I have done this resource</span>
+              <span className="text-sm text-ink-muted">Your own tick. Only you see it.</span>
             </span>
             {isUnsaved(resource.id) && <Badge tone="warning">Not saved</Badge>}
           </label>

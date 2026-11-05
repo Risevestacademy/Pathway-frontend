@@ -58,7 +58,7 @@ export function ResourceStepCard({
           <h2 id={headingId} className="font-display text-xl font-medium text-ink">
             Step {group.number} · {group.title}
           </h2>
-          <p className="text-ink-muted">
+          <p className="text-sm text-ink-muted">
             {count} {count === 1 ? "resource" : "resources"}
           </p>
         </div>
@@ -88,7 +88,7 @@ export function ResourceStepCard({
           )}
         >
           {readyToComplete && (
-            <p className="text-ink">
+            <p className="text-sm text-ink">
               {allTicked
                 ? "Everything in this step is ticked. Mark the step complete when you feel done."
                 : `You've ticked ${ticked} of ${count} resources. Mark the step complete when you feel done.`}

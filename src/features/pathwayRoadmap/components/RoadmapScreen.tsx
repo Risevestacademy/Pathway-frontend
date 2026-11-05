@@ -15,10 +15,10 @@ export function RoadmapScreen({
   return (
     <section className="flex flex-col gap-6">
       <header>
-        <h1 className="font-display text-4xl font-semibold tracking-tight text-ink sm:text-5xl">
+        <h1 className="font-display text-3xl leading-10 font-semibold text-ink sm:text-4xl">
           Roadmap
         </h1>
-        <p className="mt-2 text-ink-muted">
+        <p className="mt-2 text-base text-ink-muted">
           See your active career pathways and track your progress.
         </p>
       </header>
