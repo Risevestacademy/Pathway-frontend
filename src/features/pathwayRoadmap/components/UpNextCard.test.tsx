@@ -1,12 +1,37 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { UpNextCard, type UpNextCardProps } from "./UpNextCard";
+
+const navigate = vi.fn();
 
 vi.mock("@tanstack/react-router", () => ({
   Link: ({ children, to }: { children: React.ReactNode; to: string }) => <a href={to}>{children}</a>,
+  useNavigate: () => navigate,
+}));
+vi.mock("../../progress/components/StartTrackingButton", () => ({
+  default: ({
+    label,
+    careerId,
+    careerTitle,
+    activeCareerTitle,
+    onStarted,
+  }: {
+    label: string;
+    careerId: string;
+    careerTitle: string;
+    activeCareerTitle: string | null;
+    onStarted?: () => void;
+  }) => (
+    <button type="button" data-career={careerId} data-title={careerTitle} data-replaces={activeCareerTitle ?? ""} onClick={onStarted}>
+      {label}
+    </button>
+  ),
 }));
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  navigate.mockReset();
+});
 
 const card = (over: Partial<UpNextCardProps> = {}) =>
   render(
@@ -66,5 +91,48 @@ describe("UpNextCard", () => {
 
     expect(screen.getByRole("link", { name: "Continue step 4" })).toBeTruthy();
     expect(screen.queryByRole("link", { name: /Start step/ })).toBeNull();
+  });
+
+  describe("when starting must make the career their active pathway", () => {
+    const withActivation = (activeCareerTitle: string | null = null, over: Partial<UpNextCardProps> = {}) =>
+      card({ activation: { careerTitle: "Product Designer", activeCareerTitle }, ...over });
+
+    it("is a button that starts tracking, not a plain link", () => {
+      withActivation();
+
+      expect(screen.getByRole("button", { name: "Start step 1" }).getAttribute("data-career")).toBe("career-1");
+      expect(screen.queryByRole("link", { name: /Start step/ })).toBeNull();
+    });
+
+    it("says which career it makes active, and which pathway that replaces", () => {
+      withActivation("Data Analyst");
+
+      const button = screen.getByRole("button", { name: "Start step 1" });
+      expect(button.getAttribute("data-title")).toBe("Product Designer");
+      expect(button.getAttribute("data-replaces")).toBe("Data Analyst");
+    });
+
+    it("says Continue once they have started the pathway", () => {
+      withActivation(null, { started: true });
+
+      expect(screen.getByRole("button", { name: "Continue step 1" })).toBeTruthy();
+    });
+
+    it("opens the step once the career has been made active", () => {
+      withActivation();
+
+      fireEvent.click(screen.getByRole("button", { name: "Start step 1" }));
+
+      expect(navigate).toHaveBeenCalledWith({
+        to: "/careers/$careerId/roadmap/$stepId",
+        params: { careerId: "career-1", stepId: "step-1" },
+      });
+    });
+
+    it("doesn't open the step before that", () => {
+      withActivation();
+
+      expect(navigate).not.toHaveBeenCalled();
+    });
   });
 });

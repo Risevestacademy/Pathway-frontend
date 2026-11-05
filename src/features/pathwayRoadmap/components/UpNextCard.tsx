@@ -1,5 +1,7 @@
 import { useId } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { LinkButton } from "../../../components/ui/Button";
+import StartTrackingButton from "../../progress/components/StartTrackingButton";
 
 export interface UpNextCardProps {
   careerId: string;
@@ -12,11 +14,18 @@ export interface UpNextCardProps {
   };
   /** Whether they have already marked any step of this pathway done. */
   started: boolean;
+  /**
+   * Set when this career isn't their active pathway yet. Starting the step then
+   * makes it active first, asking before it replaces another active pathway.
+   */
+  activation?: { careerTitle: string; activeCareerTitle: string | null };
 }
 
 /** The step to do next, and a way into it. */
-export function UpNextCard({ careerId, step, started }: UpNextCardProps) {
+export function UpNextCard({ careerId, step, started, activation }: UpNextCardProps) {
   const headingId = useId();
+  const navigate = useNavigate();
+  const label = `${started ? "Continue" : "Start"} step ${step.number}`;
   return (
     <section
       aria-labelledby={headingId}
@@ -35,12 +44,27 @@ export function UpNextCard({ careerId, step, started }: UpNextCardProps) {
         )}
       </div>
 
-      <LinkButton
-        to="/careers/$careerId/roadmap/$stepId"
-        params={{ careerId, stepId: step.id }}
-      >
-        {started ? "Continue" : "Start"} step {step.number}
-      </LinkButton>
+      {activation ? (
+        <StartTrackingButton
+          careerId={careerId}
+          careerTitle={activation.careerTitle}
+          activeCareerTitle={activation.activeCareerTitle}
+          label={label}
+          onStarted={() =>
+            void navigate({
+              to: "/careers/$careerId/roadmap/$stepId",
+              params: { careerId, stepId: step.id },
+            })
+          }
+        />
+      ) : (
+        <LinkButton
+          to="/careers/$careerId/roadmap/$stepId"
+          params={{ careerId, stepId: step.id }}
+        >
+          {label}
+        </LinkButton>
+      )}
     </section>
   );
 }
