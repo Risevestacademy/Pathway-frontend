@@ -21,7 +21,7 @@ export function SkillCheckTabs() {
             </span>
           ) : activeCareerId ? (
             <Link
-              to="/skill-check/$careerId/roadmap"
+              to="/my-pathway/skill-check/$careerId/roadmap"
               params={{ careerId: activeCareerId }}
               className={clsx(
                 tabBase,
@@ -40,7 +40,7 @@ export function SkillCheckTabs() {
         <li>
           {onRoadmap ? (
             <Link
-              to="/skill-check"
+              to="/my-pathway/skill-check"
               className={clsx(
                 tabBase,
                 "focus-ring border border-grey-50 bg-surface text-grey-600 transition-colors duration-200 ease-out hover:bg-grey-50 motion-reduce:transition-none",

@@ -1,14 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { Button } from "../../../../components/ui/Button";
-import { StateMessage } from "../../../../components/ui/StateMessage";
-import { BackLink } from "../../../../features/skillCheck/components/BackLink";
-import { Questionnaire } from "../../../../features/skillCheck/components/Questionnaire";
-import { UnavailableCareer } from "../../../../features/skillCheck/components/UnavailableCareer";
-import { useSkillCheckCareer } from "../../../../features/skillCheck/hooks/useSkillCheck";
-import { useStartSkillCheck } from "../../../../features/skillCheck/hooks/useSkillCheckActions";
+import { Button } from "../../../../../components/ui/Button";
+import { StateMessage } from "../../../../../components/ui/StateMessage";
+import { BackLink } from "../../../../../features/skillCheck/components/BackLink";
+import { Questionnaire } from "../../../../../features/skillCheck/components/Questionnaire";
+import { UnavailableCareer } from "../../../../../features/skillCheck/components/UnavailableCareer";
+import { useSkillCheckCareer } from "../../../../../features/skillCheck/hooks/useSkillCheck";
+import { useStartSkillCheck } from "../../../../../features/skillCheck/hooks/useSkillCheckActions";
 
-export const Route = createFileRoute("/_protected/skill-check/$careerId/")({
+export const Route = createFileRoute("/_protected/my-pathway/skill-check/$careerId/")({
   component: QuestionnairePage,
 });
 

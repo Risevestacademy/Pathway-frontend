@@ -113,7 +113,7 @@ export function RoadmapPreview({
             </p>
           </div>
           <Link
-            to="/skill-check/$careerId/result"
+            to="/my-pathway/skill-check/$careerId/result"
             params={{ careerId: career.careerId }}
             className="focus-ring w-fit shrink-0 rounded text-sm leading-5 font-medium text-brand-600 hover:underline"
           >
@@ -134,7 +134,7 @@ export function RoadmapPreview({
               You can retake the skill check any time to see how your answers have changed.
             </p>
             <Link
-              to="/skill-check"
+              to="/my-pathway/skill-check"
               className="focus-ring w-fit rounded text-sm leading-5 font-medium text-brand-600 hover:underline"
             >
               Back to Skill check

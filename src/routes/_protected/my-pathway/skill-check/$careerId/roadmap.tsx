@@ -1,14 +1,14 @@
 import { Navigate, createFileRoute } from "@tanstack/react-router";
-import { StateMessage } from "../../../../components/ui/StateMessage";
-import { BackLink } from "../../../../features/skillCheck/components/BackLink";
-import { RoadmapPreview } from "../../../../features/skillCheck/components/RoadmapPreview";
-import { SkillButton } from "../../../../features/skillCheck/components/SkillButton";
+import { StateMessage } from "../../../../../components/ui/StateMessage";
+import { BackLink } from "../../../../../features/skillCheck/components/BackLink";
+import { RoadmapPreview } from "../../../../../features/skillCheck/components/RoadmapPreview";
+import { SkillButton } from "../../../../../features/skillCheck/components/SkillButton";
 import {
   useSkillCheckCareer,
   useSkillCheckRecord,
-} from "../../../../features/skillCheck/hooks/useSkillCheck";
+} from "../../../../../features/skillCheck/hooks/useSkillCheck";
 
-export const Route = createFileRoute("/_protected/skill-check/$careerId/roadmap")({
+export const Route = createFileRoute("/_protected/my-pathway/skill-check/$careerId/roadmap")({
   component: RoadmapPage,
 });
 
@@ -61,7 +61,7 @@ function RoadmapPage() {
   }
 
   if (!record || !record.startingPoint) {
-    return <Navigate to="/skill-check/$careerId" params={{ careerId }} replace />;
+    return <Navigate to="/my-pathway/skill-check/$careerId" params={{ careerId }} replace />;
   }
 
   return (

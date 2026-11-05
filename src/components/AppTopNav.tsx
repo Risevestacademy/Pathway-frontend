@@ -22,7 +22,7 @@ interface NavItem {
   label: string;
   iconName: string;
   fallback: IconComponent;
-  to: "/careers" | "/skill-check" | null;
+  to: "/careers" | "/my-pathway/skill-check" | null;
   match: string | null;
 }
 
@@ -33,8 +33,8 @@ const NAV_ITEMS: NavItem[] = [
     label: "My Pathway",
     iconName: "my-pathway",
     fallback: Directions2Regular,
-    to: "/skill-check",
-    match: "/skill-check",
+    to: "/my-pathway/skill-check",
+    match: "/my-pathway",
   },
   { label: "Opportunities", iconName: "opportunities", fallback: BriefcaseRegular, to: null, match: null },
 ];

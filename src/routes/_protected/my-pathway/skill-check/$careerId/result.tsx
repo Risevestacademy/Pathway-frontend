@@ -1,15 +1,15 @@
 import { Navigate, createFileRoute } from "@tanstack/react-router";
-import { Button } from "../../../../components/ui/Button";
-import { StateMessage } from "../../../../components/ui/StateMessage";
-import { BackLink } from "../../../../features/skillCheck/components/BackLink";
-import { ResultView } from "../../../../features/skillCheck/components/ResultView";
+import { Button } from "../../../../../components/ui/Button";
+import { StateMessage } from "../../../../../components/ui/StateMessage";
+import { BackLink } from "../../../../../features/skillCheck/components/BackLink";
+import { ResultView } from "../../../../../features/skillCheck/components/ResultView";
 import {
   useSkillCheckCareer,
   useSkillCheckCareers,
   useSkillCheckRecord,
-} from "../../../../features/skillCheck/hooks/useSkillCheck";
+} from "../../../../../features/skillCheck/hooks/useSkillCheck";
 
-export const Route = createFileRoute("/_protected/skill-check/$careerId/result")({
+export const Route = createFileRoute("/_protected/my-pathway/skill-check/$careerId/result")({
   component: ResultPage,
 });
 
@@ -64,7 +64,7 @@ function ResultPage() {
   }
 
   if (!record || !record.answers) {
-    return <Navigate to="/skill-check/$careerId" params={{ careerId }} replace />;
+    return <Navigate to="/my-pathway/skill-check/$careerId" params={{ careerId }} replace />;
   }
 
   return <ResultView career={career} record={record} careers={careersQuery.data} />;

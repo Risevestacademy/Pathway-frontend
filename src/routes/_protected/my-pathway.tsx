@@ -3,9 +3,9 @@ import AppTopNav from "../../components/AppTopNav";
 import { SkillCheckTabs } from "../../features/skillCheck/components/SkillCheckTabs";
 
 const isQuestionnaire = (pathname: string) =>
-  /^\/skill-check\/[^/]+\/?$/.test(pathname);
+  /^\/my-pathway\/skill-check\/[^/]+\/?$/.test(pathname);
 
-export const Route = createFileRoute("/_protected/skill-check")({
+export const Route = createFileRoute("/_protected/my-pathway")({
   component: SkillCheckLayout,
 });
 
