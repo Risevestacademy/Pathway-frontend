@@ -14,8 +14,8 @@ export interface RoadmapStepRow {
 
 const STATUS: Record<PathwayStepStatus, { label: string; chip: string }> = {
   NOT_STARTED: { label: "Not started", chip: "bg-grey-100 text-ink-muted" },
-  IN_PROGRESS: { label: "In progress", chip: "bg-info-50 text-info-700" },
-  COMPLETED: { label: "Complete", chip: "bg-success-50 text-success-700" },
+  IN_PROGRESS: { label: "In Progress", chip: "bg-info-50 text-info-700" },
+  COMPLETED: { label: "Done", chip: "bg-success-50 text-success-700" },
 };
 
 /** Every step of the pathway in order, with where each one stands. */
