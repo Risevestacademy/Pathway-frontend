@@ -7,16 +7,7 @@ import { REPORT_REASONS } from "../../feedback/feedback.utils";
 import type { Resource } from "../../resources/resources.types";
 import { BackLinkTo } from "../../skillCheck/components/BackLink";
 import { formatCheckedDate, type ResourceDetail } from "../resourceDetail.utils";
-
-const KIND_LABEL: Record<Resource["kind"], string> = {
-  article: "Article",
-  course: "Course",
-  documentation: "Docs",
-  interactive: "Interactive",
-  video: "Video",
-  book: "Book",
-  certification: "Certification",
-};
+import { KIND_LABEL, costChip, costTone } from "../resourceLabels";
 
 const OPEN_LABEL: Record<Resource["kind"], string> = {
   article: "Open article",
@@ -27,10 +18,6 @@ const OPEN_LABEL: Record<Resource["kind"], string> = {
   book: "Open book",
   certification: "Open certification",
 };
-
-const costChip = (label: string) => label.replace(/^Course: /, "").replace(/^./, (c) => c.toUpperCase());
-const costTone = (label: string) =>
-  /free/i.test(label) ? ("success" as const) : /paid/i.test(label) ? ("warning" as const) : ("unavailable" as const);
 
 function InfoCard({ title, children }: { title: string; children: ReactNode }) {
   const headingId = useId();
