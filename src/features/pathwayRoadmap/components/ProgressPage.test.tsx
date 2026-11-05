@@ -4,23 +4,31 @@ import type { PathwayProgressState } from "../hooks/usePathwayProgress";
 import { ProgressPage } from "./ProgressPage";
 
 const usePathwayProgress = vi.fn();
+const useEarlierPathways = vi.fn();
 
 vi.mock("../hooks/usePathwayProgress", () => ({
   usePathwayProgress: (careerId: string) => usePathwayProgress(careerId),
+}));
+vi.mock("../hooks/useEarlierPathways", () => ({
+  useEarlierPathways: (careerId: string) => useEarlierPathways(careerId),
 }));
 vi.mock("../../skillCheck/components/BackLink", () => ({
   BackLinkTo: ({ label, to }: { label: string; to: string }) => <a href={to}>{label}</a>,
 }));
 vi.mock("./ProgressScreen", () => ({
-  ProgressScreen: ({ careerTitle }: { careerTitle: string }) => <p>{`Progress: ${careerTitle}`}</p>,
+  ProgressScreen: ({ careerTitle, earlier }: { careerTitle: string; earlier: { title: string }[] }) => (
+    <p>{`Progress: ${careerTitle} | earlier: ${earlier.map((p) => p.title).join(",")}`}</p>
+  ),
 }));
 
 afterEach(() => {
   cleanup();
   usePathwayProgress.mockReset();
+  useEarlierPathways.mockReset();
 });
 
 const have = (state: PathwayProgressState, retry = vi.fn()) => {
+  useEarlierPathways.mockReturnValue([]);
   usePathwayProgress.mockReturnValue({ state, retry });
   return retry;
 };
@@ -72,6 +80,22 @@ describe("ProgressPage", () => {
 
     render(<ProgressPage careerId="c1" />);
 
-    expect(screen.getByText("Progress: Product Designer")).toBeTruthy();
+    expect(screen.getByText("Progress: Product Designer | earlier:")).toBeTruthy();
+  });
+
+  it("hands the screen the pathways they could switch back to", () => {
+    have({
+      kind: "ready",
+      careerTitle: "Product Designer",
+      overview: { steps: [], nextStepId: null, completed: 0, total: 0, started: false, upNext: null },
+      groups: [],
+      activation: null,
+    });
+    useEarlierPathways.mockReturnValue([{ careerId: "c2", title: "Frontend Developer", completed: 1, total: 4 }]);
+
+    render(<ProgressPage careerId="c1" />);
+
+    expect(useEarlierPathways).toHaveBeenCalledWith("c1");
+    expect(screen.getByText("Progress: Product Designer | earlier: Frontend Developer")).toBeTruthy();
   });
 });

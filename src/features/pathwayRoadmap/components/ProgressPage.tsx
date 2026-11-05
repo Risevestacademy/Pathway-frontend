@@ -2,12 +2,14 @@ import { Button } from "../../../components/ui/Button";
 import { Skeleton } from "../../../components/ui/Skeleton";
 import { StateMessage } from "../../../components/ui/StateMessage";
 import { BackLinkTo } from "../../skillCheck/components/BackLink";
+import { useEarlierPathways } from "../hooks/useEarlierPathways";
 import { usePathwayProgress } from "../hooks/usePathwayProgress";
 import { ProgressScreen } from "./ProgressScreen";
 
 /** A career's progress, with its own loading, error and empty states. */
 export function ProgressPage({ careerId }: { careerId: string }) {
   const { state, retry } = usePathwayProgress(careerId);
+  const earlier = useEarlierPathways(careerId);
 
   if (state.kind === "ready") {
     return (
@@ -17,6 +19,7 @@ export function ProgressPage({ careerId }: { careerId: string }) {
         overview={state.overview}
         groups={state.groups}
         activation={state.activation}
+        earlier={earlier}
       />
     );
   }

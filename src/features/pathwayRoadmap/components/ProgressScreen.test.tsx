@@ -5,6 +5,7 @@ import type { ResourceGroup } from "../resourceGroups.utils";
 import { ProgressScreen } from "./ProgressScreen";
 
 let tickedIds: string[] = [];
+const navigate = vi.fn();
 
 vi.mock("../hooks/useResourceTicks", () => ({
   useResourceTicks: () => ({ isTicked: (id: string) => tickedIds.includes(id) }),
@@ -13,7 +14,7 @@ vi.mock("@tanstack/react-router", () => ({
   Link: ({ children, to, params }: { children: React.ReactNode; to: string; params?: Record<string, string> }) => (
     <a href={Object.entries(params ?? {}).reduce((path, [k, v]) => path.replace(`$${k}`, v), to)}>{children}</a>
   ),
-  useNavigate: () => vi.fn(),
+  useNavigate: () => navigate,
 }));
 vi.mock("../../skillCheck/components/BackLink", () => ({
   BackLinkTo: ({ label, to }: { label: string; to: string }) => <a href={to}>{label}</a>,
@@ -21,12 +22,34 @@ vi.mock("../../skillCheck/components/BackLink", () => ({
 vi.mock("../../progress/components/StepCompletionButton", () => ({
   default: ({ stepId }: { stepId: string }) => <button type="button">{`undo ${stepId}`}</button>,
 }));
+vi.mock("./EarlierPathwaysCard", () => ({
+  EarlierPathwaysCard: ({
+    pathways,
+    activeCareerTitle,
+    onSwitched,
+  }: {
+    pathways: { careerId: string; title: string }[];
+    activeCareerTitle: string | null;
+    onSwitched: (careerId: string) => void;
+  }) =>
+    pathways.length === 0 ? null : (
+      <section aria-label="earlier pathways">
+        <p>{`replaces: ${activeCareerTitle}`}</p>
+        {pathways.map((pathway) => (
+          <button key={pathway.careerId} type="button" onClick={() => onSwitched(pathway.careerId)}>
+            {`switch back to ${pathway.title}`}
+          </button>
+        ))}
+      </section>
+    ),
+}));
 vi.mock("../../progress/components/StartTrackingButton", () => ({
   default: ({ label }: { label: string }) => <button type="button">{label}</button>,
 }));
 
 afterEach(() => {
   cleanup();
+  navigate.mockReset();
   tickedIds = [];
 });
 
@@ -62,6 +85,7 @@ const screenOf = (over: Partial<Parameters<typeof ProgressScreen>[0]> = {}) =>
       overview={overview}
       groups={groups}
       activation={null}
+      earlier={[]}
       {...over}
     />,
   );
@@ -186,6 +210,44 @@ describe("ProgressScreen", () => {
       screenOf({ overview: fresh, activation: { activeCareerTitle: null } });
 
       expect(screen.getAllByRole("button", { name: "Start step 1" })).toHaveLength(2);
+    });
+  });
+
+  describe("the pathways they switched away from", () => {
+    const earlier = [{ careerId: "c2", title: "Frontend Developer", completed: 7, total: 18 }];
+
+    it("shows nothing about them when there are none", () => {
+      screenOf();
+
+      expect(screen.queryByRole("region", { name: "earlier pathways" })).toBeNull();
+    });
+
+    it("lists them below the next card", () => {
+      screenOf({ earlier });
+
+      const card = screen.getByRole("region", { name: "earlier pathways" });
+      const next = screen.getByRole("region", { name: "Step 2 · How people think" });
+      expect(next.compareDocumentPosition(card) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
+    it("says switching back would replace this career, when it is their active pathway", () => {
+      screenOf({ earlier, activation: null });
+
+      expect(screen.getByText("replaces: Product Designer")).toBeTruthy();
+    });
+
+    it("says it would replace whichever pathway is active, when this career isn't", () => {
+      screenOf({ earlier, activation: { activeCareerTitle: "Data Analyst" } });
+
+      expect(screen.getByText("replaces: Data Analyst")).toBeTruthy();
+    });
+
+    it("opens the progress of the pathway they switched back to", () => {
+      screenOf({ earlier });
+
+      fireEvent.click(screen.getByRole("button", { name: "switch back to Frontend Developer" }));
+
+      expect(navigate).toHaveBeenCalledWith({ to: "/my-pathway/$careerId/progress", params: { careerId: "c2" } });
     });
   });
 });

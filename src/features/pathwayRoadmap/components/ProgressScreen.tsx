@@ -1,9 +1,11 @@
+import { useNavigate } from "@tanstack/react-router";
 import { BackLinkTo } from "../../skillCheck/components/BackLink";
 import { useResourceTicks } from "../hooks/useResourceTicks";
 import type { PathwayOverview } from "../overview.utils";
 import { completedSteps, tickedResources } from "../progressView.utils";
 import type { ResourceGroup } from "../resourceGroups.utils";
 import { CompletedCard } from "./CompletedCard";
+import { EarlierPathwaysCard, type EarlierPathway } from "./EarlierPathwaysCard";
 import { OverallProgressCard } from "./OverallProgressCard";
 import { OverviewHero } from "./OverviewHero";
 import { OverviewTabs } from "./OverviewTabs";
@@ -18,6 +20,7 @@ export function ProgressScreen({
   overview,
   groups,
   activation,
+  earlier,
 }: {
   careerId: string;
   careerTitle: string;
@@ -25,7 +28,10 @@ export function ProgressScreen({
   groups: ResourceGroup[];
   /** Set when this career isn't their active pathway yet, so continuing a step must make it active. */
   activation: { activeCareerTitle: string | null } | null;
+  /** The pathways they switched away from, which they could switch back to. */
+  earlier: EarlierPathway[];
 }) {
+  const navigate = useNavigate();
   const { isTicked } = useResourceTicks(careerId);
   const { steps, completed, total, started, upNext } = overview;
   const finished = total > 0 && completed >= total;
@@ -76,6 +82,13 @@ export function ProgressScreen({
           ) : (
             finished && <PathwayCompleteCard total={total} />
           )}
+          <EarlierPathwaysCard
+            pathways={earlier}
+            activeCareerTitle={activation ? activation.activeCareerTitle : careerTitle}
+            onSwitched={(switchedCareerId) =>
+              void navigate({ to: "/my-pathway/$careerId/progress", params: { careerId: switchedCareerId } })
+            }
+          />
         </div>
       </div>
     </div>
