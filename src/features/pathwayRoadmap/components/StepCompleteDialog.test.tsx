@@ -49,6 +49,14 @@ describe("StepCompleteDialog", () => {
     expect(art.getAttribute("aria-hidden")).toBe("true");
   });
 
+  it("shows the picture, which brings its own tile, at the size of the design", () => {
+    show();
+
+    const art = screen.getByRole("dialog").querySelector("img") as HTMLImageElement;
+    expect(art.className).toContain("size-24");
+    expect(art.parentElement?.className ?? "").not.toContain("bg-success-50");
+  });
+
   it("lists the step's resources, ticked or not", () => {
     show();
 

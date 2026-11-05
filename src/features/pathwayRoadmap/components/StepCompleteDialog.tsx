@@ -35,11 +35,7 @@ export function StepCompleteDialog({
       centered
       title={`Step ${step.number} complete`}
       description={`${step.title}. You marked this step complete.`}
-      media={
-        <span className="grid size-24 place-items-center rounded-3xl bg-success-50">
-          <img src={checkArt} alt="" aria-hidden draggable={false} className="max-h-14 w-auto" />
-        </span>
-      }
+      media={<img src={checkArt} alt="" aria-hidden draggable={false} className="size-24" />}
     >
       <div className="mt-6 flex flex-col gap-6 text-left">
         {resources.length > 0 && (
