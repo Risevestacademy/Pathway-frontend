@@ -6,6 +6,7 @@ import { useResourceTicks } from "../hooks/useResourceTicks";
 import type { ResourceGroup } from "../resourceGroups.utils";
 import { OverviewHero } from "./OverviewHero";
 import { OverviewTabs } from "./OverviewTabs";
+import { PaidCoursesCard } from "./PaidCoursesCard";
 import { ResourceStepCard } from "./ResourceStepCard";
 import { ResourceStepNav } from "./ResourceStepNav";
 
@@ -51,11 +52,18 @@ export function ResourcesScreen({
             selectedStepId={selected.stepId}
             onSelect={setPickedStepId}
           />
-          <ResourceStepCard
-            careerId={careerId}
-            group={selected}
-            status={statuses ? getStepStatus(statuses, selected.stepId) : null}
-          />
+          <div className="flex flex-col gap-6">
+            <ResourceStepCard
+              careerId={careerId}
+              group={selected}
+              status={statuses ? getStepStatus(statuses, selected.stepId) : null}
+            />
+            <PaidCoursesCard
+              careerId={careerId}
+              resources={groups.flatMap((group) => group.paid)}
+              hasFreeResources={selected.resources.length > 0}
+            />
+          </div>
         </div>
       )}
     </div>

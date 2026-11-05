@@ -24,6 +24,13 @@ vi.mock("./ResourceStepCard", () => ({
   ),
 }));
 
+vi.mock("./PaidCoursesCard", () => ({
+  PaidCoursesCard: ({ resources, hasFreeResources }: { resources: { id: string }[]; hasFreeResources: boolean }) =>
+    resources.length === 0 ? null : (
+      <aside aria-label="paid courses">{`paid: ${resources.map((r) => r.id).join(",")} | free: ${hasFreeResources}`}</aside>
+    ),
+}));
+
 afterEach(() => {
   cleanup();
   tickedIds = [];
@@ -41,7 +48,8 @@ const resource = (id: string) => ({
 
 const groups: ResourceGroup[] = [
   { stepId: "s1", number: 1, title: "What design is for", resources: [resource("a")], paid: [] },
-  { stepId: "s3", number: 3, title: "Get comfortable in Figma", resources: [resource("b"), resource("c")], paid: [] },
+  { stepId: "s3", number: 3, title: "Get comfortable in Figma", resources: [resource("b"), resource("c")], paid: [resource("p1")] },
+  { stepId: "s5", number: 5, title: "Only paid", resources: [], paid: [resource("p2")] },
 ];
 
 const screenOf = (over: Partial<Parameters<typeof ResourcesScreen>[0]> = {}) =>
@@ -90,6 +98,7 @@ describe("ResourcesScreen", () => {
     expect(steps().getAllByRole("button").map((b) => b.textContent)).toEqual([
       "Step 1 · What design is for0 of 1",
       "Step 3 · Get comfortable in Figma1 of 2",
+      "Step 5 · Only paid0 of 0",
     ]);
   });
 
@@ -107,6 +116,33 @@ describe("ResourcesScreen", () => {
 
     expect(cards()).toEqual(["Get comfortable in Figma [untracked]"]);
     expect(steps().getByRole("button", { name: /Step 3/ }).getAttribute("aria-current")).toBe("true");
+  });
+
+  it("shows all of the pathway's paid courses below the card, whichever step is picked", () => {
+    screenOf();
+
+    const paid = () => screen.getByLabelText("paid courses").textContent;
+    expect(paid()).toBe("paid: p1,p2 | free: true");
+
+    fireEvent.click(steps().getByRole("button", { name: /Step 3/ }));
+    expect(paid()).toBe("paid: p1,p2 | free: true");
+
+    const card = screen.getByRole("region");
+    expect(card.compareDocumentPosition(screen.getByLabelText("paid courses")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("says the shown step has no free resources when it hasn't, though the paid courses stay", () => {
+    screenOf();
+
+    fireEvent.click(steps().getByRole("button", { name: /Step 5/ }));
+
+    expect(screen.getByLabelText("paid courses").textContent).toBe("paid: p1,p2 | free: false");
+  });
+
+  it("shows no paid section when no step has a paid course", () => {
+    screenOf({ groups: groups.map((group) => ({ ...group, paid: [] })) });
+
+    expect(screen.queryByLabelText("paid courses")).toBeNull();
   });
 
   it("gives the shown step its saved status when they are tracking this pathway", () => {
