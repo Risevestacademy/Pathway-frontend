@@ -89,6 +89,38 @@ describe("usePathwayResources", () => {
     ]);
   });
 
+  it("has no progress counts unless this is their active pathway", () => {
+    have(ready({ kind: "untracked", activeCareerTitle: null }));
+
+    const { result } = renderHook(() => usePathwayResources("c1"));
+
+    expect(result.current.state.kind === "ready" && result.current.state.progress).toBeNull();
+  });
+
+  it("has how many steps they have marked complete, out of how many, for their active pathway", () => {
+    have(
+      ready({
+        kind: "active",
+        progress: {
+          completed: 2,
+          total: 16,
+          percentage: 13,
+          nextStepId: "s2",
+          selfReported: true,
+          startStepId: null,
+        },
+        statuses: { s1: "COMPLETED" },
+      }),
+    );
+
+    const { result } = renderHook(() => usePathwayResources("c1"));
+
+    expect(result.current.state.kind === "ready" && result.current.state.progress).toEqual({
+      completed: 2,
+      total: 16,
+    });
+  });
+
   it("has no step statuses unless this is their active pathway", () => {
     have(ready({ kind: "untracked", activeCareerTitle: null }));
 

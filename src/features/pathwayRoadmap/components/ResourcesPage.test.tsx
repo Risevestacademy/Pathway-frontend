@@ -72,6 +72,7 @@ describe("ResourcesPage", () => {
       stepCount: 2,
       groups: [{ stepId: "s1", number: 1, title: "Step 1", resources: [], paid: [] }],
       statuses: null,
+      progress: null,
     });
 
     render(<ResourcesPage careerId="c1" />);
