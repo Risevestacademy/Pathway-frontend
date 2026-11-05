@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import clsx from "clsx";
 
-export type PathwaySection = "overview" | "resources";
+export type PathwaySection = "overview" | "resources" | "progress";
 
 const tab = "block px-4 pb-3 text-base";
 const currentTab = clsx(tab, "-mb-px border-b-2 border-brand-600 font-medium text-brand-700");
@@ -44,14 +44,24 @@ export function OverviewTabs({
             </Link>
           )}
         </li>
-        {["Practice tasks", "Progress"].map((label) => (
-          <li key={label}>
+        <li>
+          <span aria-disabled="true" title="Coming soon" className={soonTab}>
+            Practice tasks
+            <span className="sr-only"> (coming soon)</span>
+          </span>
+        </li>
+        <li>
+          {current === "progress" ? (
+            <span aria-current="page" className={currentTab}>
+              Progress
+            </span>
+          ) : (
             <span aria-disabled="true" title="Coming soon" className={soonTab}>
-              {label}
+              Progress
               <span className="sr-only"> (coming soon)</span>
             </span>
-          </li>
-        ))}
+          )}
+        </li>
       </ul>
     </nav>
   );

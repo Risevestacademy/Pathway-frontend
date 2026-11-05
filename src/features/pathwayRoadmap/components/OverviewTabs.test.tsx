@@ -10,7 +10,7 @@ vi.mock("@tanstack/react-router", () => ({
 
 afterEach(cleanup);
 
-const tabs = (current: "overview" | "resources" = "overview") =>
+const tabs = (current: "overview" | "resources" | "progress" = "overview") =>
   render(<OverviewTabs careerId="c1" current={current} />);
 
 describe("OverviewTabs", () => {
@@ -52,7 +52,16 @@ describe("OverviewTabs", () => {
     );
   });
 
-  it.each(["Practice tasks", "Progress"])("shows %s as not available yet", (name) => {
+  it("shows Progress as current on the Progress screen, with the others as links", () => {
+    tabs("progress");
+
+    expect(screen.getByText("Progress").getAttribute("aria-current")).toBe("page");
+    expect(screen.getByText("Progress").getAttribute("aria-disabled")).toBeNull();
+    expect(screen.getByRole("link", { name: "Overview" }).getAttribute("href")).toBe("/my-pathway/c1/overview");
+    expect(screen.getByRole("link", { name: "Resources" }).getAttribute("href")).toBe("/my-pathway/c1/resources");
+  });
+
+  it.each(["Practice tasks"])("shows %s as not available yet", (name) => {
     tabs();
 
     const tab = screen.getByText(name);
