@@ -84,6 +84,55 @@ describe("usePathwayOverview", () => {
     expect(state.overview.upNext?.id).toBe("s1");
   });
 
+  describe("making it their active pathway", () => {
+    const activation = async (progress: CareerProgress) => {
+      loaded(progress);
+      const { result } = setup();
+      await waitFor(() => expect(result.current.state.kind).toBe("ready"));
+      const state = result.current.state;
+      return state.kind === "ready" ? state.activation : "not ready";
+    };
+
+    it("is needed when they haven't saved the career yet, with no pathway to replace", async () => {
+      expect(await activation({ kind: "untracked", activeCareerTitle: null })).toEqual({
+        activeCareerTitle: null,
+      });
+    });
+
+    it("is needed, naming the pathway it would replace, when another one is active", async () => {
+      expect(await activation({ kind: "untracked", activeCareerTitle: "Data Analyst" })).toEqual({
+        activeCareerTitle: "Data Analyst",
+      });
+    });
+
+    it("is needed for a career they saved earlier but isn't active now", async () => {
+      expect(
+        await activation({
+          kind: "inactive",
+          counts: { completed: 1, total: 3, percentage: 33 },
+          activeCareerTitle: "UX Designer",
+        }),
+      ).toEqual({ activeCareerTitle: "UX Designer" });
+    });
+
+    it("isn't needed when it already is their active pathway", async () => {
+      expect(
+        await activation({
+          kind: "active",
+          progress: {
+            completed: 1,
+            total: 3,
+            percentage: 33,
+            nextStepId: "s2",
+            selfReported: true,
+            startStepId: null,
+          },
+          statuses: {},
+        }),
+      ).toBeNull();
+    });
+  });
+
   it("loads the roadmap and the progress for the career it is given", async () => {
     loaded();
 

@@ -75,6 +75,7 @@ describe("OverviewPage", () => {
         started: false,
         upNext: { id: "s1", number: 1, title: "Foundations", resourceCount: 0 },
       },
+      activation: null,
     });
 
     render(<OverviewPage careerId="c1" />);
