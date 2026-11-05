@@ -10,7 +10,6 @@ import {
 import { filterPillClass } from "../catalog.styles";
 
 interface FilterSelectProps {
-  /** Shown before the value, e.g. "Level". */
   label: string;
   placeholder: string;
   value: string;
@@ -19,7 +18,6 @@ interface FilterSelectProps {
   disabled?: boolean;
 }
 
-/** Catalogue filter dropdown, styled as an inactive tab pill. */
 export function FilterSelect({
   label,
   placeholder,
@@ -30,15 +28,14 @@ export function FilterSelect({
 }: FilterSelectProps) {
   return (
     <Select value={value} onValueChange={onValueChange} disabled={disabled}>
-      {/* The visible "Label: value" text is the trigger's accessible name. */}
       <SelectPrimitive.Trigger
         className={clsx(
           filterPillClass(false),
-          "flex items-center gap-1.5 disabled:cursor-not-allowed disabled:opacity-50",
+          "flex max-w-full items-center gap-1.5 disabled:cursor-not-allowed disabled:opacity-50",
         )}
       >
-        <span>{label}:</span>
-        <span className="text-ink">
+        <span className="shrink-0">{label}:</span>
+        <span className="min-w-0 truncate text-ink">
           <SelectValue placeholder={placeholder} />
         </span>
         <DownRegular size={18} aria-hidden className="shrink-0" />
