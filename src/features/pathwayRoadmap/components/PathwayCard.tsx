@@ -65,7 +65,7 @@ export function PathwayCard({
       </div>
 
       <LinkButton
-        to="/careers/$careerId/roadmap"
+        to="/my-pathway/$careerId/overview"
         params={{ careerId }}
         className="group w-full justify-center"
       >

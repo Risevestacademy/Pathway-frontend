@@ -67,11 +67,11 @@ describe("PathwayCard", () => {
     expect(screen.getByText("No steps to show yet")).toBeTruthy();
   });
 
-  it("opens the pathway's roadmap", () => {
+  it("opens the pathway overview", () => {
     card();
 
     const link = screen.getByRole("link", { name: /Continue roadmap/ });
-    expect(link.getAttribute("href")).toBe("/careers/$careerId/roadmap");
+    expect(link.getAttribute("href")).toBe("/my-pathway/$careerId/overview");
   });
 
   it("puts the career's icon on a tinted tile, hidden from screen readers", () => {
