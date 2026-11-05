@@ -1,9 +1,7 @@
 import { Outlet, createFileRoute, useRouterState } from "@tanstack/react-router";
 import AppTopNav from "../../components/AppTopNav";
 import { MyPathwayTabs } from "../../features/pathwayRoadmap/components/MyPathwayTabs";
-
-const isQuestionnaire = (pathname: string) =>
-  /^\/my-pathway\/skill-check\/[^/]+\/?$/.test(pathname);
+import { showsMyPathwayTabs } from "../../features/pathwayRoadmap/tabsVisibility.utils";
 
 export const Route = createFileRoute("/_protected/my-pathway")({
   component: MyPathwayLayout,
@@ -19,7 +17,7 @@ function MyPathwayLayout() {
           key={pathname}
           className="flex flex-col gap-6 animate-in fade-in duration-300 ease-out motion-reduce:animate-none"
         >
-          {!isQuestionnaire(pathname) && <MyPathwayTabs />}
+          {showsMyPathwayTabs(pathname) && <MyPathwayTabs />}
           <Outlet />
         </div>
       </main>
