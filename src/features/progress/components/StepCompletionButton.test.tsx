@@ -1,4 +1,4 @@
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -48,10 +48,13 @@ beforeEach(() => {
   queryClient.setQueryData(queryKeys.progress.active("u1"), active);
 });
 
-function renderButton(status: "COMPLETED" | "NOT_STARTED" = "NOT_STARTED") {
+function renderButton(
+  status: "COMPLETED" | "NOT_STARTED" = "NOT_STARTED",
+  extra: { variant?: "compact" | "full" | "primary"; onCompleted?: () => void } = {},
+) {
   return render(
     <QueryClientProvider client={queryClient}>
-      <StepCompletionButton stepId="s1" stepTitle="HTML" status={status} />
+      <StepCompletionButton stepId="s1" stepTitle="HTML" status={status} {...extra} />
     </QueryClientProvider>,
   );
 }
@@ -125,5 +128,72 @@ describe("StepCompletionButton", () => {
     await userEvent.click(screen.getByRole("button", { name: /done: html/i }));
 
     await waitFor(() => expect(bodies).toEqual([{ status: "NOT_STARTED" }]));
+  });
+
+  describe("the primary variant", () => {
+    const saves = () =>
+      http.put("*/me/pathway-steps/s1", async () =>
+        HttpResponse.json({
+          stepId: "s1",
+          status: "COMPLETED",
+          progress: { ...progress, completed: 1, percentage: 50, nextStepId: "s2" },
+        }),
+      );
+
+    it("is a primary button that marks the step complete", async () => {
+      const bodies: unknown[] = [];
+      server.use(
+        http.put("*/me/pathway-steps/s1", async ({ request }) => {
+          bodies.push(await request.json());
+          return HttpResponse.json({ stepId: "s1", status: "COMPLETED", progress });
+        }),
+        http.get("*/me/*", () => HttpResponse.json({}, { status: 500 })),
+      );
+      renderButton("NOT_STARTED", { variant: "primary" });
+
+      const button = screen.getByRole("button", { name: "Mark step complete" });
+      expect(button.className).toContain("bg-brand-600");
+      await userEvent.click(button);
+
+      await waitFor(() => expect(bodies).toEqual([{ status: "COMPLETED" }]));
+    });
+
+    it("says the step is complete once it has been saved", async () => {
+      server.use(saves(), http.get("*/me/*", () => HttpResponse.json({}, { status: 500 })));
+      const onCompleted = vi.fn();
+      renderButton("NOT_STARTED", { variant: "primary", onCompleted });
+
+      await userEvent.click(screen.getByRole("button", { name: "Mark step complete" }));
+
+      await waitFor(() => expect(onCompleted).toHaveBeenCalledOnce());
+    });
+
+    it("doesn't say so when the save fails", async () => {
+      server.use(http.put("*/me/pathway-steps/s1", () => HttpResponse.json({}, { status: 500 })));
+      const onCompleted = vi.fn();
+      renderButton("NOT_STARTED", { variant: "primary", onCompleted });
+
+      await userEvent.click(screen.getByRole("button", { name: "Mark step complete" }));
+
+      await screen.findByRole("alert");
+      expect(onCompleted).not.toHaveBeenCalled();
+    });
+
+    it("shows the way to undo, not the primary button, for a step already complete", async () => {
+      server.use(
+        http.put("*/me/pathway-steps/s1", () =>
+          HttpResponse.json({ stepId: "s1", status: "NOT_STARTED", progress }),
+        ),
+        http.get("*/me/*", () => HttpResponse.json({}, { status: 500 })),
+      );
+      const onCompleted = vi.fn();
+      renderButton("COMPLETED", { variant: "primary", onCompleted });
+
+      expect(screen.queryByRole("button", { name: "Mark step complete" })).toBeNull();
+      await userEvent.click(screen.getByRole("button", { name: /done: html/i }));
+
+      await waitFor(() => expect(screen.getByRole("status").textContent).toContain("marked not done"));
+      expect(onCompleted).not.toHaveBeenCalled();
+    });
   });
 });

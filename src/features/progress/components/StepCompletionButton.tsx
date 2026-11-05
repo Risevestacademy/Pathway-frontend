@@ -14,7 +14,10 @@ type StepCompletionButtonProps = {
   stepTitle: string;
   /** The last status the server confirmed. */
   status: PathwayStepStatus;
-  variant?: "compact" | "full";
+  /** "primary" is a plain primary button; once the step is done it becomes the way to undo it. */
+  variant?: "compact" | "full" | "primary";
+  /** Called once a save that marks the step complete has been confirmed. */
+  onCompleted?: () => void;
 };
 
 /**
@@ -26,6 +29,7 @@ export default function StepCompletionButton({
   stepTitle,
   status,
   variant = "compact",
+  onCompleted,
 }: StepCompletionButtonProps) {
   const mutation = useSetStepStatus(stepId);
   const [announcement, setAnnouncement] = useState("");
@@ -35,12 +39,14 @@ export default function StepCompletionButton({
   const save = (next: StepCompletionStatus) => {
     setAnnouncement("");
     mutation.mutate(next, {
-      onSuccess: () =>
+      onSuccess: () => {
         setAnnouncement(
           next === "COMPLETED"
             ? `${stepTitle} marked done`
             : `${stepTitle} marked not done`,
-        ),
+        );
+        if (next === "COMPLETED") onCompleted?.();
+      },
     });
   };
 
@@ -102,6 +108,19 @@ export default function StepCompletionButton({
             {mutation.isPending ? "Saving" : "Mark this step done"}
           </Button>
         )}
+        {error}
+        {liveRegion}
+      </div>
+    );
+  }
+
+  if (variant === "primary" && !done) {
+    return (
+      <div className="flex flex-col gap-2">
+        <Button disabled={mutation.isPending} onClick={() => save("COMPLETED")}>
+          {mutation.isPending && <LoadingSpinner className="size-4" />}
+          {mutation.isPending ? "Saving" : "Mark step complete"}
+        </Button>
         {error}
         {liveRegion}
       </div>
