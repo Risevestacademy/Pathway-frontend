@@ -3,6 +3,7 @@ import { getStepStatus } from "../../progress/progress.utils";
 import { BackLink } from "../../skillCheck/components/BackLink";
 import type { ResourceGroup } from "../resourceGroups.utils";
 import { OverviewHero } from "./OverviewHero";
+import { OverviewTabs } from "./OverviewTabs";
 import { ResourceStepCard } from "./ResourceStepCard";
 
 /** One career's pathway resources, a card for each step that has some. */
@@ -24,6 +25,7 @@ export function ResourcesScreen({
     <div className="flex flex-col gap-6">
       <BackLink fallbackTo="/my-pathway" />
       <OverviewHero title={careerTitle} stepCount={stepCount} />
+      <OverviewTabs careerId={careerId} current="resources" />
 
       {groups.length === 0 ? (
         <p className="text-ink-muted">No resources for this roadmap yet</p>

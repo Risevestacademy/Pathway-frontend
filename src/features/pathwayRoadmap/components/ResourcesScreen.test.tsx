@@ -3,6 +3,9 @@ import { cleanup, render, screen } from "@testing-library/react";
 import type { ResourceGroup } from "../resourceGroups.utils";
 import { ResourcesScreen } from "./ResourcesScreen";
 
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({ children, to }: { children: React.ReactNode; to: string }) => <a href={to}>{children}</a>,
+}));
 vi.mock("../../skillCheck/components/BackLink", () => ({
   BackLink: ({ label = "Back" }: { label?: string }) => <button type="button">{label}</button>,
 }));
@@ -43,6 +46,16 @@ describe("ResourcesScreen", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: "Product Designer" })).toBeTruthy();
     expect(screen.getByText("16 steps. You mark each step complete yourself.")).toBeTruthy();
+  });
+
+  it("shows the pathway's sections under the hero, with Resources current", () => {
+    screenOf();
+
+    const tabs = screen.getByRole("navigation", { name: "Pathway sections" });
+    expect(screen.getByText("Resources").getAttribute("aria-current")).toBe("page");
+    const hero = screen.getByRole("heading", { level: 1 });
+    expect(hero.compareDocumentPosition(tabs) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Overview" })).toBeTruthy();
   });
 
   it("shows a card for each step that has resources, in order", () => {
