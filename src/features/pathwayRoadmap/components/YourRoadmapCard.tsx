@@ -2,6 +2,7 @@ import clsx from "clsx";
 import { useId } from "react";
 import { Link } from "@tanstack/react-router";
 import type { PathwayStepStatus } from "../../../lib/api/progress.api";
+import { STEP_STATUS } from "../stepStatus";
 
 export interface RoadmapStepRow {
   id: string;
@@ -11,12 +12,6 @@ export interface RoadmapStepRow {
   description: string;
   status: PathwayStepStatus;
 }
-
-const STATUS: Record<PathwayStepStatus, { label: string; chip: string }> = {
-  NOT_STARTED: { label: "Not started", chip: "bg-grey-100 text-ink-muted" },
-  IN_PROGRESS: { label: "In Progress", chip: "bg-info-50 text-info-700" },
-  COMPLETED: { label: "Done", chip: "bg-success-50 text-success-700" },
-};
 
 /** Every step of the pathway in order, with where each one stands. */
 export function YourRoadmapCard({
@@ -50,7 +45,7 @@ export function YourRoadmapCard({
         <ol className="divide-y divide-line">
           {steps.map((step) => {
             const isNext = step.id === nextStepId;
-            const status = STATUS[step.status];
+            const status = STEP_STATUS[step.status];
             return (
               <li
                 key={step.id}
