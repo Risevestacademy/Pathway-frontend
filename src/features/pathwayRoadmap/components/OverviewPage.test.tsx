@@ -10,6 +10,10 @@ vi.mock("../hooks/usePathwayOverview", () => ({
 }));
 vi.mock("@tanstack/react-router", () => ({
   Link: ({ children, to }: { children: React.ReactNode; to: string }) => <a href={to}>{children}</a>,
+  useNavigate: () => vi.fn(),
+}));
+vi.mock("../../progress/components/StartTrackingButton", () => ({
+  default: ({ label }: { label: string }) => <button type="button">{label}</button>,
 }));
 vi.mock("../../skillCheck/components/BackLink", () => ({
   BackLinkTo: ({ label, to }: { label: string; to: string }) => <a href={to}>{label}</a>,

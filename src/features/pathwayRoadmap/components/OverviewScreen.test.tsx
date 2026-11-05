@@ -5,6 +5,14 @@ import { OverviewScreen } from "./OverviewScreen";
 
 vi.mock("@tanstack/react-router", () => ({
   Link: ({ children, to }: { children: React.ReactNode; to: string }) => <a href={to}>{children}</a>,
+  useNavigate: () => vi.fn(),
+}));
+vi.mock("../../progress/components/StartTrackingButton", () => ({
+  default: ({ label, careerTitle, activeCareerTitle }: { label: string; careerTitle: string; activeCareerTitle: string | null }) => (
+    <button type="button" data-title={careerTitle} data-replaces={activeCareerTitle ?? ""}>
+      {label}
+    </button>
+  ),
 }));
 vi.mock("../../skillCheck/components/BackLink", () => ({
   BackLinkTo: ({ label, to }: { label: string; to: string }) => <a href={to}>{label}</a>,
@@ -24,8 +32,18 @@ const overview: PathwayOverview = {
   upNext: { id: "s1", number: 1, title: "Foundations", resourceCount: 1 },
 };
 
-const screenOf = (over: Partial<PathwayOverview> = {}) =>
-  render(<OverviewScreen careerId="c1" careerTitle="Product Designer" overview={{ ...overview, ...over }} />);
+const screenOf = (
+  over: Partial<PathwayOverview> = {},
+  activation: { activeCareerTitle: string | null } | null = null,
+) =>
+  render(
+    <OverviewScreen
+      careerId="c1"
+      careerTitle="Product Designer"
+      overview={{ ...overview, ...over }}
+      activation={activation}
+    />,
+  );
 
 describe("OverviewScreen", () => {
   it("has a way back", () => {
@@ -102,5 +120,23 @@ describe("OverviewScreen", () => {
 
     expect(screen.queryByText("Up next")).toBeNull();
     expect(screen.queryByText("You finished your pathway")).toBeNull();
+  });
+
+  describe("when the career isn't their active pathway yet", () => {
+    it("starts the step by making the career active, naming the one it would replace", () => {
+      screenOf({}, { activeCareerTitle: "Data Analyst" });
+
+      const start = screen.getByRole("button", { name: "Start step 1" });
+      expect(start.getAttribute("data-title")).toBe("Product Designer");
+      expect(start.getAttribute("data-replaces")).toBe("Data Analyst");
+      expect(screen.queryByRole("link", { name: "Start step 1" })).toBeNull();
+    });
+
+    it("is a plain link to the step once it already is their active pathway", () => {
+      screenOf({}, null);
+
+      expect(screen.getByRole("link", { name: "Start step 1" })).toBeTruthy();
+      expect(screen.queryByRole("button", { name: "Start step 1" })).toBeNull();
+    });
   });
 });

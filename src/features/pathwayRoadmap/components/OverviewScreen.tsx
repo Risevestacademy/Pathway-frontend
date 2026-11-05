@@ -12,10 +12,13 @@ export function OverviewScreen({
   careerId,
   careerTitle,
   overview,
+  activation,
 }: {
   careerId: string;
   careerTitle: string;
   overview: PathwayOverview;
+  /** Set when this career isn't their active pathway yet, so starting a step must make it active. */
+  activation: { activeCareerTitle: string | null } | null;
 }) {
   const { steps, nextStepId, completed, total, started, upNext } = overview;
   const finished = total > 0 && completed >= total;
@@ -30,7 +33,12 @@ export function OverviewScreen({
         <YourRoadmapCard careerId={careerId} steps={steps} nextStepId={nextStepId} />
         <div className="flex flex-col gap-6">
           {upNext ? (
-            <UpNextCard careerId={careerId} step={upNext} started={started} />
+            <UpNextCard
+              careerId={careerId}
+              step={upNext}
+              started={started}
+              activation={activation ? { careerTitle, activeCareerTitle: activation.activeCareerTitle } : undefined}
+            />
           ) : (
             finished && <PathwayCompleteCard total={total} />
           )}

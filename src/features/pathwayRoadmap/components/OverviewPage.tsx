@@ -11,7 +11,12 @@ export function OverviewPage({ careerId }: { careerId: string }) {
 
   if (state.kind === "ready") {
     return (
-      <OverviewScreen careerId={careerId} careerTitle={state.careerTitle} overview={state.overview} />
+      <OverviewScreen
+        careerId={careerId}
+        careerTitle={state.careerTitle}
+        overview={state.overview}
+        activation={state.activation}
+      />
     );
   }
 
