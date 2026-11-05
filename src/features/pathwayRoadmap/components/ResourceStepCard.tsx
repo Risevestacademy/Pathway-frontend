@@ -12,11 +12,14 @@ export function ResourceStepCard({
   careerId,
   group,
   status,
+  onStepCompleted,
 }: {
   careerId: string;
   group: ResourceGroup;
   /** The step's saved status, or null when they aren't tracking this pathway. */
   status: PathwayStepStatus | null;
+  /** Called once marking the step complete has been saved. */
+  onStepCompleted?: () => void;
 }) {
   const headingId = useId();
   const { isTicked, isUnsaved, countTicked, toggle } = useResourceTicks(careerId);
@@ -25,7 +28,8 @@ export function ResourceStepCard({
   const ticked = countTicked(group.resources.map((resource) => resource.id));
   const done = status === "COMPLETED";
   const allTicked = count > 0 && ticked === count;
-  const readyToComplete = status !== null && !done && allTicked;
+  // Ticking even one resource is enough to offer marking the step complete.
+  const readyToComplete = status !== null && !done && ticked > 0;
 
   const chip = done
     ? STEP_STATUS.COMPLETED
@@ -85,13 +89,17 @@ export function ResourceStepCard({
         >
           {readyToComplete && (
             <p className="text-ink">
-              Everything in this step is ticked. Mark the step complete when you feel done.
+              {allTicked
+                ? "Everything in this step is ticked. Mark the step complete when you feel done."
+                : `You've ticked ${ticked} of ${count} resources. Mark the step complete when you feel done.`}
             </p>
           )}
           <StepCompletionButton
             stepId={group.stepId}
             stepTitle={group.title}
             status={status ?? "NOT_STARTED"}
+            variant="primary"
+            onCompleted={onStepCompleted}
           />
         </footer>
       )}

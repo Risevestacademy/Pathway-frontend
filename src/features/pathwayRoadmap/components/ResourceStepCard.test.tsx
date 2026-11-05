@@ -23,8 +23,8 @@ vi.mock("./ResourceRow", () => ({
   ),
 }));
 vi.mock("../../progress/components/StepCompletionButton", () => ({
-  default: ({ stepId, status }: { stepId: string; status: string }) => (
-    <button type="button">{`complete ${stepId} (${status})`}</button>
+  default: ({ stepId, status, variant, onCompleted }: { stepId: string; status: string; variant?: string; onCompleted?: () => void }) => (
+    <button type="button" data-variant={variant} onClick={onCompleted}>{`complete ${stepId} (${status})`}</button>
   ),
 }));
 
@@ -144,25 +144,45 @@ describe("ResourceStepCard", () => {
   });
 
   describe("marking the step complete", () => {
-    it("offers it once every resource is ticked", () => {
+    const SOME = "You've ticked 1 of 2 resources. Mark the step complete when you feel done.";
+
+    it("offers it once any resource is ticked, saying how many are", () => {
+      tickedIds = ["r1"];
+      card("NOT_STARTED");
+
+      expect(screen.getByText(SOME)).toBeTruthy();
+      expect(screen.getByRole("button", { name: "complete s2 (NOT_STARTED)" })).toBeTruthy();
+    });
+
+    it("says everything is ticked once it is", () => {
       tickedIds = ["r1", "r2"];
       card("IN_PROGRESS");
 
       expect(screen.getByText(PROMPT)).toBeTruthy();
+      expect(screen.queryByText(SOME)).toBeNull();
       expect(screen.getByRole("button", { name: "complete s2 (IN_PROGRESS)" })).toBeTruthy();
     });
 
-    it("doesn't offer it while some are not ticked", () => {
+    it("uses the primary button", () => {
       tickedIds = ["r1"];
       card("NOT_STARTED");
 
+      expect(screen.getByRole("button", { name: /complete s2/ }).getAttribute("data-variant")).toBe("primary");
+    });
+
+    it("doesn't offer it while nothing is ticked", () => {
+      card("NOT_STARTED");
+
+      expect(screen.queryByText(SOME)).toBeNull();
       expect(screen.queryByText(PROMPT)).toBeNull();
       expect(screen.queryByRole("button", { name: /complete s2/ })).toBeNull();
     });
 
     it("lets them undo a step they marked complete, without the prompt", () => {
+      tickedIds = ["r1"];
       card("COMPLETED");
 
+      expect(screen.queryByText(SOME)).toBeNull();
       expect(screen.queryByText(PROMPT)).toBeNull();
       expect(screen.getByRole("button", { name: "complete s2 (COMPLETED)" })).toBeTruthy();
     });
@@ -173,6 +193,18 @@ describe("ResourceStepCard", () => {
 
       expect(screen.queryByText(PROMPT)).toBeNull();
       expect(screen.queryByRole("button", { name: /complete s2/ })).toBeNull();
+    });
+
+    it("says the step was completed once the button reports it saved", () => {
+      const onStepCompleted = vi.fn();
+      tickedIds = ["r1"];
+      render(
+        <ResourceStepCard careerId="c1" group={group} status="NOT_STARTED" onStepCompleted={onStepCompleted} />,
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: /complete s2/ }));
+
+      expect(onStepCompleted).toHaveBeenCalledOnce();
     });
   });
 });
