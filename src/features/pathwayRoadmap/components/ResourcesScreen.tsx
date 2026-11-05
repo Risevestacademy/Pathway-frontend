@@ -9,6 +9,7 @@ import { Confetti } from "./Confetti";
 import { OverviewHero } from "./OverviewHero";
 import { OverviewTabs } from "./OverviewTabs";
 import { PaidCoursesCard } from "./PaidCoursesCard";
+import { SaveFailedBanner } from "./SaveFailedBanner";
 import { ResourceStepCard } from "./ResourceStepCard";
 import { ResourceStepNav } from "./ResourceStepNav";
 import { StepCompleteDialog } from "./StepCompleteDialog";
@@ -31,7 +32,7 @@ export function ResourcesScreen({
   /** How many steps they have completed out of how many, or null when that isn't known. */
   progress: { completed: number; total: number } | null;
 }) {
-  const { countTicked, isTicked } = useResourceTicks(careerId);
+  const { countTicked, isTicked, unsaved, retry } = useResourceTicks(careerId);
   const [pickedStepId, setPickedStepId] = useState<string | null>(null);
   const [completedStepId, setCompletedStepId] = useState<string | null>(null);
   const [celebrating, setCelebrating] = useState(false);
@@ -43,6 +44,12 @@ export function ResourcesScreen({
     setCelebrating(true);
     playStepCompleteSound();
   };
+
+  // The most recent tick the browser couldn't save, so it can be named.
+  const resourceTitles = new Map(
+    groups.flatMap((group) => group.resources.map((resource) => [resource.id, resource.title] as const)),
+  );
+  const unsavedId = [...unsaved].reverse().find((id) => resourceTitles.has(id));
 
   // Until one is picked, or if the one picked has gone, it is the first step.
   const selected = groups.find((group) => group.stepId === pickedStepId) ?? groups[0];
@@ -73,6 +80,9 @@ export function ResourcesScreen({
             onSelect={setPickedStepId}
           />
           <div className="flex flex-col gap-6">
+            {unsavedId && (
+              <SaveFailedBanner resourceTitle={resourceTitles.get(unsavedId) ?? ""} onRetry={retry} />
+            )}
             <ResourceStepCard
               careerId={careerId}
               group={selected}

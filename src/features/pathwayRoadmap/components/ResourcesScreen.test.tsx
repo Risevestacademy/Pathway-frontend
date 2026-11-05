@@ -4,11 +4,15 @@ import type { ResourceGroup } from "../resourceGroups.utils";
 import { ResourcesScreen } from "./ResourcesScreen";
 
 let tickedIds: string[] = [];
+let unsavedIds: string[] = [];
+const retrySaving = vi.fn();
 const playSound = vi.fn();
 
 vi.mock("../hooks/useResourceTicks", () => ({
   useResourceTicks: () => ({
     isTicked: (id: string) => tickedIds.includes(id),
+    unsaved: unsavedIds,
+    retry: () => retrySaving(),
     countTicked: (ids: string[]) => ids.filter((id) => tickedIds.includes(id)).length,
     toggle: vi.fn(),
   }),
@@ -43,6 +47,16 @@ vi.mock("./Confetti", () => ({
     <div data-testid="confetti">
       <button type="button" onClick={onDone}>
         confetti done
+      </button>
+    </div>
+  ),
+}));
+vi.mock("./SaveFailedBanner", () => ({
+  SaveFailedBanner: ({ resourceTitle, onRetry }: { resourceTitle: string; onRetry: () => void }) => (
+    <div role="alert">
+      {`not saved: ${resourceTitle}`}
+      <button type="button" onClick={onRetry}>
+        retry saving
       </button>
     </div>
   ),
@@ -90,6 +104,8 @@ vi.mock("./PaidCoursesCard", () => ({
 afterEach(() => {
   cleanup();
   playSound.mockReset();
+  retrySaving.mockReset();
+  unsavedIds = [];
   tickedIds = [];
 });
 
@@ -329,6 +345,56 @@ describe("ResourcesScreen", () => {
       complete();
 
       expect(dialog().getByText("no progress")).toBeTruthy();
+    });
+  });
+
+  describe("when the browser couldn't save a tick", () => {
+    it("shows nothing about it while every tick is saved", () => {
+      screenOf();
+
+      expect(screen.queryByRole("alert")).toBeNull();
+    });
+
+    it("says which resource's tick isn't saved, above the step", () => {
+      unsavedIds = ["a"];
+      screenOf();
+
+      const alert = screen.getByRole("alert");
+      expect(alert.textContent).toContain("not saved: Resource a");
+      const card = screen.getByRole("region");
+      expect(alert.compareDocumentPosition(card) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
+    it("names the most recent one when several aren't saved", () => {
+      unsavedIds = ["a", "c"];
+      screenOf();
+
+      expect(screen.getByRole("alert").textContent).toContain("not saved: Resource c");
+    });
+
+    it("shows it whichever step is picked, since the tick may be on another", () => {
+      unsavedIds = ["a"];
+      screenOf();
+
+      fireEvent.click(steps().getByRole("button", { name: /Step 3/ }));
+
+      expect(screen.getByRole("alert").textContent).toContain("not saved: Resource a");
+    });
+
+    it("tries saving again when asked to", () => {
+      unsavedIds = ["a"];
+      screenOf();
+
+      fireEvent.click(screen.getByRole("button", { name: "retry saving" }));
+
+      expect(retrySaving).toHaveBeenCalledOnce();
+    });
+
+    it("says nothing for a tick on a resource it can't find", () => {
+      unsavedIds = ["gone"];
+      screenOf();
+
+      expect(screen.queryByRole("alert")).toBeNull();
     });
   });
 });
