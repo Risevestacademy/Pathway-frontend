@@ -1,11 +1,8 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from "@tanstack/react-router";
+import OpportunityPage from "@/features/opportunities/components/OpportunityPage";
 
 export const Route = createFileRoute(
-  '/_protected/opportunities/$opportunitiesId/',
+  "/_protected/opportunities/$opportunitiesId/",
 )({
-  component: RouteComponent,
-})
-
-function RouteComponent() {
-  return <div>Hello "/_protected/opportunities/$opportunitiesId/"!</div>
-}
+  component: OpportunityPage,
+});

@@ -24,7 +24,8 @@ export default function OpportunityCard({
 
   const handleButtonClick = () => {
     navigate({
-      to: "/opportunities",
+      to: "/opportunities/$opportunitiesId",
+      params: { opportunitiesId: opportunity.id },
     });
   };
 

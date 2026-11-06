@@ -16,4 +16,12 @@ export interface Opportunity {
   customMessage: string;
   status: "Open" | "Closed";
   deadline?: string;
+  duration?: string;
+  whatToDo: string[];
+  whoIsItFor: string[];
+  howItFits: {
+    desc: string;
+    tags: string[];
+  };
+  applyLink?: string;
 }

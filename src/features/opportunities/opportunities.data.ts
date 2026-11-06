@@ -17,6 +17,22 @@ export const opportunities: Opportunity[] = [
     customMessage: "Matches step 5 of your pathway",
     status: "Open",
     deadline: "2026-11-10",
+    duration: "6 Months",
+    whatToDo: [
+      "Help plan and run interviews with real users.",
+      "Turn research notes into clear findings the team can act on.",
+      "Sketch and test early ideas with the product team.",
+    ],
+    whoIsItFor: [
+      "Final year students and graduates from the last two years.",
+      "Some design practice, such as a class project or a personal project.",
+      "No paid experience needed.",
+    ],
+    howItFits: {
+      desc: "This role builds on step 5 of your Product Designer pathway: Learning the basics of user research.",
+      tags: ["User research", "Wireframing", "Teamwork"],
+    },
+    applyLink: "www.linktoapply.com",
   },
   {
     id: "product-design-workshop",
@@ -32,6 +48,22 @@ export const opportunities: Opportunity[] = [
     customMessage: "Fits Data Analyst",
     status: "Open",
     deadline: "2027-06-30",
+    duration: "1 year",
+    whatToDo: [
+      "Help plan and run interviews with real users.",
+      "Turn research notes into clear findings the team can act on.",
+      "Sketch and test early ideas with the product team.",
+    ],
+    whoIsItFor: [
+      "Final year students and graduates from the last two years.",
+      "Some design practice, such as a class project or a personal project.",
+      "No paid experience needed.",
+    ],
+    howItFits: {
+      desc: "This role builds on step 5 of your Product Designer pathway: Learning the basics of user research.",
+      tags: ["User research", "Teamwork"],
+    },
+    applyLink: "www.linktoapply.com",
   },
   {
     id: "community-mentoring-circle",
@@ -47,6 +79,21 @@ export const opportunities: Opportunity[] = [
     customMessage: "Fits your pathway",
     status: "Closed",
     deadline: "2026-06-30",
+    whatToDo: [
+      "Help plan and run interviews with real users.",
+      "Turn research notes into clear findings the team can act on.",
+      "Sketch and test early ideas with the product team.",
+    ],
+    whoIsItFor: [
+      "Final year students and graduates from the last two years.",
+      "Some design practice, such as a class project or a personal project.",
+      "No paid experience needed.",
+    ],
+    howItFits: {
+      desc: "This role builds on step 5 of your Product Designer pathway: Learning the basics of user research.",
+      tags: ["Wireframing", "Teamwork"],
+    },
+    applyLink: "www.linktoapply.com",
   },
   {
     id: "product-design-workshop2",
@@ -62,6 +109,21 @@ export const opportunities: Opportunity[] = [
     customMessage: "Open to all pathways",
     status: "Open",
     deadline: "2027-06-30",
+    duration: "12 Months",
+    whatToDo: [
+      "Help plan and run interviews with real users.",
+      "Turn research notes into clear findings the team can act on.",
+      "Sketch and test early ideas with the product team.",
+    ],
+    whoIsItFor: [
+      "Final year students and graduates from the last two years.",
+      "Some design practice, such as a class project or a personal project.",
+      "No paid experience needed.",
+    ],
+    howItFits: {
+      desc: "This role builds on step 5 of your Product Designer pathway: Learning the basics of user research.",
+      tags: ["User research", "Wireframing"],
+    },
   },
   {
     id: "community-mentoring-circle2",
@@ -77,5 +139,19 @@ export const opportunities: Opportunity[] = [
     customMessage: "Fits Product Manager",
     status: "Open",
     deadline: "2026-11-11",
+    whatToDo: [
+      "Help plan and run interviews with real users.",
+      "Turn research notes into clear findings the team can act on.",
+      "Sketch and test early ideas with the product team.",
+    ],
+    whoIsItFor: [
+      "Final year students and graduates from the last two years.",
+      "Some design practice, such as a class project or a personal project.",
+      "No paid experience needed.",
+    ],
+    howItFits: {
+      desc: "This role builds on step 5 of your Product Designer pathway: Learning the basics of user research.",
+      tags: ["Teamwork"],
+    },
   },
 ];
