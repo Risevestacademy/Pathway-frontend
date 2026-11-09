@@ -1,22 +1,11 @@
 import clsx from "clsx";
-import { Chat3Regular, CheckCircleRegular } from "@mingcute/react/core-regular";
-import { useEffect, useState } from "react";
-import { REPORT_REASONS } from "../feedback.utils";
+import { Chat3Regular } from "@mingcute/react/core-regular";
+import { useState } from "react";
 import { ReportIssueDialog } from "./ReportIssueDialog";
 
-// The nav stays on screen across pages, so the thanks only shows briefly.
-const THANKS_MS = 4000;
-
-/** Top nav button for feedback that isn't about a particular career. */
+/** Top nav button for general feedback when signed out. Signed-in learners use the account menu. */
 export function FeedbackButton({ className }: { className?: string }) {
   const [open, setOpen] = useState(false);
-  const [sent, setSent] = useState(false);
-
-  useEffect(() => {
-    if (!sent) return;
-    const timer = setTimeout(() => setSent(false), THANKS_MS);
-    return () => clearTimeout(timer);
-  }, [sent]);
 
   return (
     <>
@@ -28,26 +17,10 @@ export function FeedbackButton({ className }: { className?: string }) {
           className,
         )}
       >
-        {sent ? (
-          <CheckCircleRegular aria-hidden size={18} className="shrink-0 text-success-600" />
-        ) : (
-          <Chat3Regular aria-hidden size={18} className="shrink-0 text-grey-500" />
-        )}
-        <span className="sr-only sm:not-sr-only">{sent ? "Thanks!" : "Feedback"}</span>
+        <Chat3Regular aria-hidden size={18} className="shrink-0 text-grey-500" />
+        <span className="sr-only sm:not-sr-only">Feedback</span>
       </button>
-      {/* Always mounted: screen readers only announce changes to a live region that already exists. */}
-      <span role="status" className="sr-only">
-        {sent ? "Thanks, your feedback was sent." : ""}
-      </span>
-      <ReportIssueDialog
-        open={open}
-        onClose={() => setOpen(false)}
-        onSent={() => setSent(true)}
-        section="GENERAL"
-        reasons={REPORT_REASONS.GENERAL}
-        title="Send feedback"
-        subject="Tell us what’s working, what isn’t, or what you’d like to see."
-      />
+      <ReportIssueDialog open={open} onClose={() => setOpen(false)} section="GENERAL" />
     </>
   );
 }

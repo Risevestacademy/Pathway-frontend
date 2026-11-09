@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { useEffect, useId, useRef } from "react";
-import type { MouseEvent, ReactNode } from "react";
+import type { MouseEvent, ReactNode, SyntheticEvent } from "react";
 
 interface ModalProps {
   open: boolean;
@@ -29,12 +29,21 @@ export function Modal({
   const titleId = useId();
   const descriptionId = useId();
 
+  // Runs after every render, not just when `open` changes: the browser can
+  // close the dialog itself (a second Escape), and a parent that keeps it
+  // open must get it back.
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
     if (open && !dialog.open) dialog.showModal();
     if (!open && dialog.open) dialog.close();
-  }, [open]);
+  });
+
+  // Escape asks the parent instead of closing outright, so it can confirm first.
+  const handleCancel = (event: SyntheticEvent<HTMLDialogElement>) => {
+    event.preventDefault();
+    onClose();
+  };
 
   const handleBackdropClick = (event: MouseEvent<HTMLDialogElement>) => {
     if (event.target === event.currentTarget) onClose();
@@ -45,6 +54,7 @@ export function Modal({
       ref={dialogRef}
       aria-labelledby={titleId}
       aria-describedby={description ? descriptionId : undefined}
+      onCancel={handleCancel}
       onClose={onClose}
       onClick={handleBackdropClick}
       className={clsx(
