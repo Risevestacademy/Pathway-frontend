@@ -2,6 +2,11 @@ export type WorkMode = "Onsite" | "Hybrid" | "Remote";
 
 export type DeliveryMode = "In-Person" | "Online" | "Hybrid";
 
+export interface Requirement {
+  name: string;
+  level: "high" | "medium" | "low";
+}
+
 export interface Opportunity {
   id: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
@@ -23,5 +28,6 @@ export interface Opportunity {
     desc: string;
     tags: string[];
   };
+  requirements: Requirement[];
   applyLink?: string;
 }

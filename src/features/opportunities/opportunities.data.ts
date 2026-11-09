@@ -28,6 +28,16 @@ export const opportunities: Opportunity[] = [
       "Some design practice, such as a class project or a personal project.",
       "No paid experience needed.",
     ],
+    requirements: [
+      {
+        name: "Comfortable with HTML and CSS",
+        level: "high",
+      },
+      {
+        name: "Basic JavaScript",
+        level: "medium",
+      },
+    ],
     howItFits: {
       desc: "This role builds on step 5 of your Product Designer pathway: Learning the basics of user research.",
       tags: ["User research", "Wireframing", "Teamwork"],
@@ -63,6 +73,16 @@ export const opportunities: Opportunity[] = [
       desc: "This role builds on step 5 of your Product Designer pathway: Learning the basics of user research.",
       tags: ["User research", "Teamwork"],
     },
+    requirements: [
+      {
+        name: "Comfortable with HTML and CSS",
+        level: "high",
+      },
+      {
+        name: "Basic JavaScript",
+        level: "medium",
+      },
+    ],
     applyLink: "www.linktoapply.com",
   },
   {
@@ -93,6 +113,16 @@ export const opportunities: Opportunity[] = [
       desc: "This role builds on step 5 of your Product Designer pathway: Learning the basics of user research.",
       tags: ["Wireframing", "Teamwork"],
     },
+    requirements: [
+      {
+        name: "Comfortable with HTML and CSS",
+        level: "high",
+      },
+      {
+        name: "Basic JavaScript",
+        level: "medium",
+      },
+    ],
     applyLink: "www.linktoapply.com",
   },
   {
@@ -119,6 +149,16 @@ export const opportunities: Opportunity[] = [
       "Final year students and graduates from the last two years.",
       "Some design practice, such as a class project or a personal project.",
       "No paid experience needed.",
+    ],
+    requirements: [
+      {
+        name: "Comfortable with HTML and CSS",
+        level: "high",
+      },
+      {
+        name: "Basic JavaScript",
+        level: "medium",
+      },
     ],
     howItFits: {
       desc: "This role builds on step 5 of your Product Designer pathway: Learning the basics of user research.",
@@ -153,5 +193,15 @@ export const opportunities: Opportunity[] = [
       desc: "This role builds on step 5 of your Product Designer pathway: Learning the basics of user research.",
       tags: ["Teamwork"],
     },
+    requirements: [
+      {
+        name: "Comfortable with HTML and CSS",
+        level: "high",
+      },
+      {
+        name: "Basic JavaScript",
+        level: "medium",
+      },
+    ],
   },
 ];
