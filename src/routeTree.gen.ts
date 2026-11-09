@@ -26,6 +26,8 @@ import { Route as ProtectedAdminIndexRouteImport } from './routes/_protected/adm
 import { Route as ProtectedSkillCheckIndexRouteImport } from './routes/_protected/skill-check/index'
 import { Route as CareersCareerIdIndexRouteImport } from './routes/careers/$careerId/index'
 import { Route as CareersCareerIdDetailsRouteImport } from './routes/careers/$careerId/details'
+import { Route as CareersCompareIndexRouteImport } from './routes/careers/compare/index'
+import { Route as CareersCompareResultRouteImport } from './routes/careers/compare/result'
 import { Route as CareersOnboardingIndexRouteImport } from './routes/careers/onboarding/index'
 import { Route as CareersOnboardingAboutRouteImport } from './routes/careers/onboarding/about'
 import { Route as CareersOnboardingGoalsRouteImport } from './routes/careers/onboarding/goals'
@@ -127,6 +129,16 @@ const CareersCareerIdIndexRoute = CareersCareerIdIndexRouteImport.update({
 const CareersCareerIdDetailsRoute = CareersCareerIdDetailsRouteImport.update({
   id: '/careers/$careerId/details',
   path: '/careers/$careerId/details',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareersCompareIndexRoute = CareersCompareIndexRouteImport.update({
+  id: '/careers/compare/',
+  path: '/careers/compare/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareersCompareResultRoute = CareersCompareResultRouteImport.update({
+  id: '/careers/compare/result',
+  path: '/careers/compare/result',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CareersOnboardingIndexRoute = CareersOnboardingIndexRouteImport.update({
@@ -242,11 +254,13 @@ export interface FileRoutesByFullPath {
   '/careers/': typeof CareersIndexRoute
   '/explore/': typeof ExploreIndexRoute
   '/careers/$careerId/details': typeof CareersCareerIdDetailsRoute
+  '/careers/compare/result': typeof CareersCompareResultRoute
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
   '/careers/onboarding/goals': typeof CareersOnboardingGoalsRoute
   '/admin/': typeof ProtectedAdminIndexRoute
   '/skill-check/': typeof ProtectedSkillCheckIndexRoute
   '/careers/$careerId/': typeof CareersCareerIdIndexRoute
+  '/careers/compare/': typeof CareersCompareIndexRoute
   '/careers/onboarding/': typeof CareersOnboardingIndexRoute
   '/admin/careers/$careerId': typeof ProtectedAdminCareersCareerIdRoute
   '/admin/reports/$reportId': typeof ProtectedAdminReportsReportIdRoute
@@ -275,11 +289,13 @@ export interface FileRoutesByTo {
   '/careers': typeof CareersIndexRoute
   '/explore': typeof ExploreIndexRoute
   '/careers/$careerId/details': typeof CareersCareerIdDetailsRoute
+  '/careers/compare/result': typeof CareersCompareResultRoute
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
   '/careers/onboarding/goals': typeof CareersOnboardingGoalsRoute
   '/admin': typeof ProtectedAdminIndexRoute
   '/skill-check': typeof ProtectedSkillCheckIndexRoute
   '/careers/$careerId': typeof CareersCareerIdIndexRoute
+  '/careers/compare': typeof CareersCompareIndexRoute
   '/careers/onboarding': typeof CareersOnboardingIndexRoute
   '/admin/careers/$careerId': typeof ProtectedAdminCareersCareerIdRoute
   '/admin/reports/$reportId': typeof ProtectedAdminReportsReportIdRoute
@@ -312,11 +328,13 @@ export interface FileRoutesById {
   '/careers/': typeof CareersIndexRoute
   '/explore/': typeof ExploreIndexRoute
   '/careers/$careerId/details': typeof CareersCareerIdDetailsRoute
+  '/careers/compare/result': typeof CareersCompareResultRoute
   '/careers/onboarding/about': typeof CareersOnboardingAboutRoute
   '/careers/onboarding/goals': typeof CareersOnboardingGoalsRoute
   '/_protected/admin/': typeof ProtectedAdminIndexRoute
   '/_protected/skill-check/': typeof ProtectedSkillCheckIndexRoute
   '/careers/$careerId/': typeof CareersCareerIdIndexRoute
+  '/careers/compare/': typeof CareersCompareIndexRoute
   '/careers/onboarding/': typeof CareersOnboardingIndexRoute
   '/_protected/admin/careers/$careerId': typeof ProtectedAdminCareersCareerIdRoute
   '/_protected/admin/reports/$reportId': typeof ProtectedAdminReportsReportIdRoute
@@ -349,11 +367,13 @@ export interface FileRouteTypes {
     | '/careers/'
     | '/explore/'
     | '/careers/$careerId/details'
+    | '/careers/compare/result'
     | '/careers/onboarding/about'
     | '/careers/onboarding/goals'
     | '/admin/'
     | '/skill-check/'
     | '/careers/$careerId/'
+    | '/careers/compare/'
     | '/careers/onboarding/'
     | '/admin/careers/$careerId'
     | '/admin/reports/$reportId'
@@ -382,11 +402,13 @@ export interface FileRouteTypes {
     | '/careers'
     | '/explore'
     | '/careers/$careerId/details'
+    | '/careers/compare/result'
     | '/careers/onboarding/about'
     | '/careers/onboarding/goals'
     | '/admin'
     | '/skill-check'
     | '/careers/$careerId'
+    | '/careers/compare'
     | '/careers/onboarding'
     | '/admin/careers/$careerId'
     | '/admin/reports/$reportId'
@@ -418,11 +440,13 @@ export interface FileRouteTypes {
     | '/careers/'
     | '/explore/'
     | '/careers/$careerId/details'
+    | '/careers/compare/result'
     | '/careers/onboarding/about'
     | '/careers/onboarding/goals'
     | '/_protected/admin/'
     | '/_protected/skill-check/'
     | '/careers/$careerId/'
+    | '/careers/compare/'
     | '/careers/onboarding/'
     | '/_protected/admin/careers/$careerId'
     | '/_protected/admin/reports/$reportId'
@@ -452,9 +476,11 @@ export interface RootRouteChildren {
   CareersIndexRoute: typeof CareersIndexRoute
   ExploreIndexRoute: typeof ExploreIndexRoute
   CareersCareerIdDetailsRoute: typeof CareersCareerIdDetailsRoute
+  CareersCompareResultRoute: typeof CareersCompareResultRoute
   CareersOnboardingAboutRoute: typeof CareersOnboardingAboutRoute
   CareersOnboardingGoalsRoute: typeof CareersOnboardingGoalsRoute
   CareersCareerIdIndexRoute: typeof CareersCareerIdIndexRoute
+  CareersCompareIndexRoute: typeof CareersCompareIndexRoute
   CareersOnboardingIndexRoute: typeof CareersOnboardingIndexRoute
   CareersCareerIdRoadmapStepIdRoute: typeof CareersCareerIdRoadmapStepIdRouteWithChildren
   CareersCareerIdRoadmapIndexRoute: typeof CareersCareerIdRoadmapIndexRoute
@@ -579,6 +605,20 @@ declare module '@tanstack/react-router' {
       path: '/careers/$careerId/details'
       fullPath: '/careers/$careerId/details'
       preLoaderRoute: typeof CareersCareerIdDetailsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers/compare/': {
+      id: '/careers/compare/'
+      path: '/careers/compare'
+      fullPath: '/careers/compare/'
+      preLoaderRoute: typeof CareersCompareIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers/compare/result': {
+      id: '/careers/compare/result'
+      path: '/careers/compare/result'
+      fullPath: '/careers/compare/result'
+      preLoaderRoute: typeof CareersCompareResultRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/careers/onboarding/': {
@@ -793,9 +833,11 @@ const rootRouteChildren: RootRouteChildren = {
   CareersIndexRoute: CareersIndexRoute,
   ExploreIndexRoute: ExploreIndexRoute,
   CareersCareerIdDetailsRoute: CareersCareerIdDetailsRoute,
+  CareersCompareResultRoute: CareersCompareResultRoute,
   CareersOnboardingAboutRoute: CareersOnboardingAboutRoute,
   CareersOnboardingGoalsRoute: CareersOnboardingGoalsRoute,
   CareersCareerIdIndexRoute: CareersCareerIdIndexRoute,
+  CareersCompareIndexRoute: CareersCompareIndexRoute,
   CareersOnboardingIndexRoute: CareersOnboardingIndexRoute,
   CareersCareerIdRoadmapStepIdRoute:
     CareersCareerIdRoadmapStepIdRouteWithChildren,

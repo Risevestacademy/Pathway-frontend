@@ -1,0 +1,71 @@
+export const COMPARE = {
+  tabs: {
+    label: "Explore sections",
+    careers: "Careers",
+    compare: "Compare",
+    saved: "Saved",
+  },
+  hero: {
+    title: "Compare Careers",
+    description:
+      "Different careers side by side. The same facts for each career, so you can see where they differ.",
+    cta: "Compare careers",
+  },
+  picker: {
+    listLabel: "Careers to compare",
+    openPathway: "Open Pathway",
+    maxTwo: "You can only compare two careers at a time.",
+    pickTwo: "Pick two careers to compare.",
+    showMore: "Show more careers",
+    clearFilters: "Clear filters",
+    retry: "Try again",
+    noneTitle: "No careers available yet",
+    noneBody: "We’re adding careers to the catalogue. Check back soon.",
+    noMatchTitle: "No careers match",
+    noMatchBody: "Try a different search or career stage.",
+    errorTitle: "We couldn’t load careers",
+    errorBody:
+      "Something went wrong on our side or with your connection. Please try again.",
+    nothingSelected: "Pick two careers to compare.",
+    oneSelected: (title: string) => `1 of 2 selected: ${title}. Pick one more.`,
+    twoSelected: (first: string, second: string) =>
+      `2 of 2 selected: ${first} and ${second}. Ready to compare.`,
+  },
+  result: {
+    back: "Back",
+    title: "Compare careers side by side",
+    subtitle: "Facts for each career, so you can see where they differ.",
+    change: "Change",
+    tableLabel: "Career comparison",
+    notYet: "Not known yet",
+    payUnavailable: "Pay data isn’t available for this career yet.",
+    noMedian: "The source does not give a median for this role.",
+    growthUnavailable: "Employment projections aren’t available yet.",
+    noCommonSkills: "No skills in common.",
+    noActivities: "No example activities yet.",
+    roadmapSoon: "Roadmap coming soon",
+    firstStepError: "We couldn’t load this just now.",
+    footnote:
+      "Every figure shows its source and the date it was checked. Figures can come from different regions or sources, so check each one before you compare them. When we do not have a figure, we say so.",
+    pairMissingTitle: "Pick two careers to compare",
+    pairMissingBody: "Choose two different careers and we’ll line them up here.",
+    unavailableTitle: "One of these careers isn’t available",
+    unavailableBody:
+      "It may have been removed from the catalogue. Pick another career to continue.",
+    errorTitle: "We couldn’t load this comparison",
+    errorBody:
+      "Something went wrong while loading the careers. Please try again.",
+    choose: "Choose careers",
+    rows: {
+      whatYouDo: "What you do",
+      examples: "Example work",
+      pay: "Median pay",
+      outlook: "Growth and demand",
+      skills: "Key skills",
+      common: "Skills in common",
+      roadmap: "Roadmap",
+      firstStep: "Your first step",
+      start: "Start",
+    },
+  },
+} as const;
