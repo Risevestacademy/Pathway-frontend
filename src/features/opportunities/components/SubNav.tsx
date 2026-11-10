@@ -11,7 +11,7 @@ export default function SubNav({
   setActive: (category: "ALL" | OpportunityType) => void;
 }) {
   return (
-    <ul className="flex gap-1.5 pt-8 pb-10">
+    <ul className="flex gap-1.5 pt-8 pb-10 overflow-x-scroll scrollbar-none">
       {types.map((type, idx) => (
         <li
           key={idx}

@@ -7,7 +7,7 @@ export interface Requirement {
   level: "high" | "medium" | "low";
 }
 
-export interface Opportunity {
+export interface Opportunity2 {
   id: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   title: string;
@@ -30,6 +30,35 @@ export interface Opportunity {
   };
   requirements: Requirement[];
   applyLink?: string;
+}
+
+export interface Career {
+  id: string;
+  title: string;
+}
+
+export interface Skills {
+  id: string;
+  name: string;
+}
+
+export interface Opportunity {
+  id: string;
+  title: string;
+  type: OpportunityType;
+  organisation: string;
+  location: string;
+  descripiton: string;
+  status: "OPEN" | "CLOSED";
+  responsibilities: string[];
+  audience: string[];
+  pay: string;
+  duration: string;
+  startDate: string;
+  deadline: string;
+  applyUrl: string;
+  careers: Career[];
+  skills: Skills[];
 }
 
 export type OpportunityType =
@@ -55,7 +84,7 @@ export interface OpportunitySummary {
   type: OpportunityType;
   organization: string;
   location: string;
-  status: "VERIFIED" | "CLOSED";
+  status: "OPEN" | "CLOSED";
   deadline: string;
   summary: string;
   workMode?: string;

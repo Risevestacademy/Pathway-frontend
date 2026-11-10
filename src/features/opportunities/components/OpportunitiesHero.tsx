@@ -7,7 +7,7 @@ export default function OpportunitiesHero() {
   return (
     <section
       aria-labelledby="opportunities-hero"
-      className="overflow-hidden flex items-end gap-3 rounded-2xl border border-grey-100 bg-surface bg-linear-to-r from-surface via-surface to-[rgba(230,250,240,1)] p-6 sm:p-10 lg:min-h-55 lg:justify-between"
+      className="overflow-hidden flex flex-col md:flex-row items-end gap-8 rounded-2xl border border-grey-100 bg-surface bg-linear-to-r from-surface via-surface to-[rgba(230,250,240,1)] p-6 sm:p-10 lg:min-h-55 lg:justify-between"
     >
       <div>
         <Tag tone="warning" className="gap-1">
@@ -39,7 +39,8 @@ export default function OpportunitiesHero() {
         </div>
         <Button className="flex gap-2 items-center text-base leading-6 py-4.5 px-6 rounded-[14px]">
           {" "}
-          <ListFilter className="w-4 h-4" /> <span>Filter</span>
+          <ListFilter className="w-4 h-4" />{" "}
+          <span className="hidden md:block">Filter</span>
         </Button>
       </div>
     </section>

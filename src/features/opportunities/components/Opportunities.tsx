@@ -10,7 +10,7 @@ export default function Opportunities({
   return (
     <section>
       {opportunities.length > 0 ? (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {opportunities.map((each) => (
             <OpportunityCard key={each.id} opportunity={each} />
           ))}

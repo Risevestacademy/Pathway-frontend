@@ -1,15 +1,15 @@
 import OpportunitiesFrame from "./OpportunitiesFrame";
 import { BackLinkTo } from "@/features/skillCheck/components/BackLink";
 import { Tag } from "@/components/ui/Tag";
-// import type { Opportunity } from "../opportunities.type";
 import { getDaysLeft } from "../opportunities.util";
-import { opportunities } from "../opportunities.data";
 import { cn } from "cn";
 import ApplicationClosed from "./ApplicationClosed";
 import ApplicationOpen from "./ApplicationOpen";
+import { getRouteApi } from "@tanstack/react-router";
 
 export default function OpportunityPage() {
-  const opportunity = opportunities[2];
+  const routeApi = getRouteApi("/_protected/opportunities/$opportunitiesId/");
+  const opportunity = routeApi.useLoaderData();
   let daysLeft;
 
   if (opportunity.deadline) daysLeft = getDaysLeft(opportunity.deadline);
@@ -17,8 +17,8 @@ export default function OpportunityPage() {
   const subtitles = [
     opportunity.organisation,
     opportunity.location,
-    opportunity.workMode,
-    opportunity.deliveryMode,
+    // opportunity.workMode,
+    // opportunity.deliveryMode,
     opportunity.duration,
   ].filter(Boolean);
 
@@ -28,9 +28,10 @@ export default function OpportunityPage() {
       <div className="mt-6">
         <div className="flex gap-2 mb-4">
           <Tag tone="brand" className="py-2 px-3 text-[14px]">
-            {opportunity.category}
+            {opportunity.type.charAt(0) +
+              opportunity.type.slice(1).toLowerCase()}
           </Tag>
-          {opportunity.status === "Closed" ? (
+          {opportunity.status === "CLOSED" ? (
             <Tag tone="neutral" className="py-2 px-3 text-[14px]">
               Closed
             </Tag>
@@ -41,7 +42,7 @@ export default function OpportunityPage() {
             >{`Closes in ${daysLeft} ${daysLeft > 1 ? "days" : "day"}`}</Tag>
           ) : (
             <Tag tone="success" className="py-2 px-3 text-[14px]">
-              Open
+              {opportunity.status}
             </Tag>
           )}
         </div>
@@ -57,13 +58,13 @@ export default function OpportunityPage() {
         </div>
       </div>
 
-      {opportunity.status === "Open" ? (
-        <ApplicationOpen opportunity={opportunity} />
-      ) : (
+      {opportunity.status === "CLOSED" ? (
         <ApplicationClosed
-          requirement={opportunity.requirements}
+          requirement={opportunity.responsibilities}
           deadline={opportunity.deadline}
         />
+      ) : (
+        <ApplicationOpen opportunity={opportunity} />
       )}
     </OpportunitiesFrame>
   );

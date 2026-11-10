@@ -2,7 +2,7 @@ import { Card } from "./OpportunityPage";
 import type { Opportunity } from "../opportunities.type";
 import { Button } from "@/components/ui/Button";
 import { Bookmark } from "lucide-react";
-import { getDaysLeft } from "../opportunities.util";
+import { getDaysLeft, formatDate } from "../opportunities.util";
 
 export default function ApplicationOpen({
   opportunity,
@@ -22,14 +22,14 @@ export default function ApplicationOpen({
           </h3>
           <Card className="rounded-[16px]">
             <ul className="flex flex-col gap-3">
-              {opportunity.whatToDo.map((each, idx) => (
+              {opportunity.responsibilities.map((each, idx) => (
                 <ListItem text={each} idx={idx} />
               ))}
             </ul>
           </Card>
         </Card>
 
-        <Card className="rounded-3xl">
+        {/* <Card className="rounded-3xl">
           <h3 className="text-[20px] font-medium leading-[100%]">
             Who it is for
           </h3>
@@ -40,7 +40,7 @@ export default function ApplicationOpen({
               ))}
             </ul>
           </Card>
-        </Card>
+        </Card> */}
 
         <Card className="rounded-3xl">
           <h3 className="text-[20px] font-medium leading-[100%]">
@@ -48,10 +48,10 @@ export default function ApplicationOpen({
           </h3>
           <Card className="rounded-[16px] gap-2.5">
             <p className="font-medium text-body-md leading-[100%] text-[rgba(71,71,71,1)]">
-              Monthly stipend: N80,000
+              {opportunity.pay}
             </p>
             <p className="font-normal leading-[100%] text-[rgba(118,118,118,1)]">
-              Start: Nov. 2026
+              Start: {formatDate(opportunity.startDate)}
             </p>
           </Card>
         </Card>
@@ -60,18 +60,18 @@ export default function ApplicationOpen({
       <aside className=" lg:max-w-87.5 xl:max-w-112.5 flex flex-col gap-4">
         <Card className="border-brand-200 bg-brand-100 p-8 flex flex-col gap-5 rounded-3xl">
           <h3 className="font-semibold text-[28px] leading-[100%] tracking-tight">
-            How it fits your path
+            Skills
           </h3>
-          <p className="text-[16px] leading-[24px]">
+          {/* <p className="text-[16px] leading-[24px]">
             {opportunity.howItFits.desc}
-          </p>
+          </p> */}
           <p className="flex gap-2 flex-wrap">
-            {opportunity.howItFits.tags.map((each, idx) => (
+            {opportunity.skills.map((each, idx) => (
               <span
                 className="px-3 py-2 border rounded-full bg-white border-brand-100 text-grey-500 text-[14px] font-normal"
                 key={idx}
               >
-                {each}
+                {each.name}
               </span>
             ))}
           </p>

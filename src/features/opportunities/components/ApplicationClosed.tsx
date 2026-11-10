@@ -1,13 +1,13 @@
 import { Card } from "./OpportunityPage";
 import { Button } from "@/components/ui/Button";
-import type { Requirement } from "../opportunities.type";
+// import type { Requirement } from "../opportunities.type";
 import { cn } from "cn";
 
 export default function ApplicationClosed({
   requirement,
   deadline,
 }: {
-  requirement: Requirement[];
+  requirement: string[];
   deadline?: string;
 }) {
   return (
@@ -44,16 +44,16 @@ export default function ApplicationClosed({
               <li
                 key={idx}
                 className={cn(
-                  idx != requirement.length + 1 && "border-b border-grey-100",
+                  idx != requirement.length - 1 && "border-b border-grey-100",
                 )}
               >
                 <div className="flex flex-col gap-1.5 px-6 py-3.5">
                   <p className="font-medium text-body-md tracking-tight leading-5">
-                    {value.name}
+                    {value}
                   </p>
-                  <p className="font-medium text-[14px] text-grey-600">
+                  {/* <p className="font-medium text-[14px] text-grey-600">
                     {value.level}
-                  </p>
+                  </p> */}
                 </div>
               </li>
             ))}
