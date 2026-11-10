@@ -31,3 +31,34 @@ export interface Opportunity {
   requirements: Requirement[];
   applyLink?: string;
 }
+
+export type OpportunityType =
+  | "INTERNSHIP"
+  | "JOB"
+  | "FELLOWSHIP"
+  | "HACKATHON"
+  | "SCHOLARSHIP"
+  | "PROGRAMME";
+
+export interface FetchOpportunitiesParams {
+  type?: OpportunityType;
+  careerId?: string;
+  excludeId?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface OpportunitySummary {
+  id: string;
+  title: string;
+  type: OpportunityType;
+  organization: string;
+  location: string;
+  status: "VERIFIED" | "CLOSED";
+  deadline: string;
+  summary: string;
+  workMode?: string;
+  deliveryMode?: string;
+  customMessage?: string;
+}

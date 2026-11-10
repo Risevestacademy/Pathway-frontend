@@ -1,18 +1,19 @@
-import type { Opportunity } from "../opportunities.type";
+import type { OpportunitySummary } from "../opportunities.type";
 import { Tag } from "@/components/ui/Tag";
 import { Button } from "@/components/ui/Button";
 import { ArrowRight } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { getDaysLeft } from "../opportunities.util";
+import OpportunityIcon from "./OpportunityIcon";
 
 export default function OpportunityCard({
   opportunity,
 }: {
-  opportunity: Opportunity;
+  opportunity: OpportunitySummary;
 }) {
   const navigate = useNavigate();
   const subtitles = [
-    opportunity.organisation,
+    opportunity.organization,
     opportunity.location,
     opportunity.workMode,
     opportunity.deliveryMode,
@@ -30,14 +31,17 @@ export default function OpportunityCard({
   };
 
   return (
-    <div className="rounded-2xl border p-6 border-grey-100">
-      <div className="flex flex-col gap-4">
+    <div className="h-full rounded-2xl border p-6 border-grey-100">
+      <div className="h-full flex flex-col gap-4">
         <div className="flex justify-between pb-3">
           <div className="w-10 h-10 flex justify-center items-center border-[0.36px] rounded-[10px] p-2">
-            {<opportunity.icon className="stroke-grey-500 w-5 h-5" />}
+            <OpportunityIcon
+              type={opportunity.type}
+              className="stroke-grey-500 w-5 h-5"
+            />
           </div>
 
-          {opportunity.status === "Closed" ? (
+          {opportunity.status === "CLOSED" ? (
             <Tag tone="neutral">Closed</Tag>
           ) : daysLeft && daysLeft < 10 ? (
             <Tag tone="warning">{`Closes in ${daysLeft} ${daysLeft > 1 ? "days" : "day"}`}</Tag>
@@ -48,7 +52,7 @@ export default function OpportunityCard({
 
         <div>
           <p className="pb-2 text-grey-500 text-[12px] tracking-tight">
-            {opportunity.category}
+            {opportunity.type}
           </p>
           <h3 className="pb-1 text-[18px] font-medium leading-[120%] tracking-tight">
             {opportunity.title}
@@ -59,18 +63,27 @@ export default function OpportunityCard({
           </p>
         </div>
         <p className="leading-5 tracking-tight text-grey-500">
-          {opportunity.description}
+          {opportunity.summary}
         </p>
 
-        <div className="h-px bg-grey-100" />
-
-        <div className="flex justify-between items-center">
-          <p className="text-grey-500 font-medium text-[12px] leading-5">
-            {opportunity.customMessage}
-          </p>
-          <Button className="p-2" onClick={handleButtonClick}>
-            <ArrowRight />
-          </Button>
+        <div className="mt-auto flex flex-col gap-4">
+          <div className="h-px bg-grey-100" />
+          {opportunity.customMessage ? (
+            <div className="flex justify-between items-center">
+              <p className="text-grey-500 font-medium text-[12px] leading-5">
+                {opportunity.customMessage}
+              </p>
+              <Button className="p-2" onClick={handleButtonClick}>
+                <ArrowRight />
+              </Button>
+            </div>
+          ) : (
+            <div className="flex justify-end items-center">
+              <Button className="p-2" onClick={handleButtonClick}>
+                <ArrowRight />
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>

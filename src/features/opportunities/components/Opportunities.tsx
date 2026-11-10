@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/Button";
-import type { Opportunity } from "../opportunities.type";
+import type { OpportunitySummary } from "../opportunities.type";
 import OpportunityCard from "./OpportunityCard";
 
 export default function Opportunities({
   opportunities,
 }: {
-  opportunities: Opportunity[];
+  opportunities: OpportunitySummary[];
 }) {
   return (
     <section>
