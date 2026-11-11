@@ -5,10 +5,16 @@ export default function SubNav({
   types,
   active = "ALL",
   setActive,
+  setSearching,
+  // search,
+  searching,
 }: {
   types: ("ALL" | OpportunityType)[];
   active: string;
   setActive: (category: "ALL" | OpportunityType) => void;
+  setSearching: (bool: boolean) => void;
+  search: string;
+  searching: boolean;
 }) {
   return (
     <ul className="flex gap-1.5 pt-8 pb-10 overflow-x-scroll scrollbar-none">
@@ -19,9 +25,14 @@ export default function SubNav({
           className={cn(
             "py-2 px-3 border rounded-md border-grey-50 hover:bg-brand-50 cursor-pointer font-medium text-base tracking-tight text-grey-500",
             "transition duration-300",
-            active === type && "bg-brand-100 hover:bg-brand-100 text-brand-700",
+            !searching &&
+              active === type &&
+              "bg-brand-100 hover:bg-brand-100 text-brand-700",
           )}
-          onClick={() => setActive(type)}
+          onClick={() => {
+            setActive(type);
+            setSearching(false);
+          }}
         >
           {type.charAt(0) + type.slice(1).toLowerCase()}
         </li>

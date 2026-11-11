@@ -2,8 +2,21 @@ import { Tag } from "@/components/ui/Tag";
 import { Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ListFilter, Search } from "lucide-react";
+import type { ChangeEvent } from "react";
 
-export default function OpportunitiesHero() {
+export default function OpportunitiesHero({
+  setSearch,
+  setSearching,
+  search,
+}: {
+  setSearching: (bool: boolean) => void;
+  setSearch: (search: string) => void;
+  search: string;
+}) {
+  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+    setSearching(true);
+  };
   return (
     <section
       aria-labelledby="opportunities-hero"
@@ -33,11 +46,19 @@ export default function OpportunitiesHero() {
               type="text"
               name="search"
               placeholder="Search openings..."
+              onChange={handleSearch}
+              value={search}
               className="flex-1 outline-none bg-transparent text-base leading-5 text-grey-900 placeholder:text-grey-500"
             />
           </form>
         </div>
-        <Button className="flex gap-2 items-center text-base leading-6 py-4.5 px-6 rounded-[14px]">
+        <Button
+          onClick={() => {
+            setSearch(search);
+            setSearching(true);
+          }}
+          className="flex gap-2 items-center text-base leading-6 py-4.5 px-6 rounded-[14px]"
+        >
           {" "}
           <ListFilter className="w-4 h-4" />{" "}
           <span className="hidden md:block">Filter</span>
