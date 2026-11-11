@@ -1,8 +1,10 @@
 import { Card } from "./OpportunityPage";
 import type { Opportunity } from "../opportunities.type";
 import { Button } from "@/components/ui/Button";
-import { Bookmark } from "lucide-react";
+import { Bookmark, ExternalLink } from "lucide-react";
 import { getDaysLeft, formatDate } from "../opportunities.util";
+import { cn } from "cn";
+import { analytics } from "@/lib/monitoring/events";
 
 export default function ApplicationOpen({
   opportunity,
@@ -12,6 +14,14 @@ export default function ApplicationOpen({
   let daysLeft;
 
   if (opportunity.deadline) daysLeft = getDaysLeft(opportunity.deadline);
+
+  const trackApplyClick = () => {
+    analytics.trackFeature.applyClicked(
+      opportunity.id,
+      opportunity.title,
+      opportunity.organisation,
+    );
+  };
 
   return (
     <div className="flex flex-col gap-10 lg:flex-row">
@@ -76,7 +86,28 @@ export default function ApplicationOpen({
             ))}
           </p>
 
-          <Button>Apply</Button>
+          <a
+            href={opportunity.applyUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={trackApplyClick}
+            onAuxClick={(event) => {
+              if (event.button === 1) trackApplyClick();
+            }}
+            className={cn(
+              "inline-flex items-center justify-center gap-2 rounded-[16px]",
+              "cursor-pointer font-sans leading-5 font-semibold",
+              "transition-[transform,background-color,opacity] duration-150 motion-reduce:transition-none",
+              "focus-ring focus-visible:ring-offset-2",
+              "not-disabled:active:translate-y-[2px] not-disabled:active:border-b-2",
+              "disabled:cursor-not-allowed disabled:opacity-50",
+              "px-4 py-2 text-sm",
+              "border-b-4 border-brand-700 bg-brand-600 text-white not-disabled:hover:bg-[color-mix(in_oklab,var(--color-brand-600),var(--color-brand-700)_25%)]",
+            )}
+          >
+            <span>Apply</span>
+            <ExternalLink className="size-4" aria-hidden />
+          </a>
 
           {daysLeft === 0 ||
             (daysLeft && (
