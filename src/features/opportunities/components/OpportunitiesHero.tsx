@@ -25,7 +25,7 @@ export default function OpportunitiesHero() {
         </div>
       </div>
 
-      <div className="max-w-[650px] w-full flex gap-3 items-center">
+      <div className="max-w-162.5 w-full flex gap-3 items-center">
         <div className="w-full py-4.5 px-6 rounded-[14px] border border-grey-100 bg-surface shadow-sm">
           <form className="flex gap-2 items-center">
             <Search className="w-6 h-6 stroke-grey-400 stroke-grey-500" />

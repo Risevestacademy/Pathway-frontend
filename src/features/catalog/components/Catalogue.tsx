@@ -70,7 +70,10 @@ export default function Catalogue() {
             placeholder="Choose"
             value={level ?? ""}
             onValueChange={changeLevel}
-            options={CAREER_LEVELS.map((l) => ({ value: l.id, label: l.label }))}
+            options={CAREER_LEVELS.map((l) => ({
+              value: l.id,
+              label: l.label,
+            }))}
           />
           <FilterSelect
             label="Interest"
@@ -149,7 +152,9 @@ function CareerCard({ career }: { career: CareerListItem }) {
       className="group block h-full cursor-pointer rounded-lg focus-ring focus-visible:ring-offset-2"
     >
       <Card className="flex h-full flex-col p-6 transition-shadow group-hover:shadow-raised motion-reduce:transition-none">
-        <h2 className="font-display text-body-lg-bold text-ink">{career.title}</h2>
+        <h2 className="font-display text-body-lg-bold text-ink">
+          {career.title}
+        </h2>
         <p className="mt-2 flex-1 text-body-md text-ink-muted">
           {career.shortDescription}
         </p>
