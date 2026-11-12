@@ -22,8 +22,8 @@ vi.mock("../../skillCheck/components/BackLink", () => ({
   BackLinkTo: ({ label, to }: { label: string; to: string }) => <a href={to}>{label}</a>,
 }));
 vi.mock("../../feedback/components/ReportIssueLink", () => ({
-  ReportIssueLink: ({ label, subject, careerId }: { label: string; subject: string; careerId: string }) => (
-    <button type="button">{`${label} | ${subject} | ${careerId}`}</button>
+  ReportIssueLink: ({ label, subject, careerId }: { label?: string; subject: string; careerId: string }) => (
+    <button type="button">{`${label ?? "Report a problem with this resource"} | ${subject} | ${careerId}`}</button>
   ),
 }));
 

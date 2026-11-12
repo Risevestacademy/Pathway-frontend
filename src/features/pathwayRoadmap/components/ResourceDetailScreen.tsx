@@ -4,7 +4,6 @@ import { Badge } from "../../../components/ui/Badge";
 import { ExternalLinkButton } from "../../../components/ui/Button";
 import { analytics } from "@/lib/monitoring/events";
 import { ReportIssueLink } from "../../feedback/components/ReportIssueLink";
-import { REPORT_REASONS } from "../../feedback/feedback.utils";
 import type { Resource } from "../../resources/resources.types";
 import { BackLinkTo } from "../../skillCheck/components/BackLink";
 import { useResourceTicks } from "../hooks/useResourceTicks";
@@ -133,14 +132,10 @@ export function ResourceDetailScreen({
 
           <div className="border-t border-line pt-4">
             <ReportIssueLink
-              label="Report a problem with this resource"
-              sentLabel="Thanks, we’ll review this resource"
-              section="RESOURCES"
-              reasons={REPORT_REASONS.RESOURCES}
-              careerId={careerId}
               subject={resource.title}
-              contextNote={`Resource: ${resource.title}, step: ${step.title}, career: ${careerTitle}`}
-              note="The resource stays available while our team reviews your report."
+              section="RESOURCES"
+              careerId={careerId}
+              about={`${careerTitle} · ${step.title} · ${resource.title}`}
             />
           </div>
         </aside>
