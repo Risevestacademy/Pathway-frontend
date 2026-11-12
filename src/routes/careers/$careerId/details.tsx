@@ -1,12 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowRightRegular } from "@mingcute/react/core-regular";
+import { BeginRoadmapLink } from "@/features/careerDetail/components/BeginRoadmapLink";
 import CareerLoader from "@/features/careerDetail/components/CareerLoader";
 import { CareerHero } from "@/features/careerDetail/components/CareerHero";
 import Detail from "@/features/careerDetail/components/Detail";
 import DetailSkeleton from "@/features/careerDetail/components/DetailSkeleton";
 import { useCareerHeroMeta } from "@/features/careerDetail/hooks/useCareerHeroMeta";
 import { BackLink } from "@/features/skillCheck/components/BackLink";
-import { SkillLink } from "@/features/skillCheck/components/SkillButton";
 import type { Career } from "@/types/career.types";
 import { analytics } from "@/lib/monitoring/events";
 import { useEffect } from "react";
@@ -42,20 +41,7 @@ function DetailsPage({ career }: { career: Career }) {
     <>
       <BackLink to="/careers/$careerId" careerId={career.id} label="Back" />
       <CareerHero career={career} {...meta}>
-        {career.roadmapId ? (
-          <SkillLink
-            className="w-fit"
-            to="/careers/$careerId/roadmap"
-            params={{ careerId: career.id }}
-          >
-            Begin roadmap
-            <ArrowRightRegular aria-hidden className="size-5" />
-          </SkillLink>
-        ) : (
-          <p className="text-base leading-5 text-grey-600">
-            Roadmap coming soon
-          </p>
-        )}
+        <BeginRoadmapLink careerId={career.id} hasRoadmap={Boolean(career.roadmapId)} />
       </CareerHero>
       <Detail career={career} />
     </>

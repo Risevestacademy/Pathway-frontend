@@ -10,12 +10,9 @@ import RoadmapError from "../../../../features/pathway/components/RoadmapError";
 import RoadmapSkeleton from "../../../../features/pathway/components/RoadmapSkeleton";
 import { fetchPathwayOrNull } from "../../../../lib/api/pathways.api";
 import { ReportIssueLink } from "../../../../features/feedback/components/ReportIssueLink";
-import { REPORT_REASONS } from "../../../../features/feedback/feedback.utils";
 import { analytics } from "@/lib/monitoring/events";
 import { useEffect } from "react";
 import { withLoaderErrorReporting } from "@/lib/monitoring/sentry";
-import RoadmapProgressPanel from "../../../../features/progress/components/RoadmapProgressPanel";
-import { useCareerProgress } from "../../../../features/progress/hooks/useCareerProgress";
 
 export const Route = createFileRoute("/careers/$careerId/roadmap/")({
   loader: ({ params }) =>
@@ -32,9 +29,6 @@ function RoadmapRoute() {
   const result = Route.useLoaderData();
   const roadmapId = result?.roadmap?.id;
   const careerId = result?.career.id;
-  // Compare progress with the loaded career's id, never the URL param, which
-  // could be a slug. With no career loaded, nothing below shows progress.
-  const { progress, retry } = useCareerProgress(careerId ?? "");
   const careerTitle = result?.career.title;
 
   useEffect(() => {
@@ -92,35 +86,17 @@ function RoadmapRoute() {
         step to look ahead.
       </p>
 
-      <RoadmapProgressPanel
-        careerId={career.id}
-        careerTitle={career.title}
-        steps={roadmap.steps}
-        progress={progress}
-        onRetry={retry}
-      />
-
       <RoadmapStepList
         careerId={career.id}
         steps={roadmap.steps}
-        tracking={
-          progress.kind === "active"
-            ? {
-                statuses: progress.statuses,
-                nextStepId: progress.progress.nextStepId,
-                startStepId: progress.progress.startStepId,
-              }
-            : undefined
-        }
       />
 
       <ReportIssueLink
         className="mt-8"
-        label="Report an issue with this roadmap"
+        subject="this roadmap"
         section="PATHWAY"
-        reasons={REPORT_REASONS.PATHWAY}
         careerId={career.id}
-        subject={`${career.title} roadmap`}
+        about={`${career.title} roadmap`}
       />
     </RoadmapPage>
   );

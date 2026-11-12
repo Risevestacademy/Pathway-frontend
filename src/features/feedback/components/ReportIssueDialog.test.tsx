@@ -1,18 +1,25 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
+import { useState } from "react";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { useAuthStore } from "../../../lib/stores/authStore";
-import { REPORT_REASONS } from "../feedback.utils";
-import { ReportIssueDialog, type ReportIssueDialogProps, type ReportTarget } from "./ReportIssueDialog";
+import { ReportIssueDialog, type ReportTarget } from "./ReportIssueDialog";
 
 const CAREER_ID = "6f1c2a7e-0d4b-4b8e-9f53-2a1e7c9d0b11";
+const ABOUT = "Frontend Developer · Step 3, SQL basics";
 const server = setupServer();
 let sent: unknown[];
 
-beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
+beforeAll(() => {
+  server.listen({ onUnhandledRequest: "error" });
+  // Radix Select needs these, and jsdom doesn't have them.
+  Element.prototype.hasPointerCapture ??= () => false;
+  Element.prototype.releasePointerCapture ??= () => {};
+  Element.prototype.scrollIntoView ??= () => {};
+});
 beforeEach(() => {
   sent = [];
   server.use(
@@ -35,29 +42,35 @@ afterEach(() => {
 });
 afterAll(() => server.close());
 
-function setup(
-  target: ReportTarget = { section: "PATHWAY", careerId: CAREER_ID },
-  props: Partial<Omit<ReportIssueDialogProps, keyof ReportTarget>> = {},
-) {
+function setup(target: ReportTarget = { section: "PATHWAY", careerId: CAREER_ID }, about: string | null = ABOUT) {
   const onClose = vi.fn();
-  const onSent = vi.fn();
+
+  function Harness() {
+    const [open, setOpen] = useState(true);
+    return (
+      <ReportIssueDialog
+        {...target}
+        about={about ?? undefined}
+        open={open}
+        onClose={() => {
+          onClose();
+          setOpen(false);
+        }}
+      />
+    );
+  }
+
   render(
     <QueryClientProvider client={new QueryClient({ defaultOptions: { mutations: { retry: false } } })}>
-      <ReportIssueDialog
-        open
-        onClose={onClose}
-        onSent={onSent}
-        reasons={REPORT_REASONS.PATHWAY}
-        subject="Learn React"
-        contextNote="Step 2: Learn React"
-        {...props}
-        {...target}
-      />
+      <Harness />
     </QueryClientProvider>,
   );
-  const send = screen.getByRole<HTMLButtonElement>("button", { name: "Send report" });
-  return { onClose, onSent, send };
+  return { onClose };
 }
+
+const message = () => screen.getByLabelText("Your feedback");
+const email = () => screen.getByLabelText("Email for a reply (optional)");
+const send = () => screen.getByRole("button", { name: "Send feedback" });
 
 describe("ReportIssueDialog", () => {
   it("needs a careerId for every section except GENERAL", () => {
@@ -68,88 +81,170 @@ describe("ReportIssueDialog", () => {
     expect([missing.section, general.section]).toEqual(["PATHWAY", "GENERAL"]);
   });
 
-  it("keeps Send disabled until a reason is chosen", async () => {
-    const { send } = setup();
-    expect(send.disabled).toBe(true);
+  it("starts on the topic for where it was opened and says what it's about", () => {
+    setup({ section: "RESOURCES", careerId: CAREER_ID });
 
-    await userEvent.click(screen.getByRole("radio", { name: "Step content is wrong or outdated" }));
-    expect(send.disabled).toBe(false);
+    expect(screen.getByLabelText("What is this about?").textContent).toContain("A link or resource");
+    expect(screen.getByText(ABOUT)).toBeTruthy();
   });
 
-  it("sends the section, career, category and context, then thanks and closes", async () => {
-    const { onClose, onSent, send } = setup();
+  it("asks for a message before sending", async () => {
+    setup();
 
-    await userEvent.click(screen.getByRole("radio", { name: "Step content is wrong or outdated" }));
-    await userEvent.type(screen.getByLabelText("Details"), "Uses class components");
-    await userEvent.click(send);
+    await userEvent.click(send());
 
-    await waitFor(() => expect(onSent).toHaveBeenCalled());
-    expect(onClose).toHaveBeenCalled();
+    expect(screen.getByText("Tell us what happened so we can look into it.")).toBeTruthy();
+    expect(message().getAttribute("aria-invalid")).toBe("true");
+    expect(document.activeElement).toBe(message());
+    expect(sent).toEqual([]);
+
+    await userEvent.type(message(), "x");
+    expect(screen.queryByText("Tell us what happened so we can look into it.")).toBeNull();
+  });
+
+  it("sends the section, career, category and what it's about, then thanks the learner", async () => {
+    const { onClose } = setup();
+
+    await userEvent.type(message(), "This step is missing practice tasks");
+    await userEvent.click(send());
+
+    expect(await screen.findByRole("dialog", { name: "Thanks, we got your feedback" })).toBeTruthy();
     expect(sent).toEqual([
       {
         category: "INCORRECT_CONTENT",
-        description: "Uses class components (Step 2: Learn React)",
+        description: `This step is missing practice tasks (${ABOUT})`,
         section: "PATHWAY",
         careerId: CAREER_ID,
         platform: "WEB",
       },
     ]);
+
+    await userEvent.click(screen.getByRole("button", { name: "Done" }));
+    expect(onClose).toHaveBeenCalled();
   });
 
-  it("sends general feedback without a career", async () => {
-    const { onSent, send } = setup(
-      { section: "GENERAL" },
-      { reasons: REPORT_REASONS.GENERAL, contextNote: undefined },
-    );
+  it("sends general feedback with the topic chosen and the page it came from", async () => {
+    setup({ section: "GENERAL" }, null);
 
-    await userEvent.click(screen.getByRole("radio", { name: "Something is confusing" }));
-    await userEvent.click(send);
+    expect(screen.getByText(/We note the page you came from/)).toBeTruthy();
+    await userEvent.click(screen.getByLabelText("What is this about?"));
+    await userEvent.click(await screen.findByRole("option", { name: "Something is not working" }));
+    await userEvent.type(message(), "The page froze");
+    await userEvent.click(send());
 
-    await waitFor(() => expect(onSent).toHaveBeenCalled());
+    await screen.findByRole("dialog", { name: "Thanks, we got your feedback" });
     expect(sent).toEqual([
-      { category: "USABILITY", description: "Something is confusing", section: "GENERAL", platform: "WEB" },
+      {
+        category: "USABILITY",
+        description: `The page froze (Page: ${window.location.pathname})`,
+        section: "GENERAL",
+        platform: "WEB",
+      },
     ]);
   });
 
-  it("lets a signed-out learner leave an optional email, and checks it", async () => {
-    const { onSent, send } = setup();
+  it("files general feedback with no topic as OTHER", async () => {
+    setup({ section: "GENERAL" }, null);
 
-    await userEvent.click(screen.getByRole("radio", { name: "Something else" }));
-    await userEvent.type(screen.getByLabelText("Email (optional)"), "not-an-email");
-    await userEvent.click(send);
+    await userEvent.type(message(), "Love it");
+    await userEvent.click(send());
+
+    await screen.findByRole("dialog", { name: "Thanks, we got your feedback" });
+    expect(sent[0]).toMatchObject({ category: "OTHER" });
+  });
+
+  it("checks an optional email, and sends it when given", async () => {
+    setup();
+
+    await userEvent.type(message(), "Broken");
+    await userEvent.type(email(), "not-an-email");
+    await userEvent.click(send());
 
     expect(screen.getByText("Invalid email address")).toBeTruthy();
     expect(sent).toEqual([]);
 
-    await userEvent.clear(screen.getByLabelText("Email (optional)"));
-    await userEvent.type(screen.getByLabelText("Email (optional)"), " Ada@Example.com ");
-    await userEvent.click(send);
+    await userEvent.clear(email());
+    await userEvent.type(email(), " Ada@Example.com ");
+    await userEvent.click(send());
 
-    await waitFor(() => expect(onSent).toHaveBeenCalled());
+    await screen.findByRole("dialog", { name: "Thanks, we got your feedback" });
     expect(sent[0]).toMatchObject({ userEmail: "Ada@Example.com" });
   });
 
-  it("uses the account email and hides the field when signed in", async () => {
+  it("fills in the account email when signed in, and leaves it out if cleared", async () => {
     useAuthStore.setState({ user: { id: "u1", email: "ada@example.com", role: "LEARNER" }, accessToken: "t" });
-    const { onSent, send } = setup();
+    setup();
 
-    expect(screen.queryByLabelText("Email (optional)")).toBeNull();
-    await userEvent.click(screen.getByRole("radio", { name: "Something else" }));
-    await userEvent.click(send);
+    expect((email() as HTMLInputElement).value).toBe("ada@example.com");
+    await userEvent.clear(email());
+    await userEvent.type(message(), "Broken");
+    await userEvent.click(send());
 
-    await waitFor(() => expect(onSent).toHaveBeenCalled());
-    expect(sent[0]).toMatchObject({ userEmail: "ada@example.com" });
+    await screen.findByRole("dialog", { name: "Thanks, we got your feedback" });
+    expect(sent[0]).not.toHaveProperty("userEmail");
   });
 
-  it("explains the rate limit and stays open", async () => {
+  it("keeps the message and offers to try again when sending fails", async () => {
     server.use(http.post("*/feedback", () => new HttpResponse(null, { status: 429 })));
-    const { onClose, onSent, send } = setup();
+    const { onClose } = setup();
 
-    await userEvent.click(screen.getByRole("radio", { name: "Something else" }));
-    await userEvent.click(send);
+    await userEvent.type(message(), "Broken");
+    await userEvent.click(send());
 
-    expect((await screen.findByRole("alert")).textContent).toMatch(/sent a few reports/);
-    expect(onSent).not.toHaveBeenCalled();
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).toMatch(/We could not send your feedback/);
+    expect(alert.textContent).toMatch(/sent a few reports/);
+    expect((message() as HTMLTextAreaElement).value).toBe("Broken");
     expect(onClose).not.toHaveBeenCalled();
+
+    server.use(http.post("*/feedback", () => HttpResponse.json({}, { status: 201 })));
+    await userEvent.click(screen.getByRole("button", { name: "Try again" }));
+    expect(await screen.findByRole("dialog", { name: "Thanks, we got your feedback" })).toBeTruthy();
+  });
+
+  it("closes straight away when nothing has been written", async () => {
+    const { onClose } = setup();
+
+    await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it("asks before throwing away a written message", async () => {
+    const { onClose } = setup();
+
+    await userEvent.type(message(), "Half a thought");
+    await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+    expect(screen.getByRole("dialog", { name: "Discard this message?" })).toBeTruthy();
+    await userEvent.click(screen.getByRole("button", { name: "Keep writing" }));
+    expect((message() as HTMLTextAreaElement).value).toBe("Half a thought");
+    expect(document.activeElement).toBe(message());
+    expect(onClose).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    await userEvent.click(screen.getByRole("button", { name: "Discard" }));
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it("treats Escape like Cancel", async () => {
+    const { onClose } = setup();
+
+    await userEvent.type(message(), "Half a thought");
+    fireEvent(screen.getByRole("dialog"), new Event("cancel", { cancelable: true }));
+
+    expect(screen.getByRole("dialog", { name: "Discard this message?" })).toBeTruthy();
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("starts a fresh message from the thanks screen", async () => {
+    setup();
+
+    await userEvent.type(message(), "First");
+    await userEvent.click(send());
+    await userEvent.click(await screen.findByRole("button", { name: "Send more feedback" }));
+
+    expect((message() as HTMLTextAreaElement).value).toBe("");
+    expect(screen.getByText(ABOUT)).toBeTruthy();
   });
 });

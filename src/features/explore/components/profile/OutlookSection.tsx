@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { Info, MapPin, TrendingDown, TrendingUp } from "lucide-react";
-import { formatMoney } from "@/features/careerDetail/careerDetail.utils";
+import { describeSource, formatMoney } from "@/features/careerDetail/careerDetail.utils";
 import type {
   Career,
   DemandStat,
@@ -27,7 +27,7 @@ function Source({ stat }: { stat: Statistic }) {
   return (
     <p className={sourceNote}>
       <Info aria-hidden className="size-3.5 shrink-0" strokeWidth={1.75} />
-      {stat.source}, {stat.period}
+      {describeSource(stat)}
     </p>
   );
 }

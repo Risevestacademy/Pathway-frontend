@@ -33,14 +33,14 @@ export function SkillCheckHub() {
   const open = (career: Pick<SkillCheckCareerSummary, "careerId" | "hasResult">) => {
     void navigate({
       to: career.hasResult
-        ? "/skill-check/$careerId/result"
-        : "/skill-check/$careerId",
+        ? "/my-pathway/skill-check/$careerId/result"
+        : "/my-pathway/skill-check/$careerId",
       params: { careerId: career.careerId },
     });
   };
 
   const goToCheck = (careerId: string) =>
-    navigate({ to: "/skill-check/$careerId", params: { careerId } });
+    navigate({ to: "/my-pathway/skill-check/$careerId", params: { careerId } });
 
   const heading = (
     <PageHeading

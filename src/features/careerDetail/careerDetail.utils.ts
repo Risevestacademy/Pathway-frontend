@@ -1,13 +1,12 @@
-import type { PayPeriod } from "../../types/career.types";
-import type { Statistic } from "../../types/career.types";
 import type {
   Career,
-  CareerLevel,
-  ContentStatus,
+  DemandStat,
+  PayPeriod,
+  Statistic,
 } from "../../types/career.types";
 import type {
-  ApiCareerDetail,
-  ApiCareerOutlook,
+  PublicCareerDetailDto,
+  PublicCareerOutlookDto,
 } from "@/features/careerDetail/career.types";
 
 export function getCareerInfo(careerId: string, careers: Career[]) {
@@ -40,15 +39,9 @@ export const payPeriodLabel: Record<PayPeriod, string> = {
   hour: "per hour",
 };
 
-const levelMap: Record<string, CareerLevel> = {
-  STUDENT: "university-student",
-  RECENT_GRAD: "recent-graduate",
-  EARLY_CAREER: "early-career",
-};
-
-function numberOrNull(value: string | number | null) {
+function numberOrNull(value: string | number | null | undefined) {
   if (typeof value === "number") return Number.isFinite(value) ? value : null;
-  if (value === null) return null;
+  if (value === null || value === undefined) return null;
   const parsed = Number(value.replace(/[^0-9.-]/g, ""));
   return value.trim() && Number.isFinite(parsed) ? parsed : null;
 }
@@ -57,11 +50,15 @@ function payPeriod(value: string | null): PayPeriod {
   return value === "month" || value === "hour" ? value : "year";
 }
 
-function status(value: ApiCareerDetail["status"]): ContentStatus {
-  return value.toLowerCase() as ContentStatus;
-}
+const DEMAND_LABEL: Record<string, NonNullable<DemandStat["value"]>> = {
+  LOW: "Low",
+  MEDIUM: "Moderate",
+  MODERATE: "Moderate",
+  HIGH: "High",
+  VERY_HIGH: "Very high",
+};
 
-function outlookStats(outlook: ApiCareerOutlook): Statistic[] {
+function outlookStats(outlook: PublicCareerOutlookDto): Statistic[] {
   const stats: Statistic[] = [];
   const median = numberOrNull(outlook.median);
   const percentile25 = numberOrNull(outlook.percentile25);
@@ -70,8 +67,9 @@ function outlookStats(outlook: ApiCareerOutlook): Statistic[] {
   const experienceLevel = outlook.experienceLevel?.toLowerCase() ?? "";
   const meta = {
     id: outlook.id,
-    source: outlook.source,
-    period: outlook.period,
+    // The public API names the source by id only, and an id means nothing to a reader.
+    source: "",
+    period: outlook.period ?? "",
     geography: outlook.geography,
     meaning:
       outlook.type === "SALARY" ? "Salary information" : "Career outlook",
@@ -141,14 +139,15 @@ function outlookStats(outlook: ApiCareerOutlook): Statistic[] {
     });
   }
 
-  if (outlook.type !== "SALARY" && outlook.demandLevel) {
-    const demand = outlook.demandLevel.toLowerCase();
+  const demand = outlook.demandLevel
+    ? DEMAND_LABEL[outlook.demandLevel.toUpperCase()]
+    : undefined;
+  if (outlook.type !== "SALARY" && demand) {
     stats.push({
       ...meta,
       id: `${outlook.id}-demand`,
       kind: "demand",
-      value: (demand.charAt(0).toUpperCase() + demand.slice(1)) as
-        "Low" | "Moderate" | "High" | "Very high",
+      value: demand,
       meaning: "Current hiring demand",
     });
   }
@@ -156,32 +155,48 @@ function outlookStats(outlook: ApiCareerOutlook): Statistic[] {
   return stats;
 }
 
-export function toCareer(data: ApiCareerDetail): Career {
-  const skills = data.skills.map((skill) => skill.name).join(", ");
-  const level = data.targetLevels[0] ? levelMap[data.targetLevels[0]] : null;
+/** "Source, 2025", leaving out whichever the API didn't give. */
+export function describeSource(stat: Pick<Statistic, "source" | "period">): string {
+  return [stat.source, stat.period].filter(Boolean).join(", ");
+}
+
+const titles = (items: { title: string }[]) =>
+  items.map((item) => item.title).join(", ");
+
+/**
+ * GET /careers/{id} as the pages use it. The response doesn't repeat the career's
+ * id, so it comes from the request. It names no pathway either: a career has a
+ * roadmap when it has steps, and its roadmap is fetched by the career's id.
+ */
+export function toCareer(data: PublicCareerDetailDto, careerId: string): Career {
+  const { overview, requirements } = data;
+  const required = overview.skills.filter((skill) => skill.importance === "REQUIRED");
+  const keySkills = titles((required.length ? required : overview.skills).map((s) => ({ title: s.name })));
+  const hasRoadmap = overview.topicCount > 0;
 
   return {
-    id: data.id,
-    slug: data.slug,
-    status: status(data.status),
-    title: data.title,
-    description: data.description,
-    levels: data.targetLevels.map((level) => levelMap[level]).filter(Boolean),
-    interest: data.field?.slug ?? null,
-    level,
-    tags: data.skills.map((skill) => skill.name),
-    roleSummary: data.roleSummary,
-    workActivities: data.exampleActivities,
+    id: careerId,
+    // Only published careers are served here.
+    status: "published",
+    title: overview.title,
+    description: overview.description,
+    // Not in this response. The catalogue's cards carry the levels.
+    levels: [],
+    tags: overview.skills.map((skill) => skill.name),
+    roleSummary: overview.roleSummary ?? "",
+    workActivities: overview.exampleActivities,
     entryConsiderations: [
-      { label: "Typical education", detail: data.typicalEducationNote },
-      ...(skills ? [{ label: "Key skills", detail: skills }] : []),
-      ...(data.certificationsNote
-        ? [{ label: "Certifications", detail: data.certificationsNote }]
+      ...(keySkills ? [{ label: "Key skills", detail: keySkills }] : []),
+      ...(requirements.courses.length
+        ? [{ label: "Courses", detail: titles(requirements.courses) }]
+        : []),
+      ...(requirements.certifications.length
+        ? [{ label: "Certifications", detail: titles(requirements.certifications) }]
         : []),
     ],
-    roadmapId: data.pathway?.id ?? null,
-    roadmapStepCount: data.pathway?.stepCount ?? null,
-    field: data.field ? { name: data.field.name, slug: data.field.slug } : null,
-    stats: data.outlook.flatMap(outlookStats),
+    roadmapId: hasRoadmap ? careerId : null,
+    roadmapStepCount: hasRoadmap ? overview.topicCount : null,
+    field: null,
+    stats: data.projection.flatMap(outlookStats),
   };
 }

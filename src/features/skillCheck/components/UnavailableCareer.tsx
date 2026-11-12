@@ -46,7 +46,7 @@ export function UnavailableCareer({ career }: { career: SkillCheckCareer }) {
               Explore careers
             </SkillLink>
           )}
-          <SkillLink to="/skill-check" className="flex-1">
+          <SkillLink to="/my-pathway/skill-check" className="flex-1">
             Check another career
           </SkillLink>
         </div>

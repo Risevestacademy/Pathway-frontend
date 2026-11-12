@@ -229,6 +229,27 @@
   --inset-shadow-secondary-btn-pressed: inset 0 0px 0 var(--color-grey-150);
 }
 
+/* Paper for the confetti shown when a step is marked complete. Each piece sets its own
+   delay, duration and spin. Anyone who prefers reduced motion gets no pieces at all. */
+@keyframes confetti-fall {
+  from {
+    opacity: 1;
+    transform: translate3d(0, -10vh, 0) rotate(0deg);
+  }
+  85% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, 110vh, 0) rotate(var(--confetti-spin, 540deg));
+  }
+}
+
+.confetti-piece {
+  opacity: 0;
+  animation: confetti-fall var(--confetti-duration, 3s) var(--confetti-delay, 0s) ease-in forwards;
+}
+
 @theme {
   --animate-landing-fade-up: landing-fade-up 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-landing-card-rise: landing-card-rise 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
