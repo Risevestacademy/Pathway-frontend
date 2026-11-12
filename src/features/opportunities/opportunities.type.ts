@@ -59,6 +59,7 @@ export interface Opportunity {
   applyUrl: string;
   careers: Career[];
   skills: Skills[];
+  isSaved: boolean;
 }
 
 export type OpportunityType =

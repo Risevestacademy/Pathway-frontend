@@ -5,6 +5,8 @@ import { Bookmark, ExternalLink } from "lucide-react";
 import { getDaysLeft, formatDate } from "../opportunities.util";
 import { cn } from "cn";
 import { analytics } from "@/lib/monitoring/events";
+import { useSaveOpportunity, useRemoveOpportunity } from "../hooks/useSave";
+import { useRouter } from "@tanstack/react-router";
 
 export default function ApplicationOpen({
   opportunity,
@@ -12,8 +14,22 @@ export default function ApplicationOpen({
   opportunity: Opportunity;
 }) {
   let daysLeft;
+  const router = useRouter();
 
   if (opportunity.deadline) daysLeft = getDaysLeft(opportunity.deadline);
+
+  const saveOpportunity = useSaveOpportunity();
+  const removeOpportunity = useRemoveOpportunity();
+
+  const handleSave = async () => {
+    if (opportunity.isSaved || saveOpportunity.isSuccess) {
+      removeOpportunity.mutate(opportunity.id);
+      if (removeOpportunity.isSuccess) await router.invalidate();
+    } else {
+      saveOpportunity.mutate(opportunity.id);
+      if (saveOpportunity.isSuccess) await router.invalidate();
+    }
+  };
 
   const trackApplyClick = () => {
     analytics.trackFeature.applyClicked(
@@ -99,7 +115,7 @@ export default function ApplicationOpen({
               "cursor-pointer font-sans leading-5 font-semibold",
               "transition-[transform,background-color,opacity] duration-150 motion-reduce:transition-none",
               "focus-ring focus-visible:ring-offset-2",
-              "not-disabled:active:translate-y-[2px] not-disabled:active:border-b-2",
+              "not-disabled:active:translate-y-0.5 not-disabled:active:border-b-2",
               "disabled:cursor-not-allowed disabled:opacity-50",
               "px-4 py-2 text-sm",
               "border-b-4 border-brand-700 bg-brand-600 text-white not-disabled:hover:bg-[color-mix(in_oklab,var(--color-brand-600),var(--color-brand-700)_25%)]",
@@ -119,11 +135,26 @@ export default function ApplicationOpen({
 
         <Button
           isPrimary={false}
+          onClick={handleSave}
+          disabled={saveOpportunity.isPending}
           className="flex gap-2 text-body-md leading-5 text-grey-500"
         >
           {" "}
-          <Bookmark className="w-4 h-4 stroke-grey-300" />{" "}
-          <span>Save for later</span>
+          <Bookmark
+            className={cn(
+              "w-4 h-4 stroke-grey-300",
+              opportunity.isSaved && "stroke-brand-500 fill-brand-500",
+            )}
+          />{" "}
+          {removeOpportunity.isPending ? (
+            <span>Removing...</span>
+          ) : opportunity.isSaved ? (
+            <span>Saved</span>
+          ) : saveOpportunity.isPending ? (
+            <span>Saving...</span>
+          ) : (
+            <span>Save for later</span>
+          )}
         </Button>
       </aside>
     </div>
