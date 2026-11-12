@@ -1,6 +1,5 @@
 import type { Career } from "@/types/career.types";
 import { ReportIssueLink } from "@/features/feedback/components/ReportIssueLink";
-import { REPORT_REASONS } from "@/features/feedback/feedback.utils";
 
 const card = "flex flex-col gap-4 rounded-[20px] border border-grey-100 bg-surface p-6";
 
@@ -40,11 +39,10 @@ export default function CareerOverview({ career }: { career: Career }) {
       )}
 
       <ReportIssueLink
-        label="Report an issue with this career"
+        subject="this career"
         section="CAREER_DETAILS"
-        reasons={REPORT_REASONS.CAREER_DETAILS}
         careerId={career.id}
-        subject={career.title}
+        about={career.title}
       />
     </div>
   );

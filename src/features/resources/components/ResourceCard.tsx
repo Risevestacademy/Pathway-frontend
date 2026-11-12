@@ -12,7 +12,6 @@ import { Badge } from "../../../components/ui/Badge";
 import { Card } from "../../../components/ui/Card";
 import type { Resource } from "../resources.types";
 import { ReportIssueLink } from "../../feedback/components/ReportIssueLink";
-import { REPORT_REASONS } from "../../feedback/feedback.utils";
 import { analytics } from "@/lib/monitoring/events";
 
 /** Where the resource appears, so a report reaches the right career. */
@@ -99,14 +98,10 @@ export default function ResourceCard({ resource, context }: ResourceCardProps) {
         {/* A report needs the career, so there is nothing to file without a context. */}
         {context && (
           <ReportIssueLink
-            label="Report an issue with this resource"
-            sentLabel="Thanks, we’ll review this resource"
-            section="RESOURCES"
-            reasons={REPORT_REASONS.RESOURCES}
-            careerId={context.careerId}
             subject={resource.title}
-            contextNote={`Resource: ${resource.title}, step: ${context.stepTitle}`}
-            note="The resource stays available while our team reviews your report."
+            section="RESOURCES"
+            careerId={context.careerId}
+            about={`${context.careerTitle} · ${context.stepTitle} · ${resource.title}`}
           />
         )}
         <a

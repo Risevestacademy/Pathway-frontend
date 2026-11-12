@@ -16,6 +16,8 @@ interface OnboardingSelectProps {
   options: { value: string; label: string }[];
   disabled?: boolean;
   className?: string;
+  /** Where the option list renders; pass the dialog when used inside a Modal. */
+  portalContainer?: HTMLElement | null;
 }
 
 export function OnboardingSelect({
@@ -27,6 +29,7 @@ export function OnboardingSelect({
   options,
   disabled,
   className = "",
+  portalContainer,
 }: OnboardingSelectProps) {
   const accessibleName = label ?? (id ? undefined : placeholder);
 
@@ -48,6 +51,7 @@ export function OnboardingSelect({
       <SelectContent
         position="popper"
         sideOffset={4}
+        container={portalContainer}
         className="w-(--radix-select-trigger-width)"
       >
         {options.map((option) => (

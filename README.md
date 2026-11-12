@@ -36,7 +36,7 @@ Copy `.env.example` to `.env` and fill in the values.
 
 | Variable | What it is for |
 | --- | --- |
-| `VITE_API_BASE_URL` | Base URL for API calls. |
+| `VITE_DEV_API_BASE_URL` | Backend the dev server proxies `/api` to (defaults to the hosted backend). The app always calls `/api/v1` on its own origin, so the refresh cookie works. |
 | `VITE_GOOGLE_CLIENT_ID` | Google sign-in |
 | `VITE_POSTHOG_PROJECT_TOKEN` | PostHog analytics |
 | `VITE_POSTHOG_HOST` | PostHog host |
