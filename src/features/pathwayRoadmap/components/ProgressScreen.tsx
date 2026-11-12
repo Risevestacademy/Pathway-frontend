@@ -50,26 +50,37 @@ export function ProgressScreen({
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
         <OverallProgressCard completed={completed} total={total} />
         <div className="flex flex-col gap-6">
-          <CompletedCard
-            careerId={careerId}
-            steps={completedSteps(steps)}
-            resources={tickedResources(groups, isTicked)}
-            startWith={
-              upNext
-                ? {
-                    stepNumber: upNext.number,
-                    action: (
-                      <StartStepButton
-                        careerId={careerId}
-                        stepNumber={upNext.number}
-                        started={started}
-                        activation={startActivation}
-                      />
-                    ),
-                  }
-                : undefined
-            }
-          />
+          {activation ? (
+            <section className="rounded-3xl border border-line bg-surface p-6">
+              <h2 className="font-display text-xl font-medium text-ink">
+                Completed details unavailable
+              </h2>
+              <p className="mt-2 text-sm text-ink-muted">
+                Detailed step and resource completion is available when this pathway is active.
+              </p>
+            </section>
+          ) : (
+            <CompletedCard
+              careerId={careerId}
+              steps={completedSteps(steps)}
+              resources={tickedResources(groups, isTicked)}
+              startWith={
+                upNext
+                  ? {
+                      stepNumber: upNext.number,
+                      action: (
+                        <StartStepButton
+                          careerId={careerId}
+                          stepNumber={upNext.number}
+                          started={started}
+                          activation={startActivation}
+                        />
+                      ),
+                    }
+                  : undefined
+              }
+            />
+          )}
           {upNext ? (
             <UpNextCard
               careerId={careerId}

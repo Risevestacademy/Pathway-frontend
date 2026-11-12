@@ -143,6 +143,18 @@ describe("ProgressScreen", () => {
     expect(screen.getByRole("link", { name: "Laws of UX" })).toBeTruthy();
   });
 
+  it("does not show step completion details for a paused pathway", () => {
+    screenOf({ activation: { activeCareerTitle: "Frontend Developer" } });
+
+    expect(screen.queryByRole("region", { name: "Completed" })).toBeNull();
+    expect(screen.getByText("Completed details unavailable")).toBeTruthy();
+    expect(
+      screen.getByText(
+        "Detailed step and resource completion is available when this pathway is active.",
+      ),
+    ).toBeTruthy();
+  });
+
   it("shows the step up next, with a way to continue", () => {
     screenOf();
 
@@ -206,10 +218,10 @@ describe("ProgressScreen", () => {
       expect(screen.getAllByRole("link", { name: "Start step 1" })).toHaveLength(2);
     });
 
-    it("makes the career active first, from either button, when that is needed", () => {
+    it("makes the career active first from the next-step button when that is needed", () => {
       screenOf({ overview: fresh, activation: { activeCareerTitle: null } });
 
-      expect(screen.getAllByRole("button", { name: "Start step 1" })).toHaveLength(2);
+      expect(screen.getAllByRole("button", { name: "Start step 1" })).toHaveLength(1);
     });
   });
 
