@@ -69,7 +69,7 @@ export default function CompareCareerCard({
               </button>
             </h3>
             <p className="mt-1 text-base leading-5 text-grey-600">
-              {career.shortDescription}
+              {career.description}
             </p>
           </div>
         </div>

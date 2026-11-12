@@ -53,7 +53,7 @@ export default function Catalogue() {
   const fields = useFields();
 
   const matches = (data ?? []).filter((career) =>
-    matchesQuery([career.title, career.shortDescription], deferredQuery),
+    matchesQuery([career.title, career.description], deferredQuery),
   );
 
   const interestLabel =
@@ -176,7 +176,7 @@ function CareerCard({ career }: { career: CareerListItem }) {
       <Card className="flex h-full flex-col p-6 transition-shadow group-hover:shadow-raised motion-reduce:transition-none">
         <h2 className="font-display text-body-lg-bold text-ink">{career.title}</h2>
         <p className="mt-2 flex-1 text-body-md text-ink-muted">
-          {career.shortDescription}
+          {career.description}
         </p>
         <span className="mt-4 inline-flex items-center gap-1.5 text-body-md text-brand-600">
           Open Pathway

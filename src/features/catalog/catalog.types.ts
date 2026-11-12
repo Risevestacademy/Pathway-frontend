@@ -13,7 +13,19 @@ export interface CareerListItem {
   id: string;
   slug: string;
   title: string;
-  shortDescription: string;
+  /** The one-line summary shown on its card. */
+  description: string;
+  iconKey: string | null;
+  targetLevels: ApiTargetLevel[];
+  /** Steps in its pathway. */
+  topicCount: number;
+  resourceCount: number;
+}
+
+/** GET /careers. The totals cover the whole catalogue, whatever the filters. */
+export interface CareerListResponse {
+  totals: { pathways: number; topics: number; resources: number };
+  items: CareerListItem[];
 }
 
 /** A career field as returned by GET /fields. */

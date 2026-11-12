@@ -59,7 +59,7 @@ export default function ComparePickerPage() {
 
   const list = useMemo(() => careers.data ?? [], [careers.data]);
   const matches = list.filter((career) =>
-    matchesQuery([career.title, career.shortDescription], deferredQuery),
+    matchesQuery([career.title, career.description], deferredQuery),
   );
   const shown = matches.slice(0, count);
   const details = useCareerDetails(shown.map((career) => career.id));

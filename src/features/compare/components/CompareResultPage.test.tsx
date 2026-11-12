@@ -37,6 +37,17 @@ describe("Compare result", () => {
     expect(screen.getByRole("heading", { level: 1 })).toBeTruthy();
   });
 
+  it("has a bar naming both careers for when the table scrolls, hidden until then and from screen readers", async () => {
+    await renderAt(`/careers/compare/result?a=${FRONTEND}&b=${DATA}`);
+    await table();
+
+    const bar = document.querySelector<HTMLElement>("[data-shown]");
+    expect(bar?.dataset.shown).toBe("false");
+    expect(bar?.closest('[aria-hidden="true"]')).toBeTruthy();
+    expect(bar?.textContent).toContain("Frontend Developer");
+    expect(bar?.textContent).toContain("Data Analyst");
+  });
+
   it("shows each career's median pay and growth", async () => {
     await renderAt(`/careers/compare/result?a=${FRONTEND}&b=${DATA}`);
 

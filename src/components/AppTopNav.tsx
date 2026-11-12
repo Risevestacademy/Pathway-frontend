@@ -83,6 +83,7 @@ export default function AppTopNav() {
 
   const pathwayCareerId = signedIn ? careerIdIn(pathname) : null;
 
+  // Its height is mirrored in BELOW_TOP_NAV (appTopNav.layout.ts) for whatever pins under it.
   return (
     <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-grey-50 bg-surface px-page-mobile py-4 sm:px-page-tablet lg:px-8 lg:py-8">
       <nav aria-label="Main">
