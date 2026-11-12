@@ -14,7 +14,7 @@ import {
 } from "../lib/stores/authStore";
 import { NavIcon } from "./NavIcon";
 import { FeedbackButton } from "../features/feedback/components/FeedbackButton";
-import { SignOutButton } from "../features/auth/components/SignOutButton";
+
 import { CareerProgressPill } from "../features/pathwayRoadmap/components/CareerProgressPill";
 import { AccountMenu } from "./AccountMenu";
 
@@ -33,8 +33,20 @@ const isUnder = (pathname: string, path: string) =>
   pathname === path || pathname.startsWith(`${path}/`);
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard", iconName: "dashboard", fallback: Layout3Regular, to: null, match: null },
-  { label: "Explore", iconName: "explore", fallback: TelescopeRegular, to: "/careers", match: "/careers" },
+  {
+    label: "Dashboard",
+    iconName: "dashboard",
+    fallback: Layout3Regular,
+    to: null,
+    match: null,
+  },
+  {
+    label: "Explore",
+    iconName: "explore",
+    fallback: TelescopeRegular,
+    to: "/careers",
+    match: "/careers",
+  },
   {
     label: "My Pathway",
     iconName: "my-pathway",
@@ -42,15 +54,14 @@ const NAV_ITEMS: NavItem[] = [
     to: "/my-pathway",
     match: "/my-pathway",
   },
-  { label: "Opportunities", iconName: "opportunities", fallback: BriefcaseRegular, to: null, match: null },
+  {
+    label: "Opportunities",
+    iconName: "opportunities",
+    fallback: BriefcaseRegular,
+    to: null,
+    match: null,
+  },
 ];
-
-const avatarFiles = import.meta.glob("/src/assets/images/avatar.svg", {
-  eager: true,
-  query: "?url",
-  import: "default",
-}) as Record<string, string>;
-const avatarUrl = Object.values(avatarFiles)[0] ?? null;
 
 // The career in /my-pathway/{careerId}/…, but not the Skill Check screens under /my-pathway/skill-check.
 const careerIdIn = (pathname: string) =>
@@ -60,12 +71,16 @@ const itemBase =
   "flex h-10 items-center gap-1.5 rounded-lg py-2 pr-3 pl-2 text-base leading-5 font-medium whitespace-nowrap";
 
 export default function AppTopNav() {
-  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const pathname = useRouterState({
+    select: (state) => state.location.pathname,
+  });
   const signedIn = useAuthStore(selectIsAuthenticated);
   // Until the session is restored after a reload, don't offer "Sign in".
   const restoringSession = useAuthStore(selectIsRestoringSession);
-  const visibleItems = signedIn ? NAV_ITEMS : NAV_ITEMS.filter((item) => item.to !== null);
-  const initial = email?.trim().charAt(0).toUpperCase() ?? "";
+  const visibleItems = signedIn
+    ? NAV_ITEMS
+    : NAV_ITEMS.filter((item) => item.to !== null);
+
   const pathwayCareerId = signedIn ? careerIdIn(pathname) : null;
 
   return (
@@ -73,7 +88,8 @@ export default function AppTopNav() {
       <nav aria-label="Main">
         <ul className="flex items-center gap-2 rounded-[10px] bg-grey-50 p-1">
           {visibleItems.map((item, index) => {
-            const isActive = item.match !== null && isUnder(pathname, item.match);
+            const isActive =
+              item.match !== null && isUnder(pathname, item.match);
             const label = (
               <>
                 <NavIcon
@@ -81,14 +97,19 @@ export default function AppTopNav() {
                   fallback={item.fallback}
                   className={isActive ? "text-white" : "text-grey-500"}
                 />
-                <span className={clsx(!isActive && "sr-only sm:not-sr-only")}>{item.label}</span>
+                <span className={clsx(!isActive && "sr-only sm:not-sr-only")}>
+                  {item.label}
+                </span>
               </>
             );
 
             return (
               <li key={item.label} className="flex items-center gap-2">
                 {index > 0 && (
-                  <span aria-hidden className="hidden h-7 w-px bg-grey-100 sm:block" />
+                  <span
+                    aria-hidden
+                    className="hidden h-7 w-px bg-grey-100 sm:block"
+                  />
                 )}
                 {item.to ? (
                   <Link
@@ -97,7 +118,9 @@ export default function AppTopNav() {
                     className={clsx(
                       itemBase,
                       "focus-ring transition-colors duration-200 ease-out motion-reduce:transition-none",
-                      isActive ? "bg-grey-900 text-white" : "text-grey-600 hover:bg-grey-100",
+                      isActive
+                        ? "bg-grey-900 text-white"
+                        : "text-grey-600 hover:bg-grey-100",
                     )}
                   >
                     {label}
@@ -106,7 +129,10 @@ export default function AppTopNav() {
                   <span
                     aria-disabled="true"
                     title="Coming soon"
-                    className={clsx(itemBase, "cursor-not-allowed text-grey-600")}
+                    className={clsx(
+                      itemBase,
+                      "cursor-not-allowed text-grey-600",
+                    )}
                   >
                     {label}
                     <span className="sr-only"> (coming soon)</span>
