@@ -89,6 +89,7 @@ export interface Career {
   roleSummary: string;
   workActivities: string[];
   entryConsiderations: EntryConsideration[];
+  /** What to fetch the career's roadmap by, or null when it has none yet. */
   roadmapId: string | null;
   stats: Statistic[];
   /** Absent on mock data. */

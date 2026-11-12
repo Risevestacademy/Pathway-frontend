@@ -12,6 +12,7 @@ import type { Career } from "@/types/career.types";
 import { COMPARE } from "../compare.copy";
 import CompareHeaderCard from "./CompareHeaderCard";
 import CompareTable, { cardsPad, columns} from "./CompareTable";
+import StickyCompareBar from "./StickyCompareBar";
 import clsx from "clsx";
 
 const route = getRouteApi("/careers/compare/result");
@@ -113,12 +114,16 @@ function CompareResult({ firstId, secondId }: { firstId: string; secondId: strin
         <CompareHeaderCard career={second.data} otherId={firstId} />
       </div>
 
-      <CompareTable
-        first={first.data}
-        second={second.data}
-        firstPathway={firstPathway}
-        secondPathway={secondPathway}
-      />
+      {/* The bar sticks only while this wrapper, and so the table, is on screen. */}
+      <div className="relative">
+        <StickyCompareBar careers={[first.data, second.data]} />
+        <CompareTable
+          first={first.data}
+          second={second.data}
+          firstPathway={firstPathway}
+          secondPathway={secondPathway}
+        />
+      </div>
 
       <p className="text-sm leading-5 text-grey-600">{R.footnote}</p>
     </div>
