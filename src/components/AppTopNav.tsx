@@ -16,6 +16,7 @@ import { NavIcon } from "./NavIcon";
 import { FeedbackButton } from "../features/feedback/components/FeedbackButton";
 import { SignOutButton } from "../features/auth/components/SignOutButton";
 import { CareerProgressPill } from "../features/pathwayRoadmap/components/CareerProgressPill";
+import { AccountMenu } from "./AccountMenu";
 
 type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -60,7 +61,6 @@ const itemBase =
 
 export default function AppTopNav() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const email = useAuthStore((state) => state.user?.email);
   const signedIn = useAuthStore(selectIsAuthenticated);
   // Until the session is restored after a reload, don't offer "Sign in".
   const restoringSession = useAuthStore(selectIsRestoringSession);
@@ -121,8 +121,6 @@ export default function AppTopNav() {
       {pathwayCareerId && <CareerProgressPill careerId={pathwayCareerId} />}
 
       <div className="flex items-center gap-3 lg:gap-2">
-        <FeedbackButton />
-        {signedIn && <SignOutButton />}
         {restoringSession ? (
           <div
             role="status"
@@ -130,31 +128,18 @@ export default function AppTopNav() {
             className="size-10 shrink-0 animate-pulse rounded-full bg-grey-50 motion-reduce:animate-none"
           />
         ) : signedIn ? (
-          <>
-            {avatarUrl ? (
-              <img
-                src={avatarUrl}
-                alt=""
-                aria-hidden
-                className="size-10 shrink-0 rounded-full"
-              />
-            ) : (
-              <div
-                aria-hidden
-                className="grid size-10 shrink-0 place-items-center rounded-full bg-accent-500 text-base font-semibold text-grey-900"
-              >
-                {initial}
-              </div>
-            )}
-          </>
+          <AccountMenu />
         ) : (
-          <Link
-            to="/login"
-            search={{ redirect: pathname }}
-            className="focus-ring rounded-lg border border-b-4 border-grey-100 bg-surface px-4 py-2 text-base leading-5 font-medium whitespace-nowrap text-grey-600 transition-colors duration-200 ease-out hover:bg-grey-50 motion-reduce:transition-none"
-          >
-            Sign in
-          </Link>
+          <>
+            <FeedbackButton />
+            <Link
+              to="/login"
+              search={{ redirect: pathname }}
+              className="focus-ring rounded-lg border border-b-4 border-grey-100 bg-surface px-4 py-2 text-base leading-5 font-medium whitespace-nowrap text-grey-600 transition-colors duration-200 ease-out hover:bg-grey-50 motion-reduce:transition-none"
+            >
+              Sign in
+            </Link>
+          </>
         )}
       </div>
     </header>

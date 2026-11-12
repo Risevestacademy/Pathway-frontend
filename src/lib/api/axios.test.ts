@@ -157,3 +157,10 @@ describe('skipAuthRefresh', () => {
     expect(refreshCallCount).toBe(1)
   })
 })
+
+describe('api base URL', () => {
+  // The refresh cookie is SameSite=Lax: a cross-site base URL would drop it and sign users out on reload.
+  it('calls the API on the same origin', () => {
+    expect(api.defaults.baseURL).toBe('/api/v1')
+  })
+})

@@ -12,7 +12,7 @@ import {
   type AnyRouter,
 } from "@tanstack/react-router";
 import { useAuthStore } from "../../../lib/stores/authStore";
-import { SignOutButton } from "./SignOutButton";
+import { SignOutDialog } from "./SignOutDialog";
 
 const server = setupServer();
 
@@ -38,9 +38,9 @@ beforeAll(() => {
   };
 });
 
-async function renderButton(): Promise<AnyRouter> {
+async function renderDialog(): Promise<AnyRouter> {
   const router = createRouter({
-    routeTree: createRootRoute({ component: () => <SignOutButton /> }),
+    routeTree: createRootRoute({ component: () => <SignOutDialog open onClose={() => {}} /> }),
     history: createMemoryHistory({ initialEntries: ["/careers/c1"] }),
   });
   render(
@@ -48,20 +48,15 @@ async function renderButton(): Promise<AnyRouter> {
       <RouterProvider router={router} />
     </QueryClientProvider>,
   );
-  await screen.findByRole("button", { name: "Sign out" });
+  await screen.findByRole("dialog", { name: /sign out of pathway/i });
   return router;
 }
 
 async function confirmSignOut() {
   await userEvent.click(screen.getByRole("button", { name: "Sign out" }));
-  const dialog = await screen.findByRole("dialog", { name: /sign out of pathway/i });
-  const confirm = Array.from(dialog.querySelectorAll("button")).find(
-    (button) => button.textContent === "Sign out",
-  );
-  await userEvent.click(confirm!);
 }
 
-describe("SignOutButton", () => {
+describe("SignOutDialog", () => {
   it("revokes the session on the server, clears it locally and goes home", async () => {
     let calls = 0;
     server.use(
@@ -70,7 +65,7 @@ describe("SignOutButton", () => {
         return new HttpResponse(null, { status: 204 });
       }),
     );
-    const router = await renderButton();
+    const router = await renderDialog();
 
     await confirmSignOut();
 
@@ -84,7 +79,7 @@ describe("SignOutButton", () => {
     server.use(
       http.post("*/auth/logout", () => HttpResponse.json({}, { status: 500 })),
     );
-    const router = await renderButton();
+    const router = await renderDialog();
 
     await confirmSignOut();
 

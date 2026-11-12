@@ -28,7 +28,6 @@ import RoadmapError from "../../../../features/pathway/components/RoadmapError";
 import RoadmapSkeleton from "../../../../features/pathway/components/RoadmapSkeleton";
 import { fetchPathwayOrNull } from "../../../../lib/api/pathways.api";
 import { ReportIssueLink } from "../../../../features/feedback/components/ReportIssueLink";
-import { REPORT_REASONS } from "../../../../features/feedback/feedback.utils";
 import { withLoaderErrorReporting } from "@/lib/monitoring/sentry";
 import { BackLinkTo } from "@/features/skillCheck/components/BackLink";
 
@@ -187,12 +186,10 @@ function StepRoute() {
       {career && (
         <ReportIssueLink
           className="mt-6"
-          label="Report an issue with this step"
+          subject="this step"
           section="PATHWAY"
-          reasons={REPORT_REASONS.PATHWAY}
           careerId={career.id}
-          subject={step.title}
-          contextNote={`Step ${number}: ${step.title}`}
+          about={`${career.title} · Step ${number}, ${step.title}`}
         />
       )}
 
