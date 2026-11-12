@@ -1,4 +1,13 @@
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { cleanup, screen, waitFor } from "@testing-library/react";
@@ -20,13 +29,16 @@ afterEach(() => {
 });
 afterAll(() => server.close());
 
-const card = (name: string) => screen.findByRole("checkbox", { name: new RegExp(name, "i") });
+const card = (name: string) =>
+  screen.findByRole("checkbox", { name: new RegExp(name, "i") });
 
 describe("Compare picker", () => {
   it("lists the careers and starts with nothing selected", async () => {
     await renderAt("/careers/compare");
 
-    expect((await card("Frontend Developer")).getAttribute("aria-checked")).toBe("false");
+    expect(
+      (await card("Frontend Developer")).getAttribute("aria-checked"),
+    ).toBe("false");
     expect(await card("Data Analyst")).toBeTruthy();
     expect(screen.getByRole("heading", { level: 1 })).toBeTruthy();
   });
@@ -34,8 +46,12 @@ describe("Compare picker", () => {
   it("restores a selection from the URL", async () => {
     await renderAt(`/careers/compare?a=${FRONTEND}`);
 
-    expect((await card("Frontend Developer")).getAttribute("aria-checked")).toBe("true");
-    expect((await card("Data Analyst")).getAttribute("aria-checked")).toBe("false");
+    expect(
+      (await card("Frontend Developer")).getAttribute("aria-checked"),
+    ).toBe("true");
+    expect((await card("Data Analyst")).getAttribute("aria-checked")).toBe(
+      "false",
+    );
   });
 
   it("opens the comparison once two are picked", async () => {
@@ -43,10 +59,17 @@ describe("Compare picker", () => {
 
     await userEvent.click(await card("Frontend Developer"));
     await userEvent.click(await card("Data Analyst"));
-    await userEvent.click(screen.getByRole("button", { name: /compare careers/i }));
+    await userEvent.click(
+      screen.getByRole("button", { name: /compare careers/i }),
+    );
 
-    await waitFor(() => expect(router.state.location.pathname).toBe("/careers/compare/result"));
-    expect(router.state.location.search).toMatchObject({ a: FRONTEND, b: DATA });
+    await waitFor(() =>
+      expect(router.state.location.pathname).toBe("/careers/compare/result"),
+    );
+    expect(router.state.location.search).toMatchObject({
+      a: FRONTEND,
+      b: DATA,
+    });
   });
 
   it("refuses a third career and says why", async () => {
@@ -56,17 +79,23 @@ describe("Compare picker", () => {
     await userEvent.click(third);
 
     expect(third.getAttribute("aria-checked")).toBe("false");
-    expect(await screen.findByText("You can only compare two careers at a time.")).toBeTruthy();
+    expect(
+      await screen.findByText("You can only compare two careers at a time."),
+    ).toBeTruthy();
   });
 
   it("explains what to do when Compare is pressed with fewer than two", async () => {
     const router = await renderAt(`/careers/compare?a=${FRONTEND}`);
 
-    const button = await screen.findByRole("button", { name: /compare careers/i });
+    const button = await screen.findByRole("button", {
+      name: /compare careers/i,
+    });
     expect(button.getAttribute("aria-disabled")).toBe("true");
     await userEvent.click(button);
 
-    expect(await screen.findByText("Pick two careers to compare.")).toBeTruthy();
+    expect(
+      await screen.findByText("Pick two careers to compare."),
+    ).toBeTruthy();
     expect(router.state.location.pathname).toBe("/careers/compare");
   });
 
@@ -75,10 +104,14 @@ describe("Compare picker", () => {
     await card("Frontend Developer");
 
     await userEvent.type(screen.getByRole("searchbox"), "zzz");
-    expect(await screen.findByRole("button", { name: /clear filters/i })).toBeTruthy();
+    expect(
+      await screen.findByRole("button", { name: /clear filters/i }),
+    ).toBeTruthy();
     expect(screen.queryByRole("checkbox")).toBeNull();
 
-    await userEvent.click(screen.getByRole("button", { name: /clear filters/i }));
+    await userEvent.click(
+      screen.getByRole("button", { name: /clear filters/i }),
+    );
     expect(await card("Frontend Developer")).toBeTruthy();
   });
 
@@ -96,16 +129,24 @@ describe("Compare picker", () => {
     let fail = true;
     server.use(
       http.get("*/careers", () =>
-        fail ? new HttpResponse(null, { status: 500 }) : HttpResponse.json([]),
+        fail
+          ? new HttpResponse(null, { status: 500 })
+          : HttpResponse.json({ items: [] }),
       ),
     );
     await renderAt("/careers/compare");
 
-    const retry = await screen.findByRole("button", { name: /try again|retry/i });
+    const retry = await screen.findByRole("button", {
+      name: /try again|retry/i,
+    });
     fail = false;
     await userEvent.click(retry);
 
-    await waitFor(() => expect(screen.queryByRole("button", { name: /try again|retry/i })).toBeNull());
+    await waitFor(() =>
+      expect(
+        screen.queryByRole("button", { name: /try again|retry/i }),
+      ).toBeNull(),
+    );
   });
 
   it("shows an empty state when there are no careers at all", async () => {
@@ -123,6 +164,8 @@ describe("Compare picker", () => {
 
     const links = await screen.findAllByRole("link", { name: /open pathway/i });
     expect(links.length).toBeGreaterThanOrEqual(3);
-    expect(links.some((l) => l.getAttribute("href")?.includes(DESIGN))).toBe(true);
+    expect(links.some((l) => l.getAttribute("href")?.includes(DESIGN))).toBe(
+      true,
+    );
   });
 });

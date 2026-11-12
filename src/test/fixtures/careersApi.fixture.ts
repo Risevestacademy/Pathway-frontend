@@ -2,21 +2,43 @@ export const FRONTEND = "11111111-1111-4111-8111-111111111111";
 export const DATA = "22222222-2222-4222-8222-222222222222";
 export const DESIGN = "33333333-3333-4333-8333-333333333333";
 
-const base = {
-  slug: "x",
-  roleSummary: "",
-  exampleActivities: [] as string[],
-  typicalEducationNote: "",
-  certificationsNote: "",
-  targetLevels: ["STUDENT"],
-  status: "PUBLISHED",
-  publishedAt: null,
-  updatedAt: "2026-01-01",
-};
+/** GET /careers/{id}, as the public API returns it. */
+function detail({
+  title,
+  description,
+  roleSummary = "",
+  exampleActivities = [],
+  skills,
+  projection,
+  topicCount,
+}: {
+  title: string;
+  description: string;
+  roleSummary?: string;
+  exampleActivities?: string[];
+  skills: { id: string; name: string }[];
+  projection: ReturnType<typeof outlook> | [];
+  topicCount: number;
+}) {
+  return {
+    overview: {
+      title,
+      description,
+      roleSummary,
+      exampleActivities,
+      imageUrl: null,
+      skills: skills.map((skill) => ({ ...skill, importance: "REQUIRED" })),
+      topicCount,
+      resourceCount: 0,
+    },
+    projection,
+    requirements: { courses: [], certifications: [] },
+  };
+}
 
 function outlook(median: string, growth: string, demand: string) {
   const common = {
-    sourceUrl: null,
+    sourceId: "src-bls",
     period: "2024",
     percentile25: null,
     percentile75: null,
@@ -25,7 +47,6 @@ function outlook(median: string, growth: string, demand: string) {
     baseValue: null,
     projectedYear: null,
     projectedValue: null,
-    updatedAt: "2026-01-01",
   };
   return [
     {
@@ -33,7 +54,6 @@ function outlook(median: string, growth: string, demand: string) {
       id: "o1",
       type: "SALARY",
       geography: "United States",
-      source: "BLS",
       median,
       currency: "USD",
       payPeriod: "year",
@@ -44,9 +64,8 @@ function outlook(median: string, growth: string, demand: string) {
     {
       ...common,
       id: "o2",
-      type: "OUTLOOK",
+      type: "EMPLOYMENT_GROWTH",
       geography: "United States",
-      source: "BLS",
       median: null,
       currency: null,
       payPeriod: null,
@@ -57,58 +76,54 @@ function outlook(median: string, growth: string, demand: string) {
   ];
 }
 
+const cards = [
+  { id: FRONTEND, slug: "frontend-developer", title: "Frontend Developer", description: "Builds what people see." },
+  { id: DATA, slug: "data-analyst", title: "Data Analyst", description: "Finds answers in data." },
+  { id: DESIGN, slug: "product-designer", title: "Product Designer", description: "Shapes how products feel." },
+];
+
 export const details = {
-  [FRONTEND]: {
-    ...base,
-    id: FRONTEND,
-    title: "Frontend Developer",
-    description: "Builds what people see.",
+  [FRONTEND]: detail({
+    ...cards[0],
     roleSummary: "Turns designs into interfaces.",
     exampleActivities: ["Build components"],
-    field: { name: "Software", slug: "software" },
     skills: [
       { id: "s1", name: "JavaScript" },
       { id: "s2", name: "Git" },
       { id: "s3", name: "CSS" },
     ],
-    outlook: outlook("92750", "8", "HIGH"),
-    pathway: { id: "p1", title: "Frontend", stepCount: 12 },
-  },
-  [DATA]: {
-    ...base,
-    id: DATA,
-    title: "Data Analyst",
-    description: "Finds answers in data.",
+    projection: outlook("92750", "8", "HIGH"),
+    topicCount: 12,
+  }),
+  [DATA]: detail({
+    ...cards[1],
     roleSummary: "Turns numbers into decisions.",
-    field: { name: "Data", slug: "data" },
     skills: [
       { id: "s4", name: "SQL" },
       { id: "s5", name: "git" },
     ],
-    outlook: outlook("78000", "11", "MEDIUM"),
-    pathway: null,
-  },
-  [DESIGN]: {
-    ...base,
-    id: DESIGN,
-    title: "Product Designer",
-    description: "Shapes how products feel.",
-    field: { name: "Design", slug: "design" },
+    projection: outlook("78000", "11", "MEDIUM"),
+    topicCount: 0,
+  }),
+  [DESIGN]: detail({
+    ...cards[2],
     skills: [{ id: "s6", name: "Figma" }],
-    outlook: [],
-    pathway: null,
-  },
-} as const;
+    projection: [],
+    topicCount: 0,
+  }),
+};
 
 export function detailFor(id: string) {
   return details[id as keyof typeof details];
 }
 
-export const list = Object.values(details).map((d) => ({
-  id: d.id,
-  slug: d.slug,
-  title: d.title,
-  shortDescription: d.description,
+/** GET /careers items, as the public API returns them. */
+export const list = cards.map((card) => ({
+  ...card,
+  iconKey: null,
+  targetLevels: ["STUDENT"],
+  topicCount: detailFor(card.id).overview.topicCount,
+  resourceCount: 0,
 }));
 
 export const pathways: Record<string, unknown> = {

@@ -67,7 +67,7 @@ export function toAdminRow(
   return {
     id: item.id,
     title: item.title,
-    shortDescription: item.shortDescription,
+    shortDescription: item.description,
     // GET /careers only returns published careers.
     status: detail ? STATUS_FROM_API[detail.status] : "published",
     stepCount: detail ? (detail.pathway?.stepCount ?? 0) : null,

@@ -1,6 +1,7 @@
 import { useQueries } from "@tanstack/react-query";
 import { fetchCareer } from "@/lib/api/careers.api";
 import { toCareer } from "@/features/careerDetail/careerDetail.utils";
+import type { PublicCareerDetailDto } from "@/features/careerDetail/career.types";
 import type { Career } from "@/types/career.types";
 import { queryKeys } from "@/lib/queryKeys";
 
@@ -10,7 +11,7 @@ export function useCareerDetails(ids: string[]): Map<string, Career> {
     queries: ids.map((id) => ({
       queryKey: queryKeys.careers.detail(id),
       queryFn: () => fetchCareer(id),
-      select: toCareer,
+      select: (data: PublicCareerDetailDto) => toCareer(data, id),
       staleTime: 15 * 60 * 1000,
       refetchOnWindowFocus: false,
     })),

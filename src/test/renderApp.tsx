@@ -1,7 +1,11 @@
 import { http, HttpResponse } from "msw";
 import { configure, render, screen } from "@testing-library/react";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { RouterProvider, createMemoryHistory, createRouter } from "@tanstack/react-router";
+import {
+  RouterProvider,
+  createMemoryHistory,
+  createRouter,
+} from "@tanstack/react-router";
 import { routeTree } from "@/routeTree.gen";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { details, list, pathways } from "./fixtures/careersApi.fixture";
@@ -11,17 +15,26 @@ configure({ asyncUtilTimeout: 60_000 });
 
 export function apiHandlers() {
   return [
-    http.get("*/careers", () => HttpResponse.json(list)),
+    http.get("*/careers", () => HttpResponse.json({ items: list })),
     http.get("*/careers/:id", ({ params }) => {
       const detail = details[params.id as keyof typeof details];
-      return detail ? HttpResponse.json(detail) : new HttpResponse(null, { status: 404 });
+      return detail
+        ? HttpResponse.json(detail)
+        : new HttpResponse(null, { status: 404 });
     }),
     http.get("*/careers/:id/pathway", ({ params }) => {
       const pathway = pathways[params.id as string];
-      return pathway ? HttpResponse.json(pathway) : new HttpResponse(null, { status: 404 });
+      return pathway
+        ? HttpResponse.json(pathway)
+        : new HttpResponse(null, { status: 404 });
     }),
     http.get("*/me/active-pathway", () =>
-      HttpResponse.json({ career: null, pathway: null, progress: null, steps: [] }),
+      HttpResponse.json({
+        career: null,
+        pathway: null,
+        progress: null,
+        steps: [],
+      }),
     ),
     http.get("*/fields", () =>
       HttpResponse.json([{ id: "f1", name: "Software", slug: "software" }]),
@@ -32,7 +45,9 @@ export function apiHandlers() {
 }
 
 export function signIn() {
-  useAuthStore.getState().setAuth({ id: "u1", email: "a@b.c", role: "USER" }, "token");
+  useAuthStore
+    .getState()
+    .setAuth({ id: "u1", email: "a@b.c", role: "USER" }, "token");
   useAuthStore.getState().finishHydrating();
 }
 

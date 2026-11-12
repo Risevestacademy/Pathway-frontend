@@ -14,6 +14,8 @@ import {
 } from "../lib/stores/authStore";
 import { NavIcon } from "./NavIcon";
 import { FeedbackButton } from "../features/feedback/components/FeedbackButton";
+
+import { CareerProgressPill } from "../features/pathwayRoadmap/components/CareerProgressPill";
 import { AccountMenu } from "./AccountMenu";
 
 type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
@@ -22,39 +24,73 @@ interface NavItem {
   label: string;
   iconName: string;
   fallback: IconComponent;
-  to: "/careers" | "/skill-check" | null;
+  to: "/careers" | "/my-pathway" | null;
+  /** The path this item covers, along with everything under it. */
   match: string | null;
 }
 
+const isUnder = (pathname: string, path: string) =>
+  pathname === path || pathname.startsWith(`${path}/`);
+
 const NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard", iconName: "dashboard", fallback: Layout3Regular, to: null, match: null },
-  { label: "Explore", iconName: "explore", fallback: TelescopeRegular, to: "/careers", match: "/careers" },
+  {
+    label: "Dashboard",
+    iconName: "dashboard",
+    fallback: Layout3Regular,
+    to: null,
+    match: null,
+  },
+  {
+    label: "Explore",
+    iconName: "explore",
+    fallback: TelescopeRegular,
+    to: "/careers",
+    match: "/careers",
+  },
   {
     label: "My Pathway",
     iconName: "my-pathway",
     fallback: Directions2Regular,
-    to: "/skill-check",
-    match: "/skill-check",
+    to: "/my-pathway",
+    match: "/my-pathway",
   },
-  { label: "Opportunities", iconName: "opportunities", fallback: BriefcaseRegular, to: null, match: null },
+  {
+    label: "Opportunities",
+    iconName: "opportunities",
+    fallback: BriefcaseRegular,
+    to: null,
+    match: null,
+  },
 ];
+
+// The career in /my-pathway/{careerId}/…, but not the Skill Check screens under /my-pathway/skill-check.
+const careerIdIn = (pathname: string) =>
+  /^\/my-pathway\/(?!skill-check(?:\/|$))([^/]+)/.exec(pathname)?.[1] ?? null;
 
 const itemBase =
   "flex h-10 items-center gap-1.5 rounded-lg py-2 pr-3 pl-2 text-base leading-5 font-medium whitespace-nowrap";
 
 export default function AppTopNav() {
-  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const pathname = useRouterState({
+    select: (state) => state.location.pathname,
+  });
   const signedIn = useAuthStore(selectIsAuthenticated);
   // Until the session is restored after a reload, don't offer "Sign in".
   const restoringSession = useAuthStore(selectIsRestoringSession);
-  const visibleItems = signedIn ? NAV_ITEMS : NAV_ITEMS.filter((item) => item.to !== null);
+  const visibleItems = signedIn
+    ? NAV_ITEMS
+    : NAV_ITEMS.filter((item) => item.to !== null);
 
+  const pathwayCareerId = signedIn ? careerIdIn(pathname) : null;
+
+  // Its height is mirrored in BELOW_TOP_NAV (appTopNav.layout.ts) for whatever pins under it.
   return (
     <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-grey-50 bg-surface px-page-mobile py-4 sm:px-page-tablet lg:px-8 lg:py-8">
       <nav aria-label="Main">
         <ul className="flex items-center gap-2 rounded-[10px] bg-grey-50 p-1">
           {visibleItems.map((item, index) => {
-            const isActive = item.match !== null && pathname.startsWith(item.match);
+            const isActive =
+              item.match !== null && isUnder(pathname, item.match);
             const label = (
               <>
                 <NavIcon
@@ -62,14 +98,19 @@ export default function AppTopNav() {
                   fallback={item.fallback}
                   className={isActive ? "text-white" : "text-grey-500"}
                 />
-                <span className={clsx(!isActive && "sr-only sm:not-sr-only")}>{item.label}</span>
+                <span className={clsx(!isActive && "sr-only sm:not-sr-only")}>
+                  {item.label}
+                </span>
               </>
             );
 
             return (
               <li key={item.label} className="flex items-center gap-2">
                 {index > 0 && (
-                  <span aria-hidden className="hidden h-7 w-px bg-grey-100 sm:block" />
+                  <span
+                    aria-hidden
+                    className="hidden h-7 w-px bg-grey-100 sm:block"
+                  />
                 )}
                 {item.to ? (
                   <Link
@@ -78,7 +119,9 @@ export default function AppTopNav() {
                     className={clsx(
                       itemBase,
                       "focus-ring transition-colors duration-200 ease-out motion-reduce:transition-none",
-                      isActive ? "bg-grey-900 text-white" : "text-grey-600 hover:bg-grey-100",
+                      isActive
+                        ? "bg-grey-900 text-white"
+                        : "text-grey-600 hover:bg-grey-100",
                     )}
                   >
                     {label}
@@ -87,7 +130,10 @@ export default function AppTopNav() {
                   <span
                     aria-disabled="true"
                     title="Coming soon"
-                    className={clsx(itemBase, "cursor-not-allowed text-grey-600")}
+                    className={clsx(
+                      itemBase,
+                      "cursor-not-allowed text-grey-600",
+                    )}
                   >
                     {label}
                     <span className="sr-only"> (coming soon)</span>
@@ -98,6 +144,8 @@ export default function AppTopNav() {
           })}
         </ul>
       </nav>
+
+      {pathwayCareerId && <CareerProgressPill careerId={pathwayCareerId} />}
 
       <div className="flex items-center gap-3 lg:gap-2">
         {restoringSession ? (

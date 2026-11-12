@@ -40,10 +40,18 @@ function Shell({
       <div className="mt-2 flex-1">{children}</div>
       {tags && <div className="mt-3 flex flex-wrap gap-1.5">{tags}</div>}
       <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 border-t border-line pt-3 text-xs">
-        <dt className="text-ink-subtle">Source</dt>
-        <dd className="text-ink-muted">{meta.source}</dd>
-        <dt className="text-ink-subtle">Period</dt>
-        <dd className="text-ink-muted">{meta.period}</dd>
+        {meta.source && (
+          <>
+            <dt className="text-ink-subtle">Source</dt>
+            <dd className="text-ink-muted">{meta.source}</dd>
+          </>
+        )}
+        {meta.period && (
+          <>
+            <dt className="text-ink-subtle">Period</dt>
+            <dd className="text-ink-muted">{meta.period}</dd>
+          </>
+        )}
         <dt className="text-ink-subtle">Location</dt>
         <dd className="text-ink-muted">{meta.geography}</dd>
       </dl>

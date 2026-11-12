@@ -48,7 +48,7 @@ export default function ExplorePage() {
   const details = useCareerDetails(list.map((career) => career.id));
 
   // Only list fields are searched, so results are complete as soon as the list arrives.
-  const visible = list.filter((career) => matchesQuery([career.title, career.shortDescription], deferredQuery));
+  const visible = list.filter((career) => matchesQuery([career.title, career.description], deferredQuery));
 
   const hasFilters = Boolean(search.q || search.level || search.field);
 
