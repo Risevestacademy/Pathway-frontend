@@ -56,6 +56,16 @@ describe("AppTopNav", () => {
     expect(screen.queryByRole("button", { name: "Account menu" })).toBeNull();
   });
 
+  it("links Dashboard to the dashboard", async () => {
+    await renderNav();
+    act(() => {
+      useAuthStore.getState().setAuth({ id: "u1", email: "a@b.c", role: "USER" }, "token");
+      useAuthStore.getState().finishHydrating();
+    });
+
+    expect(screen.getByRole("link", { name: /Dashboard/ }).getAttribute("href")).toBe("/dashboard");
+  });
+
   it("shows the signed-in state as soon as the session is restored", async () => {
     await renderNav();
 

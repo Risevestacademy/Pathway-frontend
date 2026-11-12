@@ -13,6 +13,7 @@ import type {
   SkillAnswerMap,
   StartingPoint,
 } from "../skillCheck.types";
+import { activateOnServer, startingPointOnServer } from "./activePathwaySync";
 import { useSkillCheckUserId } from "./useSkillCheck";
 import { queryKeys } from "../../../lib/queryKeys";
 
@@ -55,21 +56,41 @@ export function useCompleteSkillCheck(careerId: string) {
   });
 }
 
+/**
+ * Saves where the person starts. A chosen step is sent to the server first, so
+ * the dashboard points at the right step too, and if the server refuses nothing
+ * changes here either. Keeping the current one (null) changes nothing, so the
+ * server isn't told.
+ */
 export function useResolveStartingPoint(careerId: string) {
   const userId = useSkillCheckUserId();
+  const queryClient = useQueryClient();
   const invalidate = useInvalidateUser();
   return useMutation({
-    mutationFn: (startingPoint: StartingPoint | null) =>
-      resolveStartingPoint(userId, careerId, startingPoint),
+    mutationFn: async (startingPoint: StartingPoint | null) => {
+      if (startingPoint) {
+        await startingPointOnServer(queryClient, careerId, startingPoint.stepOrder);
+      }
+      return resolveStartingPoint(userId, careerId, startingPoint);
+    },
     onSuccess: invalidate,
   });
 }
 
+/**
+ * Makes a career the active pathway. The server is told first, so the dashboard
+ * sees it too, and if it refuses nothing changes here either. A career with no
+ * match in the real catalogue is only switched in My Pathway.
+ */
 export function useSwitchActiveCareer() {
   const userId = useSkillCheckUserId();
+  const queryClient = useQueryClient();
   const invalidate = useInvalidateUser();
   return useMutation({
-    mutationFn: (careerId: string) => switchActiveCareer(userId, careerId),
+    mutationFn: async (careerId: string) => {
+      await activateOnServer(queryClient, careerId);
+      return switchActiveCareer(userId, careerId);
+    },
     onSuccess: invalidate,
   });
 }

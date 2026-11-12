@@ -40,3 +40,21 @@ export function findSkillCheckCareerByTitle(
 export function hasSkillCheck(title: string, slug?: string): boolean {
   return findSkillCheckCareerByTitle(title, slug)?.reviewed === true;
 }
+
+/**
+ * The real catalogue career a My Pathway career stands for, found by title.
+ * My Pathway's careers have ids like "frontend-developer"; the backend knows
+ * the same careers by UUID. Null when the catalogue has no match.
+ */
+export function resolveRealCareerId(
+  careers: { id: string; title: string; slug?: string }[],
+  skillCheckCareerId: string,
+): string | null {
+  const skillCheckCareer = SKILL_CHECK_CAREERS.find((c) => c.careerId === skillCheckCareerId);
+  if (!skillCheckCareer) return null;
+  return (
+    careers.find((career) =>
+      matchesSkillCheckCareer(skillCheckCareer, { title: career.title, slug: career.slug }),
+    )?.id ?? null
+  );
+}

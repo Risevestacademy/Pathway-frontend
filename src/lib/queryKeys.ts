@@ -17,7 +17,9 @@ export const queryKeys = {
   pathway: (careerId: string) => ["pathway", careerId] as const,
   progress: {
     all: ["progress"] as const,
+    /** The pathway the signed-in person follows, with its steps and their state. */
     active: (userId: string) => ["progress", userId, "active"] as const,
+    /** The signed-in person's saved pathways and their progress. */
     saved: (userId: string) => ["progress", userId, "saved"] as const,
   },
   realRoadmap: (careerId: string | null) => ["real-roadmap", careerId] as const,
