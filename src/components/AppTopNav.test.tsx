@@ -75,6 +75,8 @@ describe("AppTopNav", () => {
       useAuthStore.getState().finishHydrating();
     });
 
+    expect(screen.getByRole("menuitem", { name: "Profile" }).getAttribute("href")).toBe("/profile");
+
     expect(screen.queryByRole("button", { name: "Feedback" })).toBeNull();
     await userEvent.click(screen.getByRole("button", { name: "Account menu" }));
     expect(screen.getByText("Ada Lovelace")).toBeTruthy();
