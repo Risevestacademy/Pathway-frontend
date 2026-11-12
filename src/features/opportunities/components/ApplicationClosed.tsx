@@ -27,8 +27,10 @@ export default function ApplicationClosed({
             </p>
           </div>
           <div className="flex gap-3">
-            <Button>See similar roles</Button>
-            <Button isPrimary={false}>Get notified of new roles</Button>
+            <Button disabled>See similar roles</Button>
+            <Button isPrimary={false} disabled>
+              Get notified of new roles
+            </Button>
           </div>
         </div>
       </div>
