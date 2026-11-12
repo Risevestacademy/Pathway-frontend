@@ -40,13 +40,11 @@ export function useCareerPathwayData(careerId: string): {
   };
 
   // Without their progress the roadmap would wrongly read as not started.
-  if (careerQuery.isError || pathwayQuery.isError || progress.kind === "error") {
+  if (pathwayQuery.isError || progress.kind === "error") {
     return { data: { kind: "error" }, retry };
   }
   if (
-    careerQuery.isPending ||
     pathwayQuery.isPending ||
-    !careerQuery.data ||
     progress.kind === "loading"
   ) {
     return { data: { kind: "loading" }, retry };
@@ -58,7 +56,7 @@ export function useCareerPathwayData(careerId: string): {
   return {
     data: {
       kind: "ready",
-      careerTitle: careerQuery.data.title,
+      careerTitle: careerQuery.data?.title ?? pathwayQuery.data.title,
       pathway: pathwayQuery.data,
       progress,
     },

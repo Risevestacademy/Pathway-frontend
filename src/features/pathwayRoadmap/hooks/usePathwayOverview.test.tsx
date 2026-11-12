@@ -173,13 +173,15 @@ describe("usePathwayOverview", () => {
     await waitFor(() => expect(result.current.state.kind).toBe("unavailable"));
   });
 
-  it("is an error when the career can't be loaded", async () => {
+  it("still loads the roadmap when the career details can't be loaded", async () => {
     loaded();
     useCareer.mockReturnValue({ data: undefined, isError: true, isPending: false, refetch: vi.fn() });
 
     const { result } = setup();
 
-    await waitFor(() => expect(result.current.state.kind).toBe("error"));
+    await waitFor(() => expect(result.current.state.kind).toBe("ready"));
+    const state = result.current.state;
+    expect(state.kind === "ready" && state.careerTitle).toBe("Roadmap");
   });
 
   it("is an error when the roadmap can't be loaded", async () => {
