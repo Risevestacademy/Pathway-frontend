@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { useDeferredValue, useState } from "react";
+import { Link, getRouteApi } from "@tanstack/react-router";
 import clsx from "clsx";
 import { ArrowRightRegular } from "@mingcute/react/core-regular";
 import { Button } from "../../../components/ui/Button";
@@ -7,6 +7,9 @@ import { Card } from "../../../components/ui/Card";
 import { Skeleton } from "../../../components/ui/Skeleton";
 import { StateMessage } from "../../../components/ui/StateMessage";
 import { CAREER_LEVELS, type CareerLevel } from "../../../types/career.types";
+import CareerFrame from "../../careerDetail/components/CareerFrame";
+import ExploreTabs from "../../explore/components/ExploreTabs";
+import { matchesQuery } from "../../explore/explore.utils";
 import { NO_INTEREST, type CareerListItem } from "../catalog.types";
 import {
   getCatalogueFilters,
@@ -17,12 +20,25 @@ import {
 import { useSession } from "../../../lib/stores/session";
 import { useCareers } from "../hooks/useCareers";
 import { useFields } from "../hooks/useFields";
+import { CareerFilterBar } from "./CareerFilterBar";
 import { CatalogueEmptyState } from "./CatalogueEmptyState";
 import { CatalogueTabs } from "./CatalogueTabs";
 import { DiscoverHero } from "./DiscoverHero";
 import { FilterSelect } from "./FilterSelect";
 
+const route = getRouteApi("/careers/");
+
 export default function Catalogue() {
+  const { q } = route.useSearch();
+  const navigate = route.useNavigate();
+  const query = q ?? "";
+  const deferredQuery = useDeferredValue(query);
+  const setQuery = (value: string) =>
+    void navigate({
+      search: { q: value.trim() ? value : undefined },
+      replace: true,
+      resetScroll: false,
+    });
   const { level, interest, setLevel, setInterest } = useSession();
   const levelLabel = CAREER_LEVELS.find((l) => l.id === level)?.label;
 
@@ -33,14 +49,16 @@ export default function Catalogue() {
   const { data, isPending, isError, isPlaceholderData, refetch } = useCareers(
     getCatalogueFilters(view, level, interest),
   );
-  // Same query as the "All" view, so it's shared from cache.
-  const allCareers = useCareers({});
+
   const fields = useFields();
+
+  const matches = (data ?? []).filter((career) =>
+    matchesQuery([career.title, career.shortDescription], deferredQuery),
+  );
 
   const interestLabel =
     fields.data?.find((f) => f.slug === interest)?.name ?? interest;
 
-  // Changing a filter jumps to the most specific view it now affects.
   const changeLevel = (next: string) => {
     setLevel(next as CareerLevel);
     setSelectedView(interest ? "recommended" : "level");
@@ -52,45 +70,40 @@ export default function Catalogue() {
   };
 
   return (
-    <main className="flex flex-1 flex-col px-page-mobile py-6 sm:px-page-tablet lg:p-8">
-      <DiscoverHero
-        pathwayCount={allCareers.isError ? null : allCareers.data?.length}
-      />
+    <CareerFrame>
+      <ExploreTabs current="careers" />
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-        <CatalogueTabs tabs={tabs} value={view} onChange={setSelectedView} />
+      <DiscoverHero />
 
-        <div
-          role="group"
-          aria-label="Change your filters"
-          className="flex flex-wrap items-center gap-2"
-        >
-          <FilterSelect
-            label="Level"
-            placeholder="Choose"
-            value={level ?? ""}
-            onValueChange={changeLevel}
-            options={CAREER_LEVELS.map((l) => ({
-              value: l.id,
-              label: l.label,
-            }))}
-          />
-          <FilterSelect
-            label="Interest"
-            placeholder="Any field"
-            value={interest ?? ""}
-            onValueChange={changeInterest}
-            disabled={!fields.data}
-            options={[
-              { value: NO_INTEREST, label: "Any field" },
-              ...(fields.data ?? []).map((f) => ({
-                value: f.slug,
-                label: f.name,
-              })),
-            ]}
-          />
-        </div>
-      </div>
+      <CareerFilterBar
+        query={query}
+        onQueryChange={setQuery}
+        tabs={
+          <CatalogueTabs tabs={tabs} value={view} onChange={setSelectedView} />
+        }
+      >
+        <FilterSelect
+          label="Level"
+          placeholder="Choose"
+          value={level ?? ""}
+          onValueChange={changeLevel}
+          options={CAREER_LEVELS.map((l) => ({ value: l.id, label: l.label }))}
+        />
+        <FilterSelect
+          label="Interest"
+          placeholder="Any field"
+          value={interest ?? ""}
+          onValueChange={changeInterest}
+          disabled={!fields.data}
+          options={[
+            { value: NO_INTEREST, label: "Any field" },
+            ...(fields.data ?? []).map((f) => ({
+              value: f.slug,
+              label: f.name,
+            })),
+          ]}
+        />
+      </CareerFilterBar>
 
       <div className="mt-6">
         {isPending ? (
@@ -117,13 +130,24 @@ export default function Catalogue() {
                 levelLabel={levelLabel}
                 onShowAll={() => setSelectedView("all")}
               />
+            ) : matches.length === 0 ? (
+              <StateMessage
+                kind="no-match"
+                title="No careers match your search"
+                body="Try a different word, or clear the search to see every career in this view."
+                action={
+                  <Button isPrimary={false} onClick={() => setQuery("")}>
+                    Clear search
+                  </Button>
+                }
+              />
             ) : (
-              <CareerGrid careers={data} />
+              <CareerGrid careers={matches} />
             )}
           </div>
         )}
       </div>
-    </main>
+    </CareerFrame>
   );
 }
 

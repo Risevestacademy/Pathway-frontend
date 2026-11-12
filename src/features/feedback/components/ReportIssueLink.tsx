@@ -1,24 +1,19 @@
 import clsx from "clsx";
-import { CheckCircle2, Flag } from "lucide-react";
+import { Flag } from "lucide-react";
 import { useState } from "react";
-import { ReportIssueDialog, type ReportIssueDialogProps, type ReportTarget } from "./ReportIssueDialog";
+import { ReportIssueDialog, type ReportTarget } from "./ReportIssueDialog";
 
-type ReportIssueLinkProps = ReportTarget &
-  Omit<ReportIssueDialogProps, "open" | "onClose" | "onSent" | keyof ReportTarget> & {
-    label: string;
-    sentLabel?: string;
-    className?: string;
-  };
+type ReportIssueLinkProps = ReportTarget & {
+  /** Shown in the dialog as "About: …" and sent with the report. */
+  about: string;
+  /** Finishes the link's accessible name, "Report a problem with …", since a page can have several. */
+  subject: string;
+  className?: string;
+};
 
-/** "Report an issue" text link that opens the report dialog and thanks the learner once sent. */
-export function ReportIssueLink({
-  label,
-  sentLabel = "Thanks, we’ll review this",
-  className,
-  ...dialogProps
-}: ReportIssueLinkProps) {
+/** "Report a problem" text link that opens the feedback dialog about this part of the page. */
+export function ReportIssueLink({ about, subject, className, ...target }: ReportIssueLinkProps) {
   const [open, setOpen] = useState(false);
-  const [sent, setSent] = useState(false);
 
   return (
     <>
@@ -26,28 +21,16 @@ export function ReportIssueLink({
         type="button"
         onClick={() => setOpen(true)}
         className={clsx(
-          "focus-ring inline-flex w-fit items-center gap-2 rounded-sm text-sm text-ink-muted hover:text-ink",
+          "focus-ring inline-flex w-fit items-center gap-2 rounded-sm text-base text-grey-600 underline underline-offset-2 hover:text-ink",
           className,
         )}
       >
-        {sent ? (
-          <>
-            <CheckCircle2 className="size-4 text-success-600" aria-hidden />
-            <span className="text-success-700">{sentLabel}</span>
-          </>
-        ) : (
-          <span className="flex items-center gap-2 hover:underline">
-            <Flag className="size-4" aria-hidden />
-            {label}
-          </span>
-        )}
+        <Flag className="size-5 shrink-0" aria-hidden />
+        <span>
+          Report a problem<span className="sr-only"> with {subject}</span>
+        </span>
       </button>
-      <ReportIssueDialog
-        {...dialogProps}
-        open={open}
-        onClose={() => setOpen(false)}
-        onSent={() => setSent(true)}
-      />
+      <ReportIssueDialog {...target} about={about} open={open} onClose={() => setOpen(false)} />
     </>
   );
 }

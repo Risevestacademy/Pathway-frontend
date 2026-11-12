@@ -12,8 +12,16 @@ declare module "axios" {
   }
 }
 
+/**
+ * Always same-origin: the Vite dev server proxies /api, and vercel.json
+ * rewrites it to the backend. The refresh cookie is SameSite=Lax, so a
+ * cross-site API URL would never send it and every reload would sign the
+ * user out.
+ */
+const API_BASE_URL = "/api/v1";
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: API_BASE_URL,
   timeout: 10000,
   withCredentials: true,
 });
