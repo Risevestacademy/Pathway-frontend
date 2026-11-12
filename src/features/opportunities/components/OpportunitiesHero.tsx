@@ -3,6 +3,8 @@ import { Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ListFilter, Search } from "lucide-react";
 import type { ChangeEvent } from "react";
+import briefcasePng from "@/assets/images/briefcase.png";
+import { cn } from "cn";
 
 export default function OpportunitiesHero({
   setSearch,
@@ -20,7 +22,12 @@ export default function OpportunitiesHero({
   return (
     <section
       aria-labelledby="opportunities-hero"
-      className="overflow-hidden flex flex-col md:flex-row items-end gap-8 rounded-2xl border border-grey-100 bg-surface bg-linear-to-r from-surface via-surface to-[rgba(230,250,240,1)] p-6 sm:p-10 lg:min-h-55 lg:justify-between"
+      className={cn(
+        "relative overflow-hidden bg-cover md:bg-contain bg-no-repeat bg-right flex flex-col md:flex-row items-end gap-8 rounded-2xl border border-grey-100 bg-surface bg-linear-to-r from-surface via-surface to-[rgba(230,250,240,1)] p-6 sm:p-10 lg:min-h-55 lg:justify-between",
+      )}
+      style={{
+        backgroundImage: `url(${briefcasePng}), linear-gradient(to right, #ffffff, #ffffff, rgba(230, 250, 240, 1))`,
+      }}
     >
       <div>
         <Tag tone="warning" className="gap-1">

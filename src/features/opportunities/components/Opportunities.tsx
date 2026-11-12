@@ -20,7 +20,7 @@ export default function Opportunities({
           <div className="max-w-max text-center flex flex-col gap-6">
             <div className="flex flex-col gap-3">
               <h2 className="text-[24px] font-medium leading-6">
-                No opportunities match your pathway
+                No opportunities match your selection
               </h2>
               <p className="text-grey-600 max-w-[389px]">
                 We add listings as employers confirm them. Finish a few more
