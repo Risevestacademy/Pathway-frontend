@@ -63,13 +63,6 @@ const NAV_ITEMS: NavItem[] = [
   },
 ];
 
-const avatarFiles = import.meta.glob("/src/assets/images/avatar.svg", {
-  eager: true,
-  query: "?url",
-  import: "default",
-}) as Record<string, string>;
-const avatarUrl = Object.values(avatarFiles)[0] ?? null;
-
 // The career in /my-pathway/{careerId}/…, but not the Skill Check screens under /my-pathway/skill-check.
 const careerIdIn = (pathname: string) =>
   /^\/my-pathway\/(?!skill-check(?:\/|$))([^/]+)/.exec(pathname)?.[1] ?? null;
