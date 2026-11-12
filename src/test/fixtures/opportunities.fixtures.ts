@@ -1,21 +1,18 @@
 import { BriefcaseBusiness, GraduationCap, Users } from "lucide-react";
 
-import type { Opportunity } from "./opportunities.type";
-
-export const opportunities: Opportunity[] = [
+export const opportunities = [
   {
     id: "frontend-internship",
     icon: BriefcaseBusiness,
     title: "Frontend Development Internship",
     organisation: "Pathway Labs",
     location: "London",
-    workMode: "Hybrid",
-    category: "Internship",
+    type: "INTERNSHIP",
     pricing: "Free",
     description:
       "Build accessible web experiences with a supportive product and engineering team.",
     customMessage: "Matches step 5 of your pathway",
-    status: "Open",
+    status: "OPEN",
     deadline: "2026-11-10",
     duration: "6 Months",
     whatToDo: [

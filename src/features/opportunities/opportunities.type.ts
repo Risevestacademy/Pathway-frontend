@@ -48,7 +48,7 @@ export interface Opportunity {
   type: OpportunityType;
   organisation: string;
   location: string;
-  descripiton: string;
+  description: string;
   status: "OPEN" | "CLOSED";
   responsibilities: string[];
   audience: string[];
