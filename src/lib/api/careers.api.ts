@@ -11,8 +11,10 @@ import type {
 export async function fetchCareers(
   params: FetchCareersParams,
 ): Promise<CareerListItem[]> {
-  const { data } = await api.get<CareerListItem[]>("/careers", { params });
-  return data;
+  const { data } = await api.get<{ items: CareerListItem[] }>("/careers", {
+    params,
+  });
+  return data.items;
 }
 
 export async function fetchFields(): Promise<CareerField[]> {
