@@ -3,6 +3,10 @@ import { cleanup, render, screen } from "@testing-library/react";
 import type { SkillCheckCareer } from "../skillCheck.types";
 import { SettledPanel } from "./SettledPanel";
 
+vi.mock("../hooks/useRealCareer", () => ({
+  useRealCareerId: () => "real-career-id",
+}));
+
 vi.mock("@tanstack/react-router", () => ({
   Link: ({ children, to, params }: { children: React.ReactNode; to: string; params?: Record<string, string> }) => (
     <a href={Object.entries(params ?? {}).reduce((path, [k, v]) => path.replace(`$${k}`, v), to)}>{children}</a>
@@ -35,7 +39,7 @@ describe("SettledPanel", () => {
     render(<SettledPanel career={career} startingPoint={{ stepOrder: 1, source: "DEFAULT" }} />);
 
     expect(screen.getByRole("link", { name: /Go to roadmap/ }).getAttribute("href")).toBe(
-      "/my-pathway/c1/overview",
+      "/my-pathway/real-career-id/overview",
     );
   });
 

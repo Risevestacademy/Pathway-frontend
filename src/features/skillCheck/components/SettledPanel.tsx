@@ -3,7 +3,8 @@ import { earlierNote } from "../resultCopy";
 import { describeStartingPoint } from "../skillCheck.copy";
 import { getStep } from "../skillCheck.utils";
 import type { SkillCheckCareer, StartingPoint } from "../skillCheck.types";
-import { SkillLink } from "./SkillButton";
+import { useRealCareerId } from "../hooks/useRealCareer";
+import { SkillButton, SkillLink } from "./SkillButton";
 import { Tag } from "./Tag";
 
 export function SettledPanel({
@@ -13,6 +14,7 @@ export function SettledPanel({
   career: SkillCheckCareer;
   startingPoint: StartingPoint;
 }) {
+  const realCareerId = useRealCareerId(career.name);
   const step = getStep(career, startingPoint.stepOrder);
   const note = earlierNote(career, startingPoint.stepOrder);
 
@@ -29,10 +31,14 @@ export function SettledPanel({
         {note && <p className="text-sm leading-5 text-grey-600">{note}</p>}
       </div>
       <div className="flex flex-col gap-3">
-        <SkillLink to="/my-pathway/$careerId/overview" params={{ careerId: career.careerId }}>
-          Go to roadmap
-          <ArrowRightRegular aria-hidden className="size-5" />
-        </SkillLink>
+        {realCareerId ? (
+          <SkillLink to="/my-pathway/$careerId/overview" params={{ careerId: realCareerId }}>
+            Go to roadmap
+            <ArrowRightRegular aria-hidden className="size-5" />
+          </SkillLink>
+        ) : (
+          <SkillButton disabled>Loading roadmap</SkillButton>
+        )}
         <SkillLink to="/my-pathway/skill-check" isPrimary={false}>
           Back to Skill check
         </SkillLink>
