@@ -21,8 +21,6 @@ export const queryKeys = {
     saved: (userId: string) => ["progress", userId, "saved"] as const,
   },
   realRoadmap: (careerId: string | null) => ["real-roadmap", careerId] as const,
-  roadmapPreview: (userId: string, careerId: string) =>
-    ["roadmap-preview", userId, careerId] as const,
   skillCheck: {
     all: ["skill-check"] as const,
     user: (userId: string) => ["skill-check", userId] as const,

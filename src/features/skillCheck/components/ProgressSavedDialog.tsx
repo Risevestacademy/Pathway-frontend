@@ -24,7 +24,7 @@ export function ProgressSavedDialog({
         <SkillButton isPrimary={false} className="flex-1" onClick={onKeepGoing}>
           Keep going
         </SkillButton>
-        <SkillLink to="/skill-check" className="flex-1">
+        <SkillLink to="/my-pathway/skill-check" className="flex-1">
           Back to Skill check
         </SkillLink>
       </div>

@@ -30,7 +30,7 @@ export function SkillGapEntry({
   if (!match || !match.reviewed) return null;
 
   const goCheck = () =>
-    navigate({ to: "/skill-check/$careerId", params: { careerId: match.careerId } });
+    navigate({ to: "/my-pathway/skill-check/$careerId", params: { careerId: match.careerId } });
 
   return (
     <>
@@ -96,7 +96,7 @@ export function SkillGapEntry({
       <SignInPromptDialog
         open={signInOpen}
         onClose={() => setSignInOpen(false)}
-        redirectTo={`/skill-check/${match.careerId}`}
+        redirectTo={`/my-pathway/skill-check/${match.careerId}`}
       />
     </>
   );

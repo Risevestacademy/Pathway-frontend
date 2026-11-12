@@ -63,7 +63,7 @@ export function StartingPointAside({
       )}
       <div className="border-t border-brand-200 pt-4">
         <Link
-          to="/skill-check/$careerId"
+          to="/my-pathway/skill-check/$careerId"
           params={{ careerId: career.careerId }}
           className="focus-ring rounded text-sm leading-5 font-medium text-brand-600 hover:underline"
         >
