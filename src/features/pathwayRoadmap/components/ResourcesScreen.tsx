@@ -91,7 +91,7 @@ export function ResourcesScreen({
             />
             <PaidCoursesCard
               careerId={careerId}
-              resources={groups.flatMap((group) => group.paid)}
+              resources={selected.paid}
               hasFreeResources={selected.resources.length > 0}
             />
           </div>

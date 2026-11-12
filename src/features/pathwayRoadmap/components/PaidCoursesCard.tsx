@@ -76,7 +76,7 @@ export function PaidCoursesCard({
       </div>
 
       <p className="text-sm text-ink-muted">
-        {hasFreeResources ? "Every step above can be finished for free. " : ""}
+        {hasFreeResources ? "This step can be finished for free. " : ""}
         These courses are extra if you want more depth and can afford them. Your progress never
         depends on them.
       </p>

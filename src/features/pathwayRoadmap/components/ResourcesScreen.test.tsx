@@ -198,25 +198,24 @@ describe("ResourcesScreen", () => {
     expect(steps().getByRole("button", { name: /Step 3/ }).getAttribute("aria-current")).toBe("true");
   });
 
-  it("shows all of the pathway's paid courses below the card, whichever step is picked", () => {
+  it("shows only the selected step's paid courses below the card", () => {
     screenOf();
 
-    const paid = () => screen.getByLabelText("paid courses").textContent;
-    expect(paid()).toBe("paid: p1,p2 | free: true");
+    expect(screen.queryByLabelText("paid courses")).toBeNull();
 
     fireEvent.click(steps().getByRole("button", { name: /Step 3/ }));
-    expect(paid()).toBe("paid: p1,p2 | free: true");
+    const paid = () => screen.getByLabelText("paid courses").textContent;
+    expect(paid()).toBe("paid: p1 | free: true");
 
     const card = screen.getByRole("region");
     expect(card.compareDocumentPosition(screen.getByLabelText("paid courses")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("says the shown step has no free resources when it hasn't, though the paid courses stay", () => {
+  it("shows only the selected step's paid courses when it has no free resources", () => {
     screenOf();
 
     fireEvent.click(steps().getByRole("button", { name: /Step 5/ }));
-
-    expect(screen.getByLabelText("paid courses").textContent).toBe("paid: p1,p2 | free: false");
+    expect(screen.getByLabelText("paid courses").textContent).toBe("paid: p2 | free: false");
   });
 
   it("shows no paid section when no step has a paid course", () => {

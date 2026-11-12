@@ -95,7 +95,7 @@ export function ResourceStepCard({
           {readyToComplete && (
             <p className="text-sm text-ink">
               {hasNothingToTick
-                ? "This step has no resources to tick. Mark the step complete when you feel done."
+                ? "This step has no free resources to tick. Mark the step complete when you feel done."
                 : allTicked
                   ? "Everything in this step is ticked. Mark the step complete when you feel done."
                   : `You've ticked ${ticked} of ${count} resources. Mark the step complete when you feel done.`}

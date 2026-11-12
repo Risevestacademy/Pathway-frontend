@@ -188,7 +188,7 @@ describe("ResourceStepCard", () => {
     });
 
     describe("a step with no free resources to tick", () => {
-      const NONE = "This step has no resources to tick. Mark the step complete when you feel done.";
+      const NONE = "This step has no free resources to tick. Mark the step complete when you feel done.";
 
       it("says so, and still offers marking the step complete, since nothing else could", () => {
         card("NOT_STARTED", { resources: [] });

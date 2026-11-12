@@ -40,12 +40,12 @@ describe("PaidCoursesCard", () => {
     expect(within(section).getByText("Not part of your steps")).toBeTruthy();
   });
 
-  it("explains that every step can be finished for free, and that progress never depends on these", () => {
+  it("explains that the selected step can be finished for free, and that progress never depends on these", () => {
     card([paid("a")]);
 
     expect(
       screen.getByText(
-        "Every step above can be finished for free. These courses are extra if you want more depth and can afford them. Your progress never depends on them.",
+        "This step can be finished for free. These courses are extra if you want more depth and can afford them. Your progress never depends on them.",
       ),
     ).toBeTruthy();
   });
