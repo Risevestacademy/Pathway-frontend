@@ -166,7 +166,10 @@ export default function ComparePickerPage() {
           disabled={!fields.data}
           options={[
             { value: NO_INTEREST, label: "Any field" },
-            ...(fields.data ?? []).map((f) => ({ value: f.slug, label: f.name })),
+            ...(fields.data ?? []).map((f) => ({
+              value: f.slug,
+              label: f.name,
+            })),
           ]}
         />
       </CareerFilterBar>
