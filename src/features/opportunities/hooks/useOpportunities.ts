@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import type { FetchOpportunitiesParams } from "../opportunities.type";
 import { queryKeys } from "@/lib/queryKeys";
 import { fetchOpportunities } from "@/lib/api/opportunities.api";
@@ -9,5 +9,6 @@ export function useOpportunities(params: FetchOpportunitiesParams) {
     queryFn: () => fetchOpportunities(params),
     staleTime: 15 * 60 * 1000,
     refetchOnWindowFocus: false,
+    placeholderData: keepPreviousData,
   });
 }

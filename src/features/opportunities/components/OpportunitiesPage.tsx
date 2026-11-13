@@ -19,7 +19,7 @@ const TYPES: ("ALL" | OpportunityType)[] = [
 
 export default function OpportunitiesPage() {
   const [activeType, setActiveType] = useState<"ALL" | OpportunityType>("ALL");
-  const [search, setSearch] = useState<string>("");
+  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
   const [searching, setSearching] = useState<boolean>(false);
   const {
     data: opportunities,
@@ -28,7 +28,7 @@ export default function OpportunitiesPage() {
     error,
   } = useOpportunities({
     ...(!searching && activeType !== "ALL" && { type: activeType }),
-    ...(searching && { search }),
+    ...(searching && debouncedSearch.trim() && { search: debouncedSearch }),
   });
 
   if (isError) throw error;
@@ -37,13 +37,11 @@ export default function OpportunitiesPage() {
     <OpportunitiesFrame>
       <OpportunitiesHero
         setSearching={setSearching}
-        setSearch={setSearch}
-        search={search}
+        setDebouncedSearch={setDebouncedSearch}
       />
       <SubNav
         setSearching={setSearching}
         searching={searching}
-        search={search}
         types={TYPES}
         active={activeType}
         setActive={setActiveType}

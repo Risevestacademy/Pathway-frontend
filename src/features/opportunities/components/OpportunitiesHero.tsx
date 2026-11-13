@@ -5,20 +5,30 @@ import { ListFilter, Search } from "lucide-react";
 import type { ChangeEvent } from "react";
 import briefcasePng from "@/assets/images/briefcase.png";
 import { cn } from "cn";
+import { useState, useEffect } from "react";
 
 export default function OpportunitiesHero({
-  setSearch,
+  setDebouncedSearch,
   setSearching,
-  search,
 }: {
   setSearching: (bool: boolean) => void;
-  setSearch: (search: string) => void;
-  search: string;
+  setDebouncedSearch: (search: string) => void;
 }) {
+  const [search, setSearch] = useState("");
+
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
     setSearching(true);
   };
+
+  useEffect(() => {
+    const timerId = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+
+    return () => clearTimeout(timerId);
+  }, [search, setDebouncedSearch]);
+
   return (
     <section
       aria-labelledby="opportunities-hero"

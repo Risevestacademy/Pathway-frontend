@@ -13,7 +13,6 @@ export default function SubNav({
   active: string;
   setActive: (category: "ALL" | OpportunityType) => void;
   setSearching: (bool: boolean) => void;
-  search: string;
   searching: boolean;
 }) {
   return (
