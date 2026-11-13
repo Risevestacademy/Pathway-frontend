@@ -1,17 +1,16 @@
 import type { OpportunitySummary } from "../opportunities.type";
 import { Tag } from "@/components/ui/Tag";
-import { Button } from "@/components/ui/Button";
+import { LinkButton } from "@/components/ui/Button";
 import { ArrowRight } from "lucide-react";
-import { useNavigate } from "@tanstack/react-router";
 import { getDaysLeft } from "../opportunities.util";
 import OpportunityIcon from "./OpportunityIcon";
+import { cn } from "cn";
 
 export default function OpportunityCard({
   opportunity,
 }: {
   opportunity: OpportunitySummary;
 }) {
-  const navigate = useNavigate();
   const subtitles = [
     opportunity.organisation,
     opportunity.location,
@@ -22,13 +21,6 @@ export default function OpportunityCard({
   let daysLeft;
 
   if (opportunity.deadline) daysLeft = getDaysLeft(opportunity.deadline);
-
-  const handleButtonClick = () => {
-    navigate({
-      to: "/opportunities/$opportunitiesId",
-      params: { opportunitiesId: opportunity.id },
-    });
-  };
 
   return (
     <div className="h-full rounded-2xl border p-6 border-grey-100">
@@ -68,22 +60,27 @@ export default function OpportunityCard({
 
         <div className="mt-auto flex flex-col gap-4">
           <div className="h-px bg-grey-100" />
-          {opportunity.customMessage ? (
-            <div className="flex justify-between items-center">
+          <div
+            className={cn(
+              "flex justify-between items-center",
+              !opportunity.customMessage && "justify-end ",
+            )}
+          >
+            {opportunity.customMessage && (
               <p className="text-grey-500 font-medium text-[12px] leading-5">
                 {opportunity.customMessage}
               </p>
-              <Button className="p-2" onClick={handleButtonClick}>
-                <ArrowRight />
-              </Button>
-            </div>
-          ) : (
-            <div className="flex justify-end items-center">
-              <Button className="p-2" onClick={handleButtonClick}>
-                <ArrowRight />
-              </Button>
-            </div>
-          )}
+            )}
+
+            <LinkButton
+              to="/opportunities/$opportunitiesId"
+              params={{ opportunitiesId: opportunity.id }}
+              aria-label={`View ${opportunity.title}`}
+              className="p-2"
+            >
+              <ArrowRight />
+            </LinkButton>
+          </div>
         </div>
       </div>
     </div>

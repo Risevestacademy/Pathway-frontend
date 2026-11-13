@@ -16,9 +16,11 @@ export default function SubNav({
   searching: boolean;
 }) {
   return (
-    <ul className="flex gap-1.5 pt-8 pb-10 overflow-x-scroll scrollbar-none">
+    <div className="flex gap-1.5 pt-8 pb-10 overflow-x-scroll scrollbar-none">
       {types.map((type, idx) => (
-        <li
+        <button
+          type="button"
+          aria-pressed={!searching && active === type}
           key={idx}
           tabIndex={0}
           className={cn(
@@ -34,8 +36,8 @@ export default function SubNav({
           }}
         >
           {type.charAt(0) + type.slice(1).toLowerCase()}
-        </li>
+        </button>
       ))}
-    </ul>
+    </div>
   );
 }
