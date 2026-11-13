@@ -34,3 +34,13 @@ export function buildDashboardSummary(
     pathwaysCount: saved.length,
   };
 }
+
+/** "Good Morning, Maya" once there's an active pathway, "Welcome, Maya" before that. */
+export function dashboardGreeting(
+  name: string | undefined,
+  hasActivePathway: boolean,
+): string {
+  const greeting = hasActivePathway ? "Good Morning" : "Welcome";
+  const firstName = name?.trim().split(/\s+/)[0];
+  return firstName ? `${greeting}, ${firstName}` : greeting;
+}
