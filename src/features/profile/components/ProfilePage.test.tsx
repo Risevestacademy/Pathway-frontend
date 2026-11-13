@@ -85,12 +85,13 @@ describe("Profile page", () => {
     await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("button", { name: "Edit name" })));
   });
 
-  it("points to Settings for changing the email", async () => {
+  it("shows the email as read-only with a note that changing it is coming", async () => {
     await renderAt("/profile");
     await editName();
 
     expect(screen.getByText("Email: ada@example.com")).toBeTruthy();
-    expect(screen.getByRole("link", { name: "Change in Settings" }).getAttribute("href")).toBe("/settings");
+    expect(screen.getByText("Changing your email is coming soon.")).toBeTruthy();
+    expect(screen.queryByRole("link", { name: /settings/i })).toBeNull();
   });
 
   it("asks for both names before sending anything", async () => {

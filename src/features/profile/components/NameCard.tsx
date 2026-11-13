@@ -193,12 +193,7 @@ export function NameCard({
         </div>
         <div className="flex flex-col gap-1">
           <p className="text-sm leading-5 font-medium text-ink wrap-anywhere">Email: {profile.email}</p>
-          <a
-            href="/settings"
-            className="focus-ring w-fit rounded-sm text-sm leading-5 font-medium text-brand-700 underline underline-offset-2 hover:text-brand-800"
-          >
-            Change in Settings
-          </a>
+          <p className="text-sm leading-5 text-grey-500">Changing your email is coming soon.</p>
         </div>
         {update.isError && (
           <p role="alert" className="text-sm leading-5 text-danger-700">
