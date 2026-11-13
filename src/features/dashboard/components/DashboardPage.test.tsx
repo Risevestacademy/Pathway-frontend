@@ -47,6 +47,7 @@ describe("DashboardPage", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Good Morning, Maya" })).toBeTruthy();
     expect(screen.getByText("38%")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Today's Goals" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Current Projects" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Pathways" }).parentElement?.textContent).toContain("2");
     expect(screen.getByRole("heading", { name: "Steps Completed" }).parentElement?.textContent).toContain("3");
   });

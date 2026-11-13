@@ -6,6 +6,7 @@ import pathwaysArt from "../../../assets/images/dashboard/pathways-art.png";
 import stepsArt from "../../../assets/images/dashboard/steps-art.png";
 import { dashboardGreeting } from "../dashboard.utils";
 import { useDashboardSummary } from "../hooks/useDashboardSummary";
+import { CurrentProjectsCard } from "./CurrentProjectsCard";
 import { CurrentProgressCard } from "./CurrentProgressCard";
 import { StatCard } from "./StatCard";
 import { TodaysGoalsCard } from "./TodaysGoalsCard";
@@ -56,6 +57,7 @@ export function DashboardPage() {
       </div>
       <div className="grid gap-4 lg:grid-cols-[1fr_1.4fr]">
         <TodaysGoalsCard summary={summary} />
+        <CurrentProjectsCard />
       </div>
     </div>
   );
