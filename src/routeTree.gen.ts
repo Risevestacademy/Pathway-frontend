@@ -17,6 +17,7 @@ import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-pas
 import { Route as authSignupRouteImport } from './routes/(auth)/signup'
 import { Route as authVerifyEmailRouteImport } from './routes/(auth)/verify-email'
 import { Route as ProtectedAdminRouteImport } from './routes/_protected/admin'
+import { Route as ProtectedDashboardRouteImport } from './routes/_protected/dashboard'
 import { Route as ProtectedMyPathwayRouteImport } from './routes/_protected/my-pathway'
 import { Route as ProtectedProgressRouteImport } from './routes/_protected/progress'
 import { Route as CareersIndexRouteImport } from './routes/careers/index'
@@ -89,6 +90,11 @@ const authVerifyEmailRoute = authVerifyEmailRouteImport.update({
 const ProtectedAdminRoute = ProtectedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedDashboardRoute = ProtectedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => ProtectedRoute,
 } as any)
 const ProtectedMyPathwayRoute = ProtectedMyPathwayRouteImport.update({
@@ -287,6 +293,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof authSignupRoute
   '/verify-email': typeof authVerifyEmailRoute
   '/admin': typeof ProtectedAdminRouteWithChildren
+  '/dashboard': typeof ProtectedDashboardRoute
   '/my-pathway': typeof ProtectedMyPathwayRouteWithChildren
   '/progress': typeof ProtectedProgressRoute
   '/explore/$careerId': typeof ExploreCareerIdRoute
@@ -329,6 +336,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof authResetPasswordRoute
   '/signup': typeof authSignupRoute
   '/verify-email': typeof authVerifyEmailRoute
+  '/dashboard': typeof ProtectedDashboardRoute
   '/progress': typeof ProtectedProgressRoute
   '/explore/$careerId': typeof ExploreCareerIdRoute
   '/skill-check/$': typeof SkillCheckSplatRoute
@@ -373,6 +381,7 @@ export interface FileRoutesById {
   '/(auth)/signup': typeof authSignupRoute
   '/(auth)/verify-email': typeof authVerifyEmailRoute
   '/_protected/admin': typeof ProtectedAdminRouteWithChildren
+  '/_protected/dashboard': typeof ProtectedDashboardRoute
   '/_protected/my-pathway': typeof ProtectedMyPathwayRouteWithChildren
   '/_protected/progress': typeof ProtectedProgressRoute
   '/explore/$careerId': typeof ExploreCareerIdRoute
@@ -418,6 +427,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/verify-email'
     | '/admin'
+    | '/dashboard'
     | '/my-pathway'
     | '/progress'
     | '/explore/$careerId'
@@ -460,6 +470,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/verify-email'
+    | '/dashboard'
     | '/progress'
     | '/explore/$careerId'
     | '/skill-check/$'
@@ -503,6 +514,7 @@ export interface FileRouteTypes {
     | '/(auth)/signup'
     | '/(auth)/verify-email'
     | '/_protected/admin'
+    | '/_protected/dashboard'
     | '/_protected/my-pathway'
     | '/_protected/progress'
     | '/explore/$careerId'
@@ -619,6 +631,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof ProtectedAdminRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/dashboard': {
+      id: '/_protected/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof ProtectedDashboardRouteImport
       parentRoute: typeof ProtectedRoute
     }
     '/_protected/my-pathway': {
@@ -924,12 +943,14 @@ const ProtectedMyPathwayRouteWithChildren =
 
 interface ProtectedRouteChildren {
   ProtectedAdminRoute: typeof ProtectedAdminRouteWithChildren
+  ProtectedDashboardRoute: typeof ProtectedDashboardRoute
   ProtectedMyPathwayRoute: typeof ProtectedMyPathwayRouteWithChildren
   ProtectedProgressRoute: typeof ProtectedProgressRoute
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
   ProtectedAdminRoute: ProtectedAdminRouteWithChildren,
+  ProtectedDashboardRoute: ProtectedDashboardRoute,
   ProtectedMyPathwayRoute: ProtectedMyPathwayRouteWithChildren,
   ProtectedProgressRoute: ProtectedProgressRoute,
 }

@@ -146,6 +146,15 @@ describe("AppTopNav", () => {
     expect(screen.queryByRole("status", { name: /checking your sign-in/i })).toBeNull();
   });
 
+  it("links Dashboard for signed-in people only", async () => {
+    await renderNav();
+    act(() => useAuthStore.getState().finishHydrating());
+    expect(screen.queryByRole("link", { name: "Dashboard" })).toBeNull();
+
+    act(() => useAuthStore.getState().setAuth({ id: "u1", email: "a@b.c", role: "USER" }, "token"));
+    expect(screen.getByRole("link", { name: "Dashboard" }).getAttribute("href")).toBe("/dashboard");
+  });
+
   it("puts Send feedback and Sign out in the account menu", async () => {
     await renderNav();
     act(() => {
