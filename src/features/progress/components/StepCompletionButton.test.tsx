@@ -1,4 +1,4 @@
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -48,10 +48,13 @@ beforeEach(() => {
   queryClient.setQueryData(queryKeys.progress.active("u1"), active);
 });
 
-function renderButton(status: "COMPLETED" | "NOT_STARTED" = "NOT_STARTED") {
+function renderButton(
+  status: "COMPLETED" | "NOT_STARTED" = "NOT_STARTED",
+  extra: { variant?: "compact" | "full" | "primary" | "undo"; onCompleted?: () => void } = {},
+) {
   return render(
     <QueryClientProvider client={queryClient}>
-      <StepCompletionButton stepId="s1" stepTitle="HTML" status={status} />
+      <StepCompletionButton stepId="s1" stepTitle="HTML" status={status} {...extra} />
     </QueryClientProvider>,
   );
 }
@@ -125,5 +128,145 @@ describe("StepCompletionButton", () => {
     await userEvent.click(screen.getByRole("button", { name: /done: html/i }));
 
     await waitFor(() => expect(bodies).toEqual([{ status: "NOT_STARTED" }]));
+  });
+
+  describe("the primary variant", () => {
+    const saves = () =>
+      http.put("*/me/pathway-steps/s1", async () =>
+        HttpResponse.json({
+          stepId: "s1",
+          status: "COMPLETED",
+          progress: { ...progress, completed: 1, percentage: 50, nextStepId: "s2" },
+        }),
+      );
+
+    it("is a primary button that marks the step complete", async () => {
+      const bodies: unknown[] = [];
+      server.use(
+        http.put("*/me/pathway-steps/s1", async ({ request }) => {
+          bodies.push(await request.json());
+          return HttpResponse.json({ stepId: "s1", status: "COMPLETED", progress });
+        }),
+        http.get("*/me/*", () => HttpResponse.json({}, { status: 500 })),
+      );
+      renderButton("NOT_STARTED", { variant: "primary" });
+
+      const button = screen.getByRole("button", { name: "Mark step complete" });
+      expect(button.className).toContain("bg-brand-600");
+      await userEvent.click(button);
+
+      await waitFor(() => expect(bodies).toEqual([{ status: "COMPLETED" }]));
+    });
+
+    it("says the step is complete once it has been saved", async () => {
+      server.use(saves(), http.get("*/me/*", () => HttpResponse.json({}, { status: 500 })));
+      const onCompleted = vi.fn();
+      renderButton("NOT_STARTED", { variant: "primary", onCompleted });
+
+      await userEvent.click(screen.getByRole("button", { name: "Mark step complete" }));
+
+      await waitFor(() => expect(onCompleted).toHaveBeenCalledOnce());
+    });
+
+    it("doesn't say so when the save fails", async () => {
+      server.use(http.put("*/me/pathway-steps/s1", () => HttpResponse.json({}, { status: 500 })));
+      const onCompleted = vi.fn();
+      renderButton("NOT_STARTED", { variant: "primary", onCompleted });
+
+      await userEvent.click(screen.getByRole("button", { name: "Mark step complete" }));
+
+      await screen.findByRole("alert");
+      expect(onCompleted).not.toHaveBeenCalled();
+    });
+
+    it("shows a small Undo in the primary colour, not the primary button, for a step already complete", () => {
+      renderButton("COMPLETED", { variant: "primary" });
+
+      expect(screen.queryByRole("button", { name: "Mark step complete" })).toBeNull();
+      expect(screen.getByText("You marked this step complete.")).toBeTruthy();
+      const undo = screen.getByRole("button", { name: /undo/i });
+      expect(undo.textContent).toContain("Undo");
+      expect(undo.className).toContain("text-brand-700");
+      expect(undo.className).toContain("text-sm");
+    });
+
+    it("names what Undo undoes, for screen readers", () => {
+      renderButton("COMPLETED", { variant: "primary" });
+
+      expect(screen.getByRole("button", { name: "Undo marking HTML complete" })).toBeTruthy();
+    });
+
+    it("marks the step not complete again when Undo is chosen, without saying it was completed", async () => {
+      const bodies: unknown[] = [];
+      server.use(
+        http.put("*/me/pathway-steps/s1", async ({ request }) => {
+          bodies.push(await request.json());
+          return HttpResponse.json({ stepId: "s1", status: "NOT_STARTED", progress });
+        }),
+        http.get("*/me/*", () => HttpResponse.json({}, { status: 500 })),
+      );
+      const onCompleted = vi.fn();
+      renderButton("COMPLETED", { variant: "primary", onCompleted });
+
+      await userEvent.click(screen.getByRole("button", { name: /undo/i }));
+
+      await waitFor(() => expect(bodies).toEqual([{ status: "NOT_STARTED" }]));
+      await waitFor(() => expect(screen.getByRole("status").textContent).toContain("marked not done"));
+      expect(onCompleted).not.toHaveBeenCalled();
+    });
+
+    it("keeps the step complete and offers to try again when undoing can't be saved", async () => {
+      server.use(http.put("*/me/pathway-steps/s1", () => HttpResponse.json({}, { status: 500 })));
+      renderButton("COMPLETED", { variant: "primary" });
+
+      await userEvent.click(screen.getByRole("button", { name: /undo/i }));
+
+      const alert = await screen.findByRole("alert");
+      expect(alert.textContent).toContain("still marked done");
+      expect(screen.getByRole("button", { name: /try again/i })).toBeTruthy();
+    });
+  });
+
+  describe("the undo variant", () => {
+    it("is just a small Undo in the primary colour for a completed step", () => {
+      renderButton("COMPLETED", { variant: "undo" });
+
+      const undo = screen.getByRole("button", { name: "Undo marking HTML complete" });
+      expect(undo.textContent).toContain("Undo");
+      expect(undo.className).toContain("text-brand-700");
+      expect(screen.queryByText("You marked this step complete.")).toBeNull();
+    });
+
+    it("shows nothing for a step that isn't complete, since there is nothing to undo", () => {
+      const { container } = renderButton("NOT_STARTED", { variant: "undo" });
+
+      expect(container.firstChild).toBeNull();
+    });
+
+    it("marks the step not complete when chosen", async () => {
+      const bodies: unknown[] = [];
+      server.use(
+        http.put("*/me/pathway-steps/s1", async ({ request }) => {
+          bodies.push(await request.json());
+          return HttpResponse.json({ stepId: "s1", status: "NOT_STARTED", progress });
+        }),
+        http.get("*/me/*", () => HttpResponse.json({}, { status: 500 })),
+      );
+      renderButton("COMPLETED", { variant: "undo" });
+
+      await userEvent.click(screen.getByRole("button", { name: /undo/i }));
+
+      await waitFor(() => expect(bodies).toEqual([{ status: "NOT_STARTED" }]));
+    });
+
+    it("keeps the step complete and offers to try again when undoing can't be saved", async () => {
+      server.use(http.put("*/me/pathway-steps/s1", () => HttpResponse.json({}, { status: 500 })));
+      renderButton("COMPLETED", { variant: "undo" });
+
+      await userEvent.click(screen.getByRole("button", { name: /undo/i }));
+
+      expect((await screen.findByRole("alert")).textContent).toContain("still marked done");
+      expect(screen.getByRole("button", { name: /try again/i })).toBeTruthy();
+    });
   });
 });

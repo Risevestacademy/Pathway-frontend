@@ -85,7 +85,7 @@ export function Questionnaire({
       await persist(answers, areaId);
       await complete.mutateAsync();
       await navigate({
-        to: "/skill-check/$careerId/result",
+        to: "/my-pathway/skill-check/$careerId/result",
         params: { careerId: career.careerId },
       });
     } catch {

@@ -7,12 +7,12 @@ const backClass =
 
 export function BackLink({
   label = "Back",
-  fallbackTo = "/skill-check",
+  fallbackTo = "/my-pathway/skill-check",
   to,
   careerId,
 }: {
   label?: string;
-  fallbackTo?: "/skill-check" | "/careers";
+  fallbackTo?: "/my-pathway/skill-check" | "/careers";
   to?: "/careers" | "/careers/$careerId";
   careerId?: string;
 }) {

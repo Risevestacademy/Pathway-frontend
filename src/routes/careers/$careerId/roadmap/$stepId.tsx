@@ -29,7 +29,6 @@ import RoadmapSkeleton from "../../../../features/pathway/components/RoadmapSkel
 import { fetchPathwayOrNull } from "../../../../lib/api/pathways.api";
 import { ReportIssueLink } from "../../../../features/feedback/components/ReportIssueLink";
 import { withLoaderErrorReporting } from "@/lib/monitoring/sentry";
-import StepProgressSection from "../../../../features/progress/components/StepProgressSection";
 import { BackLinkTo } from "@/features/skillCheck/components/BackLink";
 
 export const Route = createFileRoute("/careers/$careerId/roadmap/$stepId")({
@@ -154,17 +153,6 @@ function StepRoute() {
 
         <StepEstimate estimate={step.estimate} />
       </div>
-
-      {career && (
-        <div className="mt-6">
-          <StepProgressSection
-            careerId={career.id}
-            careerTitle={career.title}
-            stepId={step.stepId}
-            stepTitle={step.title}
-          />
-        </div>
-      )}
 
       <div className="mt-8">
         {step.resourceIds.length > 0 ? (

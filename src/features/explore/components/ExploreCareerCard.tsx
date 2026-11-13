@@ -34,7 +34,7 @@ export default function ExploreCareerCard({ career, detail }: { career: CareerLi
               {career.title}
             </Link>
           </h3>
-          <p className="mt-1 font-landing-body text-[15px] leading-5 text-grey-500">{career.shortDescription}</p>
+          <p className="mt-1 font-landing-body text-[15px] leading-5 text-grey-500">{career.description}</p>
         </div>
       </div>
 

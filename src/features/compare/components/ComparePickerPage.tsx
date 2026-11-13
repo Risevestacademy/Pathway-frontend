@@ -59,7 +59,7 @@ export default function ComparePickerPage() {
 
   const list = useMemo(() => careers.data ?? [], [careers.data]);
   const matches = list.filter((career) =>
-    matchesQuery([career.title, career.shortDescription], deferredQuery),
+    matchesQuery([career.title, career.description], deferredQuery),
   );
   const shown = matches.slice(0, count);
   const details = useCareerDetails(shown.map((career) => career.id));
@@ -166,7 +166,10 @@ export default function ComparePickerPage() {
           disabled={!fields.data}
           options={[
             { value: NO_INTEREST, label: "Any field" },
-            ...(fields.data ?? []).map((f) => ({ value: f.slug, label: f.name })),
+            ...(fields.data ?? []).map((f) => ({
+              value: f.slug,
+              label: f.name,
+            })),
           ]}
         />
       </CareerFilterBar>

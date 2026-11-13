@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { Link } from "@tanstack/react-router";
 import type { LinkComponentProps } from "@tanstack/react-router";
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "react";
 
 type Size = "default" | "lg";
 
@@ -73,5 +73,32 @@ export function LinkButton({
     >
       {children}
     </Link>
+  );
+}
+
+type ExternalLinkButtonProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
+  href: string;
+  children: ReactNode;
+  isPrimary?: boolean;
+  size?: Size;
+};
+
+/** A link to another site, opened in a new tab, that looks like a button. */
+export function ExternalLinkButton({
+  children,
+  isPrimary = true,
+  size = "default",
+  className = "",
+  ...props
+}: ExternalLinkButtonProps) {
+  return (
+    <a
+      target="_blank"
+      rel="noopener noreferrer"
+      className={buttonStyles({ isPrimary, size, className })}
+      {...props}
+    >
+      {children}
+    </a>
   );
 }

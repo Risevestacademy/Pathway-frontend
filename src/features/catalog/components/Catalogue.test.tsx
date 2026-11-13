@@ -30,6 +30,22 @@ describe("Careers page", () => {
     expect(compare.getAttribute("href")).toBe("/careers/compare");
   });
 
+  it("shows each career's one-line description", async () => {
+    await renderAt("/careers");
+
+    expect(await screen.findByText("Builds what people see.")).toBeTruthy();
+  });
+
+  it("finds a career by words in its description", async () => {
+    await renderAt("/careers");
+    await screen.findByText("Frontend Developer");
+
+    await userEvent.type(screen.getByRole("searchbox"), "answers in data");
+
+    await waitFor(() => expect(screen.queryByText("Frontend Developer")).toBeNull());
+    expect(screen.getByText("Data Analyst")).toBeTruthy();
+  });
+
   it("filters the list by what is typed in the search", async () => {
     await renderAt("/careers");
     await screen.findByText("Frontend Developer");

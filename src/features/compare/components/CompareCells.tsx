@@ -2,7 +2,7 @@ import clsx from "clsx";
 import type { UseQueryResult } from "@tanstack/react-query";
 import { TrendingDown, TrendingUp } from "lucide-react";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { formatMoney } from "@/features/careerDetail/careerDetail.utils";
+import { describeSource, formatMoney } from "@/features/careerDetail/careerDetail.utils";
 import {
   experienceLabel,
   payBasisLabel,
@@ -36,7 +36,7 @@ export function Unavailable({ text }: { text: string }) {
 export function Source({ stat }: { stat: Statistic }) {
   return (
     <p className={clsx("mt-0.5", fineText)}>
-      {stat.source}, {stat.period}
+      {describeSource(stat)}
     </p>
   );
 }
@@ -123,7 +123,7 @@ export function OutlookCell({ career }: { career: Career }) {
         )}
         {projection && (
           <p className={clsx("mt-1", fineText)}>
-            {projection.geography} · {projection.source}, {projection.period}
+            {[projection.geography, describeSource(projection)].filter(Boolean).join(" · ")}
           </p>
         )}
       </div>
@@ -132,7 +132,7 @@ export function OutlookCell({ career }: { career: Career }) {
         <p className="text-xl leading-7 font-medium text-ink">{demand?.value ?? R.notYet}</p>
         {demand && (
           <p className={clsx("mt-0.5", fineText)}>
-            {demand.geography} · {demand.source}, {demand.period}
+            {[demand.geography, describeSource(demand)].filter(Boolean).join(" · ")}
           </p>
         )}
       </div>

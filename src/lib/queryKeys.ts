@@ -16,14 +16,13 @@ export const queryKeys = {
   fields: ["fields"] as const,
   onboardingOptions: ["onboarding-options"] as const,
   pathway: (careerId: string) => ["pathway", careerId] as const,
+  profile: (userId: string) => ["profile", userId] as const,
   progress: {
     all: ["progress"] as const,
     active: (userId: string) => ["progress", userId, "active"] as const,
     saved: (userId: string) => ["progress", userId, "saved"] as const,
   },
   realRoadmap: (careerId: string | null) => ["real-roadmap", careerId] as const,
-  roadmapPreview: (userId: string, careerId: string) =>
-    ["roadmap-preview", userId, careerId] as const,
   skillCheck: {
     all: ["skill-check"] as const,
     user: (userId: string) => ["skill-check", userId] as const,
