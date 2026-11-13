@@ -13,7 +13,7 @@ export default function OpportunityCard({
 }) {
   const navigate = useNavigate();
   const subtitles = [
-    opportunity.organization,
+    opportunity.organisation,
     opportunity.location,
     opportunity.workMode,
     opportunity.deliveryMode,

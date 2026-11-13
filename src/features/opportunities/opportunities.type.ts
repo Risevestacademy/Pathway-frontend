@@ -83,7 +83,7 @@ export interface OpportunitySummary {
   id: string;
   title: string;
   type: OpportunityType;
-  organization: string;
+  organisation: string;
   location: string;
   status: "OPEN" | "CLOSED";
   deadline: string;
