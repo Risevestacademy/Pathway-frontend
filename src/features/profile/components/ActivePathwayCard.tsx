@@ -82,7 +82,7 @@ export function ActivePathwayCard() {
         </div>
         <p className="text-sm leading-5 font-medium text-grey-600">{stepsLabel(completed, total)}</p>
       </div>
-      <Link to="/careers/$careerId/roadmap" params={{ careerId: career.id }} className={linkClass}>
+      <Link to="/my-pathway/$careerId/overview" params={{ careerId: career.id }} className={linkClass}>
         Go to My Pathway
       </Link>
     </section>

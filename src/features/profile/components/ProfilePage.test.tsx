@@ -55,7 +55,7 @@ describe("Profile page", () => {
     expect((await screen.findByRole("heading", { name: "Product Designer" })).textContent).toBe("Product Designer");
     expect(screen.getByText("5 of 16 steps complete")).toBeTruthy();
     expect(screen.getByRole("progressbar").getAttribute("aria-valuenow")).toBe("5");
-    expect(screen.getByRole("link", { name: "Go to My Pathway" }).getAttribute("href")).toBe("/careers/c1/roadmap");
+    expect(screen.getByRole("link", { name: "Go to My Pathway" }).getAttribute("href")).toBe("/my-pathway/c1/overview");
   });
 
   it("marks the sections that cannot be saved yet", async () => {
