@@ -6,28 +6,26 @@ import { getDaysLeft, formatDate } from "../opportunities.util";
 import { cn } from "cn";
 import { analytics } from "@/lib/monitoring/events";
 import { useSaveOpportunity, useRemoveOpportunity } from "../hooks/useSave";
-import { useRouter } from "@tanstack/react-router";
+import { useState } from "react";
 
 export default function ApplicationOpen({
   opportunity,
 }: {
   opportunity: Opportunity;
 }) {
+  const [saved, setSaved] = useState<boolean>(!!opportunity.isSaved); // isSaved can be undefined in the response data
   let daysLeft;
-  const router = useRouter();
 
   if (opportunity.deadline) daysLeft = getDaysLeft(opportunity.deadline);
 
-  const saveOpportunity = useSaveOpportunity();
-  const removeOpportunity = useRemoveOpportunity();
+  const saveOpportunity = useSaveOpportunity(() => setSaved(true));
+  const removeOpportunity = useRemoveOpportunity(() => setSaved(false));
 
   const handleSave = async () => {
-    if (opportunity.isSaved || saveOpportunity.isSuccess) {
+    if (saved) {
       removeOpportunity.mutate(opportunity.id);
-      if (removeOpportunity.isSuccess) await router.invalidate();
     } else {
       saveOpportunity.mutate(opportunity.id);
-      if (saveOpportunity.isSuccess) await router.invalidate();
     }
   };
 
@@ -49,7 +47,7 @@ export default function ApplicationOpen({
           <Card className="rounded-[16px]">
             <ul className="flex flex-col gap-3">
               {opportunity.responsibilities.map((each, idx) => (
-                <ListItem text={each} idx={idx} />
+                <ListItem key={idx} text={each} idx={idx} />
               ))}
             </ul>
           </Card>
@@ -136,19 +134,19 @@ export default function ApplicationOpen({
         <Button
           isPrimary={false}
           onClick={handleSave}
-          disabled={saveOpportunity.isPending}
+          disabled={saveOpportunity.isPending || removeOpportunity.isPending}
           className="flex gap-2 text-body-md leading-5 text-grey-500"
         >
           {" "}
           <Bookmark
             className={cn(
               "w-4 h-4 stroke-grey-300",
-              opportunity.isSaved && "stroke-brand-500 fill-brand-500",
+              saved && "stroke-brand-500 fill-brand-500",
             )}
           />{" "}
           {removeOpportunity.isPending ? (
             <span>Removing...</span>
-          ) : opportunity.isSaved ? (
+          ) : saved ? (
             <span>Saved</span>
           ) : saveOpportunity.isPending ? (
             <span>Saving...</span>
@@ -156,6 +154,21 @@ export default function ApplicationOpen({
             <span>Save for later</span>
           )}
         </Button>
+        {saveOpportunity.isError && (
+          <p className="text-[14px] text-danger-600 text-center">
+            Error saving opportunity, try again later.
+          </p>
+        )}
+        {removeOpportunity.isError && (
+          <p className="text-[14px] text-danger-600 text-center">
+            Error removing opportunity, try again later.
+          </p>
+        )}
+        {(saveOpportunity.isPaused || removeOpportunity.isPaused) && (
+          <p className="text-[14px] text-warning-600 text-center">
+            waiting for internet connection...
+          </p>
+        )}
       </aside>
     </div>
   );

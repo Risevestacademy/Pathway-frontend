@@ -24,7 +24,7 @@ export function UnknownError() {
       <StateMessage
         icon={AlertTriangle}
         variant="error"
-        title="We couldn't load this career"
+        title="We couldn't load this opportunity"
         body="Something went wrong while loading the career details. Please try again."
         action={<Button onClick={() => router.invalidate()}>Try again</Button>}
       />

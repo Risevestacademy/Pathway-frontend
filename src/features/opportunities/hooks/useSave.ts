@@ -4,18 +4,20 @@ import {
   removeSavedOpportunity,
 } from "@/lib/api/opportunities.api";
 
-export function useSaveOpportunity() {
+export function useSaveOpportunity(onSuccess: () => void) {
   return useMutation({
     mutationFn: (opportunityId: string) => {
       return setSavedOpportunity(opportunityId);
     },
+    onSuccess,
   });
 }
 
-export function useRemoveOpportunity() {
+export function useRemoveOpportunity(onSuccess: () => void) {
   return useMutation({
     mutationFn: (opportunityId: string) => {
       return removeSavedOpportunity(opportunityId);
     },
+    onSuccess,
   });
 }
