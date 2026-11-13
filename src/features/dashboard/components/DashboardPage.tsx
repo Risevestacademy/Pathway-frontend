@@ -8,6 +8,7 @@ import { dashboardGreeting } from "../dashboard.utils";
 import { useDashboardSummary } from "../hooks/useDashboardSummary";
 import { CurrentProgressCard } from "./CurrentProgressCard";
 import { StatCard } from "./StatCard";
+import { TodaysGoalsCard } from "./TodaysGoalsCard";
 
 /** The signed-in home screen. Sections are added one at a time. */
 export function DashboardPage() {
@@ -52,6 +53,9 @@ export function DashboardPage() {
         <CurrentProgressCard summary={summary} />
         <StatCard title="Pathways" value={summary.pathwaysCount} art={pathwaysArt} tone="yellow" />
         <StatCard title="Steps Completed" value={summary.completedSteps} art={stepsArt} tone="pink" />
+      </div>
+      <div className="grid gap-4 lg:grid-cols-[1fr_1.4fr]">
+        <TodaysGoalsCard summary={summary} />
       </div>
     </div>
   );
