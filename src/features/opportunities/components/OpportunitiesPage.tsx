@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useOpportunities } from "../hooks/useOpportunities";
 import OpportunitiesSkeleton from "./OpportunitySkeleton";
 import type { OpportunityType } from "../opportunities.type";
+import { OpportunitiesUnknownError } from "./ErrorComponents";
 
 const TYPES: ("ALL" | OpportunityType)[] = [
   "ALL",
@@ -25,13 +26,14 @@ export default function OpportunitiesPage() {
     data: opportunities,
     isPending,
     isError,
-    error,
   } = useOpportunities({
     ...(!searching && activeType !== "ALL" && { type: activeType }),
     ...(searching && debouncedSearch.trim() && { search: debouncedSearch }),
   });
 
-  if (isError) throw error;
+  if (isError) {
+    return <OpportunitiesUnknownError />;
+  }
 
   return (
     <OpportunitiesFrame>

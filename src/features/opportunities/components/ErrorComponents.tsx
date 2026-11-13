@@ -25,7 +25,7 @@ export function UnknownError() {
         icon={AlertTriangle}
         variant="error"
         title="We couldn't load this opportunity"
-        body="Something went wrong while loading the career details. Please try again."
+        body="Something went wrong while loading the opportunity. Please try again."
         action={<Button onClick={() => router.invalidate()}>Try again</Button>}
       />
     </OpportunitiesFrame>
@@ -50,6 +50,21 @@ export function NotFound() {
             Browse opportunities
           </Button>
         }
+      />
+    </OpportunitiesFrame>
+  );
+}
+
+export function OpportunitiesUnknownError() {
+  const router = useRouter();
+  return (
+    <OpportunitiesFrame>
+      <StateMessage
+        icon={AlertTriangle}
+        variant="error"
+        title="We couldn't load opportunities"
+        body="Something went wrong while loading opportunities. Please try again."
+        action={<Button onClick={() => router.invalidate()}>Try again</Button>}
       />
     </OpportunitiesFrame>
   );
