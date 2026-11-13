@@ -3,7 +3,13 @@ import type { FormEvent, KeyboardEvent, Ref } from "react";
 import type { UserProfile } from "../../../lib/api/users.api";
 import { SkillButton } from "../../skillCheck/components/SkillButton";
 import { useUpdateProfile } from "../hooks/useUpdateProfile";
-import { displayName, saveErrorMessage, splitName, validateName } from "../profile.utils";
+import {
+  displayName,
+  saveErrorMessage,
+  splitName,
+  validateFirstName,
+  validateLastName,
+} from "../profile.utils";
 
 const avatarFiles = import.meta.glob("/src/assets/images/avatar.svg", {
   eager: true,
@@ -126,8 +132,8 @@ export function NameCard({
   const submit = (event: FormEvent) => {
     event.preventDefault();
     const next = {
-      first: validateName(firstName, "first name"),
-      last: validateName(lastName, "last name"),
+      first: validateFirstName(firstName),
+      last: validateLastName(lastName),
     };
     setErrors(next);
     if (next.first) return firstRef.current?.focus();
@@ -138,7 +144,7 @@ export function NameCard({
     }
 
     update.mutate(
-      { firstName: firstName.trim(), lastName: lastName.trim() },
+      { firstName: firstName.trim(), lastName: lastName.trim() || null },
       {
         onSuccess: () => {
           setSaved(true);
@@ -180,7 +186,7 @@ export function NameCard({
           />
           <NameField
             id={`${id}-last`}
-            label="Last name"
+            label="Last name (optional)"
             value={lastName}
             error={errors.last}
             autoComplete="family-name"

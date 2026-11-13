@@ -13,7 +13,7 @@ export interface UserProfile {
 
 export interface UpdateProfileInput {
   firstName: string;
-  lastName: string;
+  lastName: string | null;
 }
 
 export async function fetchProfile(): Promise<UserProfile> {

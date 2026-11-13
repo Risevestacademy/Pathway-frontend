@@ -1,6 +1,8 @@
 import { isAxiosError } from "axios";
 import type { UserProfile } from "../../lib/api/users.api";
 
+export const NAME_MAX_LENGTH = 100;
+
 type NameParts = Pick<UserProfile, "firstName" | "lastName" | "fullName">;
 
 export function splitName(profile: NameParts) {
@@ -17,8 +19,17 @@ export function displayName(profile: NameParts & Pick<UserProfile, "email">) {
   return profile.fullName?.trim() || [firstName, lastName].filter(Boolean).join(" ") || profile.email;
 }
 
-export function validateName(value: string, label: string): string | null {
-  return value.trim() ? null : `Enter your ${label}.`;
+export function validateFirstName(value: string): string | null {
+  const name = value.trim();
+  if (!name) return "Enter your first name.";
+  if (name.length > NAME_MAX_LENGTH) return `First name must be ${NAME_MAX_LENGTH} characters or fewer.`;
+  return null;
+}
+
+export function validateLastName(value: string): string | null {
+  return value.trim().length > NAME_MAX_LENGTH
+    ? `Last name must be ${NAME_MAX_LENGTH} characters or fewer.`
+    : null;
 }
 
 export function progressPercent(completed: number, total: number) {

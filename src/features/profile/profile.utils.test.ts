@@ -4,7 +4,8 @@ import {
   progressPercent,
   splitName,
   stepsLabel,
-  validateName,
+  validateFirstName,
+  validateLastName,
 } from "./profile.utils";
 
 describe("splitName", () => {
@@ -35,10 +36,19 @@ describe("displayName", () => {
   });
 });
 
-describe("validateName", () => {
-  it("asks for a name when it is blank", () => {
-    expect(validateName("   ", "first name")).toBe("Enter your first name.");
-    expect(validateName("Ada", "first name")).toBeNull();
+describe("validateFirstName", () => {
+  it("needs a first name of 100 characters or fewer", () => {
+    expect(validateFirstName("   ")).toBe("Enter your first name.");
+    expect(validateFirstName("Ada")).toBeNull();
+    expect(validateFirstName("a".repeat(101))).toMatch(/100 characters or fewer/);
+  });
+});
+
+describe("validateLastName", () => {
+  it("allows a blank last name but not one over 100 characters", () => {
+    expect(validateLastName("   ")).toBeNull();
+    expect(validateLastName("Obi")).toBeNull();
+    expect(validateLastName("a".repeat(101))).toMatch(/100 characters or fewer/);
   });
 });
 

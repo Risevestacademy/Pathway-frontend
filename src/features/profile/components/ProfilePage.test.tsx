@@ -21,9 +21,9 @@ beforeEach(() => {
     http.get("*/auth/me", () => HttpResponse.json(me)),
     http.get("*/me/active-pathway", () => HttpResponse.json(active)),
     http.patch("*/users/me", async ({ request }) => {
-      const body = (await request.json()) as { firstName: string; lastName: string };
+      const body = (await request.json()) as { firstName: string; lastName: string | null };
       patched.push(body);
-      return HttpResponse.json({ ...me, ...body, fullName: `${body.firstName} ${body.lastName}` });
+      return HttpResponse.json({ ...me, ...body, fullName: [body.firstName, body.lastName].filter(Boolean).join(" ") });
     }),
     ...apiHandlers(),
   );
@@ -42,7 +42,7 @@ const editName = async () => {
   await userEvent.click(await screen.findByRole("button", { name: "Edit name" }));
   return {
     first: screen.getByLabelText("First name") as HTMLInputElement,
-    last: screen.getByLabelText("Last name") as HTMLInputElement,
+    last: screen.getByLabelText(/^Last name/) as HTMLInputElement,
   };
 };
 
@@ -94,7 +94,7 @@ describe("Profile page", () => {
     expect(screen.queryByRole("link", { name: /settings/i })).toBeNull();
   });
 
-  it("asks for both names before sending anything", async () => {
+    it("asks for a first name before sending anything", async () => {
     await renderAt("/profile");
     const { first } = await editName();
 
@@ -108,6 +108,30 @@ describe("Profile page", () => {
 
     await userEvent.type(first, "A");
     expect(screen.queryByText("Enter your first name.")).toBeNull();
+  });
+
+  it("lets the last name be left empty and sends null", async () => {
+    await renderAt("/profile");
+    const { last } = await editName();
+
+    await userEvent.clear(last);
+    await userEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    expect((await screen.findByRole("heading", { name: "Ada" })).textContent).toBe("Ada");
+    expect(patched).toEqual([{ firstName: "Ada", lastName: null }]);
+  });
+
+  it("rejects a name longer than 100 characters", async () => {
+    await renderAt("/profile");
+    const { last } = await editName();
+
+    await userEvent.clear(last);
+    await userEvent.click(last);
+    await userEvent.paste("a".repeat(101));
+    await userEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    expect(screen.getByText("Last name must be 100 characters or fewer.")).toBeTruthy();
+    expect(patched).toEqual([]);
   });
 
   it("does not send a request when the name has not changed", async () => {
