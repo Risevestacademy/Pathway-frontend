@@ -59,7 +59,11 @@ export default function OpportunitiesHero({
         <div className="w-full py-4.5 px-6 rounded-[14px] border border-grey-100 bg-surface shadow-sm">
           <form className="flex gap-2 items-center">
             <Search className="w-6 h-6 stroke-grey-400 stroke-grey-500" />
+            <label htmlFor="search openings" className="sr-only">
+              Search
+            </label>
             <input
+              id="search"
               type="text"
               name="search"
               placeholder="Search openings..."
@@ -74,6 +78,8 @@ export default function OpportunitiesHero({
             setSearch(search);
             setSearching(true);
           }}
+          disabled
+          aria-disabled
           className="flex gap-2 items-center text-base leading-6 py-4.5 px-6 rounded-[14px]"
         >
           {" "}
