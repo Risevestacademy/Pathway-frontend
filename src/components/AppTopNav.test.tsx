@@ -157,6 +157,7 @@ describe("AppTopNav", () => {
     await userEvent.click(screen.getByRole("button", { name: "Account menu" }));
     expect(screen.getByText("Ada Lovelace")).toBeTruthy();
     expect(screen.getByText("ada@example.com")).toBeTruthy();
+    expect(screen.getByRole("menuitem", { name: "Profile" }).getAttribute("href")).toBe("/profile");
 
     await userEvent.click(screen.getByRole("menuitem", { name: "Send feedback" }));
     expect(screen.getByRole("dialog", { name: "Send feedback" })).toBeTruthy();

@@ -18,6 +18,7 @@ import { Route as authSignupRouteImport } from './routes/(auth)/signup'
 import { Route as authVerifyEmailRouteImport } from './routes/(auth)/verify-email'
 import { Route as ProtectedAdminRouteImport } from './routes/_protected/admin'
 import { Route as ProtectedMyPathwayRouteImport } from './routes/_protected/my-pathway'
+import { Route as ProtectedProfileRouteImport } from './routes/_protected/profile'
 import { Route as ProtectedProgressRouteImport } from './routes/_protected/progress'
 import { Route as CareersIndexRouteImport } from './routes/careers/index'
 import { Route as ExploreIndexRouteImport } from './routes/explore/index'
@@ -94,6 +95,11 @@ const ProtectedAdminRoute = ProtectedAdminRouteImport.update({
 const ProtectedMyPathwayRoute = ProtectedMyPathwayRouteImport.update({
   id: '/my-pathway',
   path: '/my-pathway',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedProfileRoute = ProtectedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => ProtectedRoute,
 } as any)
 const ProtectedProgressRoute = ProtectedProgressRouteImport.update({
@@ -288,6 +294,7 @@ export interface FileRoutesByFullPath {
   '/verify-email': typeof authVerifyEmailRoute
   '/admin': typeof ProtectedAdminRouteWithChildren
   '/my-pathway': typeof ProtectedMyPathwayRouteWithChildren
+  '/profile': typeof ProtectedProfileRoute
   '/progress': typeof ProtectedProgressRoute
   '/explore/$careerId': typeof ExploreCareerIdRoute
   '/skill-check/$': typeof SkillCheckSplatRoute
@@ -329,6 +336,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof authResetPasswordRoute
   '/signup': typeof authSignupRoute
   '/verify-email': typeof authVerifyEmailRoute
+  '/profile': typeof ProtectedProfileRoute
   '/progress': typeof ProtectedProgressRoute
   '/explore/$careerId': typeof ExploreCareerIdRoute
   '/skill-check/$': typeof SkillCheckSplatRoute
@@ -374,6 +382,7 @@ export interface FileRoutesById {
   '/(auth)/verify-email': typeof authVerifyEmailRoute
   '/_protected/admin': typeof ProtectedAdminRouteWithChildren
   '/_protected/my-pathway': typeof ProtectedMyPathwayRouteWithChildren
+  '/_protected/profile': typeof ProtectedProfileRoute
   '/_protected/progress': typeof ProtectedProgressRoute
   '/explore/$careerId': typeof ExploreCareerIdRoute
   '/skill-check/$': typeof SkillCheckSplatRoute
@@ -419,6 +428,7 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/admin'
     | '/my-pathway'
+    | '/profile'
     | '/progress'
     | '/explore/$careerId'
     | '/skill-check/$'
@@ -460,6 +470,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/verify-email'
+    | '/profile'
     | '/progress'
     | '/explore/$careerId'
     | '/skill-check/$'
@@ -504,6 +515,7 @@ export interface FileRouteTypes {
     | '/(auth)/verify-email'
     | '/_protected/admin'
     | '/_protected/my-pathway'
+    | '/_protected/profile'
     | '/_protected/progress'
     | '/explore/$careerId'
     | '/skill-check/$'
@@ -626,6 +638,13 @@ declare module '@tanstack/react-router' {
       path: '/my-pathway'
       fullPath: '/my-pathway'
       preLoaderRoute: typeof ProtectedMyPathwayRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/profile': {
+      id: '/_protected/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProtectedProfileRouteImport
       parentRoute: typeof ProtectedRoute
     }
     '/_protected/progress': {
@@ -925,12 +944,14 @@ const ProtectedMyPathwayRouteWithChildren =
 interface ProtectedRouteChildren {
   ProtectedAdminRoute: typeof ProtectedAdminRouteWithChildren
   ProtectedMyPathwayRoute: typeof ProtectedMyPathwayRouteWithChildren
+  ProtectedProfileRoute: typeof ProtectedProfileRoute
   ProtectedProgressRoute: typeof ProtectedProgressRoute
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
   ProtectedAdminRoute: ProtectedAdminRouteWithChildren,
   ProtectedMyPathwayRoute: ProtectedMyPathwayRouteWithChildren,
+  ProtectedProfileRoute: ProtectedProfileRoute,
   ProtectedProgressRoute: ProtectedProgressRoute,
 }
 
