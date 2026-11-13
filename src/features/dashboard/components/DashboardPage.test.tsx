@@ -13,6 +13,8 @@ vi.mock("../hooks/useDashboardSummary", () => ({
 }));
 
 beforeEach(() => {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date(2026, 10, 13, 9, 0));
   act(() => {
     useAuthStore
       .getState()
@@ -21,6 +23,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.useRealTimers();
   cleanup();
   retry.mockReset();
   useAuthStore.setState({ user: null, accessToken: null, isHydrating: true });
@@ -52,6 +55,14 @@ describe("DashboardPage", () => {
     expect(screen.getByRole("heading", { name: "Trophies" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Pathways" }).parentElement?.textContent).toContain("2");
     expect(screen.getByRole("heading", { name: "Steps Completed" }).parentElement?.textContent).toContain("3");
+  });
+
+  it("says Good Afternoon in the afternoon", async () => {
+    vi.setSystemTime(new Date(2026, 10, 13, 14, 30));
+    state = ready();
+    await renderWithRouter(() => <DashboardPage />);
+
+    expect(screen.getByRole("heading", { level: 1, name: "Good Afternoon, Maya" })).toBeTruthy();
   });
 
   it("uses the first name when the backend sends no full name", async () => {

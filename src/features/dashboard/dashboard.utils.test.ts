@@ -65,17 +65,34 @@ describe("buildDashboardSummary", () => {
 });
 
 describe("dashboardGreeting", () => {
-  it("says Good Morning, with the first name, once there is an active pathway", () => {
-    expect(dashboardGreeting("Maya Okafor", true)).toBe("Good Morning, Maya");
+  const at = (hour: number, minute = 0) => new Date(2026, 10, 13, hour, minute);
+
+  it.each([
+    [5, "Good Morning"],
+    [11, "Good Morning"],
+    [12, "Good Afternoon"],
+    [16, "Good Afternoon"],
+    [17, "Good Evening"],
+    [23, "Good Evening"],
+    [0, "Good Evening"],
+    [4, "Good Evening"],
+  ])("with an active pathway, at %i:00 says %s, with the first name", (hour, greeting) => {
+    expect(dashboardGreeting("Maya Okafor", true, at(hour))).toBe(`${greeting}, Maya`);
   });
 
-  it("says Welcome when there is no active pathway", () => {
-    expect(dashboardGreeting("Maya", false)).toBe("Welcome, Maya");
+  it("changes on the hour, not before", () => {
+    expect(dashboardGreeting("Maya", true, at(11, 59))).toBe("Good Morning, Maya");
+    expect(dashboardGreeting("Maya", true, at(12, 0))).toBe("Good Afternoon, Maya");
+  });
+
+  it("says Welcome at any time of day when there is no active pathway", () => {
+    expect(dashboardGreeting("Maya", false, at(9))).toBe("Welcome, Maya");
+    expect(dashboardGreeting("Maya", false, at(20))).toBe("Welcome, Maya");
   });
 
   it("drops the name when there isn't one", () => {
-    expect(dashboardGreeting(undefined, true)).toBe("Good Morning");
-    expect(dashboardGreeting("  ", false)).toBe("Welcome");
+    expect(dashboardGreeting(undefined, true, at(9))).toBe("Good Morning");
+    expect(dashboardGreeting("  ", false, at(9))).toBe("Welcome");
   });
 });
 

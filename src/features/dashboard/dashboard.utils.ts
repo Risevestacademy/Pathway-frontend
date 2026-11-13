@@ -35,12 +35,24 @@ export function buildDashboardSummary(
   };
 }
 
-/** "Good Morning, Maya" once there's an active pathway, "Welcome, Maya" before that. */
+/** Good Morning until noon, Good Afternoon until 5pm, then Good Evening (nights included). */
+function timeOfDayGreeting(now: Date): string {
+  const hour = now.getHours();
+  if (hour >= 5 && hour < 12) return "Good Morning";
+  if (hour >= 12 && hour < 17) return "Good Afternoon";
+  return "Good Evening";
+}
+
+/**
+ * "Good Morning, Maya" (or Afternoon, Evening) once there is an active pathway,
+ * "Welcome, Maya" before that.
+ */
 export function dashboardGreeting(
   name: string | undefined,
   hasActivePathway: boolean,
+  now: Date = new Date(),
 ): string {
-  const greeting = hasActivePathway ? "Good Morning" : "Welcome";
+  const greeting = hasActivePathway ? timeOfDayGreeting(now) : "Welcome";
   const firstName = name?.trim().split(/\s+/)[0];
   return firstName ? `${greeting}, ${firstName}` : greeting;
 }
