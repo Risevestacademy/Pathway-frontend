@@ -17,6 +17,7 @@ import { FeedbackButton } from "../features/feedback/components/FeedbackButton";
 
 import { CareerProgressPill } from "../features/pathwayRoadmap/components/CareerProgressPill";
 import { AccountMenu } from "./AccountMenu";
+import { NotificationsButton } from "./NotificationsButton";
 
 type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -155,7 +156,10 @@ export default function AppTopNav() {
             className="size-10 shrink-0 animate-pulse rounded-full bg-grey-50 motion-reduce:animate-none"
           />
         ) : signedIn ? (
-          <AccountMenu />
+          <>
+            <NotificationsButton />
+            <AccountMenu />
+          </>
         ) : (
           <>
             <FeedbackButton />
