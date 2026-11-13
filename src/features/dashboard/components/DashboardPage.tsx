@@ -6,6 +6,7 @@ import pathwaysArt from "../../../assets/images/dashboard/pathways-art.png";
 import stepsArt from "../../../assets/images/dashboard/steps-art.png";
 import { dashboardGreeting, greetingName } from "../dashboard.utils";
 import { useDashboardSummary } from "../hooks/useDashboardSummary";
+import { ActivitySection } from "./ActivitySection";
 import { CurrentProjectsCard } from "./CurrentProjectsCard";
 import { CurrentProgressCard } from "./CurrentProgressCard";
 import { StatCard } from "./StatCard";
@@ -59,6 +60,7 @@ export function DashboardPage() {
         <TodaysGoalsCard summary={summary} />
         <CurrentProjectsCard />
       </div>
+      <ActivitySection />
     </div>
   );
 }
