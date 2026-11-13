@@ -22,7 +22,7 @@ export default function ApplicationClosed({
               Application closed{deadline ? ` on ${deadline}.` : "."}
             </p>
             <p className="font-normal text-body-md tracking-tight leading-5">
-              We kept this page so you can see what they asked for. We will add
+              We kept this page so you can see its requirements. We will add
               similar roles when they open.
             </p>
           </div>
@@ -36,9 +36,7 @@ export default function ApplicationClosed({
       </div>
 
       <Card className="rounded-3xl">
-        <h3 className="text-[20px] font-medium leading-[100%]">
-          What they asked for
-        </h3>
+        <h3 className="text-[20px] font-medium leading-[100%]">Requirements</h3>
 
         <Card className="rounded-[16px] p-0">
           <ul>
