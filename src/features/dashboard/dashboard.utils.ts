@@ -44,3 +44,19 @@ export function dashboardGreeting(
   const firstName = name?.trim().split(/\s+/)[0];
   return firstName ? `${greeting}, ${firstName}` : greeting;
 }
+
+interface NamedUser {
+  firstName?: string | null;
+  fullName?: string | null;
+  name?: string | null;
+}
+
+/** The first name to greet someone by. The backend's name fields are all nullable. */
+export function greetingName(user: NamedUser | null | undefined): string | undefined {
+  const candidates = [user?.firstName, user?.fullName, user?.name];
+  for (const candidate of candidates) {
+    const first = candidate?.trim().split(/\s+/)[0];
+    if (first) return first;
+  }
+  return undefined;
+}

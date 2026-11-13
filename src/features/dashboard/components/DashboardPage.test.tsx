@@ -52,6 +52,18 @@ describe("DashboardPage", () => {
     expect(screen.getByRole("heading", { name: "Steps Completed" }).parentElement?.textContent).toContain("3");
   });
 
+  it("uses the first name when the backend sends no full name", async () => {
+    act(() => {
+      useAuthStore
+        .getState()
+        .setAuth({ id: "u1", email: "a@b.c", role: "USER", firstName: "Ada", fullName: undefined }, "token");
+    });
+    state = ready();
+    await renderWithRouter(() => <DashboardPage />);
+
+    expect(screen.getByRole("heading", { level: 1, name: "Good Morning, Ada" })).toBeTruthy();
+  });
+
   it("welcomes someone with no pathway and shows zeros", async () => {
     state = ready({
       hasActivePathway: false,

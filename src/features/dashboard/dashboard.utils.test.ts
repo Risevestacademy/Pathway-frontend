@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ActivePathwayDto, SavedPathwayDto } from "../../lib/api/progress.api";
-import { buildDashboardSummary, dashboardGreeting } from "./dashboard.utils";
+import { buildDashboardSummary, dashboardGreeting, greetingName } from "./dashboard.utils";
 
 const saved = (id: string, isActive = false): SavedPathwayDto => ({
   career: { id, slug: id, title: id, retired: false },
@@ -76,5 +76,21 @@ describe("dashboardGreeting", () => {
   it("drops the name when there isn't one", () => {
     expect(dashboardGreeting(undefined, true)).toBe("Good Morning");
     expect(dashboardGreeting("  ", false)).toBe("Welcome");
+  });
+});
+
+describe("greetingName", () => {
+  it("prefers the first name", () => {
+    expect(greetingName({ firstName: "Maya", fullName: "Maya Okafor" })).toBe("Maya");
+  });
+
+  it("falls back to the first word of the full name, then of name", () => {
+    expect(greetingName({ firstName: null, fullName: "Maya Okafor" })).toBe("Maya");
+    expect(greetingName({ fullName: null, name: "Maya Okafor" })).toBe("Maya");
+  });
+
+  it("skips blank and missing names", () => {
+    expect(greetingName({ firstName: "  ", fullName: "" })).toBeUndefined();
+    expect(greetingName(null)).toBeUndefined();
   });
 });

@@ -4,7 +4,7 @@ import { StateMessage } from "../../../components/ui/StateMessage";
 import { useAuthStore } from "../../../lib/stores/authStore";
 import pathwaysArt from "../../../assets/images/dashboard/pathways-art.png";
 import stepsArt from "../../../assets/images/dashboard/steps-art.png";
-import { dashboardGreeting } from "../dashboard.utils";
+import { dashboardGreeting, greetingName } from "../dashboard.utils";
 import { useDashboardSummary } from "../hooks/useDashboardSummary";
 import { CurrentProjectsCard } from "./CurrentProjectsCard";
 import { CurrentProgressCard } from "./CurrentProgressCard";
@@ -14,7 +14,7 @@ import { TodaysGoalsCard } from "./TodaysGoalsCard";
 /** The signed-in home screen. Sections are added one at a time. */
 export function DashboardPage() {
   const { state, retry } = useDashboardSummary();
-  const name = useAuthStore((auth) => auth.user?.fullName ?? auth.user?.name);
+  const user = useAuthStore((auth) => auth.user);
 
   if (state.kind === "error") {
     return (
@@ -48,7 +48,7 @@ export function DashboardPage() {
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-300 ease-out motion-reduce:animate-none">
       <h1 className="font-display text-4xl font-medium text-ink">
-        {dashboardGreeting(name, summary.hasActivePathway)}
+        {dashboardGreeting(greetingName(user), summary.hasActivePathway)}
       </h1>
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr_1fr]">
         <CurrentProgressCard summary={summary} />
