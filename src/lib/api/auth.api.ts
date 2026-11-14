@@ -15,8 +15,9 @@ export interface AuthUser {
   id: string;
   email: string;
   role: string;
-  /** Present when the backend sends the person's name. */
-  fullName?: string;
+  /** Present when the backend sends the person's name; any of them can be null. */
+  firstName?: string | null;
+  fullName?: string | null;
   name?: string;
 }
 
@@ -97,13 +98,25 @@ function getGoogleAuthError(error: unknown): Error {
   }
 }
 
-export async function registerUser(
-  credentials: SignupCredentials,
-): Promise<RegisterResponse> {
+/**
+ * The backend takes a first name (required) and an optional last name, and
+ * rejects any other field. The form has one name box, so the first word is the
+ * first name and the rest is the last name.
+ */
+function splitFullName(fullName: string): { firstName: string; lastName?: string } {
+  const [firstName = "", ...rest] = fullName.trim().split(/\s+/);
+  const lastName = rest.join(" ");
+  return lastName ? { firstName, lastName } : { firstName };
+}
+
+export async function registerUser({
+  fullName,
+  ...credentials
+}: SignupCredentials): Promise<RegisterResponse> {
   try {
     const { data } = await api.post<RegisterResponse | { data: RegisterResponse }>(
       "/auth/register",
-      credentials,
+      { ...splitFullName(fullName), ...credentials },
       { skipAuthRefresh: true },
     );
 
