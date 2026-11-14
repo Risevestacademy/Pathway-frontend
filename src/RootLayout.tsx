@@ -3,6 +3,7 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import * as Sentry from "@sentry/react";
 import { useEffect } from "react";
 import AppShell from "./components/AppShell";
+import { AnalyticsNotice } from "./components/AnalyticsNotice";
 import ErrorFallback from "./components/ErrorFallback";
 import { clearSentryUser, setSentryUser } from "./lib/monitoring/sentry";
 import { useAuthStore } from "./lib/stores/authStore";
@@ -37,13 +38,16 @@ export default function RootLayout() {
   }, [userId]);
 
   return (
-    <AppShell variant={shellVariant}>
-      <Sentry.ErrorBoundary
-        fallback={({ resetError }) => <ErrorFallback resetError={resetError} />}
-      >
-        <Outlet />
-      </Sentry.ErrorBoundary>
-      {import.meta.env.DEV && <TanStackRouterDevtools />}
-    </AppShell>
+    <>
+      <AppShell variant={shellVariant}>
+        <Sentry.ErrorBoundary
+          fallback={({ resetError }) => <ErrorFallback resetError={resetError} />}
+        >
+          <Outlet />
+        </Sentry.ErrorBoundary>
+        {import.meta.env.DEV && <TanStackRouterDevtools />}
+      </AppShell>
+      <AnalyticsNotice />
+    </>
   );
 }
