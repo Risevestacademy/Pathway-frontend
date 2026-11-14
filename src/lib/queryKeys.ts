@@ -15,6 +15,7 @@ export const queryKeys = {
   fields: ["fields"] as const,
   onboardingOptions: ["onboarding-options"] as const,
   pathway: (careerId: string) => ["pathway", careerId] as const,
+  profile: (userId: string) => ["profile", userId] as const,
   progress: {
     all: ["progress"] as const,
     active: (userId: string) => ["progress", userId, "active"] as const,
