@@ -10,8 +10,8 @@ import {
 import { routeTree } from "./routeTree.gen.ts";
 import { captureErrorResponse, initSentry } from "./lib/monitoring/sentry";
 import { initAnalytics } from "./lib/monitoring/events";
-import { redactDeep } from "./lib/monitoring/redact";
-import type { CaptureResult } from "posthog-js";
+import { analyticsOptions } from "./lib/monitoring/analyticsConfig";
+import { getAnalyticsConsent } from "./lib/monitoring/analyticsConsent";
 import { setSessionExpiredHandler } from "./lib/api/axios";
 import { ensureAuthHydrated } from "./lib/api/auth.api";
 import { handleSessionExpired } from "./lib/api/sessionExpiry";
@@ -19,15 +19,6 @@ import { retryUnlessClientError } from "./lib/queryRetry";
 import "./index.css";
 
 initSentry();
-
-const analyticsOptions = {
-  api_host: import.meta.env.VITE_POSTHOG_HOST,
-  capture_pageview: "history_change",
-  defaults: "2026-05-30",
-  debug: import.meta.env.DEV,
-  // Page views record the URL; keep one-time tokens (/accept-invite?token=…) out of it.
-  before_send: (event: CaptureResult | null) => (event ? redactDeep(event) : event),
-} as const;
 
 const router = createRouter({ routeTree });
 const queryClient = new QueryClient({
@@ -73,7 +64,6 @@ createRoot(rootElement).render(
   </StrictMode>,
 );
 
-void initAnalytics(
-  import.meta.env.VITE_POSTHOG_PROJECT_TOKEN,
-  analyticsOptions,
-);
+if (getAnalyticsConsent() === "accepted") {
+  void initAnalytics(import.meta.env.VITE_POSTHOG_PROJECT_TOKEN, analyticsOptions);
+}

@@ -17,6 +17,7 @@ import { FeedbackButton } from "../features/feedback/components/FeedbackButton";
 
 import { CareerProgressPill } from "../features/pathwayRoadmap/components/CareerProgressPill";
 import { AccountMenu } from "./AccountMenu";
+import { NotificationsButton } from "./NotificationsButton";
 
 type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -24,7 +25,8 @@ interface NavItem {
   label: string;
   iconName: string;
   fallback: IconComponent;
-  to: "/careers" | "/skill-check" | "/my-pathway" | "/opportunities" | null;
+  to: "/dashboard" | "/careers" | "/my-pathway" | "/opportunities" | null;
+  /** The path this item covers, along with everything under it. */
   match: string | null;
 }
 
@@ -36,8 +38,8 @@ const NAV_ITEMS: NavItem[] = [
     label: "Dashboard",
     iconName: "dashboard",
     fallback: Layout3Regular,
-    to: null,
-    match: null,
+    to: "/dashboard",
+    match: "/dashboard",
   },
   {
     label: "Explore",
@@ -85,7 +87,7 @@ export default function AppTopNav() {
   const restoringSession = useAuthStore(selectIsRestoringSession);
   const visibleItems = signedIn
     ? NAV_ITEMS
-    : NAV_ITEMS.filter((item) => item.to !== null);
+    : NAV_ITEMS.filter((item) => item.to !== null && item.to !== "/dashboard");
 
   const pathwayCareerId = signedIn ? careerIdIn(pathname) : null;
 
@@ -161,7 +163,10 @@ export default function AppTopNav() {
             className="size-10 shrink-0 animate-pulse rounded-full bg-grey-50 motion-reduce:animate-none"
           />
         ) : signedIn ? (
-          <AccountMenu />
+          <>
+            <NotificationsButton />
+            <AccountMenu />
+          </>
         ) : (
           <>
             <FeedbackButton />

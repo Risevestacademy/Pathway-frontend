@@ -15,9 +15,12 @@ export interface AuthUser {
   id: string;
   email: string;
   role: string;
-  /** Present when the backend sends the person's name. */
-  fullName?: string;
+  /** Present when the backend sends the person's name; any of them can be null. */
+  firstName?: string | null;
+  fullName?: string | null;
   name?: string;
+  /** The account's analytics setting, when the backend sends it. Defaults to true server-side. */
+  analyticsEnabled?: boolean;
 }
 
 export interface RegisterResponse {
