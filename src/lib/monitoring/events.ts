@@ -68,6 +68,12 @@ export interface CustomEvents {
     kind: string;
     timestamp: string;
   };
+
+  apply_clicked: {
+    opportunity_id: string;
+    title: string;
+    organisation: string;
+  };
 }
 
 export interface UserTraits {
@@ -93,6 +99,18 @@ export const analytics = {
   },
 
   trackFeature: {
+    applyClicked: (
+      opportunityId: string,
+      title: string,
+      organisation: string,
+    ) => {
+      analytics.track("apply_clicked", {
+        opportunity_id: opportunityId,
+        title,
+        organisation,
+      });
+    },
+
     careerDetailViewed: (
       career_id: string,
       title: string,

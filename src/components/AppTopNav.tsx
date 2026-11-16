@@ -25,7 +25,7 @@ interface NavItem {
   label: string;
   iconName: string;
   fallback: IconComponent;
-  to: "/dashboard" | "/careers" | "/my-pathway" | null;
+  to: "/dashboard" | "/careers" | "/my-pathway" | "/opportunities" | null;
   /** The path this item covers, along with everything under it. */
   match: string | null;
 }
@@ -61,6 +61,13 @@ const NAV_ITEMS: NavItem[] = [
     fallback: BriefcaseRegular,
     to: null,
     match: null,
+  },
+  {
+    label: "Opportunities",
+    iconName: "opportunities",
+    fallback: BriefcaseRegular,
+    to: "/opportunities",
+    match: "/opportunities",
   },
 ];
 

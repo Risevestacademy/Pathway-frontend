@@ -78,7 +78,9 @@ export default function Catalogue() {
       <CareerFilterBar
         query={query}
         onQueryChange={setQuery}
-        tabs={<CatalogueTabs tabs={tabs} value={view} onChange={setSelectedView} />}
+        tabs={
+          <CatalogueTabs tabs={tabs} value={view} onChange={setSelectedView} />
+        }
       >
         <FilterSelect
           label="Level"
@@ -174,7 +176,9 @@ function CareerCard({ career }: { career: CareerListItem }) {
       className="group block h-full cursor-pointer rounded-lg focus-ring focus-visible:ring-offset-2"
     >
       <Card className="flex h-full flex-col p-6 transition-shadow group-hover:shadow-raised motion-reduce:transition-none">
-        <h2 className="font-display text-body-lg-bold text-ink">{career.title}</h2>
+        <h2 className="font-display text-body-lg-bold text-ink">
+          {career.title}
+        </h2>
         <p className="mt-2 flex-1 text-body-md text-ink-muted">
           {career.description}
         </p>
