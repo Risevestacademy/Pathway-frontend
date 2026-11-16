@@ -18,9 +18,11 @@ async function saveToAccount(enabled: boolean): Promise<void> {
 }
 
 export function AnalyticsNotice() {
-  const [visible, setVisible] = useState(() => getAnalyticsConsent() === null);
+  const [answered, setAnswered] = useState(() => getAnalyticsConsent() !== null);
 
   const userId = useAuthStore((state) => state.user?.id ?? null);
+  // A decline saved on the account from another device answers the question.
+  const accountDeclined = useAuthStore((state) => state.user?.analyticsEnabled === false);
 
   // On sign-in, make the account match this browser's choice, or take on a
   // decline saved from another device. An account's "on" is only the server
@@ -36,15 +38,14 @@ export function AnalyticsNotice() {
       }
     } else if (accountEnabled === false) {
       setAnalyticsConsent("declined");
-      setVisible(false);
     }
   }, [userId]);
 
-  if (!visible) return null;
+  if (answered || accountDeclined) return null;
 
   const choose = (consent: "accepted" | "declined") => {
     setAnalyticsConsent(consent);
-    setVisible(false);
+    setAnswered(true);
     if (useAuthStore.getState().user) {
       void saveToAccount(consent === "accepted");
     }
