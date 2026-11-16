@@ -25,9 +25,9 @@ interface NavItem {
   label: string;
   iconName: string;
   fallback: IconComponent;
-  to: "/dashboard" | "/careers" | "/my-pathway" | "/opportunities" | null;
+  to: "/dashboard" | "/careers" | "/my-pathway" | "/opportunities";
   /** The path this item covers, along with everything under it. */
-  match: string | null;
+  match: string;
 }
 
 const isUnder = (pathname: string, path: string) =>
@@ -59,13 +59,6 @@ const NAV_ITEMS: NavItem[] = [
     label: "Opportunities",
     iconName: "opportunities",
     fallback: BriefcaseRegular,
-    to: null,
-    match: null,
-  },
-  {
-    label: "Opportunities",
-    iconName: "opportunities",
-    fallback: BriefcaseRegular,
     to: "/opportunities",
     match: "/opportunities",
   },
@@ -87,7 +80,7 @@ export default function AppTopNav() {
   const restoringSession = useAuthStore(selectIsRestoringSession);
   const visibleItems = signedIn
     ? NAV_ITEMS
-    : NAV_ITEMS.filter((item) => item.to !== null && item.to !== "/dashboard");
+    : NAV_ITEMS.filter((item) => item.to !== "/dashboard");
 
   const pathwayCareerId = signedIn ? careerIdIn(pathname) : null;
 
@@ -97,8 +90,7 @@ export default function AppTopNav() {
       <nav aria-label="Main">
         <ul className="flex items-center gap-2 rounded-[10px] bg-grey-50 p-1">
           {visibleItems.map((item, index) => {
-            const isActive =
-              item.match !== null && isUnder(pathname, item.match);
+            const isActive = isUnder(pathname, item.match);
             const label = (
               <>
                 <NavIcon
@@ -120,33 +112,19 @@ export default function AppTopNav() {
                     className="hidden h-7 w-px bg-grey-100 sm:block"
                   />
                 )}
-                {item.to ? (
-                  <Link
-                    to={item.to}
-                    aria-current={isActive ? "page" : undefined}
-                    className={clsx(
-                      itemBase,
-                      "focus-ring transition-colors duration-200 ease-out motion-reduce:transition-none",
-                      isActive
-                        ? "bg-grey-900 text-white"
-                        : "text-grey-600 hover:bg-grey-100",
-                    )}
-                  >
-                    {label}
-                  </Link>
-                ) : (
-                  <span
-                    aria-disabled="true"
-                    title="Coming soon"
-                    className={clsx(
-                      itemBase,
-                      "cursor-not-allowed text-grey-600",
-                    )}
-                  >
-                    {label}
-                    <span className="sr-only"> (coming soon)</span>
-                  </span>
-                )}
+                <Link
+                  to={item.to}
+                  aria-current={isActive ? "page" : undefined}
+                  className={clsx(
+                    itemBase,
+                    "focus-ring transition-colors duration-200 ease-out motion-reduce:transition-none",
+                    isActive
+                      ? "bg-grey-900 text-white"
+                      : "text-grey-600 hover:bg-grey-100",
+                  )}
+                >
+                  {label}
+                </Link>
               </li>
             );
           })}

@@ -155,6 +155,17 @@ describe("AppTopNav", () => {
     expect(screen.getByRole("link", { name: "Dashboard" }).getAttribute("href")).toBe("/dashboard");
   });
 
+  it("has a single Opportunities tab, and it is a link", async () => {
+    await renderNav();
+    act(() => {
+      useAuthStore.getState().setAuth({ id: "u1", email: "a@b.c", role: "USER" }, "token");
+      useAuthStore.getState().finishHydrating();
+    });
+
+    expect(screen.getAllByText("Opportunities")).toHaveLength(1);
+    expect(screen.getByRole("link", { name: "Opportunities" }).getAttribute("href")).toBe("/opportunities");
+  });
+
   it("shows a Notifications bell, marked as coming soon, for signed-in people only", async () => {
     await renderNav();
     act(() => useAuthStore.getState().finishHydrating());
