@@ -35,6 +35,42 @@ describe("SignupForm", () => {
     expect(screen.getByRole("link", { name: "Log in instead" })).toBeTruthy();
   });
 
+  it("sends the name without the spaces around it", async () => {
+    const onSubmit = vi.fn(() => Promise.resolve());
+    render(<SignupForm onSubmit={onSubmit} onGoogleAuth={vi.fn()} />);
+
+    await userEvent.type(screen.getByPlaceholderText("Full name"), "  Ada Lovelace  ");
+    await userEvent.type(screen.getByPlaceholderText("Email address"), "ada@example.com");
+    await userEvent.type(screen.getByPlaceholderText("Password"), "password123");
+    await userEvent.click(screen.getByRole("button", { name: "Create account" }));
+
+    expect(onSubmit).toHaveBeenCalledWith({
+      fullName: "Ada Lovelace",
+      email: "ada@example.com",
+      password: "password123",
+    });
+  });
+
+  it("asks for a name instead of sending one that is only spaces", async () => {
+    const onSubmit = vi.fn(() => Promise.resolve());
+    render(<SignupForm onSubmit={onSubmit} onGoogleAuth={vi.fn()} />);
+
+    await userEvent.type(screen.getByPlaceholderText("Full name"), "   ");
+    await userEvent.type(screen.getByPlaceholderText("Email address"), "ada@example.com");
+    await userEvent.type(screen.getByPlaceholderText("Password"), "password123");
+    await userEvent.click(screen.getByRole("button", { name: "Create account" }));
+
+    expect((await screen.findByRole("alert")).textContent).toBe("Enter your name.");
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(document.activeElement).toBe(screen.getByPlaceholderText("Full name"));
+  });
+
+  it("keeps the name within what the backend accepts", () => {
+    render(<SignupForm onSubmit={vi.fn()} onGoogleAuth={vi.fn()} />);
+
+    expect(screen.getByPlaceholderText("Full name").getAttribute("maxlength")).toBe("100");
+  });
+
   it("goes by the error type, not by its text", async () => {
     await submitWith(new Error("This email is already registered."));
 

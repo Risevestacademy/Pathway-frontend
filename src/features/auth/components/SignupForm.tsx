@@ -28,13 +28,21 @@ export default function SignupForm({
     event.preventDefault();
     setErrorMessage(null);
     setEmailTaken(false);
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    // `required` lets a name of only spaces through, and the backend needs a first name.
+    const fullName = String(formData.get("fullName") ?? "").trim();
+    if (!fullName) {
+      setErrorMessage("Enter your name.");
+      form.querySelector<HTMLInputElement>("#fullName")?.focus();
+      return;
+    }
+
     setIsSubmitting(true);
-
-    const formData = new FormData(event.currentTarget);
-
     try {
       await onSubmit({
-        fullName: String(formData.get("fullName") ?? ""),
+        fullName,
         email: String(formData.get("email") ?? "").trim(),
         password: String(formData.get("password") ?? ""),
       });
@@ -71,6 +79,8 @@ export default function SignupForm({
           name="fullName"
           type="text"
           required
+          // The backend allows 100 characters for each of the first and last name.
+          maxLength={100}
           placeholder="Full name"
           className="auth-input"
           autoComplete="name"
