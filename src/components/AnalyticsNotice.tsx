@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { updateAnalyticsEnabled } from "../lib/api/users.api";
+import { useAuthStore } from "../lib/stores/authStore";
 import { analyticsOptions } from "../lib/monitoring/analyticsConfig";
 import { initAnalytics } from "../lib/monitoring/events";
 import {
@@ -6,14 +8,46 @@ import {
   setAnalyticsConsent,
 } from "../lib/monitoring/analyticsConsent";
 
+/** Best effort: a failed save is retried at the next sign-in, while the browser keeps the choice. */
+async function saveToAccount(enabled: boolean): Promise<void> {
+  try {
+    await updateAnalyticsEnabled(enabled);
+  } catch {
+    // Left for the next sign-in to retry.
+  }
+}
+
 export function AnalyticsNotice() {
   const [visible, setVisible] = useState(() => getAnalyticsConsent() === null);
+
+  const userId = useAuthStore((state) => state.user?.id ?? null);
+
+  // On sign-in, make the account match this browser's choice, or take on a
+  // decline saved from another device. An account's "on" is only the server
+  // default, so it never counts as consent.
+  useEffect(() => {
+    if (!userId) return;
+    const accountEnabled = useAuthStore.getState().user?.analyticsEnabled;
+    const consent = getAnalyticsConsent();
+
+    if (consent) {
+      if (accountEnabled !== (consent === "accepted")) {
+        void saveToAccount(consent === "accepted");
+      }
+    } else if (accountEnabled === false) {
+      setAnalyticsConsent("declined");
+      setVisible(false);
+    }
+  }, [userId]);
 
   if (!visible) return null;
 
   const choose = (consent: "accepted" | "declined") => {
     setAnalyticsConsent(consent);
     setVisible(false);
+    if (useAuthStore.getState().user) {
+      void saveToAccount(consent === "accepted");
+    }
     if (consent === "accepted") {
       void initAnalytics(import.meta.env.VITE_POSTHOG_PROJECT_TOKEN, analyticsOptions);
     }

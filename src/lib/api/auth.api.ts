@@ -19,6 +19,8 @@ export interface AuthUser {
   firstName?: string | null;
   fullName?: string | null;
   name?: string;
+  /** The account's analytics setting, when the backend sends it. Defaults to true server-side. */
+  analyticsEnabled?: boolean;
 }
 
 export interface RegisterResponse {
