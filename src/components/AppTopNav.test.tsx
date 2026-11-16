@@ -155,6 +155,27 @@ describe("AppTopNav", () => {
     expect(screen.getByRole("link", { name: "Dashboard" }).getAttribute("href")).toBe("/dashboard");
   });
 
+  it("holds a place for Dashboard while the session is restored, then drops it if signed out", async () => {
+    await renderNav();
+    expect(screen.getByTestId("dashboard-tab-skeleton")).toBeTruthy();
+    expect(screen.queryByRole("link", { name: "Dashboard" })).toBeNull();
+
+    act(() => useAuthStore.getState().finishHydrating());
+    expect(screen.queryByTestId("dashboard-tab-skeleton")).toBeNull();
+  });
+
+  it("swaps the Dashboard placeholder for the link when the session is restored", async () => {
+    await renderNav("/careers");
+
+    act(() => {
+      useAuthStore.getState().setAuth({ id: "u1", email: "a@b.c", role: "USER" }, "token");
+      useAuthStore.getState().finishHydrating();
+    });
+
+    expect(screen.queryByTestId("dashboard-tab-skeleton")).toBeNull();
+    expect(screen.getByRole("link", { name: "Dashboard" })).toBeTruthy();
+  });
+
   it("has a single Opportunities tab, and it is a link", async () => {
     await renderNav();
     act(() => {

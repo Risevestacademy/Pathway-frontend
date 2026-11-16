@@ -78,7 +78,10 @@ export default function AppTopNav() {
   const signedIn = useAuthStore(selectIsAuthenticated);
   // Until the session is restored after a reload, don't offer "Sign in".
   const restoringSession = useAuthStore(selectIsRestoringSession);
-  const visibleItems = signedIn
+  // Dashboard is for signed-in people. While the session is still being
+  // restored we can't tell yet, so it holds its place as a skeleton instead of
+  // popping in (or shifting the other tabs) once the session lands.
+  const visibleItems = signedIn || restoringSession
     ? NAV_ITEMS
     : NAV_ITEMS.filter((item) => item.to !== "/dashboard");
 
@@ -112,19 +115,27 @@ export default function AppTopNav() {
                     className="hidden h-7 w-px bg-grey-100 sm:block"
                   />
                 )}
-                <Link
-                  to={item.to}
-                  aria-current={isActive ? "page" : undefined}
-                  className={clsx(
-                    itemBase,
-                    "focus-ring transition-colors duration-200 ease-out motion-reduce:transition-none",
-                    isActive
-                      ? "bg-grey-900 text-white"
-                      : "text-grey-600 hover:bg-grey-100",
-                  )}
-                >
-                  {label}
-                </Link>
+                {item.to === "/dashboard" && !signedIn ? (
+                  <div
+                    aria-hidden
+                    data-testid="dashboard-tab-skeleton"
+                    className="h-10 w-10 animate-pulse rounded-lg bg-grey-100 motion-reduce:animate-none sm:w-28"
+                  />
+                ) : (
+                  <Link
+                    to={item.to}
+                    aria-current={isActive ? "page" : undefined}
+                    className={clsx(
+                      itemBase,
+                      "focus-ring transition-colors duration-200 ease-out motion-reduce:transition-none",
+                      isActive
+                        ? "bg-grey-900 text-white"
+                        : "text-grey-600 hover:bg-grey-100",
+                    )}
+                  >
+                    {label}
+                  </Link>
+                )}
               </li>
             );
           })}
