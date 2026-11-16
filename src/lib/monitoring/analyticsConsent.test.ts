@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   getAnalyticsConsent,
   setAnalyticsConsent,
@@ -18,6 +18,28 @@ describe("analytics consent", () => {
     setAnalyticsConsent(consent);
 
     expect(getAnalyticsConsent()).toBe(consent);
+  });
+
+  describe("when browser storage is blocked", () => {
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it("reads as unset instead of throwing", () => {
+      vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+        throw new DOMException("blocked", "SecurityError");
+      });
+
+      expect(getAnalyticsConsent()).toBeNull();
+    });
+
+    it("ignores a failed write instead of throwing", () => {
+      vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+        throw new DOMException("blocked", "SecurityError");
+      });
+
+      expect(() => setAnalyticsConsent("accepted")).not.toThrow();
+    });
   });
 
   it("treats an unknown stored value as unset", () => {

@@ -39,6 +39,26 @@ beforeEach(() => {
   useAuthStore.getState().clearAuth();
 });
 
+describe("AnalyticsNotice with blocked storage", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("still renders, and hides for this visit once answered", () => {
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new DOMException("blocked", "SecurityError");
+    });
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new DOMException("blocked", "SecurityError");
+    });
+
+    render(<AnalyticsNotice />);
+    fireEvent.click(screen.getByRole("button", { name: "Turn it off" }));
+
+    expect(screen.queryByRole("dialog", { name: "Help us improve Pathway" })).toBeNull();
+  });
+});
+
 describe("AnalyticsNotice account sync", () => {
   it("does not call the API when signed out", () => {
     render(<AnalyticsNotice />);
