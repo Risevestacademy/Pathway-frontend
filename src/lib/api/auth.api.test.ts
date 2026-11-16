@@ -114,6 +114,24 @@ describe("auth API", () => {
     });
   });
 
+  it.each([
+    ["Ada Obi", { firstName: "Ada", lastName: "Obi" }],
+    ["  Ada   Lovelace King ", { firstName: "Ada", lastName: "Lovelace King" }],
+    ["Ada", { firstName: "Ada" }],
+  ])("sends %j to the backend as first and last name, not as fullName", async (fullName, names) => {
+    let body: unknown;
+    server.use(
+      http.post("*/auth/register", async ({ request }) => {
+        body = await request.json();
+        return HttpResponse.json({ message: "Verification code sent", email: "user@example.com" }, { status: 201 });
+      }),
+    );
+
+    await registerUser({ fullName, email: "user@example.com", password: "Password123!" });
+
+    expect(body).toEqual({ ...names, email: "user@example.com", password: "Password123!" });
+  });
+
   it("verifies an email and returns the session, or explains a bad code", async () => {
     server.use(
       http.post("*/auth/verify-email", async ({ request }) => {
