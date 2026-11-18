@@ -6,6 +6,7 @@ const summary = (pathwaysCount: number): DashboardSummary => ({
   hasActivePathway: pathwaysCount > 0,
   progressPercent: 0,
   completedSteps: 0,
+  totalCompletedSteps: 0,
   totalSteps: 0,
   nextStepId: null,
   pathwaysCount,

@@ -54,7 +54,7 @@ export function DashboardPage() {
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr_1fr]">
         <CurrentProgressCard summary={summary} />
         <StatCard title="Pathways" value={summary.pathwaysCount} art={pathwaysArt} tone="yellow" />
-        <StatCard title="Steps Completed" value={summary.completedSteps} art={stepsArt} tone="pink" />
+        <StatCard title="Steps Completed" value={summary.totalCompletedSteps} art={stepsArt} tone="pink" />
       </div>
       <div className="grid gap-4 lg:grid-cols-[1fr_1.4fr]">
         <TodaysGoalsCard summary={summary} />

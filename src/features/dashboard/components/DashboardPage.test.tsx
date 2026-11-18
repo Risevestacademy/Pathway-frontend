@@ -35,6 +35,7 @@ const ready = (overrides = {}): DashboardSummaryState => ({
     hasActivePathway: true,
     progressPercent: 38,
     completedSteps: 3,
+    totalCompletedSteps: 9,
     totalSteps: 8,
     nextStepId: "s4",
     pathwaysCount: 2,
@@ -54,7 +55,7 @@ describe("DashboardPage", () => {
     expect(screen.getByRole("heading", { name: "Activity" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Trophies" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Pathways" }).parentElement?.textContent).toContain("2");
-    expect(screen.getByRole("heading", { name: "Steps Completed" }).parentElement?.textContent).toContain("3");
+    expect(screen.getByRole("heading", { name: "Steps Completed" }).parentElement?.textContent).toContain("9");
   });
 
   it("says Good Afternoon in the afternoon", async () => {
@@ -82,6 +83,7 @@ describe("DashboardPage", () => {
       hasActivePathway: false,
       progressPercent: 0,
       completedSteps: 0,
+      totalCompletedSteps: 0,
       totalSteps: 0,
       nextStepId: null,
       pathwaysCount: 0,
