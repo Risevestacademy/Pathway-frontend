@@ -8,7 +8,7 @@ import { countUnread, groupNotifications } from "../notifications.utils";
 import { NotificationRow } from "./NotificationRow";
 
 const tabClass =
-  "focus-ring -mb-px flex items-center gap-2 border-b-2 border-transparent px-3 py-3 text-base font-medium text-ink-muted transition-colors duration-200 ease-out motion-reduce:transition-none data-[state=active]:border-brand-600 data-[state=active]:text-brand-600";
+  "focus-ring -mb-px flex cursor-pointer items-center gap-2 border-b-2 border-transparent px-3 py-3 text-base font-medium text-ink-muted transition-colors duration-200 ease-out motion-reduce:transition-none data-[state=active]:border-brand-600 data-[state=active]:text-brand-600";
 
 /** There's no settings page yet, so the button is shown but can't be used. */
 function SettingsButton({ isPrimary, className }: { isPrimary: boolean; className?: string }) {
