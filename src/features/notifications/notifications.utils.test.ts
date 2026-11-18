@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { countUnread, formatRelativeTime } from "./notifications.utils";
+import type { AppNotification } from "./notifications.types";
+import { countUnread, formatRelativeTime, groupNotifications } from "./notifications.utils";
 
 // Wednesday 18 November 2026, midday.
 const NOW = new Date(2026, 10, 18, 12, 0, 0);
@@ -54,5 +55,44 @@ describe("countUnread", () => {
 
     expect(countUnread([item(false), item(true), item(false)])).toBe(2);
     expect(countUnread([])).toBe(0);
+  });
+});
+
+describe("groupNotifications", () => {
+  const at = (id: string, date: Date): AppNotification => ({
+    id,
+    kind: "STREAK",
+    title: id,
+    body: "b",
+    createdAt: date.toISOString(),
+    read: false,
+  });
+
+  it("splits today's notifications from earlier ones, keeping the order given", () => {
+    const groups = groupNotifications(
+      [
+        at("a", new Date(2026, 10, 18, 11, 20)),
+        at("b", new Date(2026, 10, 18, 7, 0)),
+        at("c", new Date(2026, 10, 17, 20, 0)),
+        at("d", new Date(2026, 9, 28, 9, 0)),
+      ],
+      NOW,
+    );
+
+    expect(groups.map((group) => group.label)).toEqual(["Today", "Earlier"]);
+    expect(groups[0].items.map((n) => n.id)).toEqual(["a", "b"]);
+    expect(groups[1].items.map((n) => n.id)).toEqual(["c", "d"]);
+  });
+
+  it("leaves out a group with nothing in it", () => {
+    expect(groupNotifications([at("a", new Date(2026, 10, 18, 9, 0))], NOW).map((g) => g.label)).toEqual(["Today"]);
+    expect(groupNotifications([at("c", new Date(2026, 10, 1, 9, 0))], NOW).map((g) => g.label)).toEqual(["Earlier"]);
+    expect(groupNotifications([], NOW)).toEqual([]);
+  });
+
+  it("files a notification with an unreadable date under Earlier", () => {
+    const broken = { ...at("x", NOW), createdAt: "string" };
+
+    expect(groupNotifications([broken], NOW)[0].label).toBe("Earlier");
   });
 });

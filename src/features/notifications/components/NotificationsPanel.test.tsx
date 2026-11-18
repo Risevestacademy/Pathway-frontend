@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import inactivityIcon from "../../../assets/images/notifications/inactivity.png";
 import type { AppNotification } from "../notifications.types";
 import { NotificationsPanel } from "./NotificationsPanel";
 
@@ -23,7 +24,7 @@ describe("NotificationsPanel", () => {
     render(<NotificationsPanel notifications={[]} onMarkAllRead={vi.fn()} now={NOW} />);
 
     expect(screen.getByRole("heading", { name: "Notifications" })).toBeTruthy();
-    expect(screen.getByText("You're all caught up")).toBeTruthy();
+    expect(screen.getByText("You are all caught up")).toBeTruthy();
     expect(screen.queryByRole("list")).toBeNull();
     expect(screen.queryByRole("button", { name: "Mark all read" })).toBeNull();
   });
@@ -64,6 +65,7 @@ describe("NotificationsPanel", () => {
           item({ id: "c", kind: "STREAK" }),
           item({ id: "d", kind: "FEEDBACK_REPLY" }),
           item({ id: "e", kind: "LINK_WITHDRAWN" }),
+          item({ id: "f", kind: "INACTIVITY" }),
         ]}
         onMarkAllRead={vi.fn()}
         now={NOW}
@@ -77,6 +79,7 @@ describe("NotificationsPanel", () => {
     expect(src(rows[2])).toContain("streak");
     expect(src(rows[3])).toContain("feedback");
     expect(src(rows[4])).toContain("warning");
+    expect(src(rows[5])).toBe(inactivityIcon);
   });
 
   it("offers Mark all read only while something is unread, and calls back when pressed", async () => {

@@ -1,4 +1,4 @@
-import type { AppNotification } from "./notifications.types";
+import type { AppNotification, NotificationGroup } from "./notifications.types";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const MINUTE = 60 * 1000;
@@ -35,4 +35,22 @@ export function formatRelativeTime(iso: string, now: Date = new Date()): string 
 
 export function countUnread(notifications: AppNotification[]): number {
   return notifications.filter((notification) => !notification.read).length;
+}
+
+function isSameDay(a: Date, b: Date): boolean {
+  return startOfDay(a) === startOfDay(b);
+}
+
+/** Today's notifications, then the rest, in the order given. A group with nothing in it is left out. */
+export function groupNotifications(
+  notifications: AppNotification[],
+  now: Date = new Date(),
+): NotificationGroup[] {
+  const today = notifications.filter((n) => isSameDay(new Date(n.createdAt), now));
+  const earlier = notifications.filter((n) => !today.includes(n));
+
+  return [
+    { label: "Today" as const, items: today },
+    { label: "Earlier" as const, items: earlier },
+  ].filter((group) => group.items.length > 0);
 }

@@ -3,6 +3,7 @@ import roadmap from "../../assets/images/notifications/roadmap.png";
 import streak from "../../assets/images/notifications/streak.png";
 import feedback from "../../assets/images/notifications/feedback.png";
 import warning from "../../assets/images/notifications/warning.png";
+import inactivity from "../../assets/images/notifications/inactivity.png";
 import type { NotificationKind } from "./notifications.types";
 
 /** The icon for each kind, and the tint of the square behind it. */
@@ -12,4 +13,5 @@ export const NOTIFICATION_ICONS: Record<NotificationKind, { src: string; tint: s
   STREAK: { src: streak, tint: "bg-accent-50" },
   FEEDBACK_REPLY: { src: feedback, tint: "bg-brand-100" },
   LINK_WITHDRAWN: { src: warning, tint: "bg-warning-50" },
+  INACTIVITY: { src: inactivity, tint: "bg-landing-sticker-pink" },
 };

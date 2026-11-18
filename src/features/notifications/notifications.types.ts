@@ -7,7 +7,8 @@ export type NotificationKind =
   | "ROADMAP_UPDATED"
   | "STREAK"
   | "FEEDBACK_REPLY"
-  | "LINK_WITHDRAWN";
+  | "LINK_WITHDRAWN"
+  | "INACTIVITY";
 
 export interface AppNotification {
   id: string;
@@ -17,4 +18,9 @@ export interface AppNotification {
   /** ISO timestamp of when it was sent. */
   createdAt: string;
   read: boolean;
+}
+
+export interface NotificationGroup {
+  label: "Today" | "Earlier";
+  items: AppNotification[];
 }

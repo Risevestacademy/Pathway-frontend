@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { Popover } from "radix-ui";
 import { useEffect, useRef, useState } from "react";
 import { NotificationsPanel } from "../features/notifications/components/NotificationsPanel";
@@ -106,6 +107,15 @@ export function NotificationsButton({
           className="z-30 w-[27.5rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-grey-100 bg-surface shadow-[0_12px_32px_rgba(0,0,0,0.12)] outline-none"
         >
           <NotificationsPanel notifications={notifications} onMarkAllRead={onMarkAllRead} />
+          <div className="border-t border-line px-6 py-4">
+            <Link
+              to="/notifications"
+              onClick={() => setOpen(false)}
+              className="focus-ring rounded text-base text-brand-600 underline underline-offset-2"
+            >
+              See all notifications
+            </Link>
+          </div>
         </Popover.Content>
       </Popover.Portal>
     </Popover.Root>
