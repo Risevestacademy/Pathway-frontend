@@ -3,6 +3,7 @@ import { act, cleanup, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { renderWithRouter } from "../../../test/renderWithRouter";
 import { useAuthStore } from "../../../lib/stores/authStore";
+import type { DashboardDto } from "../../../lib/api/dashboard.api";
 import type { DashboardSummaryState } from "../hooks/useDashboardSummary";
 import { DashboardPage } from "./DashboardPage";
 
@@ -29,8 +30,20 @@ afterEach(() => {
   useAuthStore.setState({ user: null, accessToken: null, isHydrating: true });
 });
 
+const dashboard: DashboardDto = {
+  totals: { savedPathways: 2, completedSteps: 9, xp: 0, badgesEarned: 0, badgesTotal: 0 },
+  streak: { current: 0, longest: 0 },
+  weekStrip: { days: [], currentStreak: 0 },
+  heatmap: { from: "2025-11-14", to: "2026-11-13", days: [{ date: "2026-11-13", count: 3 }] },
+  badges: [],
+  activePathway: null,
+  currentProject: null,
+  goals: [],
+};
+
 const ready = (overrides = {}): DashboardSummaryState => ({
   kind: "ready",
+  dashboard,
   summary: {
     hasActivePathway: true,
     progressPercent: 38,
@@ -56,6 +69,13 @@ describe("DashboardPage", () => {
     expect(screen.getByRole("heading", { name: "Trophies" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Pathways" }).parentElement?.textContent).toContain("2");
     expect(screen.getByRole("heading", { name: "Steps Completed" }).parentElement?.textContent).toContain("9");
+  });
+
+  it("shows the activity from the dashboard on the heatmap", async () => {
+    state = ready();
+    await renderWithRouter(() => <DashboardPage />);
+
+    expect(screen.getByRole("img", { name: "3 activities in the last year" })).toBeTruthy();
   });
 
   it("says Good Afternoon in the afternoon", async () => {

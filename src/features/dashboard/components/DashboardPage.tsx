@@ -45,7 +45,7 @@ export function DashboardPage() {
     );
   }
 
-  const { summary } = state;
+  const { summary, dashboard } = state;
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-300 ease-out motion-reduce:animate-none">
       <h1 className="font-display text-4xl font-medium text-ink">
@@ -60,7 +60,7 @@ export function DashboardPage() {
         <TodaysGoalsCard summary={summary} />
         <CurrentProjectsCard />
       </div>
-      <ActivitySection />
+      <ActivitySection heatmap={dashboard.heatmap} />
     </div>
   );
 }
