@@ -58,7 +58,7 @@ export function DashboardPage() {
       </div>
       <div className="grid gap-4 lg:grid-cols-[1fr_1.4fr]">
         <TodaysGoalsCard goals={dashboard.goals} weekStrip={dashboard.weekStrip} />
-        <CurrentProjectsCard />
+        <CurrentProjectsCard project={dashboard.currentProject} />
       </div>
       <ActivitySection dashboard={dashboard} />
     </div>

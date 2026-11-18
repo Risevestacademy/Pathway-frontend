@@ -118,6 +118,30 @@ describe("DashboardPage", () => {
     expect(screen.getByText("+20 XP")).toBeTruthy();
   });
 
+  it("shows the current project from the dashboard", async () => {
+    state = ready(
+      {},
+      {
+        ...dashboard,
+        currentProject: {
+          stageId: "st1",
+          stageTitle: "Build a landing page",
+          stageDescription: "Put the basics together.",
+          stageOrder: 1,
+          completed: 0,
+          total: 1,
+          percentage: 0,
+          skills: [],
+          steps: [{ id: "s1", title: "Write the markup", order: 1, status: "NOT_STARTED" }],
+        },
+      },
+    );
+    await renderWithRouter(() => <DashboardPage />);
+
+    expect(screen.getByRole("heading", { name: "Build a landing page" })).toBeTruthy();
+    expect(screen.queryByText("No projects yet")).toBeNull();
+  });
+
   it("says Good Afternoon in the afternoon", async () => {
     vi.setSystemTime(new Date(2026, 10, 13, 14, 30));
     state = ready();
