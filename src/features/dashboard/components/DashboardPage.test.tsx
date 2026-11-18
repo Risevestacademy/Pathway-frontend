@@ -41,9 +41,9 @@ const dashboard: DashboardDto = {
   goals: [],
 };
 
-const ready = (overrides = {}): DashboardSummaryState => ({
+const ready = (overrides = {}, withDashboard: DashboardDto = dashboard): DashboardSummaryState => ({
   kind: "ready",
-  dashboard,
+  dashboard: withDashboard,
   summary: {
     hasActivePathway: true,
     progressPercent: 38,
@@ -76,6 +76,30 @@ describe("DashboardPage", () => {
     await renderWithRouter(() => <DashboardPage />);
 
     expect(screen.getByRole("img", { name: "3 activities in the last year" })).toBeTruthy();
+  });
+
+  it("shows the badges the person has earned", async () => {
+    state = ready(
+      {},
+      {
+        ...dashboard,
+        totals: { ...dashboard.totals, badgesEarned: 1, badgesTotal: 4 },
+        badges: [
+          {
+            id: "b1",
+            name: "First Step",
+            description: "Completed a step",
+            iconKey: "star",
+            xpThreshold: 10,
+            awardedAt: "2026-11-10T08:00:00.000Z",
+          },
+        ],
+      },
+    );
+    await renderWithRouter(() => <DashboardPage />);
+
+    expect(screen.getByText("First Step")).toBeTruthy();
+    expect(screen.getByText("of 4")).toBeTruthy();
   });
 
   it("says Good Afternoon in the afternoon", async () => {

@@ -60,7 +60,7 @@ export function DashboardPage() {
         <TodaysGoalsCard summary={summary} />
         <CurrentProjectsCard />
       </div>
-      <ActivitySection heatmap={dashboard.heatmap} />
+      <ActivitySection dashboard={dashboard} />
     </div>
   );
 }
