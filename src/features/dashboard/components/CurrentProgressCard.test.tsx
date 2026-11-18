@@ -10,6 +10,7 @@ const summary = (overrides: Partial<DashboardSummary> = {}): DashboardSummary =>
   hasActivePathway: true,
   progressPercent: 38,
   completedSteps: 3,
+  totalCompletedSteps: 3,
   totalSteps: 8,
   nextStepId: "s4",
   pathwaysCount: 1,
@@ -30,7 +31,7 @@ describe("CurrentProgressCard", () => {
   it("invites someone with no pathway to build one", async () => {
     await renderWithRouter(() => (
       <CurrentProgressCard
-        summary={summary({ hasActivePathway: false, progressPercent: 0, completedSteps: 0, totalSteps: 0 })}
+        summary={summary({ hasActivePathway: false, progressPercent: 0, completedSteps: 0, totalCompletedSteps: 0, totalSteps: 0 })}
       />
     ));
 
