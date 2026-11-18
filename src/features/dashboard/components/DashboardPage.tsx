@@ -57,7 +57,7 @@ export function DashboardPage() {
         <StatCard title="Steps Completed" value={summary.totalCompletedSteps} art={stepsArt} tone="pink" />
       </div>
       <div className="grid gap-4 lg:grid-cols-[1fr_1.4fr]">
-        <TodaysGoalsCard summary={summary} />
+        <TodaysGoalsCard goals={dashboard.goals} weekStrip={dashboard.weekStrip} />
         <CurrentProjectsCard />
       </div>
       <ActivitySection dashboard={dashboard} />

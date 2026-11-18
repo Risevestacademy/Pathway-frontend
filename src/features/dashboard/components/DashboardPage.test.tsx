@@ -102,6 +102,22 @@ describe("DashboardPage", () => {
     expect(screen.getByText("of 4")).toBeTruthy();
   });
 
+  it("shows today's goals from the dashboard", async () => {
+    state = ready(
+      {},
+      {
+        ...dashboard,
+        goals: [
+          { kind: "STEP", id: "g1", title: "Learn flexbox", xp: 20, done: false, goalDescription: "Build a layout" },
+        ],
+      },
+    );
+    await renderWithRouter(() => <DashboardPage />);
+
+    expect(screen.getByText("Learn flexbox")).toBeTruthy();
+    expect(screen.getByText("+20 XP")).toBeTruthy();
+  });
+
   it("says Good Afternoon in the afternoon", async () => {
     vi.setSystemTime(new Date(2026, 10, 13, 14, 30));
     state = ready();
