@@ -4,13 +4,13 @@ import FaqSection from "./FaqSection";
 import HeroSection from "./HeroSection";
 import HowItWorksSection from "./HowItWorksSection";
 import PublicPageLayout from "./PublicPageLayout";
-import StickerCardsSection from "./StickerCardsSection";
+import FeatureCardsSection from "./FeatureCardsSection";
 
 export default function LandingPage() {
   return (
     <PublicPageLayout>
       <HeroSection />
-      <StickerCardsSection />
+      <FeatureCardsSection />
       <HowItWorksSection />
       <CareerFolderStack />
       <FaqSection />

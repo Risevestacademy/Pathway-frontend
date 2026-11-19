@@ -5,22 +5,22 @@ import {
   FAQ_SECTION,
   NAV_LINKS,
   STEPS,
-  STICKER_CARDS,
+  FEATURE_CARDS,
 } from "./landing.copy";
 
 const uniqueIds = (items: readonly { id: string }[]) =>
   new Set(items.map((item) => item.id)).size === items.length;
 
 describe("landing copy", () => {
-  it("has four sticker cards, steps, careers and FAQs", () => {
-    expect(STICKER_CARDS).toHaveLength(4);
+  it("has four feature cards, steps, careers and FAQs", () => {
+    expect(FEATURE_CARDS).toHaveLength(4);
     expect(STEPS).toHaveLength(4);
     expect(CAREERS).toHaveLength(4);
     expect(FAQS).toHaveLength(4);
   });
 
   it("uses unique ids so they can key lists and accordion items", () => {
-    expect(uniqueIds(STICKER_CARDS)).toBe(true);
+    expect(uniqueIds(FEATURE_CARDS)).toBe(true);
     expect(uniqueIds(STEPS)).toBe(true);
     expect(uniqueIds(CAREERS)).toBe(true);
     expect(uniqueIds(FAQS)).toBe(true);

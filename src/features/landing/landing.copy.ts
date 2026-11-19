@@ -23,23 +23,23 @@ export const HERO = {
   getStarted: "Get started",
 } as const;
 
-export type StickerTone = "blue" | "purple" | "yellow" | "pink";
+export type FeatureId = "explore" | "roadmap" | "plan" | "progress";
 
-export interface StickerCard {
-  id: StickerTone;
+export interface FeatureCard {
+  id: FeatureId;
   copy: string;
 }
 
 /** "\n" marks the export's line breaks; render with `whitespace-pre-line`. */
-export const STICKER_SECTION = {
+export const FEATURE_SECTION = {
   heading: "Choosing a career\nshouldn't feel like guessing.",
 } as const;
 
-export const STICKER_CARDS: readonly StickerCard[] = [
-  { id: "blue", copy: "Curated set of careers, side by side, with no best or worst." },
-  { id: "purple", copy: "A roadmap in the order you should learn it." },
-  { id: "yellow", copy: "One resource per step, with a reason it's there." },
-  { id: "pink", copy: "A plan built from your skills, studies and goals." },
+export const FEATURE_CARDS: readonly FeatureCard[] = [
+  { id: "explore", copy: "Explore careers based on what\nfits your vision" },
+  { id: "roadmap", copy: "A roadmap to help you learn\nin the order you should" },
+  { id: "plan", copy: "Build a plan from your skills,\nstudies & goals" },
+  { id: "progress", copy: "Track your progress to see how\nfar you’ve come" },
 ];
 
 export interface Step {
