@@ -1,19 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import type { ReactNode } from "react";
-import type { ActivePathwayDto } from "../../../lib/api/progress.api";
+import type { DashboardDto } from "../../../lib/api/dashboard.api";
 import { useAuthStore } from "../../../lib/stores/authStore";
 import { useDashboardSummary } from "./useDashboardSummary";
 
-const fetchActivePathway = vi.fn();
-const fetchSavedPathways = vi.fn();
+const fetchDashboard = vi.fn();
 
-vi.mock("../../../lib/api/progress.api", () => ({
-  fetchActivePathway: () => fetchActivePathway(),
-  fetchSavedPathways: () => fetchSavedPathways(),
-}));
+vi.mock("../../../lib/api/dashboard.api", () => ({ fetchDashboard: () => fetchDashboard() }));
 vi.mock("../../../lib/api/auth.api", () => ({ ensureAuthHydrated: vi.fn() }));
 
 beforeEach(() => {
@@ -25,23 +20,23 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
-  fetchActivePathway.mockReset();
-  fetchSavedPathways.mockReset();
+  fetchDashboard.mockReset();
   useAuthStore.setState({ user: null, accessToken: null, isHydrating: true });
 });
 
-const active: ActivePathwayDto = {
-  career: { id: "c1", slug: "c1", title: "Frontend", roleSummary: "", retired: false },
-  pathway: { id: "p1", title: "Roadmap" },
-  progress: {
-    completed: 2,
-    total: 4,
-    percentage: 50,
-    nextStepId: "s3",
-    selfReported: true,
-    startStepId: null,
+const dashboard: DashboardDto = {
+  totals: { savedPathways: 1, completedSteps: 2, xp: 0, badgesEarned: 0, badgesTotal: 0 },
+  streak: { current: 0, longest: 0 },
+  weekStrip: { days: [], currentStreak: 0 },
+  heatmap: { from: "2025-11-18", to: "2026-11-18", days: [] },
+  badges: [],
+  activePathway: {
+    pathwayId: "p1",
+    career: { id: "c1", title: "Frontend", description: "", retired: false },
+    progress: { completed: 2, total: 4, percentage: 50, nextStepId: "s3", selfReported: true },
   },
-  steps: [],
+  currentProject: null,
+  goals: [],
 };
 
 function setup() {
@@ -52,18 +47,9 @@ function setup() {
   return renderHook(() => useDashboardSummary(), { wrapper });
 }
 
-const httpError = (status: number) => new AxiosError("nope", "ERR_BAD_REQUEST", undefined, undefined, {
-  status,
-  statusText: "Error",
-  data: {},
-  headers: {},
-  config: {} as never,
-});
-
 describe("useDashboardSummary", () => {
-  it("is loading until both requests arrive", () => {
-    fetchActivePathway.mockReturnValue(new Promise(() => {}));
-    fetchSavedPathways.mockReturnValue(new Promise(() => {}));
+  it("is loading until the request arrives", () => {
+    fetchDashboard.mockReturnValue(new Promise(() => {}));
 
     expect(setup().result.current.state.kind).toBe("loading");
   });
@@ -77,23 +63,29 @@ describe("useDashboardSummary", () => {
   });
 
   it("is ready with the summary", async () => {
-    fetchActivePathway.mockResolvedValue(active);
-    fetchSavedPathways.mockResolvedValue([
-      { career: { id: "c1", slug: "c1", title: "Frontend", retired: false }, isActive: true, progress: active.progress },
-    ]);
+    fetchDashboard.mockResolvedValue(dashboard);
 
     const { result } = setup();
 
     await waitFor(() => expect(result.current.state.kind).toBe("ready"));
     expect(result.current.state).toMatchObject({
       kind: "ready",
-      summary: { hasActivePathway: true, progressPercent: 50, completedSteps: 2, pathwaysCount: 1 },
+      summary: {
+        hasActivePathway: true,
+        progressPercent: 50,
+        completedSteps: 2,
+        totalCompletedSteps: 2,
+        pathwaysCount: 1,
+      },
     });
   });
 
-  it("is ready and empty when the backend has no active pathway (404)", async () => {
-    fetchActivePathway.mockRejectedValue(httpError(404));
-    fetchSavedPathways.mockResolvedValue([]);
+  it("is ready and empty for a new user", async () => {
+    fetchDashboard.mockResolvedValue({
+      ...dashboard,
+      totals: { ...dashboard.totals, savedPathways: 0, completedSteps: 0 },
+      activePathway: null,
+    });
 
     const { result } = setup();
 
@@ -101,19 +93,5 @@ describe("useDashboardSummary", () => {
     expect(result.current.state).toMatchObject({
       summary: { hasActivePathway: false, progressPercent: 0, completedSteps: 0, pathwaysCount: 0 },
     });
-  });
-
-  it("is an error when a request fails, and retry loads again", async () => {
-    fetchActivePathway.mockResolvedValue(active);
-    fetchSavedPathways.mockRejectedValueOnce(httpError(403));
-
-    const { result } = setup();
-
-    await waitFor(() => expect(result.current.state.kind).toBe("error"));
-
-    fetchSavedPathways.mockResolvedValue([]);
-    act(() => result.current.retry());
-
-    await waitFor(() => expect(result.current.state.kind).toBe("ready"));
   });
 });
