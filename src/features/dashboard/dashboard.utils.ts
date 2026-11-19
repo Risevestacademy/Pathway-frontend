@@ -1,29 +1,37 @@
-import type { DashboardDto } from "../../lib/api/dashboard.api";
+import type { ActivePathwayDto, SavedPathwayDto } from "../../lib/api/progress.api";
 
 export interface DashboardSummary {
   /** False for someone who hasn't built a pathway yet: the dashboard shows its empty state. */
   hasActivePathway: boolean;
   progressPercent: number;
-  /** Steps completed in the active pathway only: drives the progress bar. */
+  /** Steps completed in the active pathway only. */
   completedSteps: number;
-  /** Steps completed across every pathway: the "Steps Completed" stat. */
-  totalCompletedSteps: number;
   totalSteps: number;
   nextStepId: string | null;
   pathwaysCount: number;
 }
 
-export function buildDashboardSummary(dashboard: DashboardDto): DashboardSummary {
-  const progress = dashboard.activePathway?.progress ?? null;
+/** What the backend returns, or is treated as, for someone with no active pathway. */
+export const NO_ACTIVE_PATHWAY: ActivePathwayDto = {
+  career: null,
+  pathway: null,
+  progress: null,
+  steps: [],
+};
+
+export function buildDashboardSummary(
+  active: ActivePathwayDto,
+  saved: SavedPathwayDto[],
+): DashboardSummary {
+  const progress = active.career ? active.progress : null;
 
   return {
-    hasActivePathway: dashboard.activePathway !== null,
+    hasActivePathway: progress !== null,
     progressPercent: Math.round(progress?.percentage ?? 0),
     completedSteps: progress?.completed ?? 0,
-    totalCompletedSteps: dashboard.totals.completedSteps,
     totalSteps: progress?.total ?? 0,
     nextStepId: progress?.nextStepId ?? null,
-    pathwaysCount: dashboard.totals.savedPathways,
+    pathwaysCount: saved.length,
   };
 }
 

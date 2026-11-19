@@ -187,16 +187,15 @@ describe("AppTopNav", () => {
     expect(screen.getByRole("link", { name: "Opportunities" }).getAttribute("href")).toBe("/opportunities");
   });
 
-  it("shows a Notifications bell, marked as coming soon, for signed-in people only", async () => {
+  it("shows a Notifications bell for signed-in people only", async () => {
     await renderNav();
     act(() => useAuthStore.getState().finishHydrating());
     expect(screen.queryByRole("button", { name: /notifications/i })).toBeNull();
 
     act(() => useAuthStore.getState().setAuth({ id: "u1", email: "a@b.c", role: "USER" }, "token"));
     const bell = screen.getByRole("button", { name: /notifications/i });
-    expect(bell.getAttribute("aria-disabled")).toBe("true");
-    expect(bell.getAttribute("title")).toBe("Coming soon");
-    expect(bell.textContent).toContain("coming soon");
+    expect(bell.getAttribute("aria-disabled")).toBeNull();
+    expect(bell.getAttribute("title")).toBeNull();
   });
 
   it("puts Send feedback and Sign out in the account menu", async () => {
