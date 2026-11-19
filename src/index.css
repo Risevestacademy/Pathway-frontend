@@ -493,6 +493,93 @@
   }
 }
 
+/* Landing feature cards. Sizes are design px * --u, so a card scales as one picture. Each moving
+ * part carries an idle, open and shut pose in --idle/--open/--shut (and --o-* for opacity); these
+ * rules pick one. Without hover or below lg, every card sits open. */
+@layer components {
+  .feature-grid {
+    container-type: inline-size;
+    --u: calc(100cqw / 520);
+  }
+  .feature-cols,
+  .feature-col {
+    display: grid;
+    gap: calc(24 * var(--u));
+  }
+  .feature-card {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 520 / 508;
+    border-radius: calc(32 * var(--u));
+  }
+  .feature-part {
+    transform: var(--open);
+    opacity: var(--o-open);
+  }
+  .feature-thread {
+    width: calc(var(--w-open) * var(--u));
+  }
+
+  @media (width >= 40rem) {
+    .feature-grid {
+      --u: calc(100cqw / 1064);
+    }
+    .feature-cols {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (width >= 64rem) and (hover: hover) {
+    /* Rows trade height with a constant total, so fr values interpolate linearly. */
+    .feature-col {
+      height: calc(696 * var(--u));
+      grid-template-rows: 336fr 336fr;
+      transition: grid-template-rows 300ms ease-in;
+    }
+    .feature-col:has(> :first-child:hover) {
+      grid-template-rows: 508fr 164fr;
+    }
+    .feature-col:has(> :last-child:hover) {
+      grid-template-rows: 164fr 508fr;
+    }
+    .feature-card {
+      aspect-ratio: auto;
+    }
+    .feature-part {
+      transform: var(--idle);
+      opacity: var(--o-idle);
+      transition:
+        transform 300ms ease-in,
+        opacity 300ms ease-in,
+        width 300ms ease-in;
+    }
+    .feature-thread {
+      width: calc(var(--w-idle) * var(--u));
+    }
+    .feature-card:hover .feature-part {
+      transform: var(--open);
+      opacity: var(--o-open);
+    }
+    .feature-card:hover .feature-thread {
+      width: calc(var(--w-open) * var(--u));
+    }
+    .feature-col:has(> :hover) > :not(:hover) .feature-part {
+      transform: var(--shut);
+      opacity: var(--o-shut);
+    }
+    .feature-col:has(> :hover) > :not(:hover) .feature-thread {
+      width: calc(var(--w-shut) * var(--u));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .feature-col,
+    .feature-part {
+      transition: none;
+    }
+  }
+}
+
 @utility text-body-lg-bold {
   font-size: 1.125rem;
   line-height: 1.5rem;
