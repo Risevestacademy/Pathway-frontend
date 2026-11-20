@@ -21,6 +21,7 @@ import { Route as ProtectedDashboardRouteImport } from './routes/_protected/dash
 import { Route as ProtectedMyPathwayRouteImport } from './routes/_protected/my-pathway'
 import { Route as ProtectedProfileRouteImport } from './routes/_protected/profile'
 import { Route as ProtectedProgressRouteImport } from './routes/_protected/progress'
+import { Route as ProtectedSettingsRouteImport } from './routes/_protected/settings'
 import { Route as CareersIndexRouteImport } from './routes/careers/index'
 import { Route as ExploreIndexRouteImport } from './routes/explore/index'
 import { Route as ExploreCareerIdRouteImport } from './routes/explore/$careerId'
@@ -113,6 +114,11 @@ const ProtectedProfileRoute = ProtectedProfileRouteImport.update({
 const ProtectedProgressRoute = ProtectedProgressRouteImport.update({
   id: '/progress',
   path: '/progress',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedSettingsRoute = ProtectedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => ProtectedRoute,
 } as any)
 const CareersIndexRoute = CareersIndexRouteImport.update({
@@ -317,6 +323,7 @@ export interface FileRoutesByFullPath {
   '/my-pathway': typeof ProtectedMyPathwayRouteWithChildren
   '/profile': typeof ProtectedProfileRoute
   '/progress': typeof ProtectedProgressRoute
+  '/settings': typeof ProtectedSettingsRoute
   '/explore/$careerId': typeof ExploreCareerIdRoute
   '/skill-check/$': typeof SkillCheckSplatRoute
   '/careers/': typeof CareersIndexRoute
@@ -362,6 +369,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof ProtectedDashboardRoute
   '/profile': typeof ProtectedProfileRoute
   '/progress': typeof ProtectedProgressRoute
+  '/settings': typeof ProtectedSettingsRoute
   '/explore/$careerId': typeof ExploreCareerIdRoute
   '/skill-check/$': typeof SkillCheckSplatRoute
   '/careers': typeof CareersIndexRoute
@@ -411,6 +419,7 @@ export interface FileRoutesById {
   '/_protected/my-pathway': typeof ProtectedMyPathwayRouteWithChildren
   '/_protected/profile': typeof ProtectedProfileRoute
   '/_protected/progress': typeof ProtectedProgressRoute
+  '/_protected/settings': typeof ProtectedSettingsRoute
   '/explore/$careerId': typeof ExploreCareerIdRoute
   '/skill-check/$': typeof SkillCheckSplatRoute
   '/careers/': typeof CareersIndexRoute
@@ -460,6 +469,7 @@ export interface FileRouteTypes {
     | '/my-pathway'
     | '/profile'
     | '/progress'
+    | '/settings'
     | '/explore/$careerId'
     | '/skill-check/$'
     | '/careers/'
@@ -505,6 +515,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/profile'
     | '/progress'
+    | '/settings'
     | '/explore/$careerId'
     | '/skill-check/$'
     | '/careers'
@@ -553,6 +564,7 @@ export interface FileRouteTypes {
     | '/_protected/my-pathway'
     | '/_protected/profile'
     | '/_protected/progress'
+    | '/_protected/settings'
     | '/explore/$careerId'
     | '/skill-check/$'
     | '/careers/'
@@ -697,6 +709,13 @@ declare module '@tanstack/react-router' {
       path: '/progress'
       fullPath: '/progress'
       preLoaderRoute: typeof ProtectedProgressRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/settings': {
+      id: '/_protected/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof ProtectedSettingsRouteImport
       parentRoute: typeof ProtectedRoute
     }
     '/careers/': {
@@ -1006,6 +1025,7 @@ interface ProtectedRouteChildren {
   ProtectedMyPathwayRoute: typeof ProtectedMyPathwayRouteWithChildren
   ProtectedProfileRoute: typeof ProtectedProfileRoute
   ProtectedProgressRoute: typeof ProtectedProgressRoute
+  ProtectedSettingsRoute: typeof ProtectedSettingsRoute
   ProtectedOpportunitiesIndexRoute: typeof ProtectedOpportunitiesIndexRoute
   ProtectedOpportunitiesOpportunitiesIdIndexRoute: typeof ProtectedOpportunitiesOpportunitiesIdIndexRoute
 }
@@ -1016,6 +1036,7 @@ const ProtectedRouteChildren: ProtectedRouteChildren = {
   ProtectedMyPathwayRoute: ProtectedMyPathwayRouteWithChildren,
   ProtectedProfileRoute: ProtectedProfileRoute,
   ProtectedProgressRoute: ProtectedProgressRoute,
+  ProtectedSettingsRoute: ProtectedSettingsRoute,
   ProtectedOpportunitiesIndexRoute: ProtectedOpportunitiesIndexRoute,
   ProtectedOpportunitiesOpportunitiesIdIndexRoute:
     ProtectedOpportunitiesOpportunitiesIdIndexRoute,

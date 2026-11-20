@@ -15,7 +15,7 @@ const avatarUrl = Object.values(avatarFiles)[0] ?? null;
 const itemClass =
   "flex h-11 cursor-pointer items-center rounded-lg px-4 text-base text-ink outline-none select-none data-highlighted:bg-brand-50 data-highlighted:text-brand-600";
 
-type OpenDialog = "feedback" | "sign-out" | null;
+type OpenDialog = "feedback" | "settings" | "sign-out" | null;
 
 /** The avatar in the top nav, with the signed-in learner's account actions. */
 export function AccountMenu() {
@@ -71,23 +71,44 @@ export function AccountMenu() {
           >
             <div className="flex flex-col gap-0.5 px-4 py-3">
               {name && <p className="truncate text-base text-ink">{name}</p>}
-              <p className={name ? "truncate text-sm text-ink-muted" : "truncate text-base text-ink"}>{email}</p>
+              <p
+                className={
+                  name
+                    ? "truncate text-sm text-ink-muted"
+                    : "truncate text-base text-ink"
+                }
+              >
+                {email}
+              </p>
             </div>
             <DropdownMenu.Separator className="mx-2 my-1 h-px bg-grey-100" />
             <DropdownMenu.Item asChild className={itemClass}>
               <Link to="/profile">Profile</Link>
             </DropdownMenu.Item>
-            <DropdownMenu.Item className={itemClass} onSelect={() => open("feedback")}>
+            <DropdownMenu.Item
+              className={itemClass}
+              onSelect={() => open("feedback")}
+            >
               Send feedback
             </DropdownMenu.Item>
-            <DropdownMenu.Item className={itemClass} onSelect={() => open("sign-out")}>
+            <DropdownMenu.Item asChild className={itemClass}>
+              <Link to="/settings">Settings</Link>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item
+              className={itemClass}
+              onSelect={() => open("sign-out")}
+            >
               Sign out
             </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu.Portal>
       </DropdownMenu.Root>
 
-      <ReportIssueDialog open={dialog === "feedback"} onClose={close} section="GENERAL" />
+      <ReportIssueDialog
+        open={dialog === "feedback"}
+        onClose={close}
+        section="GENERAL"
+      />
       <SignOutDialog open={dialog === "sign-out"} onClose={close} />
     </>
   );
