@@ -46,9 +46,11 @@ const detail: ResourceDetail = {
     costLabel: "Course: free",
   },
   description: "A collection of the main psychological principles.",
-  curationRationale: "Read two or three laws at a time.",
+  outcomes: ["UX laws", "Visual hierarchy"],
+  usageNote: "Read two or three laws at a time.",
   lastChecked: "2026-09-12",
-  skills: ["UX laws", "Visual hierarchy"],
+  estimatedWeeks: 2,
+  nextTask: { id: "t1", title: "Build a typed API client", goal: "Practise generics", estimatedWeeks: 1 },
 };
 
 const screenOf = (over: Partial<ResourceDetail> = {}, resource: Partial<ResourceDetail["resource"]> = {}) =>
@@ -84,10 +86,10 @@ describe("ResourceDetailScreen", () => {
     expect(within(card).getByText("A collection of the main psychological principles.")).toBeTruthy();
   });
 
-  it("lists the skills it builds, numbered", () => {
+  it("lists what it teaches, numbered", () => {
     screenOf();
 
-    const card = screen.getByRole("region", { name: "Skills you'll practise" });
+    const card = screen.getByRole("region", { name: "What you'll learn" });
     expect(within(card).getAllByRole("listitem").map((li) => li.textContent)).toEqual([
       "1UX laws",
       "2Visual hierarchy",
@@ -102,11 +104,43 @@ describe("ResourceDetailScreen", () => {
   });
 
   it("leaves out a card when the backend has nothing for it", () => {
-    screenOf({ description: null, skills: [], curationRationale: " " });
+    screenOf({ description: null, outcomes: [], usageNote: null, nextTask: null });
 
     expect(screen.queryByRole("region", { name: "What it covers" })).toBeNull();
-    expect(screen.queryByRole("region", { name: "Skills you'll practise" })).toBeNull();
+    expect(screen.queryByRole("region", { name: "What you'll learn" })).toBeNull();
     expect(screen.queryByRole("region", { name: "How to use it" })).toBeNull();
+    expect(screen.queryByRole("region", { name: "Your next task" })).toBeNull();
+  });
+
+  it("says how long it takes", () => {
+    screenOf({ estimatedWeeks: 2 });
+
+    expect(screen.getByText("About 2 weeks")).toBeTruthy();
+  });
+
+  it("says 1 week, not 1 weeks", () => {
+    screenOf({ estimatedWeeks: 1, nextTask: null });
+
+    expect(screen.getByText("About 1 week")).toBeTruthy();
+  });
+
+  it("points at the next task in the step, with what it is for and how long it takes", () => {
+    screenOf();
+
+    const card = screen.getByRole("region", { name: "Your next task" });
+    expect(within(card).getByText("Build a typed API client")).toBeTruthy();
+    expect(within(card).getByText("Practise generics")).toBeTruthy();
+    expect(within(card).getByText("About 1 week")).toBeTruthy();
+  });
+
+  it("names no step, and still reports a problem, when no step lists the resource", () => {
+    screenOf({ step: null });
+
+    expect(screen.queryByText(/^Step \d/)).toBeNull();
+    expect(screen.getByRole("heading", { level: 1, name: "Laws of UX" })).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Report a problem with this resource | Laws of UX | c1" }),
+    ).toBeTruthy();
   });
 
   it("shows its type and cost", () => {
