@@ -21,10 +21,10 @@ describe("buildWeek", () => {
 });
 
 describe("buildWeekStrip", () => {
-  const THURSDAY = new Date(2026, 10, 12);
+  const THURSDAY = "2026-11-12";
 
   it("falls back to an empty Monday-to-Sunday week when the backend sends no days", () => {
-    expect(buildWeekStrip([], THURSDAY)).toEqual(buildWeek(THURSDAY));
+    expect(buildWeekStrip([], THURSDAY)).toEqual(buildWeek(new Date(2026, 10, 12)));
   });
 
   it("labels each day by its weekday, in the order the backend sends them", () => {
@@ -51,6 +51,25 @@ describe("buildWeekStrip", () => {
     );
 
     expect(strip.map((day) => day.isToday)).toEqual([false, true]);
+  });
+
+  it("takes today from the backend's date, not the browser's", () => {
+    // Just after midnight in Lagos the backend is still on Sunday.
+    const strip = buildWeekStrip(
+      [
+        { date: "2026-11-15", active: true },
+        { date: "2026-11-16", active: false },
+      ],
+      "2026-11-15",
+    );
+
+    expect(strip.map((day) => day.isToday)).toEqual([true, false]);
+  });
+
+  it("marks no day when the backend's today isn't in the strip", () => {
+    const strip = buildWeekStrip([{ date: "2026-11-11", active: true }], "2026-11-20");
+
+    expect(strip.some((day) => day.isToday)).toBe(false);
   });
 
   it("drops days whose date can't be read", () => {

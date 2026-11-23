@@ -5,7 +5,7 @@ import { TodaysGoalsCard } from "./TodaysGoalsCard";
 
 afterEach(cleanup);
 
-const THURSDAY = new Date(2026, 10, 12);
+const THURSDAY = "2026-11-12";
 const noWeek: DashboardDto["weekStrip"] = { days: [], currentStreak: 0 };
 
 const goal = (overrides: Partial<DashboardGoalDto> = {}): DashboardGoalDto => ({

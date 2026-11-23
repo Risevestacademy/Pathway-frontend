@@ -8,11 +8,12 @@ import { buildWeekStrip } from "../goals.utils";
 export function TodaysGoalsCard({
   goals,
   weekStrip,
-  today = new Date(),
+  today,
 }: {
   goals: DashboardDto["goals"];
   weekStrip: DashboardDto["weekStrip"];
-  today?: Date;
+  /** The backend's own date (heatmap.to), so "today" matches its UTC week. */
+  today: string;
 }) {
   const headingId = useId();
   return (
