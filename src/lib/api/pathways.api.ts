@@ -114,13 +114,17 @@ export interface PathwayDetailStepDto {
   tasks: PathwayDetailTaskDto[];
 }
 
-export interface PathwayDetailStageDto {
+/** What every pathway read says about a stage: its self-reported progress and quiz status. */
+export interface PathwayStageHeaderDto {
   id: string;
   title: string;
   order: number;
-  description: string;
   progress: ProgressCountsDto;
   quiz: { status: string };
+}
+
+export interface PathwayDetailStageDto extends PathwayStageHeaderDto {
+  description: string;
   steps: PathwayDetailStepDto[];
 }
 
@@ -146,23 +150,33 @@ export interface PathwayDetailDto {
 }
 
 /**
- * The pathway by its own id: career header, every stage with its steps, and
- * progress. Resolves to null when it isn't found or its career is a draft
- * (404), or the id isn't a valid UUID (400). Other failures still throw.
+ * A GET that resolves to null when the pathway isn't readable (404) or an id
+ * isn't a valid UUID (400), so pages can show a "not available" state. Other
+ * failures still throw.
  */
-export async function fetchPathwayById(
-  pathwayId: string,
-): Promise<PathwayDetailDto | null> {
+export async function getOrNull<T>(
+  url: string,
+  params?: Record<string, string>,
+): Promise<T | null> {
   try {
-    const { data } = await api.get<PathwayDetailDto>(
-      `/pathways/${encodeURIComponent(pathwayId)}`,
-    );
+    const { data } = await api.get<T>(url, { params });
     return data;
   } catch (error) {
     const status = isAxiosError(error) ? error.response?.status : undefined;
     if (status === 404 || status === 400) return null;
     throw error;
   }
+}
+
+/**
+ * The pathway by its own id: career header, every stage with its steps, and
+ * progress. Resolves to null when it isn't found or its career is a draft
+ * (404), or the id isn't a valid UUID (400). Other failures still throw.
+ */
+export function fetchPathwayById(
+  pathwayId: string,
+): Promise<PathwayDetailDto | null> {
+  return getOrNull(`/pathways/${encodeURIComponent(pathwayId)}`);
 }
 
 /** The server refused a save because the user hasn't saved this pathway's career (409). */
