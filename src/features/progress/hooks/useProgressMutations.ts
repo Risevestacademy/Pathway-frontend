@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { setStepCompletion } from "../../../lib/api/pathways.api";
 import {
   setActivePathway,
-  setStepStatus,
   type ActivePathwayDto,
   type StepCompletionStatus,
 } from "../../../lib/api/progress.api";
@@ -14,15 +14,21 @@ function useUserId(): string {
 }
 
 /**
- * Saves one step's status. The cache only changes once the server confirms,
- * so a failed save never shows the step as done.
+ * Saves one step's status on the active pathway. The cache only changes once
+ * the server confirms, so a failed save never shows the step as done.
  */
 export function useSetStepStatus(stepId: string) {
   const userId = useUserId();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (status: StepCompletionStatus) => setStepStatus(stepId, status),
+    mutationFn: (status: StepCompletionStatus) => {
+      const pathwayId = queryClient.getQueryData<ActivePathwayDto>(
+        queryKeys.progress.active(userId),
+      )?.pathway?.id;
+      if (!pathwayId) throw new Error("There is no active pathway to save to");
+      return setStepCompletion(pathwayId, stepId, status === "COMPLETED");
+    },
     onSuccess: (response) => {
       queryClient.setQueryData<ActivePathwayDto>(
         queryKeys.progress.active(userId),

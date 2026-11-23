@@ -1,7 +1,12 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
 import { http, HttpResponse, type JsonBodyType } from 'msw'
 import { setupServer } from 'msw/node'
-import { fetchPathwayById, fetchPathwayOrNull } from './pathways.api'
+import {
+  CareerNotSavedError,
+  fetchPathwayById,
+  fetchPathwayOrNull,
+  setStepCompletion,
+} from './pathways.api'
 
 const server = setupServer()
 
@@ -79,5 +84,61 @@ describe('fetchPathwayById', () => {
   it('rethrows other failures so the error screen can offer a retry', async () => {
     respondToDetailWith(500)
     await expect(fetchPathwayById('p1')).rejects.toThrow()
+  })
+})
+
+describe('setStepCompletion', () => {
+  const confirmed = {
+    stepId: 's1',
+    status: 'COMPLETED',
+    completedAt: '2026-11-23T13:39:34.785Z',
+    progress: { completed: 1, total: 2, percentage: 50, nextStepId: 's2', selfReported: true },
+    stageProgress: { completed: 1, total: 2, percentage: 50, stageId: 'g1' },
+    nextStepId: 's2',
+    xpAwarded: 20,
+  }
+
+  function saveRespondsWith(status: number, body: JsonBodyType = confirmed) {
+    const seen: { params: unknown; body: unknown }[] = []
+    server.use(
+      http.put('*/pathways/:pathwayId/steps/:stepId/completion', async ({ params, request }) => {
+        seen.push({
+          params: { pathwayId: params.pathwayId, stepId: params.stepId },
+          body: await request.json(),
+        })
+        return HttpResponse.json(body, { status })
+      }),
+    )
+    return seen
+  }
+
+  it('sets the step by its pathway and returns what the server confirmed', async () => {
+    const seen = saveRespondsWith(200)
+
+    await expect(setStepCompletion('p1', 's1', true)).resolves.toEqual(confirmed)
+    expect(seen).toEqual([{ params: { pathwayId: 'p1', stepId: 's1' }, body: { completed: true } }])
+  })
+
+  it('sends completed: false to undo', async () => {
+    const seen = saveRespondsWith(200, { ...confirmed, status: 'NOT_STARTED' })
+
+    await setStepCompletion('p1', 's1', false)
+
+    expect(seen[0].body).toEqual({ completed: false })
+  })
+
+  it('throws a CareerNotSavedError on a 409, so the screen can say what to do', async () => {
+    saveRespondsWith(409)
+
+    await expect(setStepCompletion('p1', 's1', true)).rejects.toBeInstanceOf(CareerNotSavedError)
+  })
+
+  it.each([400, 401, 404, 500])('rethrows a %s as a plain failure', async (status) => {
+    saveRespondsWith(status)
+
+    const failure = await setStepCompletion('p1', 's1', true).catch((error: unknown) => error)
+
+    expect(failure).toBeInstanceOf(Error)
+    expect(failure).not.toBeInstanceOf(CareerNotSavedError)
   })
 })

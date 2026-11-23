@@ -1,6 +1,11 @@
 import { isAxiosError } from "axios";
 import { api } from "./axios";
-import type { PathwayStepStatus, ProgressCountsDto } from "./progress.api";
+import type {
+  PathwayProgressDto,
+  PathwayStepStatus,
+  ProgressCountsDto,
+  StepCompletionStatus,
+} from "./progress.api";
 
 export type PathwayResourceType =
   | "COURSE"
@@ -156,6 +161,49 @@ export async function fetchPathwayById(
   } catch (error) {
     const status = isAxiosError(error) ? error.response?.status : undefined;
     if (status === 404 || status === 400) return null;
+    throw error;
+  }
+}
+
+/** The server refused a save because the user hasn't saved this pathway's career (409). */
+export class CareerNotSavedError extends Error {
+  constructor() {
+    super("The user hasn't saved this pathway's career");
+    this.name = "CareerNotSavedError";
+  }
+}
+
+export interface StepCompletionResponseDto {
+  stepId: string;
+  status: StepCompletionStatus;
+  completedAt: string | null;
+  progress: Omit<PathwayProgressDto, "startStepId">;
+  stageProgress: ProgressCountsDto & { stageId: string };
+  nextStepId: string | null;
+  /** XP this save awarded. Only the first completion of a step awards any. */
+  xpAwarded: number;
+}
+
+/**
+ * Sets a step's completion outright rather than toggling it, so retrying a
+ * failed save can never count the same step twice. Completing awards the
+ * step's XP once; undoing keeps the XP.
+ */
+export async function setStepCompletion(
+  pathwayId: string,
+  stepId: string,
+  completed: boolean,
+): Promise<StepCompletionResponseDto> {
+  try {
+    const { data } = await api.put<StepCompletionResponseDto>(
+      `/pathways/${encodeURIComponent(pathwayId)}/steps/${encodeURIComponent(stepId)}/completion`,
+      { completed },
+    );
+    return data;
+  } catch (error) {
+    if (isAxiosError(error) && error.response?.status === 409) {
+      throw new CareerNotSavedError();
+    }
     throw error;
   }
 }

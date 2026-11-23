@@ -90,26 +90,35 @@ describe("getStepStatus", () => {
 });
 
 describe("applyStepStatus", () => {
-  const nextProgress = { ...progress, completed: 2, percentage: 67, nextStepId: "s3" };
+  const nextProgress = { completed: 2, total: 3, percentage: 67, nextStepId: "s3", selfReported: true };
+  const confirmed = (stepId: string, status: "COMPLETED" | "NOT_STARTED") => ({
+    stepId,
+    status,
+    completedAt: null,
+    progress: nextProgress,
+    stageProgress: { completed: 1, total: 2, percentage: 50, stageId: "g1" },
+    nextStepId: "s3",
+    xpAwarded: 0,
+  });
 
   it("updates the step and replaces progress with the server's numbers", () => {
-    const result = applyStepStatus(active, {
-      stepId: "s2",
-      status: "COMPLETED",
-      progress: nextProgress,
-    });
-    expect(result.progress).toEqual(nextProgress);
+    const result = applyStepStatus(active, confirmed("s2", "COMPLETED"));
+    expect(result.progress).toEqual({ ...nextProgress, startStepId: null });
     expect(result.steps.find((step) => step.id === "s2")?.status).toBe("COMPLETED");
     expect(result.steps.find((step) => step.id === "s1")?.status).toBe("COMPLETED");
   });
 
   it("leaves the cache alone when the step belongs to another pathway", () => {
-    const result = applyStepStatus(active, {
-      stepId: "other",
-      status: "COMPLETED",
-      progress: nextProgress,
-    });
+    const result = applyStepStatus(active, confirmed("other", "COMPLETED"));
     expect(result).toBe(active);
+  });
+
+  it("keeps the starting point, which a step save doesn't send back", () => {
+    const withStart = { ...active, progress: { ...progress, startStepId: "s1" } };
+
+    const result = applyStepStatus(withStart, confirmed("s2", "COMPLETED"));
+
+    expect(result.progress?.startStepId).toBe("s1");
   });
 });
 
