@@ -198,6 +198,14 @@ export interface StepCompletionResponseDto {
   xpAwarded: number;
 }
 
+/** Rethrows a save's failure, as a CareerNotSavedError when the server answered 409. */
+export function rethrowCareerNotSaved(error: unknown): never {
+  if (isAxiosError(error) && error.response?.status === 409) {
+    throw new CareerNotSavedError();
+  }
+  throw error;
+}
+
 /**
  * Every save is a PUT that sets the state outright rather than toggling it, so
  * retrying one can never count the same item twice. A 409 means the user
@@ -209,10 +217,7 @@ async function putState<T>(url: string, body: { completed: boolean } | { checked
     const { data } = await api.put<T>(url, body);
     return data;
   } catch (error) {
-    if (isAxiosError(error) && error.response?.status === 409) {
-      throw new CareerNotSavedError();
-    }
-    throw error;
+    return rethrowCareerNotSaved(error);
   }
 }
 
