@@ -1,8 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchQuiz, type QuizDto } from "../../lib/api/pathwayQuiz.api";
-import { fetchPathwayById } from "../../lib/api/pathways.api";
 import { queryKeys } from "../../lib/queryKeys";
-import { useCareerPathwayData } from "../pathwayRoadmap/hooks/useCareerPathwayData";
+import { useQuizStage } from "./useQuizStage";
 
 export interface QuizStage {
   id: string;
@@ -31,45 +30,31 @@ export function useStageQuiz(
   careerId: string,
   stageId: string,
 ): { state: StageQuizState; retry: () => void } {
-  const { data: roadmap, retry: retryRoadmap } = useCareerPathwayData(careerId);
-  const pathwayId = roadmap.kind === "ready" ? roadmap.pathway.id : null;
-
-  const detailQuery = useQuery({
-    queryKey: queryKeys.pathwayDetail(pathwayId ?? ""),
-    queryFn: () => fetchPathwayById(pathwayId as string),
-    enabled: pathwayId !== null,
-  });
-
-  const stage = detailQuery.data?.stages.find((candidate) => candidate.id === stageId);
+  const { state: stageState, retry: retryStage } = useQuizStage(careerId, stageId);
+  const pathwayId = stageState.kind === "ready" ? stageState.pathwayId : null;
 
   const quizQuery = useQuery({
     queryKey: queryKeys.stageQuiz.questions(pathwayId ?? "", stageId),
     queryFn: () => fetchQuiz(pathwayId as string, stageId),
-    enabled: pathwayId !== null && stage !== undefined,
+    enabled: pathwayId !== null,
   });
 
   const retry = () => {
-    retryRoadmap();
-    void detailQuery.refetch();
+    retryStage();
     void quizQuery.refetch();
   };
 
-  if (roadmap.kind === "error" || detailQuery.isError || quizQuery.isError) {
-    return { state: { kind: "error" }, retry };
-  }
-  if (roadmap.kind === "unavailable") return { state: { kind: "unavailable" }, retry };
-  if (roadmap.kind === "loading" || detailQuery.isPending) {
-    return { state: { kind: "loading" }, retry };
-  }
-  if (!detailQuery.data || !stage) return { state: { kind: "unavailable" }, retry };
+  if (stageState.kind !== "ready") return { state: stageState, retry };
+  if (quizQuery.isError) return { state: { kind: "error" }, retry };
   if (quizQuery.isPending) return { state: { kind: "loading" }, retry };
   if (!quizQuery.data) return { state: { kind: "no-quiz" }, retry };
 
+  const { stage } = stageState;
   return {
     state: {
       kind: "ready",
-      pathwayId: detailQuery.data.id,
-      careerTitle: roadmap.kind === "ready" ? roadmap.careerTitle : "",
+      pathwayId: stageState.pathwayId,
+      careerTitle: stageState.careerTitle,
       stage: {
         id: stage.id,
         title: stage.title,
