@@ -25,15 +25,9 @@ export const queryKeys = {
   realRoadmap: (careerId: string | null) => ["real-roadmap", careerId] as const,
   skillCheck: {
     all: ["skill-check"] as const,
-    user: (userId: string) => ["skill-check", userId] as const,
-    careers: (userId: string) => ["skill-check", userId, "careers"] as const,
-    career: (careerId: string) => ["skill-check", "career", careerId] as const,
-    record: (userId: string, careerId: string) =>
-      ["skill-check", userId, "record", careerId] as const,
-    activeCareer: (userId: string) =>
-      ["skill-check", userId, "active-career"] as const,
-    ratings: (userId: string) => ["skill-check", userId, "ratings"] as const,
+    assessment: (userId: string) => ["skill-check", userId, "assessment"] as const,
   },
+  skills: ["skills"] as const,
   admin: {
     feedback: ["admin", "feedback"] as const,
     invites: {

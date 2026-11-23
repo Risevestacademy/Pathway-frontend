@@ -1,15 +1,14 @@
+import type { AssessmentSkillInput } from "../../lib/api/skills.api";
 import type {
   SkillAnswer,
   SkillAnswerMap,
+  SkillAssessment,
   SkillCheckArea,
-  SkillCheckCareer,
   SkillCheckResult,
   SkillCheckSkill,
   SkillCheckStep,
   SkillCounts,
   SkillGap,
-  StartSuggestion,
-  StartingPoint,
 } from "./skillCheck.types";
 
 export interface AreaGroup {
@@ -22,11 +21,11 @@ export interface AreaProgress {
   total: number;
 }
 
-export function groupSkillsByArea(career: SkillCheckCareer): AreaGroup[] {
-  return career.areas
+export function groupSkillsByArea(assessment: SkillAssessment): AreaGroup[] {
+  return assessment.areas
     .map((area) => ({
       area,
-      skills: career.skills.filter((skill) => skill.areaId === area.id),
+      skills: assessment.skills.filter((skill) => skill.areaId === area.id),
     }))
     .filter((group) => group.skills.length > 0);
 }
@@ -59,11 +58,11 @@ export function countAnswers(
   skills: SkillCheckSkill[],
   answers: SkillAnswerMap,
 ): SkillCounts {
-  const counts: SkillCounts = { have: 0, notYet: 0, notSure: 0, unanswered: 0 };
+  const counts: SkillCounts = { have: 0, dontHave: 0, notSure: 0, unanswered: 0 };
   for (const skill of skills) {
     const answer: SkillAnswer | undefined = answers[skill.id];
     if (answer === "HAVE") counts.have += 1;
-    else if (answer === "NOT_YET") counts.notYet += 1;
+    else if (answer === "DONT_HAVE") counts.dontHave += 1;
     else if (answer === "NOT_SURE") counts.notSure += 1;
     else counts.unanswered += 1;
   }
@@ -71,86 +70,95 @@ export function countAnswers(
 }
 
 export function getStep(
-  career: SkillCheckCareer,
+  assessment: SkillAssessment,
   order: number,
 ): SkillCheckStep | undefined {
-  return career.steps.find((step) => step.order === order);
+  return assessment.steps.find((step) => step.order === order);
+}
+
+/** The step the server chose: the first one that teaches a skill marked Not yet. */
+export function getStartStep(assessment: SkillAssessment): SkillCheckStep | null {
+  if (!assessment.startStepId) return null;
+  return assessment.steps.find((step) => step.id === assessment.startStepId) ?? null;
 }
 
 export function buildGaps(
-  career: SkillCheckCareer,
+  assessment: SkillAssessment,
   answers: SkillAnswerMap,
 ): SkillGap[] {
   const gaps: SkillGap[] = [];
-  for (const skill of career.skills) {
+  for (const skill of assessment.skills) {
     const answer = answers[skill.id];
-    const step = getStep(career, skill.stepOrder);
-    if (!step || (answer !== "NOT_YET" && answer !== "NOT_SURE")) continue;
+    if (answer !== "DONT_HAVE" && answer !== "NOT_SURE") continue;
+    const step = skill.stepOrder === null ? undefined : getStep(assessment, skill.stepOrder);
+    if (!step) continue;
     gaps.push({ skill, answer, step });
   }
   return gaps
     .map((gap, index) => ({ gap, index }))
-    .sort(
-      (a, b) => a.gap.step.order - b.gap.step.order || a.index - b.index,
-    )
+    .sort((a, b) => a.gap.step.order - b.gap.step.order || a.index - b.index)
     .map(({ gap }) => gap);
 }
 
-export function suggestStart(
-  career: SkillCheckCareer,
-  answers: SkillAnswerMap,
-  previousAnswers: SkillAnswerMap | null = null,
-): StartSuggestion | null {
-  const gaps = buildGaps(career, answers);
-  if (gaps.length === 0) return null;
-
-  const stepOrder = gaps[0].step.order;
-  const haveBefore = career.skills.filter(
-    (skill) => answers[skill.id] === "HAVE" && skill.stepOrder < stepOrder,
-  );
-  const newlyHave = previousAnswers
-    ? haveBefore.filter((skill) => previousAnswers[skill.id] !== "HAVE")
-    : [];
-  const reasonSkills = newlyHave.length > 0 ? newlyHave : haveBefore;
-  const coveredStepOrders = [
-    ...new Set(reasonSkills.map((skill) => skill.stepOrder)),
-  ].sort((a, b) => a - b);
-
-  return { stepOrder, reasonSkills, coveredStepOrders };
-}
-
-export function getSkillCheckResult(
-  career: SkillCheckCareer,
-  answers: SkillAnswerMap,
-  previousAnswers: SkillAnswerMap | null = null,
-): SkillCheckResult {
+export function getSkillCheckResult(assessment: SkillAssessment): SkillCheckResult {
   return {
-    counts: countAnswers(career.skills, answers),
-    gaps: buildGaps(career, answers),
-    suggestion: suggestStart(career, answers, previousAnswers),
+    counts: countAnswers(assessment.skills, assessment.saved),
+    gaps: buildGaps(assessment, assessment.saved),
+    startStep: getStartStep(assessment),
   };
 }
 
-export function isNewSuggestion(
-  startingPoint: StartingPoint | null,
-  suggestion: StartSuggestion | null,
-): boolean {
-  if (!startingPoint || !suggestion) return false;
-  return startingPoint.stepOrder !== suggestion.stepOrder;
+/** Skills marked Have, in roadmap order, for rating. */
+export function getHaveSkills(assessment: SkillAssessment): SkillCheckSkill[] {
+  return assessment.skills
+    .filter((skill) => assessment.saved[skill.id] === "HAVE")
+    .map((skill, index) => ({ skill, index }))
+    .sort(
+      (a, b) =>
+        (a.skill.stepOrder ?? Infinity) - (b.skill.stepOrder ?? Infinity) || a.index - b.index,
+    )
+    .map(({ skill }) => skill);
+}
+
+/**
+ * The answers as the server takes them. A skill still marked Have keeps its
+ * saved rating, since leaving the rating out would clear it.
+ */
+export function toAssessmentInput(
+  skills: SkillCheckSkill[],
+  answers: SkillAnswerMap,
+  ratings: Record<string, number>,
+): AssessmentSkillInput[] {
+  return skills.flatMap((skill) => {
+    const status = answers[skill.id];
+    if (!status) return [];
+    const rating = status === "HAVE" ? ratings[skill.id] : undefined;
+    return [rating === undefined ? { skillId: skill.id, status } : { skillId: skill.id, status, rating }];
+  });
+}
+
+/** Where the questionnaire opens: the saved draft, else the saved answers once there is a result. */
+export function getInitialAnswers(
+  assessment: SkillAssessment,
+  draft: SkillAnswerMap | null,
+): SkillAnswerMap {
+  const source = draft ?? (assessment.hasResult ? assessment.saved : {});
+  const known = new Set(assessment.skills.map((skill) => skill.id));
+  return Object.fromEntries(Object.entries(source).filter(([skillId]) => known.has(skillId)));
 }
 
 export function getEarlierSteps(
-  career: SkillCheckCareer,
+  assessment: SkillAssessment,
   startOrder: number,
 ): SkillCheckStep[] {
-  return career.steps.filter((step) => step.order < startOrder);
+  return assessment.steps.filter((step) => step.order < startOrder);
 }
 
 export function getResumeAreaId(
-  career: SkillCheckCareer,
+  assessment: SkillAssessment,
   answers: SkillAnswerMap,
 ): string | null {
-  const groups = groupSkillsByArea(career);
+  const groups = groupSkillsByArea(assessment);
   const firstOpen = groups.find((group) =>
     group.skills.some((skill) => answers[skill.id] === undefined),
   );

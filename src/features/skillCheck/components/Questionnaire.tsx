@@ -2,23 +2,19 @@ import { ArrowRightRegular } from "@mingcute/react/core-regular";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { SkillButton } from "./SkillButton";
-import {
-  useCompleteSkillCheck,
-  useSaveSkillCheckDraft,
-} from "../hooks/useSkillCheckActions";
+import { useSkillCheckUserId } from "../hooks/useSkillCheck";
+import { useSaveAssessment } from "../hooks/useSkillCheckActions";
+import { readDraft, writeDraft } from "../skillCheck.storage";
 import {
   countAnswered,
   getAreaProgress,
+  getInitialAnswers,
   getResumeAreaId,
   groupSkillsByArea,
   isCheckComplete,
+  toAssessmentInput,
 } from "../skillCheck.utils";
-import type {
-  SkillAnswer,
-  SkillAnswerMap,
-  SkillCheckCareer,
-  SkillCheckRecord,
-} from "../skillCheck.types";
+import type { SkillAnswer, SkillAnswerMap, SkillAssessment } from "../skillCheck.types";
 import { AnswerToggle } from "./AnswerToggle";
 import { AreaNav } from "./AreaNav";
 import { BackLink } from "./BackLink";
@@ -26,23 +22,24 @@ import { InfoNote } from "./InfoNote";
 import { PageHeading } from "./PageHeading";
 import { ProgressSavedDialog } from "./ProgressSavedDialog";
 
-export function Questionnaire({
-  career,
-  record,
-}: {
-  career: SkillCheckCareer;
-  record: SkillCheckRecord;
-}) {
+export function Questionnaire({ assessment }: { assessment: SkillAssessment }) {
   const navigate = useNavigate();
-  const groups = groupSkillsByArea(career);
-  const initialAnswers = record.draft ?? {};
-  const [answers, setAnswers] = useState<SkillAnswerMap>(initialAnswers);
-  const [areaId, setAreaId] = useState<string>(
-    record.draftAreaId ?? getResumeAreaId(career, initialAnswers) ?? groups[0].area.id,
-  );
+  const userId = useSkillCheckUserId();
+  const { careerId } = assessment;
+  const groups = groupSkillsByArea(assessment);
+  const [initial] = useState(() => {
+    const draft = readDraft(userId, careerId);
+    const answers = getInitialAnswers(assessment, draft?.answers ?? null);
+    const known = groups.some((group) => group.area.id === draft?.areaId);
+    return {
+      answers,
+      areaId: (known ? draft?.areaId : null) ?? getResumeAreaId(assessment, answers) ?? groups[0].area.id,
+    };
+  });
+  const [answers, setAnswers] = useState<SkillAnswerMap>(initial.answers);
+  const [areaId, setAreaId] = useState<string>(initial.areaId);
   const [savedOpen, setSavedOpen] = useState(false);
-  const save = useSaveSkillCheckDraft(career.careerId);
-  const complete = useCompleteSkillCheck(career.careerId);
+  const save = useSaveAssessment(careerId);
 
   const areaIndex = Math.max(
     0,
@@ -52,26 +49,26 @@ export function Questionnaire({
   const isLastArea = areaIndex === groups.length - 1;
   const areaProgress = getAreaProgress(group.skills, answers);
   const areaDone = areaProgress.answered === areaProgress.total;
-  const total = career.skills.length;
-  const answered = countAnswered(career.skills, answers);
-  const allDone = isCheckComplete(career.skills, answers);
+  const total = assessment.skills.length;
+  const answered = countAnswered(assessment.skills, answers);
+  const allDone = isCheckComplete(assessment.skills, answers);
   const firstOpenSkillId = group.skills.find((skill) => answers[skill.id] === undefined)?.id;
   const canAdvance = isLastArea ? allDone : areaDone;
   const remainingInArea = areaProgress.total - areaProgress.answered;
   const remainingOverall = total - answered;
 
-  const persist = (nextAnswers: SkillAnswerMap, nextAreaId: string) =>
-    save.mutateAsync({ draft: nextAnswers, areaId: nextAreaId });
+  const keepDraft = (nextAnswers: SkillAnswerMap, nextAreaId: string) =>
+    writeDraft(userId, careerId, { answers: nextAnswers, areaId: nextAreaId });
 
   const handleAnswer = (skillId: string, answer: SkillAnswer) => {
     const next = { ...answers, [skillId]: answer };
     setAnswers(next);
-    save.mutate({ draft: next, areaId });
+    keepDraft(next, areaId);
   };
 
   const goToArea = (nextAreaId: string) => {
     setAreaId(nextAreaId);
-    save.mutate({ draft: answers, areaId: nextAreaId });
+    keepDraft(answers, nextAreaId);
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
   };
@@ -82,34 +79,27 @@ export function Questionnaire({
       return;
     }
     try {
-      await persist(answers, areaId);
-      await complete.mutateAsync();
+      await save.mutateAsync(toAssessmentInput(assessment.skills, answers, assessment.ratings));
       await navigate({
         to: "/my-pathway/skill-check/$careerId/result",
-        params: { careerId: career.careerId },
+        params: { careerId },
       });
     } catch {
       return;
     }
   };
 
-  const handleSaveAndExit = async () => {
-    try {
-      await persist(answers, areaId);
-      setSavedOpen(true);
-    } catch {
-      return;
-    }
+  const handleSaveAndExit = () => {
+    keepDraft(answers, areaId);
+    setSavedOpen(true);
   };
-
-  const failed = save.isError || complete.isError;
 
   return (
     <>
       <BackLink />
       <div>
         <PageHeading
-          eyebrow={`${career.name} · Area ${areaIndex + 1} of ${groups.length}`}
+          eyebrow={`${assessment.name} · Stage ${areaIndex + 1} of ${groups.length}`}
           title={group.area.name}
           description="Choose what you can do. Not sure is a fine answer."
         />
@@ -131,10 +121,7 @@ export function Questionnaire({
                     : "flex flex-col gap-3 border-t border-grey-100 px-5 py-4 first:border-t-0 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
                 }
               >
-                <div className="flex min-w-0 flex-col gap-0.5">
-                  <p className="text-base leading-5 font-medium text-ink">{skill.name}</p>
-                  <p className="text-sm leading-5 text-grey-600">{skill.description}</p>
-                </div>
+                <p className="min-w-0 text-base leading-5 font-medium text-ink">{skill.name}</p>
                 <AnswerToggle
                   skillId={skill.id}
                   skillName={skill.name}
@@ -151,22 +138,13 @@ export function Questionnaire({
         </div>
       </div>
 
-      {failed && (
+      {save.isError && (
         <div
           role="alert"
           className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-danger-600/30 bg-danger-50 px-4 py-3 text-sm leading-5 text-danger-700"
         >
-          <span>
-            {complete.isError
-              ? "We could not finish your skill check. Your answers are still on this page."
-              : "Your latest answer is not saved yet."}
-          </span>
-          <SkillButton
-            isPrimary={false}
-            onClick={() =>
-              complete.isError ? void handleContinue() : save.mutate({ draft: answers, areaId })
-            }
-          >
+          <span>We could not save your skill check. Your answers are still on this page.</span>
+          <SkillButton isPrimary={false} onClick={() => void handleContinue()}>
             Try again
           </SkillButton>
         </div>
@@ -177,22 +155,18 @@ export function Questionnaire({
           {answered} of {total} answered
           {!canAdvance &&
             (isLastArea && areaDone
-              ? ` · ${remainingOverall} left in other areas`
-              : ` · ${remainingInArea} left in this area`)}
+              ? ` · ${remainingOverall} left in other stages`
+              : ` · ${remainingInArea} left in this stage`)}
         </p>
         <div className="flex flex-col gap-3 sm:flex-row">
-          <SkillButton
-            isPrimary={false}
-            disabled={save.isPending || complete.isPending}
-            onClick={() => void handleSaveAndExit()}
-          >
+          <SkillButton isPrimary={false} disabled={save.isPending} onClick={handleSaveAndExit}>
             Save and exit
           </SkillButton>
           <SkillButton
-            disabled={!canAdvance || save.isPending || complete.isPending}
+            disabled={!canAdvance || save.isPending}
             onClick={() => void handleContinue()}
           >
-            {isLastArea ? (complete.isPending ? "Saving result" : "See my result") : "Continue"}
+            {isLastArea ? (save.isPending ? "Saving result" : "See my result") : "Continue"}
             <ArrowRightRegular aria-hidden className="size-5" />
           </SkillButton>
         </div>

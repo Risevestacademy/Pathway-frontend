@@ -20,7 +20,7 @@ describe("AnswerToggle", () => {
     const onChange = vi.fn();
     render(<AnswerToggle skillId="html" skillName="HTML" value={undefined} onChange={onChange} />);
     await userEvent.click(screen.getByRole("radio", { name: "Not yet" }));
-    expect(onChange).toHaveBeenCalledWith("NOT_YET");
+    expect(onChange).toHaveBeenCalledWith("DONT_HAVE");
   });
 
   it("shows the current value as checked", () => {

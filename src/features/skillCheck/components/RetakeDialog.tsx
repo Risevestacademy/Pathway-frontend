@@ -1,18 +1,16 @@
-import { SkillButton } from "./SkillButton";
 import { Modal } from "../../../components/ui/Modal";
+import { SkillButton } from "./SkillButton";
 
-export function SwitchPathwayDialog({
+export function RetakeDialog({
   open,
-  targetName,
-  currentName,
+  careerName,
   pending,
   error,
   onCancel,
   onConfirm,
 }: {
   open: boolean;
-  targetName: string;
-  currentName: string | null;
+  careerName: string;
   pending: boolean;
   error: boolean;
   onCancel: () => void;
@@ -22,17 +20,13 @@ export function SwitchPathwayDialog({
     <Modal
       open={open}
       onClose={onCancel}
-      title={`Switch your active pathway to ${targetName}?`}
-      description={
-        currentName
-          ? `Your progress on ${currentName} is saved. You can come back to it any time.`
-          : "You can switch back to another pathway any time."
-      }
+      title={`Retake the ${careerName} skill check?`}
+      description="This clears your answers, ratings and starting point for this pathway. Your completed steps stay as they are."
       className="max-w-130"
     >
       {error && (
         <p role="alert" className="text-sm leading-5 text-danger-700">
-          The switch did not save. Try again.
+          Your answers were not cleared. Try again.
         </p>
       )}
       <div className="flex gap-3">
@@ -40,7 +34,7 @@ export function SwitchPathwayDialog({
           Cancel
         </SkillButton>
         <SkillButton className="flex-1" disabled={pending} onClick={onConfirm}>
-          {pending ? "Switching" : "Switch pathway"}
+          {pending ? "Clearing" : "Clear and start again"}
         </SkillButton>
       </div>
     </Modal>

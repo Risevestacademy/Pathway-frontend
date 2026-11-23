@@ -1,12 +1,9 @@
-import type {
-  SkillAnswer,
-  StartingPoint,
-} from "./skillCheck.types";
+import type { RatingValue, SkillAnswer } from "./skillCheck.types";
 
 export const ESTIMATED_MINUTES = 3;
 
 export const HOW_IT_WORKS_STEPS = [
-  "Mark the skills you have, from a reviewed list",
+  "Mark the skills you have, from your pathway's skill list",
   "See your gaps, each linked to a step in your roadmap",
   "Get a suggested starting step.",
 ];
@@ -19,18 +16,22 @@ export const DIALOG_STEPS = [
 
 export const ANSWER_LABELS: Record<SkillAnswer, string> = {
   HAVE: "Have",
-  NOT_YET: "Not yet",
+  DONT_HAVE: "Not yet",
   NOT_SURE: "Not sure",
+};
+
+export const RATING_VALUES: RatingValue[] = [1, 2, 3, 4, 5];
+
+export const RATING_LABELS: Record<RatingValue, string> = {
+  1: "I have seen it but cannot do it alone",
+  2: "I can do simple tasks with help",
+  3: "I can do common tasks on my own",
+  4: "I can handle harder tasks and explain them",
+  5: "I could teach it to someone else",
 };
 
 export function pluralise(count: number, one: string, many: string): string {
   return count === 1 ? one : many;
-}
-
-export function describeStartingPoint(startingPoint: StartingPoint): string {
-  return startingPoint.source === "ACCEPTED"
-    ? `Step ${startingPoint.stepOrder} · accepted`
-    : `Step ${startingPoint.stepOrder} · from the beginning`;
 }
 
 export function formatCheckedDate(iso: string, now: Date = new Date()): string {

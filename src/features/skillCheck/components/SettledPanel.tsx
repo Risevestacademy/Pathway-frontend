@@ -1,22 +1,17 @@
 import { ArrowRightRegular } from "@mingcute/react/core-regular";
-import { earlierNote } from "../resultCopy";
-import { describeStartingPoint } from "../skillCheck.copy";
-import { getStep } from "../skillCheck.utils";
-import type { SkillCheckCareer, StartingPoint } from "../skillCheck.types";
-import { useRealCareerId } from "../hooks/useRealCareer";
-import { SkillButton, SkillLink } from "./SkillButton";
+import { START_REASON, earlierNote } from "../resultCopy";
+import type { SkillAssessment, SkillCheckStep } from "../skillCheck.types";
+import { SkillLink } from "./SkillButton";
 import { Tag } from "./Tag";
 
 export function SettledPanel({
-  career,
-  startingPoint,
+  assessment,
+  startStep,
 }: {
-  career: SkillCheckCareer;
-  startingPoint: StartingPoint;
+  assessment: SkillAssessment;
+  startStep: SkillCheckStep;
 }) {
-  const realCareerId = useRealCareerId(career.name);
-  const step = getStep(career, startingPoint.stepOrder);
-  const note = earlierNote(career, startingPoint.stepOrder);
+  const note = earlierNote(assessment, startStep.order);
 
   return (
     <>
@@ -25,20 +20,16 @@ export function SettledPanel({
           Your starting point
         </Tag>
         <h2 className="font-display text-xl leading-6 font-medium text-ink">
-          Step {startingPoint.stepOrder}, {step?.title}
+          Step {startStep.order}, {startStep.title}
         </h2>
-        <p className="text-sm leading-5 text-grey-600">{describeStartingPoint(startingPoint)}</p>
+        <p className="text-sm leading-5 text-grey-600">{START_REASON}</p>
         {note && <p className="text-sm leading-5 text-grey-600">{note}</p>}
       </div>
       <div className="flex flex-col gap-3">
-        {realCareerId ? (
-          <SkillLink to="/my-pathway/$careerId/overview" params={{ careerId: realCareerId }}>
-            Go to roadmap
-            <ArrowRightRegular aria-hidden className="size-5" />
-          </SkillLink>
-        ) : (
-          <SkillButton disabled>Loading roadmap</SkillButton>
-        )}
+        <SkillLink to="/my-pathway/$careerId/overview" params={{ careerId: assessment.careerId }}>
+          Go to roadmap
+          <ArrowRightRegular aria-hidden className="size-5" />
+        </SkillLink>
         <SkillLink to="/my-pathway/skill-check" isPrimary={false}>
           Back to Skill check
         </SkillLink>

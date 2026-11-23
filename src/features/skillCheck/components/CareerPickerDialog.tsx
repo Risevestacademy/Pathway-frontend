@@ -30,8 +30,8 @@ export function CareerPickerDialog({
         groupHeadings
       />
       <p className="text-sm leading-5 text-grey-600">
-        Checking a career you aren&rsquo;t enrolled in doesn&rsquo;t change your active
-        pathway.
+        Checking another career makes it your active pathway. Your progress on the others
+        stays saved.
       </p>
       <div className="flex gap-3">
         <SkillButton isPrimary={false} className="flex-1" onClick={onClose}>

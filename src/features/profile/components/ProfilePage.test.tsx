@@ -13,12 +13,26 @@ vi.setConfig({ testTimeout: 90_000 });
 const server = setupServer();
 
 let patched: unknown[];
+let putSkills: unknown[];
+
+const catalogue = [
+  { id: "k1", name: "Figma", description: null },
+  { id: "k2", name: "User research", description: null },
+  { id: "k3", name: "Prototyping", description: null },
+];
+const meWithSkills = { ...me, skills: [{ id: "k1", name: "Figma" }, { id: "k2", name: "User research" }] };
 
 beforeAll(() => server.listen({ onUnhandledRequest: "bypass" }));
 beforeEach(() => {
   patched = [];
+  putSkills = [];
   server.use(
-    http.get("*/auth/me", () => HttpResponse.json(me)),
+    http.get("*/auth/me", () => HttpResponse.json(meWithSkills)),
+    http.get("*/skills", () => HttpResponse.json(catalogue)),
+    http.put("*/me/skills", async ({ request }) => {
+      putSkills.push(await request.json());
+      return new HttpResponse(null, { status: 204 });
+    }),
     http.get("*/me/active-pathway", () => HttpResponse.json(active)),
     http.patch("*/users/me", async ({ request }) => {
       const body = (await request.json()) as { firstName: string; lastName: string | null };
@@ -61,10 +75,43 @@ describe("Profile page", () => {
   it("marks the sections that cannot be saved yet", async () => {
     await renderAt("/profile");
 
-    for (const title of ["Education", "Experience", "Skills", "Career interests"]) {
+    for (const title of ["Education", "Experience", "Career interests"]) {
       expect(await screen.findByRole("heading", { name: title })).toBeTruthy();
     }
-    expect(screen.getAllByText("Coming soon")).toHaveLength(4);
+    expect(screen.getAllByText("Coming soon")).toHaveLength(3);
+  });
+
+  it("lists the profile skills", async () => {
+    await renderAt("/profile");
+
+    const list = await screen.findByRole("list", { name: "Your skills" });
+    expect(list.textContent).toContain("Figma");
+    expect(list.textContent).toContain("User research");
+  });
+
+  it("saves the full list of skills, with the removed one left out", async () => {
+    await renderAt("/profile");
+
+    await userEvent.click(await screen.findByRole("button", { name: "Edit" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Remove Figma" }));
+    expect(screen.getByText(/also clears your Skill check answer/)).toBeTruthy();
+    await userEvent.click(screen.getByRole("button", { name: "Select skills" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Prototyping" }));
+    await userEvent.click(screen.getByRole("button", { name: "Save skills" }));
+
+    expect(await screen.findByText("Skills saved.")).toBeTruthy();
+    expect(putSkills).toEqual([{ skillIds: ["k2", "k3"] }]);
+  });
+
+  it("keeps the skills editor open when saving fails", async () => {
+    server.use(http.put("*/me/skills", () => new HttpResponse(null, { status: 500 })));
+    await renderAt("/profile");
+
+    await userEvent.click(await screen.findByRole("button", { name: "Edit" }));
+    await userEvent.click(screen.getByRole("button", { name: "Save skills" }));
+
+    expect((await screen.findByRole("alert")).textContent).toMatch(/skills did not save/i);
+    expect(screen.getByRole("button", { name: "Save skills" })).toBeTruthy();
   });
 
   it("saves a new name and says so", async () => {

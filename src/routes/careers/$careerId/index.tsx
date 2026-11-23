@@ -5,7 +5,6 @@ import CareerOverview from "@/features/careerDetail/components/CareerOverview";
 import { CareerHero } from "@/features/careerDetail/components/CareerHero";
 import DetailSkeleton from "@/features/careerDetail/components/DetailSkeleton";
 import { useCareerHeroMeta } from "@/features/careerDetail/hooks/useCareerHeroMeta";
-import { hasSkillCheck } from "@/features/skillCheck/careerMatch";
 import { BackLink } from "@/features/skillCheck/components/BackLink";
 import { SkillGapEntry } from "@/features/skillCheck/components/SkillGapEntry";
 import { SkillLink } from "@/features/skillCheck/components/SkillButton";
@@ -30,7 +29,7 @@ function CareerRoute() {
 
 function CareerOverviewPage({ career }: { career: Career }) {
   const meta = useCareerHeroMeta(career);
-  const withSkillCheck = hasSkillCheck(career.title, career.slug);
+  const withSkillCheck = career.roadmapId !== null;
   const { id, title, interest, levels } = career;
 
   useEffect(() => {
@@ -78,7 +77,6 @@ function CareerOverviewPage({ career }: { career: Career }) {
       >
         <SkillGapEntry
           title={career.title}
-          slug={career.slug}
           roadmapId={career.roadmapId}
           careerId={career.id}
         />

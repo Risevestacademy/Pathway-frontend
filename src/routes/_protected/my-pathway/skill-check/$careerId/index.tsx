@@ -1,12 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect } from "react";
 import { Button } from "../../../../../components/ui/Button";
 import { StateMessage } from "../../../../../components/ui/StateMessage";
 import { BackLink } from "../../../../../features/skillCheck/components/BackLink";
 import { Questionnaire } from "../../../../../features/skillCheck/components/Questionnaire";
+import { SwitchPathwayGate } from "../../../../../features/skillCheck/components/SwitchPathwayGate";
 import { UnavailableCareer } from "../../../../../features/skillCheck/components/UnavailableCareer";
-import { useSkillCheckCareer } from "../../../../../features/skillCheck/hooks/useSkillCheck";
-import { useStartSkillCheck } from "../../../../../features/skillCheck/hooks/useSkillCheckActions";
+import {
+  useSkillAssessment,
+  useSkillCheckCareers,
+} from "../../../../../features/skillCheck/hooks/useSkillCheck";
 
 export const Route = createFileRoute("/_protected/my-pathway/skill-check/$careerId/")({
   component: QuestionnairePage,
@@ -14,16 +16,10 @@ export const Route = createFileRoute("/_protected/my-pathway/skill-check/$career
 
 function QuestionnairePage() {
   const { careerId } = Route.useParams();
-  const careerQuery = useSkillCheckCareer(careerId);
-  const career = careerQuery.data;
-  const { mutate: start, data: record, isError, reset } = useStartSkillCheck();
-  const ready = Boolean(career && career.reviewed);
+  const { state, retry } = useSkillAssessment();
+  const { careers, isError: careersFailed, refetch: refetchCareers } = useSkillCheckCareers();
 
-  useEffect(() => {
-    if (ready) start(careerId);
-  }, [ready, careerId, start]);
-
-  if (careerQuery.isError || isError) {
+  if (state.kind === "error" || careersFailed) {
     return (
       <>
         <BackLink />
@@ -34,9 +30,8 @@ function QuestionnairePage() {
           action={
             <Button
               onClick={() => {
-                reset();
-                if (careerQuery.isError) void careerQuery.refetch();
-                else start(careerId);
+                retry();
+                void refetchCareers();
               }}
             >
               Try again
@@ -47,7 +42,19 @@ function QuestionnairePage() {
     );
   }
 
-  if (career === null) {
+  if (state.kind === "ready" && state.assessment.careerId === careerId) {
+    if (state.assessment.skills.length === 0) {
+      return <UnavailableCareer assessment={state.assessment} />;
+    }
+    return <Questionnaire key={careerId} assessment={state.assessment} />;
+  }
+
+  if (state.kind === "loading" || !careers) {
+    return <StateMessage kind="loading" title="Loading your skill check" />;
+  }
+
+  const career = careers.find((item) => item.careerId === careerId);
+  if (!career) {
     return (
       <>
         <BackLink />
@@ -60,11 +67,10 @@ function QuestionnairePage() {
     );
   }
 
-  if (career && !career.reviewed) return <UnavailableCareer career={career} />;
-
-  if (!career || !record) {
-    return <StateMessage kind="loading" title="Loading your skill check" />;
-  }
-
-  return <Questionnaire key={careerId} career={career} record={record} />;
+  return (
+    <SwitchPathwayGate
+      career={career}
+      currentName={state.kind === "ready" ? state.assessment.name : null}
+    />
+  );
 }
