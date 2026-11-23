@@ -25,7 +25,11 @@ export const queryKeys = {
   realRoadmap: (careerId: string | null) => ["real-roadmap", careerId] as const,
   skillCheck: {
     all: ["skill-check"] as const,
-    assessment: (userId: string) => ["skill-check", userId, "assessment"] as const,
+    /** Every cached assessment for the user, to refresh after a save. */
+    assessments: (userId: string) => ["skill-check", userId, "assessment"] as const,
+    /** Keyed by career, so switching the active pathway anywhere loads its own assessment. */
+    assessment: (userId: string, careerId: string) =>
+      ["skill-check", userId, "assessment", careerId] as const,
   },
   skills: ["skills"] as const,
   admin: {

@@ -1,4 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
+import { fetchPathwayOrNull, type CareerPathwayDto } from "../../../lib/api/pathways.api";
 import { fetchActivePathway } from "../../../lib/api/progress.api";
 import { fetchAssessment, fetchSkills } from "../../../lib/api/skills.api";
 import { queryKeys } from "../../../lib/queryKeys";
@@ -11,6 +12,8 @@ import { readCheckedAt } from "../skillCheck.storage";
 import type { SkillAssessment, SkillCheckCareerSummary } from "../skillCheck.types";
 
 const STALE_MS = 30 * 1000;
+// Matches the other roadmap queries, which share this cache.
+const ROADMAP_STALE_MS = 15 * 60 * 1000;
 
 export function useSkillCheckUserId(): string {
   return useAuthStore((state) => state.user?.id ?? "");
@@ -42,28 +45,31 @@ export type SkillAssessmentState =
 export function useSkillAssessment(): { state: SkillAssessmentState; retry: () => void } {
   const userId = useSkillCheckUserId();
   const activeQuery = useActivePathwayQuery();
+  const activeCareerId = activeQuery.data?.career?.id ?? null;
   const assessmentQuery = useQuery({
-    queryKey: queryKeys.skillCheck.assessment(userId),
+    // Keyed by the active career, so a switch made anywhere fetches the new one.
+    queryKey: queryKeys.skillCheck.assessment(userId, activeCareerId ?? ""),
     queryFn: fetchAssessment,
-    enabled: userId !== "",
+    enabled: userId !== "" && activeCareerId !== null,
     staleTime: STALE_MS,
     retry: retryUnlessClientError,
   });
 
   const retry = () => {
     void activeQuery.refetch();
-    void assessmentQuery.refetch();
+    if (activeCareerId) void assessmentQuery.refetch();
   };
 
   if (activeQuery.isError || assessmentQuery.isError) return { state: { kind: "error" }, retry };
-  if (!activeQuery.data || assessmentQuery.data === undefined) {
-    return { state: { kind: "loading" }, retry };
-  }
+  if (!activeQuery.data) return { state: { kind: "loading" }, retry };
 
   const active = activeQuery.data;
+  if (!active.career) return { state: { kind: "no-pathway" }, retry };
+  if (assessmentQuery.data === undefined) return { state: { kind: "loading" }, retry };
+
   const assessment = assessmentQuery.data;
-  if (!assessment || !active.career) return { state: { kind: "no-pathway" }, retry };
-  // Straight after a switch, one of the two can still describe the old pathway.
+  if (!assessment) return { state: { kind: "no-pathway" }, retry };
+  // The server switched again between the two reads; the next refetch settles it.
   if (active.career.id !== assessment.careerId) return { state: { kind: "loading" }, retry };
 
   return {
@@ -79,18 +85,70 @@ export function useSkillAssessment(): { state: SkillAssessmentState; retry: () =
   };
 }
 
-/** Every published career, with the active one flagged. */
+/** Whether any step of the pathway lists a skill to check. */
+export function pathwayHasSkills(pathway: CareerPathwayDto["pathway"] | null): boolean {
+  return pathway?.steps.some((step) => step.skills.length > 0) ?? false;
+}
+
+function pathwayQuery(careerId: string) {
+  return {
+    queryKey: queryKeys.pathway(careerId),
+    queryFn: () => fetchPathwayOrNull(careerId),
+    staleTime: ROADMAP_STALE_MS,
+    refetchOnWindowFocus: false,
+  };
+}
+
+/** Whether the career's roadmap has skills to check: undefined while it loads. */
+export function useCareerHasSkills(careerId: string | null): boolean | undefined {
+  const { data, isError } = useQuery({
+    ...pathwayQuery(careerId ?? ""),
+    enabled: careerId !== null,
+    retry: false,
+  });
+  if (careerId === null || isError) return false;
+  return data === undefined ? undefined : pathwayHasSkills(data);
+}
+
+/**
+ * Every published career, with the active one flagged. A career only counts
+ * as ready once its roadmap lists skills, so nobody is switched to a pathway
+ * with nothing to check. Undefined until that is known for every career.
+ */
 export function useSkillCheckCareers() {
   const careersQuery = useCareers({});
   const activeId = useActiveCareerId();
-  const careers: SkillCheckCareerSummary[] | undefined = careersQuery.data?.map((career) => ({
-    careerId: career.id,
-    name: career.title,
-    icon: careerIconKey(career.slug),
-    reviewed: career.topicCount > 0,
-    isActive: career.id === activeId,
-  }));
-  return { careers, isError: careersQuery.isError, refetch: careersQuery.refetch };
+  const list = careersQuery.data;
+  // A career without steps has no skills either, so it needs no roadmap read.
+  const withSteps = (list ?? []).filter((career) => career.topicCount > 0);
+  const roadmaps = useQueries({
+    queries: withSteps.map((career) => ({ ...pathwayQuery(career.id), retry: false })),
+  });
+
+  const loading = roadmaps.some((roadmap) => roadmap.isPending);
+  const hasSkills = new Map(
+    withSteps.map((career, index) => [career.id, pathwayHasSkills(roadmaps[index]?.data ?? null)]),
+  );
+
+  const careers: SkillCheckCareerSummary[] | undefined =
+    list && !loading
+      ? list.map((career) => ({
+          careerId: career.id,
+          name: career.title,
+          icon: careerIconKey(career.slug),
+          reviewed: hasSkills.get(career.id) ?? false,
+          isActive: career.id === activeId,
+        }))
+      : undefined;
+
+  const refetch = () => {
+    void careersQuery.refetch();
+    roadmaps.forEach((roadmap) => {
+      if (roadmap.isError) void roadmap.refetch();
+    });
+  };
+
+  return { careers, isError: careersQuery.isError, refetch };
 }
 
 export function useSkillsCatalogue() {

@@ -17,7 +17,7 @@ function useRefreshAfterSkillChange() {
   const userId = useSkillCheckUserId();
   return () =>
     Promise.all([
-      queryClient.invalidateQueries({ queryKey: queryKeys.skillCheck.assessment(userId) }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.skillCheck.assessments(userId) }),
       queryClient.invalidateQueries({ queryKey: queryKeys.progress.all }),
       queryClient.invalidateQueries({ queryKey: queryKeys.profile(userId) }),
     ]);
@@ -67,7 +67,7 @@ export function useSwitchPathway() {
     onSuccess: async (active) => {
       queryClient.setQueryData(queryKeys.progress.active(userId), active);
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: queryKeys.skillCheck.assessment(userId) }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.skillCheck.assessments(userId) }),
         queryClient.invalidateQueries({ queryKey: queryKeys.progress.saved(userId) }),
       ]);
     },

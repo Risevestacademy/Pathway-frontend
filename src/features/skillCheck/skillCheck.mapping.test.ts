@@ -40,6 +40,19 @@ describe("toSkillAssessment", () => {
     expect(buildAssessment().hasResult).toBe(true);
   });
 
+  it("has no result for a starting step set by hand, without a skill check", () => {
+    const blank = {
+      ...assessmentDto,
+      stages: assessmentDto.stages.map((stage) => ({
+        ...stage,
+        skills: stage.skills.map((skill) => ({ ...skill, status: "NOT_SURE" as const, rating: null })),
+      })),
+    };
+    const assessment = toSkillAssessment(blank, activePathwayDto, null);
+    expect(assessment.startStepId).toBe("st3");
+    expect(assessment.hasResult).toBe(false);
+  });
+
   it("has no result when every skill reads Not sure and nothing else says otherwise", () => {
     const blank = {
       ...assessmentDto,

@@ -43,8 +43,16 @@ function QuestionnairePage() {
   }
 
   if (state.kind === "ready" && state.assessment.careerId === careerId) {
-    if (state.assessment.skills.length === 0) {
-      return <UnavailableCareer assessment={state.assessment} />;
+    const { assessment } = state;
+    if (assessment.skills.length === 0) {
+      return (
+        <UnavailableCareer
+          careerId={assessment.careerId}
+          name={assessment.name}
+          icon={assessment.icon}
+          isActive
+        />
+      );
     }
     return <Questionnaire key={careerId} assessment={state.assessment} />;
   }
@@ -64,6 +72,18 @@ function QuestionnairePage() {
           body="It may have been removed. Choose another career from Skill check."
         />
       </>
+    );
+  }
+
+  // Check the roadmap has skills before offering to switch to it.
+  if (!career.reviewed) {
+    return (
+      <UnavailableCareer
+        careerId={career.careerId}
+        name={career.name}
+        icon={career.icon}
+        isActive={false}
+      />
     );
   }
 

@@ -58,7 +58,8 @@ export function toSkillAssessment(
 
   const startStepId = active.progress?.startStepId ?? null;
   // An unanswered skill also reads NOT_SURE, so an all-"Not sure" result is
-  // only known from this device's record.
+  // only known from this device's record. The starting step is no sign of a
+  // result: learners can also set it by hand, without a skill check.
   const answeredOnServer = Object.values(saved).some((status) => status !== "NOT_SURE");
 
   return {
@@ -71,7 +72,7 @@ export function toSkillAssessment(
     saved,
     ratings,
     startStepId,
-    hasResult: checkedAt !== null || answeredOnServer || startStepId !== null,
+    hasResult: checkedAt !== null || answeredOnServer,
     checkedAt,
   };
 }

@@ -22,7 +22,22 @@ let resets: number;
 const careers = [
   { id: "c1", slug: "frontend-engineer", title: "Frontend Developer", description: "", iconKey: null, targetLevels: [], topicCount: 4, resourceCount: 0 },
   { id: "c2", slug: "backend-engineer", title: "Backend Developer", description: "", iconKey: null, targetLevels: [], topicCount: 6, resourceCount: 0 },
+  { id: "c3", slug: "data-analyst", title: "Data Analyst", description: "", iconKey: null, targetLevels: [], topicCount: 3, resourceCount: 0 },
 ];
+
+/** c1 and c2 list skills on their steps; c3 has steps but no skills yet. */
+function roadmap(careerId: string) {
+  const skills = careerId === "c3" ? [] : [{ id: "html", name: "HTML" }];
+  return {
+    pathway: {
+      id: `p-${careerId}`,
+      careerId,
+      title: "",
+      description: "",
+      steps: [{ id: `${careerId}-s1`, order: 1, title: "Step", skills, resources: [] }],
+    },
+  };
+}
 
 function firstGapStep(): string | null {
   const steps = [...activePathwayDto.steps].sort((a, b) => a.order - b.order);
@@ -35,6 +50,7 @@ function firstGapStep(): string | null {
 function handlers() {
   return [
     http.get("*/careers", () => HttpResponse.json({ items: careers })),
+    http.get("*/careers/:id/pathway", ({ params }) => HttpResponse.json(roadmap(params.id as string))),
     http.get("*/me/active-pathway", () =>
       activeCareerId === "c1"
         ? HttpResponse.json({
@@ -229,6 +245,22 @@ describe("Skill check against the API", () => {
     await renderAt("/my-pathway/skill-check");
 
     expect(await screen.findByRole("heading", { name: "Choose a career to explore." })).toBeTruthy();
+  });
+
+  it("says a career has no skill list before offering to switch to it", async () => {
+    await renderAt("/my-pathway/skill-check/c3");
+
+    expect(await screen.findByRole("heading", { name: "No skill list for Data Analyst yet" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Switch pathway" })).toBeNull();
+    expect(switches).toEqual([]);
+  });
+
+  it("does not show a result for a starting step chosen without a skill check", async () => {
+    startStepId = "st3";
+    await renderAt("/my-pathway/skill-check");
+
+    expect(await screen.findByRole("button", { name: /Start skill check/ })).toBeTruthy();
+    expect(screen.queryByText("Result saved")).toBeNull();
   });
 
   it("sends a result link for another career to the switch screen", async () => {

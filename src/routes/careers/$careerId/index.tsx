@@ -7,6 +7,7 @@ import DetailSkeleton from "@/features/careerDetail/components/DetailSkeleton";
 import { useCareerHeroMeta } from "@/features/careerDetail/hooks/useCareerHeroMeta";
 import { BackLink } from "@/features/skillCheck/components/BackLink";
 import { SkillGapEntry } from "@/features/skillCheck/components/SkillGapEntry";
+import { useCareerHasSkills } from "@/features/skillCheck/hooks/useSkillCheck";
 import { SkillLink } from "@/features/skillCheck/components/SkillButton";
 import type { Career } from "@/types/career.types";
 import { analytics } from "@/lib/monitoring/events";
@@ -29,7 +30,8 @@ function CareerRoute() {
 
 function CareerOverviewPage({ career }: { career: Career }) {
   const meta = useCareerHeroMeta(career);
-  const withSkillCheck = career.roadmapId !== null;
+  // Only offer a skill check when the roadmap lists skills to check.
+  const withSkillCheck = useCareerHasSkills(career.roadmapId ? career.id : null) === true;
   const { id, title, interest, levels } = career;
 
   useEffect(() => {
@@ -75,11 +77,13 @@ function CareerOverviewPage({ career }: { career: Career }) {
             : "mt-4"
         }
       >
-        <SkillGapEntry
-          title={career.title}
-          roadmapId={career.roadmapId}
-          careerId={career.id}
-        />
+        {withSkillCheck && (
+          <SkillGapEntry
+            title={career.title}
+            roadmapId={career.roadmapId}
+            careerId={career.id}
+          />
+        )}
         <CareerOverview career={career} />
       </div>
     </>
