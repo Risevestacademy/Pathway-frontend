@@ -17,6 +17,9 @@ export const queryKeys = {
   onboardingOptions: ["onboarding-options"] as const,
   pathway: (careerId: string) => ["pathway", careerId] as const,
   pathwayDetail: (pathwayId: string) => ["pathway-detail", pathwayId] as const,
+  /** Each resource with the signed-in person's completion, so it is per person. */
+  pathwayResources: (userId: string, pathwayId: string) =>
+    ["pathway-resources", userId, pathwayId] as const,
   stageQuiz: {
     all: ["stage-quiz"] as const,
     questions: (pathwayId: string, stageId: string) =>
