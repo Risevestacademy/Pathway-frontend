@@ -5,6 +5,7 @@ import {
   CareerNotSavedError,
   fetchPathwayById,
   fetchPathwayOrNull,
+  setChecklistItem,
   setResourceCompletion,
   setStepCompletion,
   setTaskCompletion,
@@ -210,6 +211,63 @@ describe.each([
     saveRespondsWith(status)
 
     const failure = await save('p1', 'r1', true).catch((error: unknown) => error)
+
+    expect(failure).toBeInstanceOf(Error)
+    expect(failure).not.toBeInstanceOf(CareerNotSavedError)
+  })
+})
+
+describe('setChecklistItem', () => {
+  const confirmed = {
+    itemId: 'i1',
+    taskId: 't1',
+    checked: true,
+    checkedAt: '2026-11-23T13:44:05.524Z',
+    checklistChecked: 1,
+    checklistTotal: 3,
+  }
+
+  function saveRespondsWith(status: number, body: JsonBodyType = confirmed) {
+    const seen: { params: unknown; body: unknown }[] = []
+    server.use(
+      http.put('*/pathways/:pathwayId/tasks/:taskId/checklist/:itemId', async ({ params, request }) => {
+        seen.push({
+          params: { pathwayId: params.pathwayId, taskId: params.taskId, itemId: params.itemId },
+          body: await request.json(),
+        })
+        return HttpResponse.json(body, { status })
+      }),
+    )
+    return seen
+  }
+
+  it('checks the item on its task and returns what the server confirmed', async () => {
+    const seen = saveRespondsWith(200)
+
+    await expect(setChecklistItem('p1', 't1', 'i1', true)).resolves.toEqual(confirmed)
+    expect(seen).toEqual([
+      { params: { pathwayId: 'p1', taskId: 't1', itemId: 'i1' }, body: { checked: true } },
+    ])
+  })
+
+  it('sends checked: false to uncheck', async () => {
+    const seen = saveRespondsWith(200, { ...confirmed, checked: false, checkedAt: null })
+
+    await setChecklistItem('p1', 't1', 'i1', false)
+
+    expect(seen[0].body).toEqual({ checked: false })
+  })
+
+  it('throws a CareerNotSavedError on a 409', async () => {
+    saveRespondsWith(409)
+
+    await expect(setChecklistItem('p1', 't1', 'i1', true)).rejects.toBeInstanceOf(CareerNotSavedError)
+  })
+
+  it.each([400, 401, 404, 500])('rethrows a %s as a plain failure', async (status) => {
+    saveRespondsWith(status)
+
+    const failure = await setChecklistItem('p1', 't1', 'i1', true).catch((error: unknown) => error)
 
     expect(failure).toBeInstanceOf(Error)
     expect(failure).not.toBeInstanceOf(CareerNotSavedError)

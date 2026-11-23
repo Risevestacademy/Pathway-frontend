@@ -185,13 +185,14 @@ export interface StepCompletionResponseDto {
 }
 
 /**
- * Every completion save is a PUT of `{ completed }`, so retrying one can never
- * count the same item twice. A 409 means the user hasn't saved the pathway's
- * career, which no retry can fix, so it gets its own error.
+ * Every save is a PUT that sets the state outright rather than toggling it, so
+ * retrying one can never count the same item twice. A 409 means the user
+ * hasn't saved the pathway's career, which no retry can fix, so it gets its
+ * own error.
  */
-async function putCompletion<T>(url: string, completed: boolean): Promise<T> {
+async function putState<T>(url: string, body: { completed: boolean } | { checked: boolean }): Promise<T> {
   try {
-    const { data } = await api.put<T>(url, { completed });
+    const { data } = await api.put<T>(url, body);
     return data;
   } catch (error) {
     if (isAxiosError(error) && error.response?.status === 409) {
@@ -210,9 +211,9 @@ export function setStepCompletion(
   stepId: string,
   completed: boolean,
 ): Promise<StepCompletionResponseDto> {
-  return putCompletion(
+  return putState(
     `/pathways/${encodeURIComponent(pathwayId)}/steps/${encodeURIComponent(stepId)}/completion`,
-    completed,
+    { completed },
   );
 }
 
@@ -234,9 +235,9 @@ export function setResourceCompletion(
   resourceId: string,
   completed: boolean,
 ): Promise<ResourceCompletionResponseDto> {
-  return putCompletion(
+  return putState(
     `/pathways/${encodeURIComponent(pathwayId)}/resources/${encodeURIComponent(resourceId)}/completion`,
-    completed,
+    { completed },
   );
 }
 
@@ -256,8 +257,33 @@ export function setTaskCompletion(
   taskId: string,
   completed: boolean,
 ): Promise<TaskCompletionResponseDto> {
-  return putCompletion(
+  return putState(
     `/pathways/${encodeURIComponent(pathwayId)}/tasks/${encodeURIComponent(taskId)}/completion`,
-    completed,
+    { completed },
+  );
+}
+
+export interface ChecklistItemResponseDto {
+  itemId: string;
+  taskId: string;
+  checked: boolean;
+  checkedAt: string | null;
+  checklistChecked: number;
+  checklistTotal: number;
+}
+
+/**
+ * Checks or unchecks one item on a task's checklist. It awards no XP and never
+ * completes the task.
+ */
+export function setChecklistItem(
+  pathwayId: string,
+  taskId: string,
+  itemId: string,
+  checked: boolean,
+): Promise<ChecklistItemResponseDto> {
+  return putState(
+    `/pathways/${encodeURIComponent(pathwayId)}/tasks/${encodeURIComponent(taskId)}/checklist/${encodeURIComponent(itemId)}`,
+    { checked },
   );
 }
