@@ -16,6 +16,14 @@ export const queryKeys = {
   fields: ["fields"] as const,
   onboardingOptions: ["onboarding-options"] as const,
   pathway: (careerId: string) => ["pathway", careerId] as const,
+  pathwayDetail: (pathwayId: string) => ["pathway-detail", pathwayId] as const,
+  stageQuiz: {
+    all: ["stage-quiz"] as const,
+    questions: (pathwayId: string, stageId: string) =>
+      ["stage-quiz", pathwayId, stageId, "questions"] as const,
+    result: (pathwayId: string, stageId: string) =>
+      ["stage-quiz", pathwayId, stageId, "result"] as const,
+  },
   profile: (userId: string) => ["profile", userId] as const,
   progress: {
     all: ["progress"] as const,
