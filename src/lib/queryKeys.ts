@@ -20,6 +20,13 @@ export const queryKeys = {
   /** Each resource with the signed-in person's completion, so it is per person. */
   pathwayResources: (userId: string, pathwayId: string) =>
     ["pathway-resources", userId, pathwayId] as const,
+  /** One resource's detail, as read from a given step (which sets its usage note). */
+  pathwayResource: (
+    userId: string,
+    pathwayId: string,
+    resourceId: string,
+    stepId: string | null,
+  ) => ["pathway-resource", userId, pathwayId, resourceId, stepId] as const,
   stageQuiz: {
     all: ["stage-quiz"] as const,
     questions: (pathwayId: string, stageId: string) =>
