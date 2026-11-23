@@ -80,7 +80,9 @@ export function TodaysGoalsCard({
                     <span className="text-sm text-ink-muted">{goal.goalDescription}</span>
                   )}
                 </span>
-                <span className="shrink-0 text-sm font-medium text-brand-ink">+{goal.xp} XP</span>
+                {goal.xp != null && (
+                  <span className="shrink-0 text-sm font-medium text-brand-ink">+{goal.xp} XP</span>
+                )}
                 {goal.done && <span className="sr-only">Done</span>}
               </li>
             ))}

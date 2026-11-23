@@ -20,11 +20,14 @@ export interface DashboardBadgeDto {
   awardedAt: string;
 }
 
+export type DashboardGoalKind = "STEP" | "TASK" | "CHECKLIST" | "RESOURCE";
+
 export interface DashboardGoalDto {
-  kind: string;
+  kind: DashboardGoalKind;
   id: string;
   title: string;
-  xp: number;
+  /** Null for goals that award no XP of their own, such as checklists. */
+  xp: number | null;
   done: boolean;
   goalDescription: string | null;
 }

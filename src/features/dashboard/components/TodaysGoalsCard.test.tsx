@@ -60,6 +60,14 @@ describe("TodaysGoalsCard", () => {
     expect(within(items[1]).getByText("+5 XP")).toBeTruthy();
   });
 
+  it("shows no XP badge for a goal that awards none", () => {
+    render(<TodaysGoalsCard goals={[goal({ kind: "CHECKLIST", xp: null })]} weekStrip={noWeek} today={THURSDAY} />);
+
+    expect(screen.getByText("Learn flexbox")).toBeTruthy();
+    expect(screen.queryByText(/XP/)).toBeNull();
+    expect(screen.queryByText(/null/)).toBeNull();
+  });
+
   it("skips the description line when a goal has none", () => {
     render(<TodaysGoalsCard goals={[goal({ goalDescription: null })]} weekStrip={noWeek} today={THURSDAY} />);
 
