@@ -1,15 +1,21 @@
 import { useId } from "react";
 import { LinkButton } from "../../components/ui/Button";
 
-/** Shown once every step in a stage is complete: an optional quiz to check what stuck. */
+/**
+ * A stage's optional quiz. It's always on offer, since the quiz can be taken at
+ * any time, but it says so plainly once every step in the stage is complete.
+ */
 export function StageQuizCard({
   careerId,
   stageId,
   stageTitle,
+  complete,
 }: {
   careerId: string;
   stageId: string;
   stageTitle: string;
+  /** Every step in the stage is marked complete. */
+  complete: boolean;
 }) {
   const headingId = useId();
   return (
@@ -19,14 +25,19 @@ export function StageQuizCard({
     >
       <div className="flex min-w-0 flex-1 basis-64 flex-col gap-1">
         <h2 id={headingId} className="font-display text-xl font-medium text-ink">
-          {stageTitle} stage complete
+          {complete ? `${stageTitle} stage complete` : `${stageTitle} quiz`}
         </h2>
         <p className="text-sm text-ink-muted">
-          Take the quiz to check what stuck. It’s optional, so skip it and keep going if you’d
-          rather.
+          {complete
+            ? "Take the quiz to check what stuck. It’s optional, so skip it and keep going if you’d rather."
+            : "Best taken after you finish the steps in this stage, but you can take it now. It’s optional."}
         </p>
       </div>
-      <LinkButton to="/my-pathway/$careerId/quiz/$stageId" params={{ careerId, stageId }}>
+      <LinkButton
+        to="/my-pathway/$careerId/quiz/$stageId"
+        params={{ careerId, stageId }}
+        isPrimary={complete}
+      >
         Take the {stageTitle} quiz
       </LinkButton>
     </section>

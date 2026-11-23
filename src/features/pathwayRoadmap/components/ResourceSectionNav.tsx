@@ -1,35 +1,35 @@
 import clsx from "clsx";
 
-export interface ResourceStepNavItem {
-  stepId: string;
-  /** The step's place in the pathway, starting at 1. */
-  number: number;
+export interface ResourceSectionNavItem {
+  id: string;
   title: string;
-  /** How many of the step's resources are ticked, out of how many it has. */
+  /** How many of the section's resources are ticked, out of how many it has. */
   ticked: number;
   total: number;
 }
 
-/** The pathway's steps, each with how many of its resources are ticked. Picks the step shown. */
-export function ResourceStepNav({
+/** The pathway's stages (or its steps, when the stages aren't known), each with how many of its resources are ticked. */
+export function ResourceSectionNav({
+  label,
   items,
-  selectedStepId,
+  selectedId,
   onSelect,
 }: {
-  items: ResourceStepNavItem[];
-  selectedStepId: string;
-  onSelect: (stepId: string) => void;
+  label: string;
+  items: ResourceSectionNavItem[];
+  selectedId: string;
+  onSelect: (id: string) => void;
 }) {
   return (
-    <nav aria-label="Steps" className="rounded-3xl border border-line bg-surface p-2">
+    <nav aria-label={label} className="rounded-3xl border border-line bg-surface p-2">
       <ul className="flex flex-col gap-1">
         {items.map((item) => {
-          const selected = item.stepId === selectedStepId;
+          const selected = item.id === selectedId;
           return (
-            <li key={item.stepId}>
+            <li key={item.id}>
               <button
                 type="button"
-                onClick={() => onSelect(item.stepId)}
+                onClick={() => onSelect(item.id)}
                 aria-current={selected ? "true" : undefined}
                 className={clsx(
                   "focus-ring flex w-full cursor-pointer items-center justify-between gap-3 rounded-2xl px-4 py-3 text-left text-base",
@@ -37,9 +37,7 @@ export function ResourceStepNav({
                   selected ? "bg-brand-100 text-brand-700" : "text-ink hover:bg-surface-muted",
                 )}
               >
-                <span className="min-w-0">
-                  Step {item.number} · {item.title}
-                </span>
+                <span className="min-w-0">{item.title}</span>
                 <span className={clsx("shrink-0 text-sm", selected ? "text-brand-700" : "text-ink-muted")}>
                   {item.total === 0 ? "No resources" : `${item.ticked} of ${item.total}`}
                 </span>

@@ -9,7 +9,7 @@ import { ResourcesScreen } from "./ResourcesScreen";
 /** A career's pathway resources, with their own loading, error and empty states. */
 export function ResourcesPage({ careerId }: { careerId: string }) {
   const { state, retry } = usePathwayResources(careerId);
-  const stages = usePathwayStages(careerId);
+  const { stages, failed: stagesFailed, retry: retryStages } = usePathwayStages(careerId);
 
   if (state.kind === "ready") {
     return (
@@ -21,6 +21,8 @@ export function ResourcesPage({ careerId }: { careerId: string }) {
         statuses={state.statuses}
         progress={state.progress}
         stages={stages}
+        stagesFailed={stagesFailed}
+        onRetryStages={retryStages}
       />
     );
   }

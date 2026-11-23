@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, renderHook, waitFor } from "@testing-library/react";
+import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import type { PathwayDetailDto } from "../../lib/api/pathways.api";
 import type { CareerPathwayData } from "../pathwayRoadmap/hooks/useCareerPathwayData";
@@ -82,40 +82,54 @@ describe("usePathwayStages", () => {
 
     const { result } = renderHook(() => usePathwayStages("c1"), { wrapper });
 
-    await waitFor(() => expect(result.current).toHaveLength(2));
-    expect(result.current).toEqual([
+    await waitFor(() => expect(result.current.stages).toHaveLength(2));
+    expect(result.current.failed).toBe(false);
+    expect(result.current.stages).toEqual([
       { id: "g1", title: "Foundations", stepIds: ["s1", "s2"] },
       { id: "g2", title: "Core skills", stepIds: ["s3"] },
     ]);
     expect(fetchPathwayById).toHaveBeenCalledWith("p1");
   });
 
-  it("is empty, and asks for nothing, until the roadmap is ready", () => {
+  it("is empty, not failed, and asks for nothing, until the roadmap is ready", () => {
     roadmap({ kind: "loading" });
 
     const { result } = renderHook(() => usePathwayStages("c1"), { wrapper });
 
-    expect(result.current).toEqual([]);
+    expect(result.current.stages).toEqual([]);
+    expect(result.current.failed).toBe(false);
     expect(fetchPathwayById).not.toHaveBeenCalled();
   });
 
-  it("is empty when the pathway can't be read, so the page just goes without the quiz", async () => {
+  it("is empty and failed when the pathway can't be read, so the page can say why there is no quiz", async () => {
     roadmap(readyRoadmap);
     fetchPathwayById.mockResolvedValue(null);
 
     const { result } = renderHook(() => usePathwayStages("c1"), { wrapper });
 
-    await waitFor(() => expect(fetchPathwayById).toHaveBeenCalled());
-    expect(result.current).toEqual([]);
+    await waitFor(() => expect(result.current.failed).toBe(true));
+    expect(result.current.stages).toEqual([]);
   });
 
-  it("is empty when loading the pathway fails, instead of breaking the page", async () => {
+  it("is empty and failed when loading the pathway fails, instead of breaking the page", async () => {
     roadmap(readyRoadmap);
     fetchPathwayById.mockRejectedValue(new Error("boom"));
 
     const { result } = renderHook(() => usePathwayStages("c1"), { wrapper });
 
-    await waitFor(() => expect(fetchPathwayById).toHaveBeenCalled());
-    expect(result.current).toEqual([]);
+    await waitFor(() => expect(result.current.failed).toBe(true));
+    expect(result.current.stages).toEqual([]);
+  });
+
+  it("asks again when retried", async () => {
+    roadmap(readyRoadmap);
+    fetchPathwayById.mockRejectedValueOnce(new Error("boom")).mockResolvedValueOnce(detail);
+    const { result } = renderHook(() => usePathwayStages("c1"), { wrapper });
+    await waitFor(() => expect(result.current.failed).toBe(true));
+
+    await act(async () => result.current.retry());
+
+    await waitFor(() => expect(result.current.stages).toHaveLength(2));
+    expect(result.current.failed).toBe(false);
   });
 });

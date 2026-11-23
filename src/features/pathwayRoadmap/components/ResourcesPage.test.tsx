@@ -21,15 +21,26 @@ vi.mock("./ResourcesScreen", () => ({
     careerTitle,
     groups,
     stages,
+    stagesFailed,
+    onRetryStages,
   }: {
     careerTitle: string;
     groups: unknown[];
     stages?: unknown[];
-  }) => <p>{`${careerTitle}: ${groups.length} groups, ${stages?.length ?? "no"} stages`}</p>,
+    stagesFailed?: boolean;
+    onRetryStages?: () => void;
+  }) => (
+    <>
+      <p>{`${careerTitle}: ${groups.length} groups, ${stages?.length ?? "no"} stages${stagesFailed ? ", stages failed" : ""}`}</p>
+      <button type="button" onClick={onRetryStages}>
+        retry stages
+      </button>
+    </>
+  ),
 }));
 
 beforeEach(() => {
-  usePathwayStages.mockReturnValue([]);
+  usePathwayStages.mockReturnValue({ stages: [], failed: false, retry: vi.fn() });
 });
 afterEach(() => {
   cleanup();
@@ -96,7 +107,11 @@ describe("ResourcesPage", () => {
   });
 
   it("gives the screen the career's stages, for the optional quiz", () => {
-    usePathwayStages.mockReturnValue([{ id: "g1", title: "Foundations", stepIds: ["s1"] }]);
+    usePathwayStages.mockReturnValue({
+      stages: [{ id: "g1", title: "Foundations", stepIds: ["s1"] }],
+      failed: false,
+      retry: vi.fn(),
+    });
     have({
       kind: "ready",
       careerTitle: "Product Designer",
@@ -110,5 +125,24 @@ describe("ResourcesPage", () => {
 
     expect(usePathwayStages).toHaveBeenCalledWith("c1");
     expect(screen.getByText("Product Designer: 1 groups, 1 stages")).toBeTruthy();
+  });
+
+  it("tells the screen when the stages could not be loaded, and lets it retry them", () => {
+    const retry = vi.fn();
+    usePathwayStages.mockReturnValue({ stages: [], failed: true, retry });
+    have({
+      kind: "ready",
+      careerTitle: "Product Designer",
+      stepCount: 2,
+      groups: [{ stepId: "s1", number: 1, title: "Step 1", resources: [], paid: [] }],
+      statuses: null,
+      progress: null,
+    });
+
+    render(<ResourcesPage careerId="c1" />);
+
+    expect(screen.getByText("Product Designer: 1 groups, 0 stages, stages failed")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "retry stages" }));
+    expect(retry).toHaveBeenCalledOnce();
   });
 });

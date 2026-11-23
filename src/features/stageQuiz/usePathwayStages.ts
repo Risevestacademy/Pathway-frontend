@@ -5,11 +5,16 @@ import { useCareerPathwayData } from "../pathwayRoadmap/hooks/useCareerPathwayDa
 import type { QuizStageRef } from "./completedStage";
 
 /**
- * The stages of a career's pathway, each with the ids of its steps. Empty until
- * they load, and when they can't be loaded: the quiz is optional, so a page that
- * offers it should carry on without it rather than fail.
+ * The stages of a career's pathway, each with the ids of its steps. The quiz is
+ * optional, so a page that offers it carries on without the stages rather than
+ * failing, but it can say they couldn't be loaded, and retry.
  */
-export function usePathwayStages(careerId: string): QuizStageRef[] {
+export function usePathwayStages(careerId: string): {
+  stages: QuizStageRef[];
+  /** The stages couldn't be loaded: the request failed, or the pathway can't be read. */
+  failed: boolean;
+  retry: () => void;
+} {
   const { data: roadmap } = useCareerPathwayData(careerId);
   const pathwayId = roadmap.kind === "ready" ? roadmap.pathway.id : null;
 
@@ -19,7 +24,7 @@ export function usePathwayStages(careerId: string): QuizStageRef[] {
     enabled: pathwayId !== null,
   });
 
-  return (detailQuery.data?.stages ?? [])
+  const stages = (detailQuery.data?.stages ?? [])
     .slice()
     .sort((a, b) => a.order - b.order)
     .map((stage) => ({
@@ -27,4 +32,10 @@ export function usePathwayStages(careerId: string): QuizStageRef[] {
       title: stage.title,
       stepIds: stage.steps.map((step) => step.id),
     }));
+
+  return {
+    stages,
+    failed: detailQuery.isError || detailQuery.data === null,
+    retry: () => void detailQuery.refetch(),
+  };
 }
