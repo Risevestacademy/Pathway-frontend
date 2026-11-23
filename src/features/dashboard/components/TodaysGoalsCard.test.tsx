@@ -28,6 +28,17 @@ describe("TodaysGoalsCard", () => {
     expect(within(week).getByText("MON").closest("li")?.getAttribute("aria-current")).toBeNull();
   });
 
+  it("gives an inactive today a single light background, not the grey one too", () => {
+    render(<TodaysGoalsCard goals={[]} weekStrip={noWeek} today={THURSDAY} />);
+
+    const week = screen.getByRole("list", { name: "This week" });
+    const circle = (label: string) => within(week).getByText(label).closest("li")?.firstElementChild;
+
+    expect(circle("THU")?.classList.contains("bg-brand-100")).toBe(true);
+    expect(circle("THU")?.classList.contains("bg-grey-100")).toBe(false);
+    expect(circle("MON")?.classList.contains("bg-grey-100")).toBe(true);
+  });
+
   it("marks the days the person was active, for screen readers too", () => {
     render(
       <TodaysGoalsCard

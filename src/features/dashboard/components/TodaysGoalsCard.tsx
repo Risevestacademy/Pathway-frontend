@@ -36,8 +36,12 @@ export function TodaysGoalsCard({
                 aria-hidden
                 className={clsx(
                   "grid size-10 place-items-center rounded-full",
-                  day.active ? "bg-brand-500 text-white" : "bg-grey-100",
-                  day.isToday && (day.active ? "ring-2 ring-brand-200" : "border-2 border-brand-500 bg-brand-100"),
+                  day.active
+                    ? "bg-brand-500 text-white"
+                    : day.isToday
+                      ? "border-2 border-brand-500 bg-brand-100"
+                      : "bg-grey-100",
+                  day.active && day.isToday && "ring-2 ring-brand-200",
                 )}
               >
                 {day.active && <Check className="size-5" />}
