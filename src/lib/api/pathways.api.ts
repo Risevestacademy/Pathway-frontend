@@ -185,20 +185,13 @@ export interface StepCompletionResponseDto {
 }
 
 /**
- * Sets a step's completion outright rather than toggling it, so retrying a
- * failed save can never count the same step twice. Completing awards the
- * step's XP once; undoing keeps the XP.
+ * Every completion save is a PUT of `{ completed }`, so retrying one can never
+ * count the same item twice. A 409 means the user hasn't saved the pathway's
+ * career, which no retry can fix, so it gets its own error.
  */
-export async function setStepCompletion(
-  pathwayId: string,
-  stepId: string,
-  completed: boolean,
-): Promise<StepCompletionResponseDto> {
+async function putCompletion<T>(url: string, completed: boolean): Promise<T> {
   try {
-    const { data } = await api.put<StepCompletionResponseDto>(
-      `/pathways/${encodeURIComponent(pathwayId)}/steps/${encodeURIComponent(stepId)}/completion`,
-      { completed },
-    );
+    const { data } = await api.put<T>(url, { completed });
     return data;
   } catch (error) {
     if (isAxiosError(error) && error.response?.status === 409) {
@@ -206,4 +199,65 @@ export async function setStepCompletion(
     }
     throw error;
   }
+}
+
+/**
+ * Sets a step's completion outright rather than toggling it. Completing
+ * awards the step's XP once; undoing keeps the XP.
+ */
+export function setStepCompletion(
+  pathwayId: string,
+  stepId: string,
+  completed: boolean,
+): Promise<StepCompletionResponseDto> {
+  return putCompletion(
+    `/pathways/${encodeURIComponent(pathwayId)}/steps/${encodeURIComponent(stepId)}/completion`,
+    completed,
+  );
+}
+
+export interface ResourceCompletionResponseDto {
+  resourceId: string;
+  completed: boolean;
+  completedAt: string | null;
+  /** XP this save awarded. Only the first completion awards any. */
+  xpAwarded: number;
+}
+
+/**
+ * Ticks or unticks a resource. Completion is per user and shared across every
+ * step the resource appears in. It awards the resource's XP once and never
+ * completes a step.
+ */
+export function setResourceCompletion(
+  pathwayId: string,
+  resourceId: string,
+  completed: boolean,
+): Promise<ResourceCompletionResponseDto> {
+  return putCompletion(
+    `/pathways/${encodeURIComponent(pathwayId)}/resources/${encodeURIComponent(resourceId)}/completion`,
+    completed,
+  );
+}
+
+export interface TaskCompletionResponseDto {
+  taskId: string;
+  completed: boolean;
+  completedAt: string | null;
+  /** XP this save awarded. Only the first completion awards any. */
+  xpAwarded: number;
+  checklistChecked: number;
+  checklistTotal: number;
+}
+
+/** Completes or reopens a task. It awards the task's XP once and never completes a step. */
+export function setTaskCompletion(
+  pathwayId: string,
+  taskId: string,
+  completed: boolean,
+): Promise<TaskCompletionResponseDto> {
+  return putCompletion(
+    `/pathways/${encodeURIComponent(pathwayId)}/tasks/${encodeURIComponent(taskId)}/completion`,
+    completed,
+  );
 }

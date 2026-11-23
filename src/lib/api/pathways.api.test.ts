@@ -5,7 +5,9 @@ import {
   CareerNotSavedError,
   fetchPathwayById,
   fetchPathwayOrNull,
+  setResourceCompletion,
   setStepCompletion,
+  setTaskCompletion,
 } from './pathways.api'
 
 const server = setupServer()
@@ -137,6 +139,77 @@ describe('setStepCompletion', () => {
     saveRespondsWith(status)
 
     const failure = await setStepCompletion('p1', 's1', true).catch((error: unknown) => error)
+
+    expect(failure).toBeInstanceOf(Error)
+    expect(failure).not.toBeInstanceOf(CareerNotSavedError)
+  })
+})
+
+describe.each([
+  {
+    name: 'setResourceCompletion',
+    save: setResourceCompletion,
+    route: 'resources/:itemId',
+    confirmed: {
+      resourceId: 'r1',
+      completed: true,
+      completedAt: '2026-11-23T13:40:46.580Z',
+      xpAwarded: 5,
+    },
+  },
+  {
+    name: 'setTaskCompletion',
+    save: setTaskCompletion,
+    route: 'tasks/:itemId',
+    confirmed: {
+      taskId: 'r1',
+      completed: true,
+      completedAt: '2026-11-23T13:42:15.094Z',
+      xpAwarded: 10,
+      checklistChecked: 2,
+      checklistTotal: 3,
+    },
+  },
+])('$name', ({ save, route, confirmed }) => {
+  function saveRespondsWith(status: number, body: JsonBodyType = confirmed) {
+    const seen: { params: unknown; body: unknown }[] = []
+    server.use(
+      http.put(`*/pathways/:pathwayId/${route}/completion`, async ({ params, request }) => {
+        seen.push({
+          params: { pathwayId: params.pathwayId, itemId: params.itemId },
+          body: await request.json(),
+        })
+        return HttpResponse.json(body, { status })
+      }),
+    )
+    return seen
+  }
+
+  it('sets the item by its pathway and returns what the server confirmed', async () => {
+    const seen = saveRespondsWith(200)
+
+    await expect(save('p1', 'r1', true)).resolves.toEqual(confirmed)
+    expect(seen).toEqual([{ params: { pathwayId: 'p1', itemId: 'r1' }, body: { completed: true } }])
+  })
+
+  it('sends completed: false to undo', async () => {
+    const seen = saveRespondsWith(200, { ...confirmed, completed: false })
+
+    await save('p1', 'r1', false)
+
+    expect(seen[0].body).toEqual({ completed: false })
+  })
+
+  it('throws a CareerNotSavedError on a 409', async () => {
+    saveRespondsWith(409)
+
+    await expect(save('p1', 'r1', true)).rejects.toBeInstanceOf(CareerNotSavedError)
+  })
+
+  it.each([400, 401, 404, 500])('rethrows a %s as a plain failure', async (status) => {
+    saveRespondsWith(status)
+
+    const failure = await save('p1', 'r1', true).catch((error: unknown) => error)
 
     expect(failure).toBeInstanceOf(Error)
     expect(failure).not.toBeInstanceOf(CareerNotSavedError)
