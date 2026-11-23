@@ -1,9 +1,14 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { PathwayResourcesState } from "../hooks/usePathwayResources";
 import { ResourcesPage } from "./ResourcesPage";
 
 const usePathwayResources = vi.fn();
+const usePathwayStages = vi.fn();
+
+vi.mock("../../stageQuiz/usePathwayStages", () => ({
+  usePathwayStages: (careerId: string) => usePathwayStages(careerId),
+}));
 
 vi.mock("../hooks/usePathwayResources", () => ({
   usePathwayResources: (careerId: string) => usePathwayResources(careerId),
@@ -12,14 +17,24 @@ vi.mock("../../skillCheck/components/BackLink", () => ({
   BackLinkTo: ({ label, to }: { label: string; to: string }) => <a href={to}>{label}</a>,
 }));
 vi.mock("./ResourcesScreen", () => ({
-  ResourcesScreen: ({ careerTitle, groups }: { careerTitle: string; groups: unknown[] }) => (
-    <p>{`${careerTitle}: ${groups.length} groups`}</p>
-  ),
+  ResourcesScreen: ({
+    careerTitle,
+    groups,
+    stages,
+  }: {
+    careerTitle: string;
+    groups: unknown[];
+    stages?: unknown[];
+  }) => <p>{`${careerTitle}: ${groups.length} groups, ${stages?.length ?? "no"} stages`}</p>,
 }));
 
+beforeEach(() => {
+  usePathwayStages.mockReturnValue([]);
+});
 afterEach(() => {
   cleanup();
   usePathwayResources.mockReset();
+  usePathwayStages.mockReset();
 });
 
 const have = (state: PathwayResourcesState, retry = vi.fn()) => {
@@ -77,6 +92,23 @@ describe("ResourcesPage", () => {
 
     render(<ResourcesPage careerId="c1" />);
 
-    expect(screen.getByText("Product Designer: 1 groups")).toBeTruthy();
+    expect(screen.getByText("Product Designer: 1 groups, 0 stages")).toBeTruthy();
+  });
+
+  it("gives the screen the career's stages, for the optional quiz", () => {
+    usePathwayStages.mockReturnValue([{ id: "g1", title: "Foundations", stepIds: ["s1"] }]);
+    have({
+      kind: "ready",
+      careerTitle: "Product Designer",
+      stepCount: 2,
+      groups: [{ stepId: "s1", number: 1, title: "Step 1", resources: [], paid: [] }],
+      statuses: null,
+      progress: null,
+    });
+
+    render(<ResourcesPage careerId="c1" />);
+
+    expect(usePathwayStages).toHaveBeenCalledWith("c1");
+    expect(screen.getByText("Product Designer: 1 groups, 1 stages")).toBeTruthy();
   });
 });

@@ -94,6 +94,11 @@ vi.mock("./StepCompleteDialog", () => ({
       </div>
     ) : null,
 }));
+vi.mock("../../stageQuiz/StageQuizCard", () => ({
+  StageQuizCard: ({ stageId, stageTitle }: { stageId: string; stageTitle: string }) => (
+    <aside aria-label="stage quiz">{`quiz: ${stageTitle} (${stageId})`}</aside>
+  ),
+}));
 vi.mock("./PaidCoursesCard", () => ({
   PaidCoursesCard: ({ resources, hasFreeResources }: { resources: { id: string }[]; hasFreeResources: boolean }) =>
     resources.length === 0 ? null : (
@@ -394,6 +399,45 @@ describe("ResourcesScreen", () => {
       screenOf();
 
       expect(screen.queryByRole("alert")).toBeNull();
+    });
+  });
+
+  describe("the stage quiz", () => {
+    const stages = [
+      { id: "g1", title: "Foundations", stepIds: ["s1", "s3"] },
+      { id: "g2", title: "Core skills", stepIds: ["s5"] },
+    ];
+
+    it("is offered once every step in the picked step's stage is complete", () => {
+      screenOf({ stages, statuses: { s1: "COMPLETED", s3: "COMPLETED", s5: "NOT_STARTED" } });
+
+      expect(screen.getByLabelText("stage quiz").textContent).toBe("quiz: Foundations (g1)");
+    });
+
+    it("is not offered while a step in the stage is still to do", () => {
+      screenOf({ stages, statuses: { s1: "COMPLETED", s3: "NOT_STARTED", s5: "NOT_STARTED" } });
+
+      expect(screen.queryByLabelText("stage quiz")).toBeNull();
+    });
+
+    it("follows the picked step: another stage's quiz isn't offered under a step of an unfinished stage", () => {
+      screenOf({ stages, statuses: { s1: "COMPLETED", s3: "COMPLETED", s5: "NOT_STARTED" } });
+
+      fireEvent.click(steps().getByRole("button", { name: /Step 5/ }));
+
+      expect(screen.queryByLabelText("stage quiz")).toBeNull();
+    });
+
+    it("is not offered when they aren't tracking this pathway", () => {
+      screenOf({ stages, statuses: null });
+
+      expect(screen.queryByLabelText("stage quiz")).toBeNull();
+    });
+
+    it("is not offered when the stages aren't known", () => {
+      screenOf({ statuses: { s1: "COMPLETED", s3: "COMPLETED", s5: "COMPLETED" } });
+
+      expect(screen.queryByLabelText("stage quiz")).toBeNull();
     });
   });
 });

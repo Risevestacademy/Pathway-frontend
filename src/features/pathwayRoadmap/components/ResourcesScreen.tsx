@@ -1,6 +1,8 @@
 import { useCallback, useState } from "react";
 import type { PathwayStepStatus } from "../../../lib/api/progress.api";
 import { getStepStatus } from "../../progress/progress.utils";
+import { completedStageOf, type QuizStageRef } from "../../stageQuiz/completedStage";
+import { StageQuizCard } from "../../stageQuiz/StageQuizCard";
 import { BackLinkTo } from "../../skillCheck/components/BackLink";
 import { useResourceTicks } from "../hooks/useResourceTicks";
 import type { ResourceGroup } from "../resourceGroups.utils";
@@ -22,6 +24,7 @@ export function ResourcesScreen({
   groups,
   statuses,
   progress,
+  stages = [],
 }: {
   careerId: string;
   careerTitle: string;
@@ -31,6 +34,8 @@ export function ResourcesScreen({
   statuses: Record<string, PathwayStepStatus> | null;
   /** How many steps they have completed out of how many, or null when that isn't known. */
   progress: { completed: number; total: number } | null;
+  /** The pathway's stages, so a finished stage can offer its optional quiz. */
+  stages?: QuizStageRef[];
 }) {
   const { countTicked, isTicked, unsaved, retry } = useResourceTicks(careerId);
   const [pickedStepId, setPickedStepId] = useState<string | null>(null);
@@ -53,6 +58,9 @@ export function ResourcesScreen({
 
   // Until one is picked, or if the one picked has gone, it is the first step.
   const selected = groups.find((group) => group.stepId === pickedStepId) ?? groups[0];
+
+  // Once every step in the picked step's stage is complete, its quiz is on offer.
+  const quizStage = selected ? completedStageOf(stages, statuses, selected.stepId) : null;
 
   const completedIndex = groups.findIndex((group) => group.stepId === completedStepId);
   const completed = completedIndex === -1 ? null : groups[completedIndex];
@@ -89,6 +97,9 @@ export function ResourcesScreen({
               status={statuses ? getStepStatus(statuses, selected.stepId) : null}
               onStepCompleted={() => stepCompleted(selected.stepId)}
             />
+            {quizStage && (
+              <StageQuizCard careerId={careerId} stageId={quizStage.id} stageTitle={quizStage.title} />
+            )}
             <PaidCoursesCard
               careerId={careerId}
               resources={selected.paid}
