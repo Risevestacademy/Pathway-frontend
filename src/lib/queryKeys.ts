@@ -23,6 +23,9 @@ export const queryKeys = {
       ["stage-quiz", pathwayId, stageId, "questions"] as const,
     result: (pathwayId: string, stageId: string) =>
       ["stage-quiz", pathwayId, stageId, "result"] as const,
+    /** What a submit returned (XP, streak), handed to the result page once. */
+    submission: (careerId: string, stageId: string) =>
+      ["stage-quiz", "submission", careerId, stageId] as const,
   },
   profile: (userId: string) => ["profile", userId] as const,
   progress: {
