@@ -6,6 +6,7 @@ import { useState } from "react";
 import ChangeEmailDialog from "./ChangeEmailDialog";
 import { getRouteApi } from "@tanstack/react-router";
 import ChangePasswordDialog from "./ChangePasswordDialog";
+import { useAuthStore } from "@/lib/stores/authStore";
 
 type OpenDialog = "sign-out" | "change-email" | "change-password" | null;
 
@@ -24,18 +25,20 @@ const SignInDetails: {
   {
     action: "change-email",
     heading: "Email",
-    desc: "Your email address.",
+    desc: "",
   },
   {
     action: "change-password",
     heading: "Password",
-    desc: "Your password.",
+    desc: "********",
   },
 ];
 
 const routeApi = getRouteApi("/_protected/settings");
 
 export default function AccountTab() {
+  const user = useAuthStore((state) => state.user);
+  const userEmail = user?.email || "";
   const { "verify-email": verifyEmail } = routeApi.useSearch();
   const [openDialog, setOpenDialog] = useState<OpenDialog>(
     verifyEmail ? "change-email" : null,
@@ -58,10 +61,10 @@ export default function AccountTab() {
               key={index}
               isHeader={item.isHeader}
               heading={item.heading}
-              desc={item.desc}
+              desc={item.action === "change-email" ? userEmail : item.desc}
               border={index !== SignInDetails.length - 1}
             >
-              {!item.isHeader && (
+              {item.action && (
                 <Button
                   onClick={() => setOpenDialog(item.action)}
                   isPrimary={false}
@@ -72,6 +75,7 @@ export default function AccountTab() {
             </SettingsItem>
           ))}
         </SettingsCard>
+
         <SettingsCard className="p-0">
           <SettingsItem isHeader={true} heading="This device" />
           <SettingsItem
@@ -85,14 +89,17 @@ export default function AccountTab() {
           </SettingsItem>
         </SettingsCard>
       </div>
+
       <SignOutDialog
         open={openDialog === "sign-out"}
         onClose={handleDialogClose}
       />
+
       <ChangeEmailDialog
         open={openDialog === "change-email"}
         onClose={handleDialogClose}
       />
+
       <ChangePasswordDialog
         open={openDialog === "change-password"}
         onClose={handleDialogClose}
