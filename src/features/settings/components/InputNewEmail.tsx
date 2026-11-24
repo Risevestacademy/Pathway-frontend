@@ -2,16 +2,25 @@ import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { getRouteApi } from "@tanstack/react-router";
+import * as z from "zod/mini";
+
+const emailSchema = z.email();
 
 const routeApi = getRouteApi("/_protected/settings");
 
 export default function InputNewEmail({ onClose }: { onClose: () => void }) {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState<string>();
+  const [errorText, setErrorText] = useState<string>();
   const navigate = routeApi.useNavigate();
 
   const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const check = emailSchema.safeParse(email);
+    if (!check.success) {
+      setErrorText("Please enter a valid email address");
+    }
+    // API errors will be set here also
     navigate({
       search: (prev) => ({ ...prev, "verify-email": email }),
     });
@@ -41,6 +50,11 @@ export default function InputNewEmail({ onClose }: { onClose: () => void }) {
             autoComplete="email"
             onChange={(e) => setEmail(e.target.value)}
           />
+          {errorText && (
+            <p role="alert" className="text-[14px] text-danger-600">
+              {errorText}
+            </p>
+          )}
         </div>
 
         <label

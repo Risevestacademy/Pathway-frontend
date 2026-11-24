@@ -1,7 +1,8 @@
 import { Modal } from "@/components/ui/Modal";
 import { EyeOff, Eye } from "lucide-react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { cn } from "cn";
 
 export default function ChangePasswordDialog({
   open,
@@ -13,9 +14,29 @@ export default function ChangePasswordDialog({
   const close = () => {
     onClose();
   };
+  const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  // const [passwordError, setPasswordError] = useState<string | null>();
+  const [newPasswordError, setNewPasswordError] = useState<string | null>();
+  const [confirmPasswordError, setConfirmPasswordError] = useState<
+    string | null
+  >();
+
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (newPassword.length < 8) {
+      setNewPasswordError("Must be at least 8 characters");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setConfirmPasswordError("Must match new password.");
+    }
+  };
 
   return (
     <Modal
@@ -24,7 +45,12 @@ export default function ChangePasswordDialog({
       title="Change your passowrd"
       description="Choose a new password. You will stay signed in on this device."
     >
-      <form aria-label="Change password form" className="flex flex-col gap-3">
+      <form
+        aria-label="Change password form"
+        className="flex flex-col gap-3"
+        onSubmit={handleSubmit}
+        noValidate
+      >
         <div>
           <label htmlFor="current-password" className="mb-2">
             Current password
@@ -39,6 +65,8 @@ export default function ChangePasswordDialog({
               autoComplete="current-password"
               placeholder="********"
               className="auth-input pr-11"
+              onChange={(e) => setPassword(e.target.value)}
+              value={password}
             />
             <button
               type="button"
@@ -68,7 +96,16 @@ export default function ChangePasswordDialog({
               aria-required
               autoComplete="new-password"
               placeholder="********"
-              className="auth-input pr-11"
+              className={cn(
+                "auth-input pr-11",
+                newPasswordError &&
+                  "border-danger-600 focus:border-danger-600 focus:ring-danger-600/20",
+              )}
+              onChange={(e) => {
+                setNewPasswordError(null);
+                setNewPassword(e.target.value);
+              }}
+              value={newPassword}
             />
             <button
               type="button"
@@ -83,7 +120,12 @@ export default function ChangePasswordDialog({
               )}
             </button>
           </div>
-          <p className="text-[13px] font-medium text-muted-foreground pt-2">
+          <p
+            className={cn(
+              "text-[13px] font-medium text-muted-foreground pt-2",
+              newPasswordError && "text-danger-600",
+            )}
+          >
             At least 8 characters.
           </p>
         </div>
@@ -101,7 +143,16 @@ export default function ChangePasswordDialog({
               aria-required
               autoComplete="new-password"
               placeholder="********"
-              className="auth-input pr-11"
+              className={cn(
+                "auth-input pr-11",
+                confirmPasswordError &&
+                  "border-danger-600 focus:border-danger-600 focus:ring-danger-600/20",
+              )}
+              onChange={(e) => {
+                setConfirmPasswordError(null);
+                setConfirmPassword(e.target.value);
+              }}
+              value={confirmPassword}
             />
             <button
               type="button"
@@ -118,6 +169,14 @@ export default function ChangePasswordDialog({
               )}
             </button>
           </div>
+          <p
+            className={cn(
+              "text-[13px] font-medium text-muted-foreground pt-2",
+              confirmPasswordError && "text-danger-600",
+            )}
+          >
+            {confirmPasswordError}
+          </p>
         </div>
 
         <div className="flex gap-3 mt-2">
