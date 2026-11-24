@@ -1,36 +1,34 @@
 import { ArrowRightRegular } from "@mingcute/react/core-regular";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Modal } from "../../../components/ui/Modal";
 import { selectIsAuthenticated, useAuthStore } from "../../../lib/stores/authStore";
-import { findSkillCheckCareerByTitle } from "../careerMatch";
-import { useRoadmapSteps } from "../hooks/useRealCareer";
+import { fetchPathwayOrNull } from "../../../lib/api/pathways.api";
+import { queryKeys } from "../../../lib/queryKeys";
 import { ESTIMATED_MINUTES } from "../skillCheck.copy";
 import { SignInPromptDialog } from "./SignInPromptDialog";
 import { SkillButton, SkillLink } from "./SkillButton";
 
 export function SkillGapEntry({
   title,
-  slug,
   roadmapId,
   careerId,
 }: {
   title: string;
-  slug?: string;
   roadmapId: string | null;
   careerId: string;
 }) {
   const navigate = useNavigate();
   const signedIn = useAuthStore(selectIsAuthenticated);
-  const match = findSkillCheckCareerByTitle(title, slug);
-  const firstStep = useRoadmapSteps(roadmapId ? careerId : null)[0];
+  const firstStep = useFirstStep(roadmapId ? careerId : null);
   const [askOpen, setAskOpen] = useState(false);
   const [signInOpen, setSignInOpen] = useState(false);
 
-  if (!match || !match.reviewed) return null;
+  if (!roadmapId) return null;
 
   const goCheck = () =>
-    navigate({ to: "/my-pathway/skill-check/$careerId", params: { careerId: match.careerId } });
+    navigate({ to: "/my-pathway/skill-check/$careerId", params: { careerId } });
 
   return (
     <>
@@ -67,7 +65,7 @@ export function SkillGapEntry({
                 isPrimary={false}
                 className="flex-1"
                 to="/careers/$careerId/roadmap/$stepId"
-                params={{ careerId, stepId: firstStep.stepId }}
+                params={{ careerId, stepId: firstStep.id }}
               >
                 Skip, start at step 1
               </SkillLink>
@@ -96,8 +94,19 @@ export function SkillGapEntry({
       <SignInPromptDialog
         open={signInOpen}
         onClose={() => setSignInOpen(false)}
-        redirectTo={`/my-pathway/skill-check/${match.careerId}`}
+        redirectTo={`/my-pathway/skill-check/${careerId}`}
       />
     </>
   );
+}
+
+function useFirstStep(careerId: string | null) {
+  const { data } = useQuery({
+    queryKey: queryKeys.pathway(careerId ?? ""),
+    queryFn: () => fetchPathwayOrNull(careerId as string),
+    enabled: careerId !== null,
+    staleTime: 15 * 60 * 1000,
+    retry: false,
+  });
+  return data ? [...data.steps].sort((a, b) => a.order - b.order)[0] ?? null : null;
 }

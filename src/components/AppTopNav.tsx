@@ -17,6 +17,7 @@ import { FeedbackButton } from "../features/feedback/components/FeedbackButton";
 
 import { CareerProgressPill } from "../features/pathwayRoadmap/components/CareerProgressPill";
 import { AccountMenu } from "./AccountMenu";
+import { NotificationsButton } from "./NotificationsButton";
 
 type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -24,9 +25,9 @@ interface NavItem {
   label: string;
   iconName: string;
   fallback: IconComponent;
-  to: "/careers" | "/my-pathway" | null;
+  to: "/dashboard" | "/careers" | "/my-pathway" | "/opportunities";
   /** The path this item covers, along with everything under it. */
-  match: string | null;
+  match: string;
 }
 
 const isUnder = (pathname: string, path: string) =>
@@ -37,8 +38,8 @@ const NAV_ITEMS: NavItem[] = [
     label: "Dashboard",
     iconName: "dashboard",
     fallback: Layout3Regular,
-    to: null,
-    match: null,
+    to: "/dashboard",
+    match: "/dashboard",
   },
   {
     label: "Explore",
@@ -58,8 +59,8 @@ const NAV_ITEMS: NavItem[] = [
     label: "Opportunities",
     iconName: "opportunities",
     fallback: BriefcaseRegular,
-    to: null,
-    match: null,
+    to: "/opportunities",
+    match: "/opportunities",
   },
 ];
 
@@ -77,9 +78,12 @@ export default function AppTopNav() {
   const signedIn = useAuthStore(selectIsAuthenticated);
   // Until the session is restored after a reload, don't offer "Sign in".
   const restoringSession = useAuthStore(selectIsRestoringSession);
-  const visibleItems = signedIn
+  // Dashboard is for signed-in people. While the session is still being
+  // restored we can't tell yet, so it holds its place as a skeleton instead of
+  // popping in (or shifting the other tabs) once the session lands.
+  const visibleItems = signedIn || restoringSession
     ? NAV_ITEMS
-    : NAV_ITEMS.filter((item) => item.to !== null);
+    : NAV_ITEMS.filter((item) => item.to !== "/dashboard");
 
   const pathwayCareerId = signedIn ? careerIdIn(pathname) : null;
 
@@ -89,8 +93,7 @@ export default function AppTopNav() {
       <nav aria-label="Main">
         <ul className="flex items-center gap-2 rounded-[10px] bg-grey-50 p-1">
           {visibleItems.map((item, index) => {
-            const isActive =
-              item.match !== null && isUnder(pathname, item.match);
+            const isActive = isUnder(pathname, item.match);
             const label = (
               <>
                 <NavIcon
@@ -112,7 +115,13 @@ export default function AppTopNav() {
                     className="hidden h-7 w-px bg-grey-100 sm:block"
                   />
                 )}
-                {item.to ? (
+                {item.to === "/dashboard" && !signedIn ? (
+                  <div
+                    aria-hidden
+                    data-testid="dashboard-tab-skeleton"
+                    className="h-10 w-10 animate-pulse rounded-lg bg-grey-100 motion-reduce:animate-none sm:w-28"
+                  />
+                ) : (
                   <Link
                     to={item.to}
                     aria-current={isActive ? "page" : undefined}
@@ -126,18 +135,6 @@ export default function AppTopNav() {
                   >
                     {label}
                   </Link>
-                ) : (
-                  <span
-                    aria-disabled="true"
-                    title="Coming soon"
-                    className={clsx(
-                      itemBase,
-                      "cursor-not-allowed text-grey-600",
-                    )}
-                  >
-                    {label}
-                    <span className="sr-only"> (coming soon)</span>
-                  </span>
                 )}
               </li>
             );
@@ -155,7 +152,10 @@ export default function AppTopNav() {
             className="size-10 shrink-0 animate-pulse rounded-full bg-grey-50 motion-reduce:animate-none"
           />
         ) : signedIn ? (
-          <AccountMenu />
+          <>
+            <NotificationsButton />
+            <AccountMenu />
+          </>
         ) : (
           <>
             <FeedbackButton />

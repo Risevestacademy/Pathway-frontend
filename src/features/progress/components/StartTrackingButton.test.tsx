@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ActivePathwayDto } from "../../../lib/api/progress.api";
+import { queryKeys } from "../../../lib/queryKeys";
 import { useAuthStore } from "../../../lib/stores/authStore";
 import StartTrackingButton from "./StartTrackingButton";
 
@@ -128,6 +129,19 @@ describe("StartTrackingButton", () => {
 
     expect(bodies).toEqual([]);
     expect(onStarted).not.toHaveBeenCalled();
+  });
+
+  it("marks the dashboard stale so it refetches with the new pathway", async () => {
+    saves();
+    const dashboardKey = queryKeys.progress.dashboard("u1");
+    queryClient.setQueryData(dashboardKey, { empty: true });
+    const onStarted = vi.fn();
+    renderButton(null, onStarted);
+
+    await userEvent.click(screen.getByRole("button", { name: "Start step 1" }));
+
+    await waitFor(() => expect(onStarted).toHaveBeenCalledOnce());
+    expect(queryClient.getQueryState(dashboardKey)?.isInvalidated).toBe(true);
   });
 
   it("still works with nothing to do afterwards", async () => {

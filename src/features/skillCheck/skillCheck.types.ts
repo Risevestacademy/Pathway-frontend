@@ -1,4 +1,6 @@
-export type SkillAnswer = "HAVE" | "NOT_YET" | "NOT_SURE";
+import type { UserSkillStatus } from "../../lib/api/skills.api";
+
+export type SkillAnswer = UserSkillStatus;
 
 export type SkillAnswerMap = Record<string, SkillAnswer>;
 
@@ -16,10 +18,12 @@ export type TrackIconKey =
   | "software-developer";
 
 export interface SkillCheckStep {
+  id: string;
   order: number;
   title: string;
 }
 
+/** A stage of the pathway. The questionnaire asks about one stage at a time. */
 export interface SkillCheckArea {
   id: string;
   name: string;
@@ -29,33 +33,42 @@ export interface SkillCheckSkill {
   id: string;
   areaId: string;
   name: string;
-  description: string;
-  reason: string;
-  stepOrder: number;
+  /** The first roadmap step that teaches it, or null when no step does. */
+  stepOrder: number | null;
 }
 
-export interface SkillCheckCareer {
+/** The active pathway's skill check: its skills, and what the learner has saved. */
+export interface SkillAssessment {
   careerId: string;
   name: string;
-  icon: TrackIconKey;
-  reviewed: boolean;
+  icon: TrackIconKey | null;
   areas: SkillCheckArea[];
   skills: SkillCheckSkill[];
   steps: SkillCheckStep[];
+  /** The saved answers. A skill never answered has none. */
+  saved: SkillAnswerMap;
+  /** Saved ratings, 1 to 5, for skills marked HAVE. */
+  ratings: Record<string, number>;
+  /** Set by the server when the answers are saved. */
+  startStepId: string | null;
+  /** Whether the check was ever taken for this pathway. */
+  hasResult: boolean;
+  /** When the learner last answered, or null if never. */
+  checkedAt: string | null;
 }
 
 export interface SkillCheckCareerSummary {
   careerId: string;
   name: string;
-  icon: TrackIconKey;
+  icon: TrackIconKey | null;
+  /** Whether the career has a roadmap to check against. */
   reviewed: boolean;
   isActive: boolean;
-  hasResult: boolean;
 }
 
 export interface SkillCounts {
   have: number;
-  notYet: number;
+  dontHave: number;
   notSure: number;
   unanswered: number;
 }
@@ -66,54 +79,16 @@ export interface SkillGap {
   step: SkillCheckStep;
 }
 
-export interface StartSuggestion {
-  stepOrder: number;
-  reasonSkills: SkillCheckSkill[];
-  coveredStepOrders: number[];
-}
-
 export interface SkillCheckResult {
   counts: SkillCounts;
   gaps: SkillGap[];
-  suggestion: StartSuggestion | null;
+  startStep: SkillCheckStep | null;
 }
 
-export type StartingPointSource = "ACCEPTED" | "DECLINED" | "DEFAULT";
-
-export interface StartingPoint {
-  stepOrder: number;
-  source: StartingPointSource;
-}
-
-export interface SkillCheckRecord {
-  careerId: string;
+/** Answers in progress, kept on this device until the check is finished. */
+export interface SkillCheckDraft {
   answers: SkillAnswerMap;
-  previousAnswers: SkillAnswerMap | null;
-  draft: SkillAnswerMap | null;
-  draftAreaId: string | null;
-  completedAt: string | null;
-  startingPoint: StartingPoint | null;
-  needsDecision: boolean;
+  areaId: string | null;
 }
 
-export interface SkillCheckUserState {
-  activeCareerId: string | null;
-  records: Record<string, SkillCheckRecord>;
-  ratings: SkillRating[];
-}
-
-export type RatingValue = 0 | 1 | 2 | 3 | 4 | 5;
-
-export interface SkillRating {
-  skillId: string;
-  careerId: string;
-  value: RatingValue | "NOT_SURE";
-  scaleVersion: number;
-  ratedAt: string;
-}
-
-export type RatingTrend =
-  | { kind: "none" }
-  | { kind: "baseline"; value: RatingValue }
-  | { kind: "not-enough" }
-  | { kind: "change"; from: RatingValue; to: RatingValue; delta: number };
+export type RatingValue = 1 | 2 | 3 | 4 | 5;

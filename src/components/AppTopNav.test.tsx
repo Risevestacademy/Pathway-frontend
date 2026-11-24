@@ -146,6 +146,58 @@ describe("AppTopNav", () => {
     expect(screen.queryByRole("status", { name: /checking your sign-in/i })).toBeNull();
   });
 
+  it("links Dashboard for signed-in people only", async () => {
+    await renderNav();
+    act(() => useAuthStore.getState().finishHydrating());
+    expect(screen.queryByRole("link", { name: "Dashboard" })).toBeNull();
+
+    act(() => useAuthStore.getState().setAuth({ id: "u1", email: "a@b.c", role: "USER" }, "token"));
+    expect(screen.getByRole("link", { name: "Dashboard" }).getAttribute("href")).toBe("/dashboard");
+  });
+
+  it("holds a place for Dashboard while the session is restored, then drops it if signed out", async () => {
+    await renderNav();
+    expect(screen.getByTestId("dashboard-tab-skeleton")).toBeTruthy();
+    expect(screen.queryByRole("link", { name: "Dashboard" })).toBeNull();
+
+    act(() => useAuthStore.getState().finishHydrating());
+    expect(screen.queryByTestId("dashboard-tab-skeleton")).toBeNull();
+  });
+
+  it("swaps the Dashboard placeholder for the link when the session is restored", async () => {
+    await renderNav("/careers");
+
+    act(() => {
+      useAuthStore.getState().setAuth({ id: "u1", email: "a@b.c", role: "USER" }, "token");
+      useAuthStore.getState().finishHydrating();
+    });
+
+    expect(screen.queryByTestId("dashboard-tab-skeleton")).toBeNull();
+    expect(screen.getByRole("link", { name: "Dashboard" })).toBeTruthy();
+  });
+
+  it("has a single Opportunities tab, and it is a link", async () => {
+    await renderNav();
+    act(() => {
+      useAuthStore.getState().setAuth({ id: "u1", email: "a@b.c", role: "USER" }, "token");
+      useAuthStore.getState().finishHydrating();
+    });
+
+    expect(screen.getAllByText("Opportunities")).toHaveLength(1);
+    expect(screen.getByRole("link", { name: "Opportunities" }).getAttribute("href")).toBe("/opportunities");
+  });
+
+  it("shows a Notifications bell for signed-in people only", async () => {
+    await renderNav();
+    act(() => useAuthStore.getState().finishHydrating());
+    expect(screen.queryByRole("button", { name: /notifications/i })).toBeNull();
+
+    act(() => useAuthStore.getState().setAuth({ id: "u1", email: "a@b.c", role: "USER" }, "token"));
+    const bell = screen.getByRole("button", { name: /notifications/i });
+    expect(bell.getAttribute("aria-disabled")).toBeNull();
+    expect(bell.getAttribute("title")).toBeNull();
+  });
+
   it("puts Send feedback and Sign out in the account menu", async () => {
     await renderNav();
     act(() => {
@@ -157,6 +209,7 @@ describe("AppTopNav", () => {
     await userEvent.click(screen.getByRole("button", { name: "Account menu" }));
     expect(screen.getByText("Ada Lovelace")).toBeTruthy();
     expect(screen.getByText("ada@example.com")).toBeTruthy();
+    expect(screen.getByRole("menuitem", { name: "Profile" }).getAttribute("href")).toBe("/profile");
 
     await userEvent.click(screen.getByRole("menuitem", { name: "Send feedback" }));
     expect(screen.getByRole("dialog", { name: "Send feedback" })).toBeTruthy();

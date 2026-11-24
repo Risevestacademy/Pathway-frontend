@@ -3,11 +3,7 @@ import { Button } from "../../../../../components/ui/Button";
 import { StateMessage } from "../../../../../components/ui/StateMessage";
 import { BackLink } from "../../../../../features/skillCheck/components/BackLink";
 import { ResultView } from "../../../../../features/skillCheck/components/ResultView";
-import {
-  useSkillCheckCareer,
-  useSkillCheckCareers,
-  useSkillCheckRecord,
-} from "../../../../../features/skillCheck/hooks/useSkillCheck";
+import { useSkillAssessment } from "../../../../../features/skillCheck/hooks/useSkillCheck";
 
 export const Route = createFileRoute("/_protected/my-pathway/skill-check/$careerId/result")({
   component: ResultPage,
@@ -15,11 +11,9 @@ export const Route = createFileRoute("/_protected/my-pathway/skill-check/$career
 
 function ResultPage() {
   const { careerId } = Route.useParams();
-  const careerQuery = useSkillCheckCareer(careerId);
-  const recordQuery = useSkillCheckRecord(careerId);
-  const careersQuery = useSkillCheckCareers();
+  const { state, retry } = useSkillAssessment();
 
-  if (careerQuery.isError || recordQuery.isError || careersQuery.isError) {
+  if (state.kind === "error") {
     return (
       <>
         <BackLink />
@@ -27,45 +21,25 @@ function ResultPage() {
           kind="error"
           title="We could not load your result"
           body="Your answers are safe. Check your connection and try again."
-          action={
-            <Button
-              onClick={() => {
-                void careerQuery.refetch();
-                void recordQuery.refetch();
-                void careersQuery.refetch();
-              }}
-            >
-              Try again
-            </Button>
-          }
+          action={<Button onClick={retry}>Try again</Button>}
         />
       </>
     );
   }
 
-  if (careerQuery.isPending || recordQuery.isPending || careersQuery.isPending) {
+  if (state.kind === "loading") {
     return <StateMessage kind="loading" title="Loading your result" />;
   }
 
-  const career = careerQuery.data;
-  const record = recordQuery.data;
-
-  if (!career) {
-    return (
-      <>
-        <BackLink />
-        <StateMessage
-          kind="empty"
-          title="We could not find that career"
-          body="Choose another career from Skill check."
-        />
-      </>
-    );
-  }
-
-  if (!record || !record.answers) {
+  // Results belong to the active pathway. Anything else goes to the
+  // questionnaire, which offers the switch or the first check.
+  if (
+    state.kind === "no-pathway" ||
+    state.assessment.careerId !== careerId ||
+    !state.assessment.hasResult
+  ) {
     return <Navigate to="/my-pathway/skill-check/$careerId" params={{ careerId }} replace />;
   }
 
-  return <ResultView career={career} record={record} careers={careersQuery.data} />;
+  return <ResultView assessment={state.assessment} />;
 }

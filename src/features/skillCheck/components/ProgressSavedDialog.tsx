@@ -17,7 +17,7 @@ export function ProgressSavedDialog({
       open={open}
       onClose={onKeepGoing}
       title="Progress saved"
-      description={`You have answered ${answered} of ${total} skills. Pick up where you left off any time from My Pathway, in Skill check.`}
+      description={`You have answered ${answered} of ${total} skills. Your answers are saved on this device. Pick up where you left off from My Pathway, in Skill check.`}
       className="max-w-130"
     >
       <div className="flex gap-3">

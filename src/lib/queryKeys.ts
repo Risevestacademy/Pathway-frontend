@@ -1,5 +1,6 @@
 import type { FetchCareersParams } from "../features/careerDetail/career.types";
 import type { FetchInvitesParams } from "./api/adminInvites.api";
+import type { FetchOpportunitiesParams } from "@/features/opportunities/opportunities.type";
 
 /**
  * Every React Query key lives here. Hooks and the mutations that refresh them
@@ -15,33 +16,40 @@ export const queryKeys = {
   fields: ["fields"] as const,
   onboardingOptions: ["onboarding-options"] as const,
   pathway: (careerId: string) => ["pathway", careerId] as const,
+  profile: (userId: string) => ["profile", userId] as const,
   progress: {
     all: ["progress"] as const,
     active: (userId: string) => ["progress", userId, "active"] as const,
     saved: (userId: string) => ["progress", userId, "saved"] as const,
+    dashboard: (userId: string) => ["progress", userId, "dashboard"] as const,
   },
   realRoadmap: (careerId: string | null) => ["real-roadmap", careerId] as const,
   skillCheck: {
     all: ["skill-check"] as const,
-    user: (userId: string) => ["skill-check", userId] as const,
-    careers: (userId: string) => ["skill-check", userId, "careers"] as const,
-    career: (careerId: string) => ["skill-check", "career", careerId] as const,
-    record: (userId: string, careerId: string) =>
-      ["skill-check", userId, "record", careerId] as const,
-    activeCareer: (userId: string) => ["skill-check", userId, "active-career"] as const,
-    ratings: (userId: string) => ["skill-check", userId, "ratings"] as const,
+    /** Every cached assessment for the user, to refresh after a save. */
+    assessments: (userId: string) => ["skill-check", userId, "assessment"] as const,
+    /** Keyed by career, so switching the active pathway anywhere loads its own assessment. */
+    assessment: (userId: string, careerId: string) =>
+      ["skill-check", userId, "assessment", careerId] as const,
   },
+  skills: ["skills"] as const,
   admin: {
     feedback: ["admin", "feedback"] as const,
     invites: {
       all: ["admin", "invites"] as const,
-      list: (params: FetchInvitesParams) => ["admin", "invites", params] as const,
+      list: (params: FetchInvitesParams) =>
+        ["admin", "invites", params] as const,
       accepted: ["admin", "invites", "accepted"] as const,
     },
     careers: {
       all: ["admin", "careers"] as const,
       list: ["admin", "careers", "list"] as const,
-      detail: (careerId: string) => ["admin", "careers", "detail", careerId] as const,
+      detail: (careerId: string) =>
+        ["admin", "careers", "detail", careerId] as const,
     },
+  },
+  opportunities: {
+    list: (params: FetchOpportunitiesParams) =>
+      ["opportunities", params] as const,
   },
 };

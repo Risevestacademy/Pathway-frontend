@@ -43,9 +43,8 @@ export function useStartTracking(careerId: string) {
     mutationFn: () => setActivePathway(careerId),
     onSuccess: (active) => {
       queryClient.setQueryData(queryKeys.progress.active(userId), active);
-      void queryClient.invalidateQueries({
-        queryKey: queryKeys.progress.saved(userId),
-      });
+      // The dashboard and saved list also depend on the active pathway.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.progress.all });
     },
   });
 }

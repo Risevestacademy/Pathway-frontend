@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import { useAuthStore } from "../lib/stores/authStore";
 import { ReportIssueDialog } from "../features/feedback/components/ReportIssueDialog";
 import { SignOutDialog } from "../features/auth/components/SignOutDialog";
+import { Link } from "@tanstack/react-router";
 
 const avatarFiles = import.meta.glob("/src/assets/images/avatar.svg", {
   eager: true,
@@ -73,6 +74,9 @@ export function AccountMenu() {
               <p className={name ? "truncate text-sm text-ink-muted" : "truncate text-base text-ink"}>{email}</p>
             </div>
             <DropdownMenu.Separator className="mx-2 my-1 h-px bg-grey-100" />
+            <DropdownMenu.Item asChild className={itemClass}>
+              <Link to="/profile">Profile</Link>
+            </DropdownMenu.Item>
             <DropdownMenu.Item className={itemClass} onSelect={() => open("feedback")}>
               Send feedback
             </DropdownMenu.Item>
