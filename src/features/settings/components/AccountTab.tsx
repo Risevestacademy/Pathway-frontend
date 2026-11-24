@@ -1,49 +1,97 @@
 import SettingsCard from "./SettingsCard";
 import SettingsItem from "./SettingsItem";
 import { Button } from "@/components/ui/Button";
+import { SignOutDialog } from "@/features/auth/components/SignOutDialog";
+import { useState } from "react";
+import ChangeEmailDialog from "./ChangeEmailDialog";
+import { getRouteApi } from "@tanstack/react-router";
 
-const SignInDetails = [
+type OpenDialog = "sign-out" | "change-email" | "change-password" | null;
+
+const SignInDetails: {
+  action: OpenDialog;
+  heading: string;
+  desc: string;
+  isHeader?: boolean;
+}[] = [
   {
+    action: null,
     heading: "Sign-in details",
     desc: "The email and password you use to sign in.",
     isHeader: true,
   },
   {
+    action: "change-email",
     heading: "Email",
     desc: "Your email address.",
   },
   {
+    action: "change-password",
     heading: "Password",
     desc: "Your password.",
   },
 ];
 
+const routeApi = getRouteApi("/_protected/settings");
+
 export default function AccountTab() {
+  const { "verify-email": verifyEmail } = routeApi.useSearch();
+  const [openDialog, setOpenDialog] = useState<OpenDialog>(
+    verifyEmail ? "change-email" : null,
+  );
+  const navigate = routeApi.useNavigate();
+
+  const handleDialogClose = () => {
+    setOpenDialog(null);
+    navigate({
+      search: (prev) => ({ ...prev, "verify-email": undefined }),
+    });
+  };
+
   return (
-    <div className="flex flex-col gap-4 animate-landing-fade-up fade-in duration-300 ease-out motion-reduce:animate-none">
-      <SettingsCard className="p-0">
-        {SignInDetails.map((item, index) => (
+    <>
+      <div className="flex flex-col gap-4 animate-landing-fade-up fade-in duration-300 ease-out motion-reduce:animate-none">
+        <SettingsCard className="p-0">
+          {SignInDetails.map((item, index) => (
+            <SettingsItem
+              key={index}
+              isHeader={item.isHeader}
+              heading={item.heading}
+              desc={item.desc}
+              border={index !== SignInDetails.length - 1}
+            >
+              {!item.isHeader && (
+                <Button
+                  onClick={() => setOpenDialog(item.action)}
+                  isPrimary={false}
+                >
+                  Change
+                </Button>
+              )}
+            </SettingsItem>
+          ))}
+        </SettingsCard>
+        <SettingsCard className="p-0">
+          <SettingsItem isHeader={true} heading="This device" />
           <SettingsItem
-            key={index}
-            isHeader={item.isHeader}
-            heading={item.heading}
-            desc={item.desc}
-            border={index !== SignInDetails.length - 1}
+            heading="Sign out"
+            desc="Sign out of Pathway on this device"
+            border={false}
           >
-            {!item.isHeader && <Button isPrimary={false}>Change</Button>}
+            <Button onClick={() => setOpenDialog("sign-out")} isPrimary={false}>
+              Sign out
+            </Button>
           </SettingsItem>
-        ))}
-      </SettingsCard>
-      <SettingsCard className="p-0">
-        <SettingsItem isHeader={true} heading="This device" />
-        <SettingsItem
-          heading="Sign out"
-          desc="Sign out of Pathway on this device"
-          border={false}
-        >
-          <Button isPrimary={false}>Sign out</Button>
-        </SettingsItem>
-      </SettingsCard>
-    </div>
+        </SettingsCard>
+      </div>
+      <SignOutDialog
+        open={openDialog === "sign-out"}
+        onClose={handleDialogClose}
+      />
+      <ChangeEmailDialog
+        open={openDialog === "change-email"}
+        onClose={handleDialogClose}
+      />
+    </>
   );
 }
