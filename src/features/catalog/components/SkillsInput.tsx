@@ -13,7 +13,8 @@ import { HelperText } from "./HelperText";
 interface SkillsInputProps {
   values: string[];
   options: OnboardingOption[];
-  max: number;
+  /** Leave out for no limit. */
+  max?: number;
   onChange: (values: string[]) => void;
   disabled?: boolean;
 }
@@ -21,7 +22,7 @@ interface SkillsInputProps {
 export function SkillsInput({
   values,
   options,
-  max,
+  max = Infinity,
   onChange,
   disabled = false,
 }: SkillsInputProps) {
@@ -77,7 +78,7 @@ export function SkillsInput({
                 type="button"
                 disabled={disabled}
                 aria-label="Select skills"
-                aria-describedby={helperId}
+                aria-describedby={Number.isFinite(max) ? helperId : undefined}
                 className="min-h-6 min-w-24 flex-1 cursor-pointer text-left text-body-md text-ink-muted focus-visible:outline-none disabled:cursor-not-allowed"
               >
                 {shown.length === 0 ? "Select skills" : ""}
@@ -116,11 +117,13 @@ export function SkillsInput({
         </PopoverContent>
       </Popover>
 
-      <HelperText id={helperId} aria-live="polite" className="mt-1">
-        {atLimit
-          ? `Limit reached: ${max} of ${max} skills`
-          : `You can add up to ${max} skills`}
-      </HelperText>
+      {Number.isFinite(max) && (
+        <HelperText id={helperId} aria-live="polite" className="mt-1">
+          {atLimit
+            ? `Limit reached: ${max} of ${max} skills`
+            : `You can add up to ${max} skills`}
+        </HelperText>
+      )}
     </div>
   );
 }

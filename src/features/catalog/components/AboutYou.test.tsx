@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useSession } from "@/lib/stores/session";
+import { useAuthStore } from "@/lib/stores/authStore";
 import AboutYou from "./AboutYou";
 
 const navigate = vi.hoisted(() => vi.fn());
@@ -15,6 +16,16 @@ const options = vi.hoisted(() => ({
 vi.mock("@tanstack/react-router", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@tanstack/react-router")>()),
   useNavigate: () => navigate,
+}));
+
+const addSkills = vi.hoisted(() => ({
+  mutateAsync: vi.fn(),
+  isPending: false,
+  isError: false,
+}));
+
+vi.mock("@/features/skillCheck/hooks/useSkillCheckActions", () => ({
+  useAddMySkills: () => addSkills,
 }));
 
 vi.mock("../hooks/useOnboardingOptions", () => ({
@@ -35,6 +46,9 @@ beforeEach(() => {
   options.data = loaded;
   options.isPending = false;
   options.isError = false;
+  addSkills.mutateAsync.mockReset().mockResolvedValue(undefined);
+  addSkills.isError = false;
+  useAuthStore.setState({ accessToken: null, user: null });
   useSession.getState().clearOptional();
   useSession.getState().clearFilters();
 });
@@ -121,6 +135,49 @@ describe("AboutYou", () => {
     expect(useSession.getState().degree).toBe("BACHELOR");
     expect(navigate).toHaveBeenCalledWith({
       to: "/careers/onboarding/goals",
+    });
+  });
+
+  describe("skills", () => {
+    const signIn = () =>
+      useAuthStore.setState({
+        accessToken: "token",
+        user: { id: "u1", email: "a@b.c", role: "USER", fullName: null },
+      });
+
+    it("adds the chosen skills to a signed-in learner’s profile before moving on", async () => {
+      const user = userEvent.setup();
+      signIn();
+      useSession.getState().setSkills(["s1"]);
+      render(<AboutYou />);
+
+      await user.click(screen.getByRole("button", { name: "Next" }));
+
+      expect(addSkills.mutateAsync).toHaveBeenCalledWith(["s1"]);
+      expect(navigate).toHaveBeenCalledWith({ to: "/careers/onboarding/goals" });
+    });
+
+    it("keeps a signed-out learner’s skills on this device only", async () => {
+      const user = userEvent.setup();
+      useSession.getState().setSkills(["s1"]);
+      render(<AboutYou />);
+
+      await user.click(screen.getByRole("button", { name: "Next" }));
+
+      expect(addSkills.mutateAsync).not.toHaveBeenCalled();
+      expect(navigate).toHaveBeenCalledWith({ to: "/careers/onboarding/goals" });
+    });
+
+    it("stays on the step when the skills do not save", async () => {
+      const user = userEvent.setup();
+      signIn();
+      useSession.getState().setSkills(["s1"]);
+      addSkills.mutateAsync.mockRejectedValue(new Error("offline"));
+      render(<AboutYou />);
+
+      await user.click(screen.getByRole("button", { name: "Next" }));
+
+      expect(navigate).not.toHaveBeenCalled();
     });
   });
 });

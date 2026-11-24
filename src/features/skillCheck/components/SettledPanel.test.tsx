@@ -1,11 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
-import type { SkillCheckCareer } from "../skillCheck.types";
+import { buildAssessment } from "../skillCheck.fixtures";
 import { SettledPanel } from "./SettledPanel";
-
-vi.mock("../hooks/useRealCareer", () => ({
-  useRealCareerId: () => "real-career-id",
-}));
 
 vi.mock("@tanstack/react-router", () => ({
   Link: ({ children, to, params }: { children: React.ReactNode; to: string; params?: Record<string, string> }) => (
@@ -15,36 +11,32 @@ vi.mock("@tanstack/react-router", () => ({
 
 afterEach(cleanup);
 
-const career: SkillCheckCareer = {
-  careerId: "c1",
-  name: "Frontend Developer",
-  icon: "frontend-developer",
-  reviewed: true,
-  areas: [],
-  skills: [],
-  steps: [
-    { order: 1, title: "HTML" },
-    { order: 2, title: "CSS" },
-  ],
-};
+const assessment = buildAssessment();
+const startStep = { id: "st3", order: 3, title: "JavaScript basics" };
 
 describe("SettledPanel", () => {
   it("names the step they start at", () => {
-    render(<SettledPanel career={career} startingPoint={{ stepOrder: 2, source: "ACCEPTED" }} />);
+    render(<SettledPanel assessment={assessment} startStep={startStep} />);
 
-    expect(screen.getByText("Step 2, CSS")).toBeTruthy();
+    expect(screen.getByText("Step 3, JavaScript basics")).toBeTruthy();
+  });
+
+  it("says the earlier steps stay open", () => {
+    render(<SettledPanel assessment={assessment} startStep={startStep} />);
+
+    expect(screen.getByText(/Steps 1 and 2 stay open/)).toBeTruthy();
   });
 
   it("takes them on to the career's pathway overview", () => {
-    render(<SettledPanel career={career} startingPoint={{ stepOrder: 1, source: "DEFAULT" }} />);
+    render(<SettledPanel assessment={assessment} startStep={startStep} />);
 
     expect(screen.getByRole("link", { name: /Go to roadmap/ }).getAttribute("href")).toBe(
-      "/my-pathway/real-career-id/overview",
+      "/my-pathway/c1/overview",
     );
   });
 
   it("can still go back to Skill check", () => {
-    render(<SettledPanel career={career} startingPoint={{ stepOrder: 1, source: "DEFAULT" }} />);
+    render(<SettledPanel assessment={assessment} startStep={startStep} />);
 
     expect(screen.getByRole("link", { name: "Back to Skill check" }).getAttribute("href")).toBe(
       "/my-pathway/skill-check",

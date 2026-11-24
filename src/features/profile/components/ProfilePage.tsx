@@ -9,14 +9,11 @@ import { ActivePathwayCard } from "./ActivePathwayCard";
 import { LevelCard } from "./LevelCard";
 import { NameCard } from "./NameCard";
 import { ComingSoonSection } from "./ProfileSection";
+import { SkillsCard } from "./SkillsCard";
 
 const COMING_SOON = [
   { title: "Education", description: "Your level of study, field and school." },
   { title: "Experience", description: "Internships, volunteering and projects all count." },
-  {
-    title: "Skills",
-    description: "Skills you believe you have. We use them to show gaps in your pathway.",
-  },
   {
     title: "Career interests",
     description:
@@ -99,6 +96,7 @@ export function ProfilePage() {
           </div>
           <Dimmable dimmed={editingName} className="flex flex-col gap-4">
             <LevelCard />
+            <SkillsCard profile={profile.data} />
             {COMING_SOON.map((section) => (
               <ComingSoonSection key={section.title} {...section} />
             ))}

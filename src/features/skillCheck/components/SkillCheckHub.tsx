@@ -4,11 +4,13 @@ import { SkillButton } from "./SkillButton";
 import { StateMessage } from "../../../components/ui/StateMessage";
 import { Skeleton } from "../../../components/ui/Skeleton";
 import {
-  useSkillCheckCareer,
+  useSkillAssessment,
   useSkillCheckCareers,
-  useSkillCheckRecord,
+  useSkillCheckUserId,
 } from "../hooks/useSkillCheck";
-import type { SkillCheckCareerSummary } from "../skillCheck.types";
+import { useResetAssessment } from "../hooks/useSkillCheckActions";
+import { readDraft } from "../skillCheck.storage";
+import type { SkillAssessment, SkillCheckCareerSummary } from "../skillCheck.types";
 import { ActiveCareerCard } from "./ActiveCareerCard";
 import { CareerPickerDialog } from "./CareerPickerDialog";
 import { ChooseCareerPanel } from "./ChooseCareerPanel";
@@ -17,27 +19,16 @@ import { HowItWorksDialog } from "./HowItWorksDialog";
 import { OtherCareersCard } from "./OtherCareersCard";
 import { PageHeading } from "./PageHeading";
 import { BackLink } from "./BackLink";
+import { RetakeDialog } from "./RetakeDialog";
+
+const OTHER_CAREERS_SHOWN = 3;
 
 export function SkillCheckHub() {
   const navigate = useNavigate();
-  const careersQuery = useSkillCheckCareers();
-  const careers = careersQuery.data;
-  const active = careers?.find((career) => career.isActive) ?? null;
-  const activeId = active?.careerId ?? "";
-  const careerQuery = useSkillCheckCareer(activeId);
-  const recordQuery = useSkillCheckRecord(activeId);
-  const [howOpen, setHowOpen] = useState(false);
-  const [pickerOpen, setPickerOpen] = useState(false);
+  const { careers, isError: careersFailed, refetch: refetchCareers } = useSkillCheckCareers();
+  const { state, retry } = useSkillAssessment();
   const [explored, setExplored] = useState<string | null>(null);
-
-  const open = (career: Pick<SkillCheckCareerSummary, "careerId" | "hasResult">) => {
-    void navigate({
-      to: career.hasResult
-        ? "/my-pathway/skill-check/$careerId/result"
-        : "/my-pathway/skill-check/$careerId",
-      params: { careerId: career.careerId },
-    });
-  };
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const goToCheck = (careerId: string) =>
     navigate({ to: "/my-pathway/skill-check/$careerId", params: { careerId } });
@@ -49,7 +40,7 @@ export function SkillCheckHub() {
     />
   );
 
-  if (careersQuery.isError) {
+  if (careersFailed || state.kind === "error") {
     return (
       <>
         {heading}
@@ -57,13 +48,22 @@ export function SkillCheckHub() {
           kind="error"
           title="We could not load your skill check"
           body="Check your connection and try again."
-          action={<SkillButton onClick={() => void careersQuery.refetch()}>Try again</SkillButton>}
+          action={
+            <SkillButton
+              onClick={() => {
+                void refetchCareers();
+                retry();
+              }}
+            >
+              Try again
+            </SkillButton>
+          }
         />
       </>
     );
   }
 
-  if (!careers || (active && (careerQuery.isPending || recordQuery.isPending))) {
+  if (!careers || state.kind === "loading") {
     return (
       <>
         {heading}
@@ -79,79 +79,34 @@ export function SkillCheckHub() {
     );
   }
 
-  if (active && (careerQuery.isError || recordQuery.isError || !careerQuery.data)) {
-    return (
-      <>
-        {heading}
-        <StateMessage
-          kind="error"
-          title="We could not load your skill check"
-          body="Check your connection and try again."
-          action={
-            <SkillButton
-              onClick={() => {
-                void careerQuery.refetch();
-                void recordQuery.refetch();
-              }}
-            >
-              Try again
-            </SkillButton>
-          }
-        />
-      </>
-    );
-  }
-
-  const showsResult = Boolean(active && recordQuery.data?.completedAt);
-  const others = careers.filter((career) => !career.isActive);
   const firstReviewed = careers.find((career) => career.reviewed)?.careerId ?? null;
   const exploredId = explored ?? firstReviewed;
+  const others = careers.filter((career) => !career.isActive);
 
   return (
     <>
-      {showsResult && <BackLink fallbackTo="/careers" />}
+      {state.kind === "ready" && state.assessment.hasResult && <BackLink fallbackTo="/careers" />}
       {heading}
 
-      <div
-        className={
-          active && careerQuery.data
-            ? "grid items-start gap-3 lg:grid-cols-[minmax(0,5fr)_minmax(0,3fr)]"
-            : "grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_384px]"
-        }
-      >
-        {active && careerQuery.data ? (
-          <>
-            <ActiveCareerCard
-              summary={active}
-              career={careerQuery.data}
-              record={recordQuery.data ?? null}
-              onStart={() => void goToCheck(active.careerId)}
-              onShowHow={() => setHowOpen(true)}
-            />
-            <OtherCareersCard
-              careers={others}
-              onSelect={open}
-              onChooseAnother={() => setPickerOpen(true)}
-            />
-            <HowItWorksDialog
-              open={howOpen}
-              careerName={active.name}
-              onClose={() => setHowOpen(false)}
-              onStart={() => void goToCheck(active.careerId)}
-            />
-          </>
-        ) : (
-          <>
-            <ChooseCareerPanel
-              careers={careers}
-              value={exploredId}
-              onChange={setExplored}
-              onStart={() => exploredId && void goToCheck(exploredId)}
-            />
-            <HowItWorksCard />
-          </>
-        )}
-      </div>
+      {state.kind === "ready" ? (
+        <ActivePathwayView
+          key={state.assessment.careerId}
+          assessment={state.assessment}
+          others={others}
+          onCheck={(careerId) => void goToCheck(careerId)}
+          onChooseAnother={() => setPickerOpen(true)}
+        />
+      ) : (
+        <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_384px]">
+          <ChooseCareerPanel
+            careers={careers}
+            value={exploredId}
+            onChange={setExplored}
+            onStart={() => exploredId && void goToCheck(exploredId)}
+          />
+          <HowItWorksCard />
+        </div>
+      )}
 
       <CareerPickerDialog
         open={pickerOpen}
@@ -160,10 +115,71 @@ export function SkillCheckHub() {
         onClose={() => setPickerOpen(false)}
         onConfirm={(careerId) => {
           setPickerOpen(false);
-          const chosen = careers.find((career) => career.careerId === careerId);
-          if (chosen) open(chosen);
+          void goToCheck(careerId);
         }}
       />
     </>
+  );
+}
+
+function ActivePathwayView({
+  assessment,
+  others,
+  onCheck,
+  onChooseAnother,
+}: {
+  assessment: SkillAssessment;
+  others: SkillCheckCareerSummary[];
+  onCheck: (careerId: string) => void;
+  onChooseAnother: () => void;
+}) {
+  const userId = useSkillCheckUserId();
+  const reset = useResetAssessment(assessment.careerId);
+  const [howOpen, setHowOpen] = useState(false);
+  const [retakeOpen, setRetakeOpen] = useState(false);
+  const draft = readDraft(userId, assessment.careerId)?.answers ?? null;
+
+  const retake = async () => {
+    try {
+      await reset.mutateAsync();
+      setRetakeOpen(false);
+      onCheck(assessment.careerId);
+    } catch {
+      return;
+    }
+  };
+
+  return (
+    <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,5fr)_minmax(0,3fr)]">
+      <ActiveCareerCard
+        assessment={assessment}
+        draft={draft}
+        onStart={() => onCheck(assessment.careerId)}
+        onShowHow={() => setHowOpen(true)}
+        onRetake={() => {
+          reset.reset();
+          setRetakeOpen(true);
+        }}
+      />
+      <OtherCareersCard
+        careers={others.filter((career) => career.reviewed).slice(0, OTHER_CAREERS_SHOWN)}
+        onSelect={(career) => onCheck(career.careerId)}
+        onChooseAnother={onChooseAnother}
+      />
+      <HowItWorksDialog
+        open={howOpen}
+        careerName={assessment.name}
+        onClose={() => setHowOpen(false)}
+        onStart={() => onCheck(assessment.careerId)}
+      />
+      <RetakeDialog
+        open={retakeOpen}
+        careerName={assessment.name}
+        pending={reset.isPending}
+        error={reset.isError}
+        onCancel={() => setRetakeOpen(false)}
+        onConfirm={() => void retake()}
+      />
+    </div>
   );
 }

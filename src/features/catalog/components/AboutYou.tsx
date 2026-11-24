@@ -3,6 +3,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { AddRegular, CloseRegular } from "@mingcute/react/core-regular";
 import { Button } from "@/components/ui/Button";
 import { MAX_EXPERIENCE_ENTRIES, useSession } from "@/lib/stores/session";
+import { selectIsAuthenticated, useAuthStore } from "@/lib/stores/authStore";
+import { useAddMySkills } from "@/features/skillCheck/hooks/useSkillCheckActions";
 import { NO_INTEREST, type OnboardingOption } from "../catalog.types";
 import { useOnboardingOptions } from "../hooks/useOnboardingOptions";
 import { FIELD_OF_STUDY_OPTIONS, JOB_TYPE_OPTIONS } from "../onboarding.mock";
@@ -21,6 +23,8 @@ export default function AboutYou() {
   const options = useOnboardingOptions();
   const [cvNoticeVisible, setCvNoticeVisible] = useState(false);
   const experienceRef = useRef<HTMLDivElement>(null);
+  const signedIn = useAuthStore(selectIsAuthenticated);
+  const addSkills = useAddMySkills();
 
   const data = options.data;
   const ready = Boolean(data);
@@ -48,7 +52,15 @@ export default function AboutYou() {
     navigate({ to: "/careers" });
   };
 
-  const next = () => {
+  const next = async () => {
+    // Signed-in learners keep the skills on their profile too.
+    if (signedIn && profile.skills.length > 0) {
+      try {
+        await addSkills.mutateAsync(profile.skills);
+      } catch {
+        return;
+      }
+    }
     navigate({ to: "/careers/onboarding/goals" });
   };
 
@@ -110,6 +122,11 @@ export default function AboutYou() {
             onChange={profile.setSkills}
             disabled={!ready}
           />
+          {addSkills.isError && (
+            <HelperText role="alert" className="mt-1">
+              We couldn’t save your skills to your profile. Try again, or skip for now.
+            </HelperText>
+          )}
         </Field>
 
         <div>
@@ -229,8 +246,13 @@ export default function AboutYou() {
         <Button isPrimary={false} size="lg" onClick={skip} className="flex-1">
           Skip for now
         </Button>
-        <Button size="lg" onClick={next} className="flex-1">
-          Next
+        <Button
+          size="lg"
+          onClick={() => void next()}
+          disabled={addSkills.isPending}
+          className="flex-1"
+        >
+          {addSkills.isPending ? "Saving" : "Next"}
         </Button>
       </div>
 

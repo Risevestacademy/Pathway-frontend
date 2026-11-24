@@ -28,7 +28,7 @@ export function ChooseCareerPanel({
           Choose a career to explore.
         </h2>
         <p className="text-sm leading-5 text-grey-600">
-          No pathway started yet. Exploring a career won&rsquo;t enrol you.
+          No pathway started yet. Checking a career makes it your active pathway.
         </p>
       </div>
       <CareerPicker careers={careers} value={value} onChange={onChange} name="career-to-explore" />

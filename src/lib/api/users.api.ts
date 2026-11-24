@@ -9,6 +9,8 @@ export interface UserProfile {
   fullName?: string | null;
   emailVerified: boolean;
   createdAt: string;
+  /** Skills the learner added to their profile. Skill check answers are kept apart. */
+  skills?: Array<{ id: string; name: string }>;
 }
 
 export interface UpdateProfileInput {

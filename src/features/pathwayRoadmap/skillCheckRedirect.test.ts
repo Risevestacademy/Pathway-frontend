@@ -29,17 +29,15 @@ describe("/skill-check, which moved under My Pathway", () => {
 });
 
 describe("/skill-check/…, the old addresses of its other screens", () => {
-  it("keeps the rest of the path, so an old link to a result still opens it", async () => {
-    expect(await redirected(SplatRoute, { _splat: "frontend-developer/result" })).toMatchObject({
-      options: { to: "/my-pathway/skill-check/frontend-developer/result" },
-    });
-  });
-
-  it("works for a questionnaire link too", async () => {
-    expect(await redirected(SplatRoute, { _splat: "c1" })).toMatchObject({
-      options: { to: "/my-pathway/skill-check/c1" },
-    });
-  });
+  // Those addresses used placeholder career ids that no longer exist.
+  it.each(["frontend-developer/result", "c1", "frontend-developer/roadmap"])(
+    "sends /skill-check/%s to the skill check home",
+    async (splat) => {
+      expect(await redirected(SplatRoute, { _splat: splat })).toMatchObject({
+        options: { to: "/my-pathway/skill-check" },
+      });
+    },
+  );
 
   it("replaces the old address in the history", async () => {
     expect(await redirected(SplatRoute, { _splat: "c1" })).toMatchObject({ options: { replace: true } });

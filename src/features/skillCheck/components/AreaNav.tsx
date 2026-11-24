@@ -16,7 +16,7 @@ export function AreaNav({
 }) {
   return (
     <nav
-      aria-label="Skill areas"
+      aria-label="Pathway stages"
       className="min-w-0 rounded-[18px] border border-grey-100 bg-surface p-3 lg:w-[300px] lg:shrink-0"
     >
       <ul className="flex gap-2 overflow-x-auto lg:flex-col lg:overflow-visible">

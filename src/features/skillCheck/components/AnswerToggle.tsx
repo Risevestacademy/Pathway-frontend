@@ -2,11 +2,11 @@ import clsx from "clsx";
 import { ANSWER_LABELS } from "../skillCheck.copy";
 import type { SkillAnswer } from "../skillCheck.types";
 
-const OPTIONS: SkillAnswer[] = ["HAVE", "NOT_YET", "NOT_SURE"];
+const OPTIONS: SkillAnswer[] = ["HAVE", "DONT_HAVE", "NOT_SURE"];
 
 const SELECTED_STYLES: Record<SkillAnswer, string> = {
   HAVE: "bg-[#ccf4df] text-[#007739]",
-  NOT_YET: "bg-[#fff1d7] text-[#8a6500]",
+  DONT_HAVE: "bg-[#fff1d7] text-[#8a6500]",
   NOT_SURE: "bg-grey-100 text-grey-600",
 };
 

@@ -1,85 +1,98 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { setActivePathway } from "../../../lib/api/progress.api";
+import { fetchProfile } from "../../../lib/api/users.api";
 import {
-  completeSkillCheck,
-  resolveStartingPoint,
-  saveSkillCheckDraft,
-  saveSkillRating,
-  startSkillCheck,
-  switchActiveCareer,
-} from "../../../lib/api/skillCheck.api";
-import { createRating } from "../rating.utils";
-import type {
-  RatingValue,
-  SkillAnswerMap,
-  StartingPoint,
-} from "../skillCheck.types";
-import { useSkillCheckUserId } from "./useSkillCheck";
+  resetAssessment,
+  saveAssessment,
+  updateMySkills,
+  type AssessmentSkillInput,
+} from "../../../lib/api/skills.api";
 import { queryKeys } from "../../../lib/queryKeys";
+import { clearDraft } from "../skillCheck.storage";
+import { useSkillCheckUserId } from "./useSkillCheck";
 
-function useInvalidateUser() {
+/** Saving or clearing answers moves the starting step and changes the profile's skills. */
+function useRefreshAfterSkillChange() {
   const queryClient = useQueryClient();
   const userId = useSkillCheckUserId();
   return () =>
-    queryClient.invalidateQueries({
-      queryKey: queryKeys.skillCheck.user(userId),
-    });
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: queryKeys.skillCheck.assessments(userId) }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.progress.all }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.profile(userId) }),
+    ]);
 }
 
-export function useStartSkillCheck() {
+/** Saves the finished questionnaire and forgets the draft on this device. */
+export function useSaveAssessment(careerId: string) {
   const userId = useSkillCheckUserId();
-  const invalidate = useInvalidateUser();
+  const refresh = useRefreshAfterSkillChange();
   return useMutation({
-    mutationFn: (careerId: string) => startSkillCheck(userId, careerId),
-    onSuccess: invalidate,
-  });
-}
-
-export function useSaveSkillCheckDraft(careerId: string) {
-  const userId = useSkillCheckUserId();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (input: { draft: SkillAnswerMap; areaId: string | null }) =>
-      saveSkillCheckDraft(userId, careerId, input.draft, input.areaId),
-    onSuccess: (record) => {
-      queryClient.setQueryData(queryKeys.skillCheck.record(userId, careerId), record);
+    mutationFn: (skills: AssessmentSkillInput[]) => saveAssessment(skills),
+    onSuccess: async () => {
+      clearDraft(userId, careerId);
+      await refresh();
     },
   });
 }
 
-export function useCompleteSkillCheck(careerId: string) {
-  const userId = useSkillCheckUserId();
-  const invalidate = useInvalidateUser();
+/** Saves a rating, which only a skill marked Have can carry. */
+export function useSaveSkillRating() {
+  const refresh = useRefreshAfterSkillChange();
   return useMutation({
-    mutationFn: () => completeSkillCheck(userId, careerId),
-    onSuccess: invalidate,
+    mutationFn: ({ skillId, rating }: { skillId: string; rating: number }) =>
+      saveAssessment([{ skillId, status: "HAVE", rating }]),
+    onSuccess: () => refresh(),
   });
 }
 
-export function useResolveStartingPoint(careerId: string) {
+export function useResetAssessment(careerId: string) {
   const userId = useSkillCheckUserId();
-  const invalidate = useInvalidateUser();
+  const refresh = useRefreshAfterSkillChange();
   return useMutation({
-    mutationFn: (startingPoint: StartingPoint | null) =>
-      resolveStartingPoint(userId, careerId, startingPoint),
-    onSuccess: invalidate,
+    mutationFn: resetAssessment,
+    onSuccess: async () => {
+      clearDraft(userId, careerId);
+      await refresh();
+    },
   });
 }
 
-export function useSwitchActiveCareer() {
+/** Makes the career the active pathway, so its skills can be checked. */
+export function useSwitchPathway() {
+  const queryClient = useQueryClient();
   const userId = useSkillCheckUserId();
-  const invalidate = useInvalidateUser();
   return useMutation({
-    mutationFn: (careerId: string) => switchActiveCareer(userId, careerId),
-    onSuccess: invalidate,
+    mutationFn: setActivePathway,
+    onSuccess: async (active) => {
+      queryClient.setQueryData(queryKeys.progress.active(userId), active);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.skillCheck.assessments(userId) }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.progress.saved(userId) }),
+      ]);
+    },
   });
 }
 
-export function useSaveSkillRating(careerId: string) {
-  const userId = useSkillCheckUserId();
-  const invalidate = useInvalidateUser();
+/** Replaces the profile's skills with exactly this list. */
+export function useUpdateMySkills() {
+  const refresh = useRefreshAfterSkillChange();
   return useMutation({
-    mutationFn: (input: { skillId: string; value: RatingValue | "NOT_SURE" }) =>
-      saveSkillRating(userId, createRating(careerId, input.skillId, input.value)),
-    onSuccess: invalidate,
+    mutationFn: updateMySkills,
+    onSuccess: () => refresh(),
+  });
+}
+
+/** Adds skills to the profile without dropping any already there, since the server replaces the whole list. */
+export function useAddMySkills() {
+  const refresh = useRefreshAfterSkillChange();
+  return useMutation({
+    mutationFn: async (skillIds: string[]) => {
+      const current = (await fetchProfile()).skills?.map((skill) => skill.id) ?? [];
+      const merged = [...new Set([...current, ...skillIds])];
+      if (merged.length === current.length) return;
+      await updateMySkills(merged);
+    },
+    onSuccess: () => refresh(),
   });
 }

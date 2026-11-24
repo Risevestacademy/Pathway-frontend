@@ -15,8 +15,8 @@ export function ResultCounts({ counts }: { counts: SkillCounts }) {
       <CountCard
         tone="warning"
         tag="Not yet"
-        value={counts.notYet}
-        label={`${pluralise(counts.notYet, "skill", "skills")} you are still learning`}
+        value={counts.dontHave}
+        label={`${pluralise(counts.dontHave, "skill", "skills")} you are still learning`}
       />
       <CountCard
         tone="neutral"

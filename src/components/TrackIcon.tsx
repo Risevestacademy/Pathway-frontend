@@ -7,11 +7,12 @@ export function TrackIcon({
   size,
   className,
 }: {
-  icon: TrackIconKey;
+  /** Null draws the neutral tile, for a career with no icon yet. */
+  icon: TrackIconKey | null;
   size: number;
   className?: string;
 }) {
-  const url = getTrackIconUrl(icon, size);
+  const url = icon ? getTrackIconUrl(icon, size) : undefined;
 
   if (!url) {
     return (
