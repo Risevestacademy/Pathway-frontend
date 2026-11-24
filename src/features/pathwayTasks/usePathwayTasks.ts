@@ -12,6 +12,7 @@ export type PathwayTasksState =
   | { kind: "unavailable" }
   | {
       kind: "ready";
+      pathwayId: string;
       careerTitle: string;
       stepCount: number;
       sections: TaskSection[];
@@ -45,6 +46,7 @@ export function usePathwayTasks(careerId: string): {
   return {
     state: {
       kind: "ready",
+      pathwayId: tasksQuery.data.pathwayId,
       careerTitle: roadmap.careerTitle,
       stepCount: countSteps(tasksQuery.data.stages),
       sections: buildTaskSections(tasksQuery.data.stages),

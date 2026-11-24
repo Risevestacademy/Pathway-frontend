@@ -23,6 +23,9 @@ export const queryKeys = {
   /** Each task with the signed-in person's completion and checklist counts. */
   pathwayTasks: (userId: string, pathwayId: string) =>
     ["pathway-tasks", userId, pathwayId] as const,
+  /** One task's page: its checklist with the person's ticks, so it is per person. */
+  pathwayTask: (userId: string, pathwayId: string, taskId: string) =>
+    ["pathway-task", userId, pathwayId, taskId] as const,
   /** One resource's detail, as read from a given step (which sets its usage note). */
   pathwayResource: (
     userId: string,

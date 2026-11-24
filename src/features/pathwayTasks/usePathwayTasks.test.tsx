@@ -88,6 +88,7 @@ describe("usePathwayTasks", () => {
     expect(fetchPathwayTasks).toHaveBeenCalledWith("p1");
     expect(result.current.state).toMatchObject({
       kind: "ready",
+      pathwayId: "p1",
       careerTitle: "Product Designer",
       stepCount: 2,
       sections: [{ id: "g1", title: "Foundations", done: 0, total: 2 }],
