@@ -49,6 +49,21 @@ describe("ResourceSectionNav", () => {
     expect(screen.queryByText("0 of 0")).toBeNull();
   });
 
+  it("can word an empty section its own way, such as for tasks", () => {
+    render(
+      <ResourceSectionNav
+        label="Stages"
+        emptyLabel="No tasks"
+        items={items}
+        selectedId="g1"
+        onSelect={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("No tasks")).toBeTruthy();
+    expect(screen.queryByText("No resources")).toBeNull();
+  });
+
   it("marks the selected section, and only that one", () => {
     nav("g2");
 

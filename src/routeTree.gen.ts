@@ -53,6 +53,8 @@ import { Route as CareersCareerIdRoadmapIndexRouteImport } from './routes/career
 import { Route as CareersCareerIdRoadmapStepIdRouteImport } from './routes/careers/$careerId/roadmap/$stepId'
 import { Route as ProtectedMyPathwayCareerIdResourcesIndexRouteImport } from './routes/_protected/my-pathway/$careerId/resources/index'
 import { Route as ProtectedMyPathwayCareerIdResourcesResourceIdRouteImport } from './routes/_protected/my-pathway/$careerId/resources/$resourceId'
+import { Route as ProtectedMyPathwayCareerIdTasksIndexRouteImport } from './routes/_protected/my-pathway/$careerId/tasks/index'
+import { Route as ProtectedMyPathwayCareerIdTasksTaskIdRouteImport } from './routes/_protected/my-pathway/$careerId/tasks/$taskId'
 import { Route as ProtectedMyPathwaySkillCheckCareerIdIndexRouteImport } from './routes/_protected/my-pathway/skill-check/$careerId/index'
 import { Route as ProtectedMyPathwaySkillCheckCareerIdResultRouteImport } from './routes/_protected/my-pathway/skill-check/$careerId/result'
 import { Route as CareersCareerIdRoadmapStepIdResourcesRouteImport } from './routes/careers/$careerId/roadmap/$stepId/resources'
@@ -294,6 +296,18 @@ const ProtectedMyPathwayCareerIdResourcesResourceIdRoute =
     path: '/$careerId/resources/$resourceId',
     getParentRoute: () => ProtectedMyPathwayRoute,
   } as any)
+const ProtectedMyPathwayCareerIdTasksIndexRoute =
+  ProtectedMyPathwayCareerIdTasksIndexRouteImport.update({
+    id: '/$careerId/tasks/',
+    path: '/$careerId/tasks/',
+    getParentRoute: () => ProtectedMyPathwayRoute,
+  } as any)
+const ProtectedMyPathwayCareerIdTasksTaskIdRoute =
+  ProtectedMyPathwayCareerIdTasksTaskIdRouteImport.update({
+    id: '/$careerId/tasks/$taskId',
+    path: '/$careerId/tasks/$taskId',
+    getParentRoute: () => ProtectedMyPathwayRoute,
+  } as any)
 const ProtectedMyPathwaySkillCheckCareerIdIndexRoute =
   ProtectedMyPathwaySkillCheckCareerIdIndexRouteImport.update({
     id: '/skill-check/$careerId/',
@@ -368,9 +382,11 @@ export interface FileRoutesByFullPath {
   '/opportunities/$opportunitiesId/': typeof ProtectedOpportunitiesOpportunitiesIdIndexRoute
   '/careers/$careerId/roadmap/': typeof CareersCareerIdRoadmapIndexRoute
   '/my-pathway/$careerId/resources/$resourceId': typeof ProtectedMyPathwayCareerIdResourcesResourceIdRoute
+  '/my-pathway/$careerId/tasks/$taskId': typeof ProtectedMyPathwayCareerIdTasksTaskIdRoute
   '/my-pathway/skill-check/$careerId/result': typeof ProtectedMyPathwaySkillCheckCareerIdResultRoute
   '/careers/$careerId/roadmap/$stepId/resources': typeof CareersCareerIdRoadmapStepIdResourcesRoute
   '/my-pathway/$careerId/resources/': typeof ProtectedMyPathwayCareerIdResourcesIndexRoute
+  '/my-pathway/$careerId/tasks/': typeof ProtectedMyPathwayCareerIdTasksIndexRoute
   '/my-pathway/skill-check/$careerId/': typeof ProtectedMyPathwaySkillCheckCareerIdIndexRoute
   '/my-pathway/$careerId/quiz/$stageId/result': typeof ProtectedMyPathwayCareerIdQuizStageIdResultRoute
   '/my-pathway/$careerId/quiz/$stageId/': typeof ProtectedMyPathwayCareerIdQuizStageIdIndexRoute
@@ -416,9 +432,11 @@ export interface FileRoutesByTo {
   '/opportunities/$opportunitiesId': typeof ProtectedOpportunitiesOpportunitiesIdIndexRoute
   '/careers/$careerId/roadmap': typeof CareersCareerIdRoadmapIndexRoute
   '/my-pathway/$careerId/resources/$resourceId': typeof ProtectedMyPathwayCareerIdResourcesResourceIdRoute
+  '/my-pathway/$careerId/tasks/$taskId': typeof ProtectedMyPathwayCareerIdTasksTaskIdRoute
   '/my-pathway/skill-check/$careerId/result': typeof ProtectedMyPathwaySkillCheckCareerIdResultRoute
   '/careers/$careerId/roadmap/$stepId/resources': typeof CareersCareerIdRoadmapStepIdResourcesRoute
   '/my-pathway/$careerId/resources': typeof ProtectedMyPathwayCareerIdResourcesIndexRoute
+  '/my-pathway/$careerId/tasks': typeof ProtectedMyPathwayCareerIdTasksIndexRoute
   '/my-pathway/skill-check/$careerId': typeof ProtectedMyPathwaySkillCheckCareerIdIndexRoute
   '/my-pathway/$careerId/quiz/$stageId/result': typeof ProtectedMyPathwayCareerIdQuizStageIdResultRoute
   '/my-pathway/$careerId/quiz/$stageId': typeof ProtectedMyPathwayCareerIdQuizStageIdIndexRoute
@@ -468,9 +486,11 @@ export interface FileRoutesById {
   '/_protected/opportunities/$opportunitiesId/': typeof ProtectedOpportunitiesOpportunitiesIdIndexRoute
   '/careers/$careerId/roadmap/': typeof CareersCareerIdRoadmapIndexRoute
   '/_protected/my-pathway/$careerId/resources/$resourceId': typeof ProtectedMyPathwayCareerIdResourcesResourceIdRoute
+  '/_protected/my-pathway/$careerId/tasks/$taskId': typeof ProtectedMyPathwayCareerIdTasksTaskIdRoute
   '/_protected/my-pathway/skill-check/$careerId/result': typeof ProtectedMyPathwaySkillCheckCareerIdResultRoute
   '/careers/$careerId/roadmap/$stepId/resources': typeof CareersCareerIdRoadmapStepIdResourcesRoute
   '/_protected/my-pathway/$careerId/resources/': typeof ProtectedMyPathwayCareerIdResourcesIndexRoute
+  '/_protected/my-pathway/$careerId/tasks/': typeof ProtectedMyPathwayCareerIdTasksIndexRoute
   '/_protected/my-pathway/skill-check/$careerId/': typeof ProtectedMyPathwaySkillCheckCareerIdIndexRoute
   '/_protected/my-pathway/$careerId/quiz/$stageId/result': typeof ProtectedMyPathwayCareerIdQuizStageIdResultRoute
   '/_protected/my-pathway/$careerId/quiz/$stageId/': typeof ProtectedMyPathwayCareerIdQuizStageIdIndexRoute
@@ -520,9 +540,11 @@ export interface FileRouteTypes {
     | '/opportunities/$opportunitiesId/'
     | '/careers/$careerId/roadmap/'
     | '/my-pathway/$careerId/resources/$resourceId'
+    | '/my-pathway/$careerId/tasks/$taskId'
     | '/my-pathway/skill-check/$careerId/result'
     | '/careers/$careerId/roadmap/$stepId/resources'
     | '/my-pathway/$careerId/resources/'
+    | '/my-pathway/$careerId/tasks/'
     | '/my-pathway/skill-check/$careerId/'
     | '/my-pathway/$careerId/quiz/$stageId/result'
     | '/my-pathway/$careerId/quiz/$stageId/'
@@ -568,9 +590,11 @@ export interface FileRouteTypes {
     | '/opportunities/$opportunitiesId'
     | '/careers/$careerId/roadmap'
     | '/my-pathway/$careerId/resources/$resourceId'
+    | '/my-pathway/$careerId/tasks/$taskId'
     | '/my-pathway/skill-check/$careerId/result'
     | '/careers/$careerId/roadmap/$stepId/resources'
     | '/my-pathway/$careerId/resources'
+    | '/my-pathway/$careerId/tasks'
     | '/my-pathway/skill-check/$careerId'
     | '/my-pathway/$careerId/quiz/$stageId/result'
     | '/my-pathway/$careerId/quiz/$stageId'
@@ -619,9 +643,11 @@ export interface FileRouteTypes {
     | '/_protected/opportunities/$opportunitiesId/'
     | '/careers/$careerId/roadmap/'
     | '/_protected/my-pathway/$careerId/resources/$resourceId'
+    | '/_protected/my-pathway/$careerId/tasks/$taskId'
     | '/_protected/my-pathway/skill-check/$careerId/result'
     | '/careers/$careerId/roadmap/$stepId/resources'
     | '/_protected/my-pathway/$careerId/resources/'
+    | '/_protected/my-pathway/$careerId/tasks/'
     | '/_protected/my-pathway/skill-check/$careerId/'
     | '/_protected/my-pathway/$careerId/quiz/$stageId/result'
     | '/_protected/my-pathway/$careerId/quiz/$stageId/'
@@ -961,6 +987,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedMyPathwayCareerIdResourcesResourceIdRouteImport
       parentRoute: typeof ProtectedMyPathwayRoute
     }
+    '/_protected/my-pathway/$careerId/tasks/': {
+      id: '/_protected/my-pathway/$careerId/tasks/'
+      path: '/$careerId/tasks'
+      fullPath: '/my-pathway/$careerId/tasks/'
+      preLoaderRoute: typeof ProtectedMyPathwayCareerIdTasksIndexRouteImport
+      parentRoute: typeof ProtectedMyPathwayRoute
+    }
+    '/_protected/my-pathway/$careerId/tasks/$taskId': {
+      id: '/_protected/my-pathway/$careerId/tasks/$taskId'
+      path: '/$careerId/tasks/$taskId'
+      fullPath: '/my-pathway/$careerId/tasks/$taskId'
+      preLoaderRoute: typeof ProtectedMyPathwayCareerIdTasksTaskIdRouteImport
+      parentRoute: typeof ProtectedMyPathwayRoute
+    }
     '/_protected/my-pathway/skill-check/$careerId/': {
       id: '/_protected/my-pathway/skill-check/$careerId/'
       path: '/skill-check/$careerId'
@@ -1033,8 +1073,10 @@ interface ProtectedMyPathwayRouteChildren {
   ProtectedMyPathwayCareerIdProgressRoute: typeof ProtectedMyPathwayCareerIdProgressRoute
   ProtectedMyPathwaySkillCheckIndexRoute: typeof ProtectedMyPathwaySkillCheckIndexRoute
   ProtectedMyPathwayCareerIdResourcesResourceIdRoute: typeof ProtectedMyPathwayCareerIdResourcesResourceIdRoute
+  ProtectedMyPathwayCareerIdTasksTaskIdRoute: typeof ProtectedMyPathwayCareerIdTasksTaskIdRoute
   ProtectedMyPathwaySkillCheckCareerIdResultRoute: typeof ProtectedMyPathwaySkillCheckCareerIdResultRoute
   ProtectedMyPathwayCareerIdResourcesIndexRoute: typeof ProtectedMyPathwayCareerIdResourcesIndexRoute
+  ProtectedMyPathwayCareerIdTasksIndexRoute: typeof ProtectedMyPathwayCareerIdTasksIndexRoute
   ProtectedMyPathwaySkillCheckCareerIdIndexRoute: typeof ProtectedMyPathwaySkillCheckCareerIdIndexRoute
   ProtectedMyPathwayCareerIdQuizStageIdResultRoute: typeof ProtectedMyPathwayCareerIdQuizStageIdResultRoute
   ProtectedMyPathwayCareerIdQuizStageIdIndexRoute: typeof ProtectedMyPathwayCareerIdQuizStageIdIndexRoute
@@ -1050,10 +1092,14 @@ const ProtectedMyPathwayRouteChildren: ProtectedMyPathwayRouteChildren = {
     ProtectedMyPathwaySkillCheckIndexRoute,
   ProtectedMyPathwayCareerIdResourcesResourceIdRoute:
     ProtectedMyPathwayCareerIdResourcesResourceIdRoute,
+  ProtectedMyPathwayCareerIdTasksTaskIdRoute:
+    ProtectedMyPathwayCareerIdTasksTaskIdRoute,
   ProtectedMyPathwaySkillCheckCareerIdResultRoute:
     ProtectedMyPathwaySkillCheckCareerIdResultRoute,
   ProtectedMyPathwayCareerIdResourcesIndexRoute:
     ProtectedMyPathwayCareerIdResourcesIndexRoute,
+  ProtectedMyPathwayCareerIdTasksIndexRoute:
+    ProtectedMyPathwayCareerIdTasksIndexRoute,
   ProtectedMyPathwaySkillCheckCareerIdIndexRoute:
     ProtectedMyPathwaySkillCheckCareerIdIndexRoute,
   ProtectedMyPathwayCareerIdQuizStageIdResultRoute:

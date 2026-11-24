@@ -11,11 +11,14 @@ export interface ResourceSectionNavItem {
 /** The pathway's stages (or its steps, when the stages aren't known), each with how many of its resources are ticked. */
 export function ResourceSectionNav({
   label,
+  emptyLabel = "No resources",
   items,
   selectedId,
   onSelect,
 }: {
   label: string;
+  /** What an entry with nothing in it says instead of "0 of 0". */
+  emptyLabel?: string;
   items: ResourceSectionNavItem[];
   selectedId: string;
   onSelect: (id: string) => void;
@@ -39,7 +42,7 @@ export function ResourceSectionNav({
               >
                 <span className="min-w-0">{item.title}</span>
                 <span className={clsx("shrink-0 text-sm", selected ? "text-brand-700" : "text-ink-muted")}>
-                  {item.total === 0 ? "No resources" : `${item.ticked} of ${item.total}`}
+                  {item.total === 0 ? emptyLabel : `${item.ticked} of ${item.total}`}
                 </span>
               </button>
             </li>
