@@ -9,7 +9,7 @@ export interface UserProfile {
   fullName?: string | null;
   emailVerified: boolean;
   createdAt: string;
-  /** Profile skills. The server keeps these with skill check answers, so they include every skill answered there. */
+  /** Skills the learner added to their profile. Skill check answers are kept apart. */
   skills?: Array<{ id: string; name: string }>;
 }
 

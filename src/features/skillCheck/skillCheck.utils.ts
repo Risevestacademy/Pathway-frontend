@@ -137,12 +137,12 @@ export function toAssessmentInput(
   });
 }
 
-/** Where the questionnaire opens: the saved draft, else the saved answers once there is a result. */
+/** Where the questionnaire opens: the draft on this device, else the saved answers. */
 export function getInitialAnswers(
   assessment: SkillAssessment,
   draft: SkillAnswerMap | null,
 ): SkillAnswerMap {
-  const source = draft ?? (assessment.hasResult ? assessment.saved : {});
+  const source = draft ?? assessment.saved;
   const known = new Set(assessment.skills.map((skill) => skill.id));
   return Object.fromEntries(Object.entries(source).filter(([skillId]) => known.has(skillId)));
 }

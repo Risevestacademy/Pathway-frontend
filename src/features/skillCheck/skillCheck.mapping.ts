@@ -16,7 +16,6 @@ import type {
 export function toSkillAssessment(
   assessment: AssessmentDto,
   active: ActivePathwayDto,
-  checkedAt: string | null,
 ): SkillAssessment {
   const steps: SkillCheckStep[] = [...active.steps]
     .sort((a, b) => a.order - b.order)
@@ -49,6 +48,8 @@ export function toSkillAssessment(
         name: skill.skillName,
         stepOrder: firstStepOrder.get(skill.skillId) ?? null,
       });
+      // A skill never answered also reads NOT_SURE; only answered ones count.
+      if (skill.assessedAt === null) continue;
       saved[skill.skillId] = skill.status;
       if (skill.status === "HAVE" && skill.rating !== null) {
         ratings[skill.skillId] = skill.rating;
@@ -56,11 +57,8 @@ export function toSkillAssessment(
     }
   }
 
+  // The starting step is no sign of a result: learners can also set it by hand.
   const startStepId = active.progress?.startStepId ?? null;
-  // An unanswered skill also reads NOT_SURE, so an all-"Not sure" result is
-  // only known from this device's record. The starting step is no sign of a
-  // result: learners can also set it by hand, without a skill check.
-  const answeredOnServer = Object.values(saved).some((status) => status !== "NOT_SURE");
 
   return {
     careerId: assessment.careerId,
@@ -72,7 +70,7 @@ export function toSkillAssessment(
     saved,
     ratings,
     startStepId,
-    hasResult: checkedAt !== null || answeredOnServer,
-    checkedAt,
+    hasResult: assessment.lastAssessedAt !== null,
+    checkedAt: assessment.lastAssessedAt,
   };
 }

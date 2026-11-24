@@ -13,7 +13,8 @@ const server = setupServer();
 
 /** A small stand-in for the backend's skill check state. */
 let activeCareerId: string | null;
-let answers: Record<string, { status: UserSkillStatus; rating: number | null }>;
+/** Answered skills only; anything else reads Not sure with no assessedAt, as on the server. */
+let answers: Record<string, { status: UserSkillStatus; rating: number | null; assessedAt: string }>;
 let startStepId: string | null;
 let saves: AssessmentSkillInput[][];
 let switches: string[];
@@ -70,14 +71,17 @@ function handlers() {
     }),
     http.get("*/me/skills/assessment", () => {
       if (activeCareerId !== "c1") return HttpResponse.json({}, { status: 404 });
+      const dates = Object.values(answers).map((answer) => answer.assessedAt).sort();
       return HttpResponse.json({
         ...assessmentDto,
+        lastAssessedAt: dates.at(-1) ?? null,
         stages: assessmentDto.stages.map((stage) => ({
           ...stage,
           skills: stage.skills.map((skill) => ({
             ...skill,
             status: answers[skill.skillId]?.status ?? "NOT_SURE",
             rating: answers[skill.skillId]?.rating ?? null,
+            assessedAt: answers[skill.skillId]?.assessedAt ?? null,
           })),
         })),
       });
@@ -86,7 +90,11 @@ function handlers() {
       const { skills } = (await request.json()) as { skills: AssessmentSkillInput[] };
       saves.push(skills);
       for (const skill of skills) {
-        answers[skill.skillId] = { status: skill.status, rating: skill.rating ?? null };
+        answers[skill.skillId] = {
+          status: skill.status,
+          rating: skill.rating ?? null,
+          assessedAt: new Date().toISOString(),
+        };
       }
       startStepId = firstGapStep();
       return HttpResponse.json({ updated: skills.length, startStepId });
@@ -132,13 +140,15 @@ async function answer(skillName: string, label: "Have" | "Not yet" | "Not sure")
   await userEvent.click(within(group).getByRole("radio", { name: label }));
 }
 
+const SAVED_AT = "2026-11-20T10:00:00.000Z";
+
 function saveResult() {
   answers = {
-    html: { status: "HAVE", rating: 4 },
-    css: { status: "HAVE", rating: null },
-    js: { status: "DONT_HAVE", rating: null },
-    layout: { status: "DONT_HAVE", rating: null },
-    a11y: { status: "NOT_SURE", rating: null },
+    html: { status: "HAVE", rating: 4, assessedAt: SAVED_AT },
+    css: { status: "HAVE", rating: null, assessedAt: SAVED_AT },
+    js: { status: "DONT_HAVE", rating: null, assessedAt: SAVED_AT },
+    layout: { status: "DONT_HAVE", rating: null, assessedAt: SAVED_AT },
+    a11y: { status: "NOT_SURE", rating: null, assessedAt: SAVED_AT },
   };
   startStepId = "st3";
 }
@@ -212,6 +222,7 @@ describe("Skill check against the API", () => {
     await renderAt("/my-pathway/skill-check");
 
     expect(await screen.findByText("Result saved")).toBeTruthy();
+    expect(screen.getByText(/Last checked 20 November/)).toBeTruthy();
     expect(screen.getByText("Step 3 · JavaScript basics")).toBeTruthy();
     await userEvent.click(screen.getByRole("button", { name: "Retake skill check" }));
     await userEvent.click(await screen.findByRole("button", { name: "Clear and start again" }));

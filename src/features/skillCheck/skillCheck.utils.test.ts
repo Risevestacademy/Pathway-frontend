@@ -142,12 +142,12 @@ describe("getInitialAnswers", () => {
     expect(getInitialAnswers(assessment, { gone: "HAVE", css: "HAVE" })).toEqual({ css: "HAVE" });
   });
 
-  it("opens on the saved answers once there is a result", () => {
+  it("opens on the saved answers when there is no draft", () => {
     expect(getInitialAnswers(assessment, null)).toEqual(assessment.saved);
   });
 
-  it("opens blank before the first check, rather than on the Not sure defaults", () => {
-    expect(getInitialAnswers({ ...assessment, hasResult: false }, null)).toEqual({});
+  it("opens blank before the first check", () => {
+    expect(getInitialAnswers({ ...assessment, saved: {} }, null)).toEqual({});
   });
 });
 

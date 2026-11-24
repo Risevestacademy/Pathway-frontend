@@ -8,7 +8,6 @@ import { useAuthStore } from "../../../lib/stores/authStore";
 import { useCareers } from "../../catalog/hooks/useCareers";
 import { careerIconKey } from "../../explore/explore.utils";
 import { toSkillAssessment } from "../skillCheck.mapping";
-import { readCheckedAt } from "../skillCheck.storage";
 import type { SkillAssessment, SkillCheckCareerSummary } from "../skillCheck.types";
 
 const STALE_MS = 30 * 1000;
@@ -75,11 +74,7 @@ export function useSkillAssessment(): { state: SkillAssessmentState; retry: () =
   return {
     state: {
       kind: "ready",
-      assessment: toSkillAssessment(
-        assessment,
-        active,
-        readCheckedAt(userId, assessment.careerId),
-      ),
+      assessment: toSkillAssessment(assessment, active),
     },
     retry,
   };

@@ -6,7 +6,7 @@ import { useSkillsCatalogue } from "../../skillCheck/hooks/useSkillCheck";
 import { useUpdateMySkills } from "../../skillCheck/hooks/useSkillCheckActions";
 import { ProfileSection } from "./ProfileSection";
 
-/** Profile skills. The server keeps skill check answers in the same list. */
+/** Skills the learner added to their profile. */
 export function SkillsCard({ profile }: { profile: UserProfile }) {
   const skills = profile.skills ?? [];
   const catalogue = useSkillsCatalogue();
@@ -16,7 +16,6 @@ export function SkillsCard({ profile }: { profile: UserProfile }) {
   const [saved, setSaved] = useState(false);
 
   const options = (catalogue.data ?? []).map((skill) => ({ value: skill.id, label: skill.name }));
-  const removed = skills.filter((skill) => !draft.includes(skill.id));
 
   const startEditing = () => {
     setDraft(skills.map((skill) => skill.id));
@@ -70,11 +69,6 @@ export function SkillsCard({ profile }: { profile: UserProfile }) {
               onChange={setDraft}
               disabled={!catalogue.data || update.isPending}
             />
-          )}
-          {removed.length > 0 && (
-            <p className="text-sm leading-5 text-grey-600">
-              Removing a skill also clears your Skill check answer for it.
-            </p>
           )}
           {update.isError && (
             <p role="alert" className="text-sm leading-5 text-danger-700">

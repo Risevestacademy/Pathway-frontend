@@ -8,7 +8,7 @@ import {
   type AssessmentSkillInput,
 } from "../../../lib/api/skills.api";
 import { queryKeys } from "../../../lib/queryKeys";
-import { clearLocalRecord, markChecked } from "../skillCheck.storage";
+import { clearDraft } from "../skillCheck.storage";
 import { useSkillCheckUserId } from "./useSkillCheck";
 
 /** Saving or clearing answers moves the starting step and changes the profile's skills. */
@@ -30,7 +30,7 @@ export function useSaveAssessment(careerId: string) {
   return useMutation({
     mutationFn: (skills: AssessmentSkillInput[]) => saveAssessment(skills),
     onSuccess: async () => {
-      markChecked(userId, careerId);
+      clearDraft(userId, careerId);
       await refresh();
     },
   });
@@ -52,7 +52,7 @@ export function useResetAssessment(careerId: string) {
   return useMutation({
     mutationFn: resetAssessment,
     onSuccess: async () => {
-      clearLocalRecord(userId, careerId);
+      clearDraft(userId, careerId);
       await refresh();
     },
   });
@@ -83,10 +83,7 @@ export function useUpdateMySkills() {
   });
 }
 
-/**
- * Adds skills to the profile without dropping any already there. The server
- * replaces the whole list, and a dropped skill loses its skill check answer.
- */
+/** Adds skills to the profile without dropping any already there, since the server replaces the whole list. */
 export function useAddMySkills() {
   const refresh = useRefreshAfterSkillChange();
   return useMutation({

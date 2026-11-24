@@ -3,18 +3,21 @@ import type { AssessmentDto } from "../../lib/api/skills.api";
 import { toSkillAssessment } from "./skillCheck.mapping";
 import type { SkillAssessment } from "./skillCheck.types";
 
+export const ASSESSED_AT = "2026-11-20T10:00:00.000Z";
+
 /** Test data shaped like GET /me/skills/assessment for a small frontend pathway. */
 export const assessmentDto: AssessmentDto = {
   careerId: "c1",
   pathwayId: "p1",
+  lastAssessedAt: ASSESSED_AT,
   stages: [
     {
       stageId: "s2",
       stageTitle: "Building interfaces",
       stageOrder: 2,
       skills: [
-        { skillId: "layout", skillName: "Responsive layout", status: "DONT_HAVE", rating: null },
-        { skillId: "a11y", skillName: "Accessibility", status: "NOT_SURE", rating: null },
+        { skillId: "layout", skillName: "Responsive layout", status: "DONT_HAVE", rating: null, assessedAt: ASSESSED_AT },
+        { skillId: "a11y", skillName: "Accessibility", status: "NOT_SURE", rating: null, assessedAt: ASSESSED_AT },
       ],
     },
     {
@@ -22,9 +25,9 @@ export const assessmentDto: AssessmentDto = {
       stageTitle: "Core web",
       stageOrder: 1,
       skills: [
-        { skillId: "html", skillName: "HTML", status: "HAVE", rating: 4 },
-        { skillId: "css", skillName: "CSS", status: "HAVE", rating: null },
-        { skillId: "js", skillName: "JavaScript", status: "DONT_HAVE", rating: null },
+        { skillId: "html", skillName: "HTML", status: "HAVE", rating: 4, assessedAt: ASSESSED_AT },
+        { skillId: "css", skillName: "CSS", status: "HAVE", rating: null, assessedAt: ASSESSED_AT },
+        { skillId: "js", skillName: "JavaScript", status: "DONT_HAVE", rating: null, assessedAt: ASSESSED_AT },
       ],
     },
     { stageId: "s3", stageTitle: "Empty stage", stageOrder: 3, skills: [] },
@@ -87,6 +90,6 @@ export const activePathwayDto: ActivePathwayDto = {
   ],
 };
 
-export function buildAssessment(checkedAt: string | null = null): SkillAssessment {
-  return toSkillAssessment(assessmentDto, activePathwayDto, checkedAt);
+export function buildAssessment(): SkillAssessment {
+  return toSkillAssessment(assessmentDto, activePathwayDto);
 }

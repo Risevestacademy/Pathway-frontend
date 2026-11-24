@@ -94,7 +94,6 @@ describe("Profile page", () => {
 
     await userEvent.click(await screen.findByRole("button", { name: "Edit" }));
     await userEvent.click(await screen.findByRole("button", { name: "Remove Figma" }));
-    expect(screen.getByText(/also clears your Skill check answer/)).toBeTruthy();
     await userEvent.click(screen.getByRole("button", { name: "Select skills" }));
     await userEvent.click(await screen.findByRole("button", { name: "Prototyping" }));
     await userEvent.click(screen.getByRole("button", { name: "Save skills" }));

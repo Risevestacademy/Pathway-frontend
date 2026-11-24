@@ -1,7 +1,7 @@
 import { isAxiosError } from "axios";
 import { api } from "./axios";
 
-/** How a learner answered for one skill. A skill they never answered reads NOT_SURE. */
+/** How a learner answered for one skill. A skill never answered also reads NOT_SURE, with no assessedAt. */
 export type UserSkillStatus = "HAVE" | "DONT_HAVE" | "NOT_SURE";
 
 /** A skill from the catalogue, as returned by GET /skills. */
@@ -17,6 +17,8 @@ export interface AssessmentSkillDto {
   status: UserSkillStatus;
   /** 1 to 5, and only ever set when status is HAVE. */
   rating: number | null;
+  /** When the learner last answered it, or null if they never have. */
+  assessedAt: string | null;
 }
 
 export interface AssessmentStageDto {
@@ -31,6 +33,8 @@ export interface AssessmentStageDto {
 export interface AssessmentDto {
   careerId: string;
   pathwayId: string;
+  /** The latest answer across the pathway's skills, or null if the check was never taken. */
+  lastAssessedAt: string | null;
   stages: AssessmentStageDto[];
 }
 
@@ -91,8 +95,9 @@ export async function resetAssessment(): Promise<void> {
 }
 
 /**
- * Replaces the learner's profile skills. Any skill left out is removed, along
- * with its skill check answer, so callers send the full list they want kept.
+ * Replaces the learner's profile skills: any skill left out is taken off the
+ * profile, so callers send the full list they want kept. Skill check answers
+ * are not touched.
  */
 export async function updateMySkills(skillIds: string[]): Promise<void> {
   await api.put("/me/skills", { skillIds });

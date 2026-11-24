@@ -45,14 +45,15 @@ export interface SkillAssessment {
   areas: SkillCheckArea[];
   skills: SkillCheckSkill[];
   steps: SkillCheckStep[];
-  /** The saved answer for every skill. One never answered reads NOT_SURE. */
+  /** The saved answers. A skill never answered has none. */
   saved: SkillAnswerMap;
   /** Saved ratings, 1 to 5, for skills marked HAVE. */
   ratings: Record<string, number>;
   /** Set by the server when the answers are saved. */
   startStepId: string | null;
+  /** Whether the check was ever taken for this pathway. */
   hasResult: boolean;
-  /** When this device last finished the check, if it remembers. */
+  /** When the learner last answered, or null if never. */
   checkedAt: string | null;
 }
 

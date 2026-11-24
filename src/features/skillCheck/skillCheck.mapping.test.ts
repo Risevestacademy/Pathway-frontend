@@ -1,6 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { activePathwayDto, assessmentDto, buildAssessment } from "./skillCheck.fixtures";
+import { ASSESSED_AT, activePathwayDto, assessmentDto, buildAssessment } from "./skillCheck.fixtures";
 import { toSkillAssessment } from "./skillCheck.mapping";
+
+/** What the server sends before any check: every skill Not sure, none dated. */
+const neverChecked = {
+  ...assessmentDto,
+  lastAssessedAt: null,
+  stages: assessmentDto.stages.map((stage) => ({
+    ...stage,
+    skills: stage.skills.map((skill) => ({
+      ...skill,
+      status: "NOT_SURE" as const,
+      rating: null,
+      assessedAt: null,
+    })),
+  })),
+};
 
 describe("toSkillAssessment", () => {
   it("turns stages into areas, in stage order, skipping empty ones", () => {
@@ -19,7 +34,7 @@ describe("toSkillAssessment", () => {
 
   it("leaves the step empty when no step teaches the skill", () => {
     const active = { ...activePathwayDto, steps: [] };
-    const assessment = toSkillAssessment(assessmentDto, active, null);
+    const assessment = toSkillAssessment(assessmentDto, active);
     expect(assessment.skills.every((skill) => skill.stepOrder === null)).toBe(true);
   });
 
@@ -36,33 +51,36 @@ describe("toSkillAssessment", () => {
     expect(assessment.startStepId).toBe("st3");
   });
 
-  it("counts as a result once anything other than Not sure is saved", () => {
-    expect(buildAssessment().hasResult).toBe(true);
+  it("has a result, dated by the server, once the check was taken", () => {
+    const assessment = buildAssessment();
+    expect(assessment.hasResult).toBe(true);
+    expect(assessment.checkedAt).toBe(ASSESSED_AT);
   });
 
-  it("has no result for a starting step set by hand, without a skill check", () => {
-    const blank = {
-      ...assessmentDto,
-      stages: assessmentDto.stages.map((stage) => ({
-        ...stage,
-        skills: stage.skills.map((skill) => ({ ...skill, status: "NOT_SURE" as const, rating: null })),
-      })),
-    };
-    const assessment = toSkillAssessment(blank, activePathwayDto, null);
+  it("has no result before the check, even with a starting step set by hand", () => {
+    const assessment = toSkillAssessment(neverChecked, activePathwayDto);
     expect(assessment.startStepId).toBe("st3");
     expect(assessment.hasResult).toBe(false);
+    expect(assessment.checkedAt).toBeNull();
   });
 
-  it("has no result when every skill reads Not sure and nothing else says otherwise", () => {
-    const blank = {
+  it("has no result when a skill was only added to the profile", () => {
+    // Profile skills come back as Not sure with no assessedAt.
+    expect(toSkillAssessment(neverChecked, activePathwayDto).saved).toEqual({});
+  });
+
+  it("leaves skills never answered out of the saved answers", () => {
+    const partial = {
       ...assessmentDto,
       stages: assessmentDto.stages.map((stage) => ({
         ...stage,
-        skills: stage.skills.map((skill) => ({ ...skill, status: "NOT_SURE" as const, rating: null })),
+        skills: stage.skills.map((skill) =>
+          skill.skillId === "a11y" ? { ...skill, assessedAt: null } : skill,
+        ),
       })),
     };
-    const active = { ...activePathwayDto, progress: { ...activePathwayDto.progress!, startStepId: null } };
-    expect(toSkillAssessment(blank, active, null).hasResult).toBe(false);
-    expect(toSkillAssessment(blank, active, "2026-11-01T00:00:00.000Z").hasResult).toBe(true);
+    const assessment = toSkillAssessment(partial, activePathwayDto);
+    expect(assessment.saved).not.toHaveProperty("a11y");
+    expect(assessment.saved).toHaveProperty("js", "DONT_HAVE");
   });
 });
