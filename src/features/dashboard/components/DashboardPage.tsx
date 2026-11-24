@@ -45,7 +45,7 @@ export function DashboardPage() {
     );
   }
 
-  const { summary } = state;
+  const { summary, dashboard } = state;
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-300 ease-out motion-reduce:animate-none">
       <h1 className="font-display text-4xl font-medium text-ink">
@@ -54,13 +54,17 @@ export function DashboardPage() {
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr_1fr]">
         <CurrentProgressCard summary={summary} />
         <StatCard title="Pathways" value={summary.pathwaysCount} art={pathwaysArt} tone="yellow" />
-        <StatCard title="Steps Completed" value={summary.completedSteps} art={stepsArt} tone="pink" />
+        <StatCard title="Steps Completed" value={summary.totalCompletedSteps} art={stepsArt} tone="pink" />
       </div>
       <div className="grid gap-4 lg:grid-cols-[1fr_1.4fr]">
-        <TodaysGoalsCard summary={summary} />
-        <CurrentProjectsCard />
+        <TodaysGoalsCard
+          goals={dashboard.goals}
+          weekStrip={dashboard.weekStrip}
+          today={dashboard.heatmap.to}
+        />
+        <CurrentProjectsCard project={dashboard.currentProject} />
       </div>
-      <ActivitySection />
+      <ActivitySection dashboard={dashboard} />
     </div>
   );
 }
