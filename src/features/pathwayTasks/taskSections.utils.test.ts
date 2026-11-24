@@ -22,22 +22,29 @@ const step = (id: string, order: number, tasks: PathwayTaskItemDto[]) => ({
   tasks,
 });
 
-const stage = (id: string, order: number, steps: ReturnType<typeof step>[]): PathwayTasksStageDto => ({
+const stage = (
+  id: string,
+  order: number,
+  steps: ReturnType<typeof step>[],
+  progress = { completed: 0, total: steps.length, percentage: 0 },
+): PathwayTasksStageDto => ({
   id,
   title: `Stage ${id}`,
   order,
-  progress: { completed: 0, total: steps.length, percentage: 0 },
+  progress,
   quiz: { status: "NOT_TAKEN" },
   steps,
 });
 
 // Out of order on purpose: everything is ordered by `order`, not by position.
 const stages: PathwayTasksStageDto[] = [
-  stage("g2", 2, [step("s3", 1, [task("c", true)])]),
-  stage("g1", 1, [
-    step("s2", 2, [task("b"), task("a", true)]),
-    step("s1", 1, []),
-  ]),
+  stage("g2", 2, [step("s3", 1, [task("c", true)])], { completed: 1, total: 1, percentage: 100 }),
+  stage(
+    "g1",
+    1,
+    [step("s2", 2, [task("b"), task("a", true)]), step("s1", 1, [])],
+    { completed: 1, total: 2, percentage: 50 },
+  ),
 ];
 
 describe("buildTaskSections", () => {
@@ -50,13 +57,22 @@ describe("buildTaskSections", () => {
     ]);
   });
 
-  it("counts the tasks done out of all the tasks in the stage", () => {
+  it("reports each stage's steps complete out of all its steps, as the backend counts them", () => {
     const sections = buildTaskSections(stages);
 
+    // Stage g1 has 2 steps (one with no tasks), so it is 1 of 2, not a count of its tasks.
     expect(sections.map((s) => [s.done, s.total])).toEqual([
       [1, 2],
       [1, 1],
     ]);
+  });
+
+  it("counts a stage whose steps have no tasks by the backend's figure, not as empty", () => {
+    const [section] = buildTaskSections([
+      stage("g9", 1, [step("s9", 1, [])], { completed: 0, total: 1, percentage: 0 }),
+    ]);
+
+    expect(section).toMatchObject({ done: 0, total: 1, steps: [] });
   });
 
   it("numbers each step by its place in the whole pathway, including steps with no tasks", () => {
@@ -73,7 +89,7 @@ describe("buildTaskSections", () => {
     ]);
 
     expect(sections[0].steps.map((s) => s.id)).toEqual(["s2"]);
-    expect(sections[2]).toMatchObject({ id: "g3", done: 0, total: 0, steps: [] });
+    expect(sections[2]).toMatchObject({ id: "g3", steps: [] });
   });
 
   it("keeps each step's tasks in the order the backend sent them", () => {

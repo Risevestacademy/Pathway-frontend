@@ -90,7 +90,7 @@ describe("usePathwayTasks", () => {
       kind: "ready",
       careerTitle: "Product Designer",
       stepCount: 2,
-      sections: [{ id: "g1", title: "Foundations", done: 1, total: 1 }],
+      sections: [{ id: "g1", title: "Foundations", done: 0, total: 2 }],
     });
   });
 

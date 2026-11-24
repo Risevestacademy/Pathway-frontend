@@ -10,11 +10,13 @@ export interface TaskStep {
   tasks: PathwayTaskItemDto[];
 }
 
-/** One stage of the practice tasks: its steps that have tasks, and how many tasks are done. */
+/** One stage of the practice tasks: its steps that have tasks, and how far through the stage they are. */
 export interface TaskSection {
   id: string;
   title: string;
+  /** Steps complete in the stage, as the backend counts them. */
   done: number;
+  /** Steps in the stage, with or without tasks. */
   total: number;
   steps: TaskStep[];
 }
@@ -38,12 +40,11 @@ export function buildTaskSections(stages: PathwayTasksStageDto[]): TaskSection[]
       steps.push({ id: step.id, number, title: step.title, status: step.status, tasks: step.tasks });
     }
 
-    const tasks = steps.flatMap((step) => step.tasks);
     return {
       id: stage.id,
       title: stage.title,
-      done: tasks.filter((task) => task.isCompleted).length,
-      total: tasks.length,
+      done: stage.progress.completed,
+      total: stage.progress.total,
       steps,
     };
   });
