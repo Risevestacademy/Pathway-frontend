@@ -5,6 +5,7 @@ import { SignOutDialog } from "@/features/auth/components/SignOutDialog";
 import { useState } from "react";
 import ChangeEmailDialog from "./ChangeEmailDialog";
 import { getRouteApi } from "@tanstack/react-router";
+import ChangePasswordDialog from "./ChangePasswordDialog";
 
 type OpenDialog = "sign-out" | "change-email" | "change-password" | null;
 
@@ -90,6 +91,10 @@ export default function AccountTab() {
       />
       <ChangeEmailDialog
         open={openDialog === "change-email"}
+        onClose={handleDialogClose}
+      />
+      <ChangePasswordDialog
+        open={openDialog === "change-password"}
         onClose={handleDialogClose}
       />
     </>
