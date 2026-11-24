@@ -410,6 +410,25 @@ describe("ResourcesScreen", () => {
     });
   });
 
+  describe("the hero", () => {
+    it("says how many stages there are once they are known", () => {
+      screenOf({
+        stages: [
+          { id: "g1", title: "Foundations", stepIds: ["s1"] },
+          { id: "g2", title: "Core skills", stepIds: ["s3", "s5"] },
+        ],
+      });
+
+      expect(screen.getByText("2 stages, 16 steps. You mark each step complete yourself.")).toBeTruthy();
+    });
+
+    it("says nothing about stages when they aren't known", () => {
+      screenOf();
+
+      expect(screen.getByText("16 steps. You mark each step complete yourself.")).toBeTruthy();
+    });
+  });
+
   describe("with the stages known", () => {
     const stages = [
       { id: "g1", title: "Foundations", stepIds: ["s1"] },

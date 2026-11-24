@@ -87,7 +87,11 @@ export function ResourcesScreen({
   return (
     <div className="flex flex-col gap-6">
       <BackLinkTo to="/my-pathway" label="Back" />
-      <OverviewHero title={careerTitle} stepCount={stepCount} />
+      <OverviewHero
+        title={careerTitle}
+        stepCount={stepCount}
+        stageCount={stages.length > 0 ? stages.length : undefined}
+      />
       <OverviewTabs careerId={careerId} current="resources" />
 
       {stagesFailed && (
