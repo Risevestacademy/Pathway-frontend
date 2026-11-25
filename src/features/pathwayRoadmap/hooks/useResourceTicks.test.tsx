@@ -9,6 +9,7 @@ import type {
 import { queryKeys } from "../../../lib/queryKeys";
 import { useAuthStore } from "../../../lib/stores/authStore";
 import { resetResourceTicksMemory } from "../resourceTicks.store";
+import { CareerNotSavedError } from "../../../lib/api/pathways.api";
 import { useResourceTicks } from "./useResourceTicks";
 
 const fetchPathwayOrNull = vi.fn();
@@ -220,6 +221,34 @@ describe("useResourceTicks", () => {
       act(() => result.current.retry());
 
       await waitFor(() => expect(setResourceCompletion).toHaveBeenLastCalledWith("p1", "r1", false));
+    });
+  });
+
+  describe("a career the person isn't tracking", () => {
+    it("puts the tick back and says the pathway isn't tracked, rather than that it wasn't saved", async () => {
+      setResourceCompletion.mockRejectedValue(new CareerNotSavedError());
+      const { result } = await loaded();
+      expect(result.current.notTracking).toBe(false);
+
+      act(() => result.current.toggle("r2"));
+
+      await waitFor(() => expect(result.current.notTracking).toBe(true));
+      expect(result.current.isTicked("r2")).toBe(false);
+      expect(result.current.unsaved).toEqual([]);
+      expect(result.current.isUnsaved("r2")).toBe(false);
+    });
+
+    it("clears the message when the next tick is saved", async () => {
+      setResourceCompletion.mockRejectedValueOnce(new CareerNotSavedError());
+      setResourceCompletion.mockResolvedValueOnce(confirmed("r2", true));
+      const { result } = await loaded();
+      act(() => result.current.toggle("r2"));
+      await waitFor(() => expect(result.current.notTracking).toBe(true));
+
+      act(() => result.current.toggle("r2"));
+
+      await waitFor(() => expect(result.current.notTracking).toBe(false));
+      expect(result.current.isTicked("r2")).toBe(true);
     });
   });
 

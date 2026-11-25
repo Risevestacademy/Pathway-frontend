@@ -10,6 +10,8 @@
 const desired = new Map<string, Record<string, boolean>>();
 // Per key, the resources whose latest save failed, the latest last.
 const unsaved = new Map<string, string[]>();
+// Keys whose latest save was refused because the person isn't tracking this pathway.
+const notTracking = new Set<string>();
 // Per key and resource, the number of the latest save sent, so an older save's answer can be told apart.
 const latestSave = new Map<string, number>();
 const listeners = new Set<() => void>();
@@ -42,9 +44,29 @@ export function readUnsaved(key: string): string[] {
   return unsaved.get(key) ?? [];
 }
 
+/** Whether the latest save was refused because the person isn't tracking this pathway. */
+export function readNotTracking(key: string): boolean {
+  return notTracking.has(key);
+}
+
 /** A tick was just made and is being saved: show it as this until the server confirms. */
 export function setDesired(key: string, resourceId: string, ticked: boolean): void {
   desired.set(key, { ...readDesired(key), [resourceId]: ticked });
+  notTracking.delete(key);
+  notify();
+}
+
+/**
+ * The server refused the save because the pathway isn't tracked, so retrying
+ * can't help. The tick goes back to what the server holds, and the screen can
+ * say to start tracking instead of blaming the connection.
+ */
+export function markNotTracking(key: string, resourceId: string): void {
+  const rest = { ...readDesired(key) };
+  delete rest[resourceId];
+  desired.set(key, rest);
+  unsaved.set(key, readUnsaved(key).filter((id) => id !== resourceId));
+  notTracking.add(key);
   notify();
 }
 
@@ -75,5 +97,6 @@ export function subscribeResourceTicks(listener: () => void): () => void {
 export function resetResourceTicksMemory(): void {
   desired.clear();
   unsaved.clear();
+  notTracking.clear();
   latestSave.clear();
 }

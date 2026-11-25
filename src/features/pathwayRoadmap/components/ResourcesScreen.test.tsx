@@ -5,6 +5,7 @@ import { ResourcesScreen } from "./ResourcesScreen";
 
 let tickedIds: string[] = [];
 let unsavedIds: string[] = [];
+let notTracking = false;
 const retrySaving = vi.fn();
 const playSound = vi.fn();
 
@@ -12,6 +13,7 @@ vi.mock("../hooks/useResourceTicks", () => ({
   useResourceTicks: () => ({
     isTicked: (id: string) => tickedIds.includes(id),
     unsaved: unsavedIds,
+    notTracking,
     retry: () => retrySaving(),
     countTicked: (ids: string[]) => ids.filter((id) => tickedIds.includes(id)).length,
     toggle: vi.fn(),
@@ -52,9 +54,17 @@ vi.mock("./Confetti", () => ({
   ),
 }));
 vi.mock("./SaveFailedBanner", () => ({
-  SaveFailedBanner: ({ resourceTitle, onRetry }: { resourceTitle: string; onRetry: () => void }) => (
+  SaveFailedBanner: ({
+    resourceTitle,
+    onRetry,
+    notTracking: untracked,
+  }: {
+    resourceTitle: string;
+    onRetry: () => void;
+    notTracking?: boolean;
+  }) => (
     <div role="alert">
-      {`not saved: ${resourceTitle}`}
+      {untracked ? "not tracking" : `not saved: ${resourceTitle}`}
       <button type="button" onClick={onRetry}>
         retry saving
       </button>
@@ -119,6 +129,7 @@ afterEach(() => {
   playSound.mockReset();
   retrySaving.mockReset();
   unsavedIds = [];
+  notTracking = false;
   tickedIds = [];
 });
 
@@ -375,6 +386,13 @@ describe("ResourcesScreen", () => {
       expect(alert.textContent).toContain("not saved: Resource a");
       const card = screen.getByRole("region");
       expect(alert.compareDocumentPosition(card) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
+    it("says to start tracking when the pathway isn't tracked, though no tick is left unsaved", () => {
+      notTracking = true;
+      screenOf();
+
+      expect(screen.getByRole("alert").textContent).toContain("not tracking");
     });
 
     it("names the most recent one when several aren't saved", () => {

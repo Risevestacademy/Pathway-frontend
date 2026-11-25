@@ -48,7 +48,7 @@ export function ResourcesScreen({
   stagesFailed?: boolean;
   onRetryStages?: () => void;
 }) {
-  const { countTicked, isTicked, unsaved, retry } = useResourceTicks(careerId);
+  const { countTicked, isTicked, unsaved, notTracking, retry } = useResourceTicks(careerId);
   const [pickedId, setPickedId] = useState<string | null>(null);
   const [completedStepId, setCompletedStepId] = useState<string | null>(null);
   const [celebrating, setCelebrating] = useState(false);
@@ -129,8 +129,12 @@ export function ResourcesScreen({
             onSelect={setPickedId}
           />
           <div className="flex flex-col gap-6">
-            {unsavedId && (
-              <SaveFailedBanner resourceTitle={resourceTitles.get(unsavedId) ?? ""} onRetry={retry} />
+            {(notTracking || unsavedId) && (
+              <SaveFailedBanner
+                resourceTitle={resourceTitles.get(unsavedId ?? "") ?? ""}
+                notTracking={notTracking}
+                onRetry={retry}
+              />
             )}
             {selected.groups.map((group) => (
               <Fragment key={group.stepId}>

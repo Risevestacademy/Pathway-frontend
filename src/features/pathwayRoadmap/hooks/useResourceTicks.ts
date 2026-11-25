@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useMemo, useSyncExternalStore } from "react";
-import { fetchPathwayOrNull, setResourceCompletion } from "../../../lib/api/pathways.api";
+import { CareerNotSavedError, fetchPathwayOrNull, setResourceCompletion } from "../../../lib/api/pathways.api";
 import { fetchPathwayResources, type PathwayResourcesDto } from "../../../lib/api/pathwayResources.api";
 import { queryKeys } from "../../../lib/queryKeys";
 import { useAuthStore } from "../../../lib/stores/authStore";
@@ -8,8 +8,10 @@ import { applyResourceCompletion, completedResourceIds } from "../resourceComple
 import {
   beginSave,
   isLatestSave,
+  markNotTracking,
   markUnsaved,
   readDesired,
+  readNotTracking,
   readUnsaved,
   resourceTicksKey,
   setDesired,
@@ -18,7 +20,7 @@ import {
 } from "../resourceTicks.store";
 
 const PATHWAY_STALE_MS = 15 * 60 * 1000;
-const EMPTY = JSON.stringify({ desired: {}, unsaved: [] });
+const EMPTY = JSON.stringify({ desired: {}, unsaved: [], notTracking: false });
 
 /**
  * The resources the signed-in person has ticked as done in this career's
@@ -50,11 +52,21 @@ export function useResourceTicks(careerId: string) {
   // A string, so React sees a change only when something really changes.
   const snapshot = useSyncExternalStore(
     subscribeResourceTicks,
-    () => JSON.stringify({ desired: readDesired(key), unsaved: readUnsaved(key) }),
+    () =>
+      JSON.stringify({
+        desired: readDesired(key),
+        unsaved: readUnsaved(key),
+        notTracking: readNotTracking(key),
+      }),
     () => EMPTY,
   );
-  const { desired, unsaved } = useMemo(
-    () => JSON.parse(snapshot) as { desired: Record<string, boolean>; unsaved: string[] },
+  const { desired, unsaved, notTracking } = useMemo(
+    () =>
+      JSON.parse(snapshot) as {
+        desired: Record<string, boolean>;
+        unsaved: string[];
+        notTracking: boolean;
+      },
     [snapshot],
   );
 
@@ -80,8 +92,10 @@ export function useResourceTicks(careerId: string) {
           );
           settleTick(key, resourceId);
         },
-        () => {
-          if (isLatestSave(key, resourceId, sent)) markUnsaved(key, resourceId);
+        (error: unknown) => {
+          if (!isLatestSave(key, resourceId, sent)) return;
+          if (error instanceof CareerNotSavedError) markNotTracking(key, resourceId);
+          else markUnsaved(key, resourceId);
         },
       );
     },
@@ -106,5 +120,5 @@ export function useResourceTicks(careerId: string) {
     }
   }, [unsaved, desired, save]);
 
-  return { isTicked, isUnsaved, countTicked, toggle, retry, unsaved };
+  return { isTicked, isUnsaved, countTicked, toggle, retry, unsaved, notTracking };
 }
