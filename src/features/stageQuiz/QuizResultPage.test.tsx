@@ -187,6 +187,7 @@ describe("QuizResultPage", () => {
     expect(navigate).toHaveBeenCalledWith({
       to: "/my-pathway/$careerId/resources",
       params: { careerId: "c1" },
+      search: { step: submission.nextStepId },
     });
   });
 
@@ -220,6 +221,7 @@ describe("QuizResultPage", () => {
     expect(navigate).toHaveBeenCalledWith({
       to: "/my-pathway/$careerId/resources",
       params: { careerId: "c1" },
+      search: { stage: "g2" },
     });
   });
 
@@ -235,6 +237,7 @@ describe("QuizResultPage", () => {
     expect(navigate).toHaveBeenCalledWith({
       to: "/my-pathway/$careerId/resources",
       params: { careerId: "c1" },
+      search: { step: "s2" },
     });
   });
 });

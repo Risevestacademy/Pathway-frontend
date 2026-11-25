@@ -7,7 +7,15 @@ import { usePathwayResources } from "../hooks/usePathwayResources";
 import { ResourcesScreen } from "./ResourcesScreen";
 
 /** A career's pathway resources, with their own loading, error and empty states. */
-export function ResourcesPage({ careerId }: { careerId: string }) {
+export function ResourcesPage({
+  careerId,
+  openStepId,
+  openStageId,
+}: {
+  careerId: string;
+  openStepId?: string;
+  openStageId?: string;
+}) {
   const { state, retry } = usePathwayResources(careerId);
   const {
     stages,
@@ -28,6 +36,8 @@ export function ResourcesPage({ careerId }: { careerId: string }) {
         stages={stages}
         stagesFailed={stagesFailed}
         onRetryStages={retryStages}
+        openStepId={openStepId}
+        openStageId={openStageId}
       />
     );
   }

@@ -28,8 +28,13 @@ export function QuizResultPage({ careerId, stageId }: { careerId: string; stageI
     queryClient.removeQueries({ queryKey: submissionKey, exact: true });
   }, [queryClient, submissionKey]);
 
-  const toResources = () =>
-    void navigate({ to: "/my-pathway/$careerId/resources", params: { careerId } });
+  // Opens the resources on the step or stage meant, so it isn't left on the first one.
+  const toResources = (search?: { step?: string; stage?: string }) =>
+    void navigate({
+      to: "/my-pathway/$careerId/resources",
+      params: { careerId },
+      ...(search && { search }),
+    });
 
   if (state.kind === "ready") {
     return (
@@ -47,8 +52,8 @@ export function QuizResultPage({ careerId, stageId }: { careerId: string; stageI
               params: { careerId, stageId },
             })
           }
-          onContinue={toResources}
-          onOpenStep={toResources}
+          onContinue={() => toResources(state.nextStage ? { stage: state.nextStage.id } : undefined)}
+          onOpenStep={(stepId) => toResources({ step: stepId })}
         />
         {justSubmitted && (
           <QuizResultModal
@@ -61,7 +66,9 @@ export function QuizResultPage({ careerId, stageId }: { careerId: string; stageI
             hasRevisit={state.revisit !== null}
             canContinue={justSubmitted.nextStepId !== null}
             onSeeAnswers={() => setCelebrating(false)}
-            onContinue={toResources}
+            onContinue={() =>
+              toResources(justSubmitted.nextStepId ? { step: justSubmitted.nextStepId } : undefined)
+            }
           />
         )}
       </>

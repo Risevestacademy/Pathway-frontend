@@ -511,6 +511,47 @@ describe("ResourcesScreen", () => {
     });
   });
 
+  describe("opening on a step or stage that was asked for", () => {
+    const stages = [
+      { id: "g1", title: "Foundations", stepIds: ["s1"] },
+      { id: "g2", title: "Core skills", stepIds: ["s3", "s5"] },
+    ];
+    const stageNav = () => within(screen.getByRole("navigation", { name: "Stages" }));
+
+    it("opens the stage that holds the step", () => {
+      screenOf({ stages, openStepId: "s5" });
+
+      expect(stageNav().getByRole("button", { name: /Core skills/ }).getAttribute("aria-current")).toBe("true");
+      expect(cards()).toEqual(["Get comfortable in Figma [untracked]", "Only paid [untracked]"]);
+    });
+
+    it("opens the stage that was asked for", () => {
+      screenOf({ stages, openStageId: "g2" });
+
+      expect(stageNav().getByRole("button", { name: /Core skills/ }).getAttribute("aria-current")).toBe("true");
+    });
+
+    it("opens the step on its own when the stages aren't known", () => {
+      screenOf({ openStepId: "s3" });
+
+      expect(cards()).toEqual(["Get comfortable in Figma [untracked]"]);
+    });
+
+    it("opens the first section when what was asked for isn't there", () => {
+      screenOf({ stages, openStepId: "gone", openStageId: "nope" });
+
+      expect(stageNav().getByRole("button", { name: /Foundations/ }).getAttribute("aria-current")).toBe("true");
+    });
+
+    it("lets a stage picked afterwards replace it", () => {
+      screenOf({ stages, openStepId: "s5" });
+
+      fireEvent.click(stageNav().getByRole("button", { name: /Foundations/ }));
+
+      expect(cards()).toEqual(["What design is for [untracked]"]);
+    });
+  });
+
   it("lists the steps one by one when the stages aren't known", () => {
     screenOf();
 

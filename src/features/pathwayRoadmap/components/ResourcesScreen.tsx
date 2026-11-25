@@ -33,6 +33,8 @@ export function ResourcesScreen({
   stages = [],
   stagesFailed = false,
   onRetryStages,
+  openStepId,
+  openStageId,
 }: {
   careerId: string;
   careerTitle: string;
@@ -47,6 +49,10 @@ export function ResourcesScreen({
   /** The stages couldn't be loaded, so there are no quizzes to offer. */
   stagesFailed?: boolean;
   onRetryStages?: () => void;
+  /** A step to open on, when they came here for one. */
+  openStepId?: string;
+  /** A stage to open on, when they came here for one. */
+  openStageId?: string;
 }) {
   const { countTicked, isTicked, unsaved, notTracking, retry } = useResourceTicks(careerId);
   const [pickedId, setPickedId] = useState<string | null>(null);
@@ -69,7 +75,13 @@ export function ResourcesScreen({
 
   const sections = buildResourceSections(groups, stages);
   // Until one is picked, or if the one picked has gone, it is the first.
-  const selected = sections.find((section) => section.id === pickedId) ?? sections[0];
+  // Unless they came for a step or stage, which is the section that holds it.
+  const requested = sections.find(
+    (section) =>
+      (openStepId !== undefined && section.groups.some((group) => group.stepId === openStepId)) ||
+      (openStageId !== undefined && section.stageId === openStageId),
+  );
+  const selected = sections.find((section) => section.id === pickedId) ?? requested ?? sections[0];
 
   // The shown stage's quiz is always on offer; it says so when every step in the stage is complete.
   const quizStage = selected?.stageId ? stages.find((stage) => stage.id === selected.stageId) : undefined;
