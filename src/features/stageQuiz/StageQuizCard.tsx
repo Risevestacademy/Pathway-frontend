@@ -1,9 +1,11 @@
 import { useId } from "react";
 import { LinkButton } from "../../components/ui/Button";
+import { useStageHasQuiz } from "./useStageHasQuiz";
 
 /**
  * A stage's optional quiz. It's always on offer, since the quiz can be taken at
  * any time, but it says so plainly once every step in the stage is complete.
+ * A stage with no quiz shows nothing.
  */
 export function StageQuizCard({
   careerId,
@@ -18,6 +20,9 @@ export function StageQuizCard({
   complete: boolean;
 }) {
   const headingId = useId();
+  const hasQuiz = useStageHasQuiz(careerId, stageId);
+  if (!hasQuiz) return null;
+
   return (
     <section
       aria-labelledby={headingId}

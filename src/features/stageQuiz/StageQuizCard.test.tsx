@@ -1,9 +1,15 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, screen } from "@testing-library/react";
 import { renderWithRouter } from "../../test/renderWithRouter";
 import { StageQuizCard } from "./StageQuizCard";
 
-afterEach(cleanup);
+let hasQuiz = true;
+vi.mock("./useStageHasQuiz", () => ({ useStageHasQuiz: () => hasQuiz }));
+
+afterEach(() => {
+  cleanup();
+  hasQuiz = true;
+});
 
 const card = (complete: boolean) =>
   renderWithRouter(() => (
@@ -22,6 +28,15 @@ describe("StageQuizCard", () => {
     expect(screen.getByRole("link", { name: "Take the Foundations quiz" }).getAttribute("href")).toBe(
       "/my-pathway/c1/quiz/g1",
     );
+  });
+
+  it("shows nothing for a stage that has no quiz, rather than a link to a page saying so", async () => {
+    hasQuiz = false;
+
+    await card(true);
+
+    expect(screen.queryByRole("link")).toBeNull();
+    expect(screen.queryByRole("heading")).toBeNull();
   });
 
   describe("when every step in the stage is complete", () => {

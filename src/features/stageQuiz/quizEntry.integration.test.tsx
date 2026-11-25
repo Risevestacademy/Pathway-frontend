@@ -17,6 +17,7 @@ const useCareerPathwayData = vi.fn();
 const fetchPathwayById = vi.fn();
 const fetchPathwayOrNull = vi.fn();
 const fetchPathwayResources = vi.fn();
+const fetchQuiz = vi.fn();
 
 vi.mock("../pathwayRoadmap/hooks/useCareerPathwayData", () => ({
   useCareerPathwayData: (careerId: string) => useCareerPathwayData(careerId),
@@ -29,6 +30,11 @@ vi.mock("../../lib/api/pathways.api", async (importOriginal) => ({
 vi.mock("../../lib/api/pathwayResources.api", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../../lib/api/pathwayResources.api")>()),
   fetchPathwayResources: (id: string) => fetchPathwayResources(id),
+}));
+
+vi.mock("../../lib/api/pathwayQuiz.api", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../lib/api/pathwayQuiz.api")>()),
+  fetchQuiz: (...args: unknown[]) => fetchQuiz(...args),
 }));
 
 beforeEach(() => {
@@ -44,6 +50,7 @@ afterEach(() => {
   fetchPathwayById.mockReset();
   fetchPathwayOrNull.mockReset();
   fetchPathwayResources.mockReset();
+  fetchQuiz.mockReset();
   useAuthStore.setState({ user: null, accessToken: null, isHydrating: true });
 });
 
@@ -122,6 +129,8 @@ function have(data: CareerPathwayData) {
   fetchPathwayById.mockResolvedValue(detail);
   fetchPathwayOrNull.mockResolvedValue(careerPathway);
   fetchPathwayResources.mockResolvedValue({ pathwayId: "p1", stages: [], optionalPaidCourses: [] });
+  // Every stage has a quiz unless a test says otherwise.
+  fetchQuiz.mockResolvedValue({ id: "quiz1", questions: [] });
 }
 
 const renderTab = () =>
@@ -137,6 +146,17 @@ describe("the quiz entry on the resources tab, end to end", () => {
     expect(link.getAttribute("href")).toBe("/my-pathway/c1/quiz/g1");
     expect(screen.getByRole("heading", { name: "Foundations stage complete" })).toBeTruthy();
     expect(fetchPathwayById).toHaveBeenCalledWith("p1");
+  });
+
+  it("offers no quiz for a stage that has none, since the server answers 404", async () => {
+    have(tracking({ s1: "COMPLETED", s2: "COMPLETED", s3: "NOT_STARTED" }));
+    fetchQuiz.mockResolvedValue(null);
+
+    await renderTab();
+
+    await screen.findByRole("navigation", { name: "Stages" });
+    await vi.waitFor(() => expect(fetchQuiz).toHaveBeenCalledWith("p1", "g1"));
+    expect(screen.queryByRole("link", { name: /quiz/ })).toBeNull();
   });
 
   it("lists the stages down the side, not their steps", async () => {
