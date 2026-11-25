@@ -128,6 +128,28 @@ describe("QuizQuestionScreen", () => {
     expect(onSubmit).toHaveBeenCalledWith([{ questionId: "q1", optionId: "q1-a" }]);
   });
 
+  it("leaves out the last question's own answer when it is skipped", async () => {
+    const { onSubmit } = renderScreen();
+    await choose("q1 option A");
+    await next();
+    await skip();
+    await choose("q3 option B");
+
+    await skip();
+
+    expect(onSubmit).toHaveBeenCalledWith([{ questionId: "q1", optionId: "q1-a" }]);
+  });
+
+  it("doesn't offer to skip the last question when only its own answer exists, since nothing else would be sent", async () => {
+    renderScreen();
+    await skip();
+    await skip();
+
+    await choose("q3 option A");
+
+    expect(screen.queryByRole("button", { name: "Skip this question" })).toBeNull();
+  });
+
   it("doesn't offer to skip the last question when nothing has been answered, since there would be nothing to submit", async () => {
     renderScreen();
     await skip();

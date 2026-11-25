@@ -41,8 +41,10 @@ export function QuizQuestionScreen({
   const isLast = flow.index === total - 1;
   const chosen = flow.answers[question.id];
   const answers = answersInOrder(questions, flow);
-  // A quiz with no answers at all has nothing to send.
-  const canSkip = !isLast || answers.length > 0;
+  // Skipping the last question sends the others, so its own answer doesn't count.
+  const othersAnswered = answers.filter((answer) => answer.questionId !== question.id);
+  // A quiz with no other answers has nothing to send.
+  const canSkip = !isLast || othersAnswered.length > 0;
 
   const finish = (sent: QuizAnswerDto[]) => onSubmit(sent);
 
@@ -121,7 +123,7 @@ export function QuizQuestionScreen({
               disabled={isSubmitting}
               onClick={() =>
                 isLast
-                  ? finish(answers)
+                  ? finish(othersAnswered)
                   : setFlow((current) => skipQuestion(current, question.id, total))
               }
               className="focus-ring cursor-pointer rounded text-sm font-medium text-brand-700 underline disabled:cursor-not-allowed disabled:opacity-60"
