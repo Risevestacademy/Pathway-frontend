@@ -58,11 +58,16 @@ export default function VerifyEmailChange({
     focusAt(pasted.length);
   };
 
+  const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault();
+  };
+
   return (
     <div>
       <form
         aria-label="Input confirmation code"
         className="flex flex-col gap-5"
+        onSubmit={handleSubmit}
       >
         <div className="flex flex-col gap-3">
           <div
@@ -113,7 +118,9 @@ export default function VerifyEmailChange({
           <Button isPrimary={false} onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit">Confirm email</Button>
+          <Button type="submit" disabled>
+            Confirm email
+          </Button>
         </div>
       </form>
     </div>

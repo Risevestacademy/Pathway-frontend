@@ -19,6 +19,7 @@ export default function DeleteAccountDialog({
   const handleDelete = () => {
     if (!confirmText || confirmText !== "DELETE") {
       setErrorText("Invalid input. You must type 'DELETE'.");
+      return;
     }
     setErrorText(null);
     // call api implementation
@@ -32,7 +33,7 @@ export default function DeleteAccountDialog({
       description="This permanently removes your profile, pathways, progress and saved careers. We cannot get them back for you."
     >
       <div className="flex flex-col gap-6">
-        <p className="p-2.5 rounded-lg bg-[#f6f6f6] text-[14px] leading-5 text-[#474747]">
+        <p className="p-2.5 rounded-lg bg-canvas text-[14px] leading-5 text-grey-600">
           Want a copy first? Use Download my data on the Privacy and data page
           before you delete.
         </p>
@@ -48,7 +49,7 @@ export default function DeleteAccountDialog({
               aria-required
               onChange={(e) => setConfirmText(e.target.value)}
               value={confirmText}
-              className="border rounded-lg px-4 py-2.75 outline-none border-[#e4e4e4] placeholder:text-ink-muted focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 font-medium"
+              className="border rounded-lg px-4 py-2.75 outline-none border-grey-200 placeholder:text-ink-muted focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 font-medium"
             />
             {errorText && (
               <p role="alert" className="text-[14px] text-danger-600">
@@ -63,10 +64,11 @@ export default function DeleteAccountDialog({
             </Button>
             <Button
               isPrimary={false}
-              className="bg-[#c72e2e]! border-[#8c1a1a]! text-white hover:bg-[#8c1a1a] hover:border-[#8c1a1a]"
+              className="bg-danger-600! border-danger-700! text-white hover:bg-danger-700 hover:border-danger-700"
               onClick={handleDelete}
+              disabled
             >
-              Delete account
+              Delete my account
             </Button>
           </div>
         </div>

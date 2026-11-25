@@ -35,6 +35,7 @@ export default function ChangePasswordDialog({
     }
     if (newPassword !== confirmPassword) {
       setConfirmPasswordError("Must match new password.");
+      return;
     }
   };
 
@@ -183,7 +184,9 @@ export default function ChangePasswordDialog({
           <Button isPrimary={false} onClick={close}>
             Cancel
           </Button>
-          <Button type="submit">Update password</Button>
+          <Button type="submit" disabled>
+            Update password
+          </Button>
         </div>
       </form>
     </Modal>

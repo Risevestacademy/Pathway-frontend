@@ -24,13 +24,18 @@ const PrivacyItems = [
   },
 ];
 
-export default function PrivacyTab() {
+export default function PrivacyTab({ index }: { index: number }) {
   const [openDialog, setOpenDialog] = useState(false);
   const [enableAnalytics, setEnableAnalytics] = useState(false);
 
   return (
     <>
-      <div className="flex flex-col gap-4 animate-landing-fade-up fade-in duration-300 ease-out motion-reduce:animate-none">
+      <div
+        role="tabpanel"
+        id={`panel-${index}`}
+        aria-labelledby={`tab-${index}`}
+        className="flex flex-col gap-4 animate-landing-fade-up fade-in duration-300 ease-out motion-reduce:animate-none"
+      >
         <SettingsCard className="p-0">
           {PrivacyItems.map((item, index) => (
             <SettingsItem
@@ -43,7 +48,7 @@ export default function PrivacyTab() {
               {item.actionType === "button" && (
                 <Button
                   isPrimary={false}
-                  className="bg-[#f0e8ff] text-primary px-3.5 py-2 rounded-lg font-medium"
+                  className="text-primary px-3.5 py-2 rounded-lg font-medium"
                   disabled={item.disable}
                 >
                   Download
@@ -57,6 +62,7 @@ export default function PrivacyTab() {
                   <Switch
                     checked={enableAnalytics}
                     onChange={() => setEnableAnalytics((value) => !value)}
+                    disabled
                   />
                 </div>
               )}
@@ -73,7 +79,7 @@ export default function PrivacyTab() {
           >
             <Button
               isPrimary={false}
-              className="bg-[#c72e2e]! border-[#8c1a1a]! text-white hover:bg-[#8c1a1a] hover:border-[#8c1a1a]"
+              className="bg-danger-600! border-danger-700! text-white hover:bg-danger-700 hover:border-danger-700"
               onClick={() => setOpenDialog(true)}
             >
               Delete account

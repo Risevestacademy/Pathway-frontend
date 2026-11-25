@@ -10,6 +10,7 @@ interface NotificationItem {
   id: NotificationId;
   heading: string;
   desc: string;
+  disabled: boolean;
 }
 
 const NotificationsItems: NotificationItem[] = [
@@ -17,35 +18,41 @@ const NotificationsItems: NotificationItem[] = [
     id: "roadmap",
     heading: "Roadmap updates",
     desc: "When a step or resource in our pathway changes.",
+    disabled: true,
   },
   {
     id: "openings",
     heading: "New openings",
     desc: "Opportunities that match your saved careers or current pathway.",
+    disabled: true,
   },
   {
     id: "feedback",
     heading: "Replies to your feedback",
     desc: "When our team answers someting you reported.",
+    disabled: true,
   },
   {
     id: "resource",
     heading: "Resource link problems",
     desc: "When a link in your pathway is withdrawn or replaced.",
+    disabled: true,
   },
   {
     id: "reminders",
     heading: "Learning reminders",
     desc: "A nudge when you have not marked a step in a while.",
+    disabled: true,
   },
   {
     id: "streak",
     heading: "Streak nudges",
     desc: "A reminder when your streak is about to end.",
+    disabled: true,
   },
 ];
 
-export default function NotificationTab() {
+export default function NotificationTab({ index }: { index: number }) {
   const [preferences, setPreferences] = useState({
     roadmap: { inApp: true, email: true },
     openings: { inApp: true, email: true },
@@ -66,10 +73,18 @@ export default function NotificationTab() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <p className="p-4.5 rounded-lg bg-[#eeeef0] text-[14px]">
+    <div
+      role="tabpanel"
+      id={`panel-${index}`}
+      aria-labelledby={`tab-${index}`}
+      className="flex flex-col gap-4"
+    >
+      {/* <p className="p-4.5 rounded-lg bg-grey-50 text-[14px]">
         Changes save as you make them. We will still email you about account
         security, such as a password change.
+      </p> */}
+      <p className="p-4.5 rounded-lg bg-grey-50 text-[14px]">
+        (Coming soon) Update your notification preference.
       </p>
       <SettingsCard
         aria-labelledby="notification-heading"
@@ -94,13 +109,13 @@ export default function NotificationTab() {
               </th>
               <th
                 scope="col"
-                className="py-4 px-6 font-medium text-[14px] leading-[100%] bg-[#fafafc] text-muted-foreground"
+                className="py-4 px-6 font-medium text-[14px] leading-[100%] bg-grey-50/60 text-muted-foreground"
               >
                 In-app
               </th>
               <th
                 scope="col"
-                className="py-4 px-6 font-medium text-[14px] leading-[100%] bg-[#fafafc] text-muted-foreground"
+                className="py-4 px-6 font-medium text-[14px] leading-[100%] bg-grey-50/60 text-muted-foreground"
               >
                 Email
               </th>
@@ -129,6 +144,7 @@ export default function NotificationTab() {
                     aria-label={`${each.heading} - In-app`}
                     onChange={() => togglePreference(each.id, "inApp")}
                     checked={preferences[each.id].inApp}
+                    disabled={each.disabled}
                   />
                 </td>
 
@@ -137,6 +153,7 @@ export default function NotificationTab() {
                     aria-label={`${each.heading} - Email`}
                     onChange={() => togglePreference(each.id, "email")}
                     checked={preferences[each.id].email}
+                    disabled={each.disabled}
                   />
                 </td>
               </tr>

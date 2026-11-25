@@ -36,7 +36,7 @@ const SignInDetails: {
 
 const routeApi = getRouteApi("/_protected/settings");
 
-export default function AccountTab() {
+export default function AccountTab({ index }: { index: number }) {
   const user = useAuthStore((state) => state.user);
   const userEmail = user?.email || "";
   const { "verify-email": verifyEmail } = routeApi.useSearch();
@@ -54,7 +54,12 @@ export default function AccountTab() {
 
   return (
     <>
-      <div className="flex flex-col gap-4 animate-landing-fade-up fade-in duration-300 ease-out motion-reduce:animate-none">
+      <div
+        role="tabpanel"
+        id={`panel-${index}`}
+        aria-labelledby={`tab-${index}`}
+        className="flex flex-col gap-4 animate-landing-fade-up fade-in duration-300 ease-out motion-reduce:animate-none"
+      >
         <SettingsCard className="p-0">
           {SignInDetails.map((item, index) => (
             <SettingsItem

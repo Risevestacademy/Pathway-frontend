@@ -19,6 +19,7 @@ export default function InputNewEmail({ onClose }: { onClose: () => void }) {
     const check = emailSchema.safeParse(email);
     if (!check.success) {
       setErrorText("Please enter a valid email address");
+      return;
     }
     // API errors will be set here also
     navigate({
