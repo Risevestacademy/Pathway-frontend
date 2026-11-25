@@ -13,6 +13,8 @@ export function usePathwayStages(careerId: string): {
   stages: QuizStageRef[];
   /** The stages couldn't be loaded: the request failed, or the pathway can't be read. */
   failed: boolean;
+  /** The stages are still being fetched, so a page can wait rather than show steps first. */
+  loading: boolean;
   retry: () => void;
 } {
   const { data: roadmap } = useCareerPathwayData(careerId);
@@ -36,6 +38,7 @@ export function usePathwayStages(careerId: string): {
   return {
     stages,
     failed: detailQuery.isError || detailQuery.data === null,
+    loading: detailQuery.isLoading,
     retry: () => void detailQuery.refetch(),
   };
 }

@@ -9,9 +9,14 @@ import { ResourcesScreen } from "./ResourcesScreen";
 /** A career's pathway resources, with their own loading, error and empty states. */
 export function ResourcesPage({ careerId }: { careerId: string }) {
   const { state, retry } = usePathwayResources(careerId);
-  const { stages, failed: stagesFailed, retry: retryStages } = usePathwayStages(careerId);
+  const {
+    stages,
+    failed: stagesFailed,
+    loading: stagesLoading,
+    retry: retryStages,
+  } = usePathwayStages(careerId);
 
-  if (state.kind === "ready") {
+  if (state.kind === "ready" && !stagesLoading) {
     return (
       <ResourcesScreen
         careerId={careerId}
@@ -30,7 +35,7 @@ export function ResourcesPage({ careerId }: { careerId: string }) {
   return (
     <div className="flex flex-col gap-6">
       <BackLinkTo to="/my-pathway" label="Back" />
-      {state.kind === "loading" && (
+      {(state.kind === "loading" || state.kind === "ready") && (
         <div role="status" className="flex flex-col gap-6">
           <span className="sr-only">Loading the resources</span>
           <Skeleton className="h-56 rounded-3xl" />
