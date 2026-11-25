@@ -10,7 +10,22 @@
 const desired = new Map<string, Record<string, boolean>>();
 // Per key, the resources whose latest save failed, the latest last.
 const unsaved = new Map<string, string[]>();
+// Per key and resource, the number of the latest save sent, so an older save's answer can be told apart.
+const latestSave = new Map<string, number>();
 const listeners = new Set<() => void>();
+
+/** A save for this resource is being sent. Returns its number; a newer save makes it stale. */
+export function beginSave(key: string, resourceId: string): number {
+  const id = `${key}/${resourceId}`;
+  const next = (latestSave.get(id) ?? 0) + 1;
+  latestSave.set(id, next);
+  return next;
+}
+
+/** Whether no newer save for this resource has been sent since this one. */
+export function isLatestSave(key: string, resourceId: string, save: number): boolean {
+  return latestSave.get(`${key}/${resourceId}`) === save;
+}
 
 export const resourceTicksKey = (userId: string, pathwayId: string) =>
   `${userId}.${pathwayId}`;
@@ -60,4 +75,5 @@ export function subscribeResourceTicks(listener: () => void): () => void {
 export function resetResourceTicksMemory(): void {
   desired.clear();
   unsaved.clear();
+  latestSave.clear();
 }

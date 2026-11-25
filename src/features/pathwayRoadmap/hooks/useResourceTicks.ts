@@ -6,6 +6,8 @@ import { queryKeys } from "../../../lib/queryKeys";
 import { useAuthStore } from "../../../lib/stores/authStore";
 import { applyResourceCompletion, completedResourceIds } from "../resourceCompletion.utils";
 import {
+  beginSave,
+  isLatestSave,
   markUnsaved,
   readDesired,
   readUnsaved,
@@ -68,14 +70,19 @@ export function useResourceTicks(careerId: string) {
   const save = useCallback(
     (resourceId: string, ticked: boolean) => {
       if (!pathwayId) return;
+      const sent = beginSave(key, resourceId);
+      // An answer to a save that a newer one has replaced says nothing about what is wanted now.
       setResourceCompletion(pathwayId, resourceId, ticked).then(
         (response) => {
+          if (!isLatestSave(key, resourceId, sent)) return;
           queryClient.setQueryData<PathwayResourcesDto>(resourcesKey, (data) =>
             applyResourceCompletion(data, response),
           );
           settleTick(key, resourceId);
         },
-        () => markUnsaved(key, resourceId),
+        () => {
+          if (isLatestSave(key, resourceId, sent)) markUnsaved(key, resourceId);
+        },
       );
     },
     [pathwayId, queryClient, resourcesKey, key],

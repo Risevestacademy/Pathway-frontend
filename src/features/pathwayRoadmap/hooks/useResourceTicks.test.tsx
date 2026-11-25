@@ -223,6 +223,68 @@ describe("useResourceTicks", () => {
     });
   });
 
+  describe("a tick and an untick in quick succession", () => {
+    const deferred = <T,>() => {
+      let resolve!: (value: T) => void;
+      let reject!: (reason: unknown) => void;
+      const promise = new Promise<T>((res, rej) => {
+        resolve = res;
+        reject = rej;
+      });
+      return { promise, resolve, reject };
+    };
+
+    it("ignores an older save that comes back after a newer one was sent", async () => {
+      const first = deferred<ReturnType<typeof confirmed>>();
+      const second = deferred<ReturnType<typeof confirmed>>();
+      setResourceCompletion.mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise);
+      const { result } = await loaded();
+
+      act(() => result.current.toggle("r2"));
+      act(() => result.current.toggle("r2"));
+      await act(async () => first.resolve(confirmed("r2", true)));
+
+      expect(result.current.isTicked("r2")).toBe(false);
+
+      await act(async () => second.resolve(confirmed("r2", false)));
+      expect(result.current.isTicked("r2")).toBe(false);
+    });
+
+    it("keeps the newer save's failure retryable when an older save succeeded first", async () => {
+      const first = deferred<ReturnType<typeof confirmed>>();
+      const second = deferred<ReturnType<typeof confirmed>>();
+      setResourceCompletion.mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise);
+      setResourceCompletion.mockResolvedValueOnce(confirmed("r2", false));
+      const { result } = await loaded();
+
+      act(() => result.current.toggle("r2"));
+      act(() => result.current.toggle("r2"));
+      await act(async () => first.resolve(confirmed("r2", true)));
+      await act(async () => second.reject(new Error("offline")));
+
+      expect(result.current.unsaved).toEqual(["r2"]);
+      expect(result.current.isTicked("r2")).toBe(false);
+
+      act(() => result.current.retry());
+
+      await waitFor(() => expect(setResourceCompletion).toHaveBeenLastCalledWith("p1", "r2", false));
+      await waitFor(() => expect(result.current.unsaved).toEqual([]));
+    });
+
+    it("ignores an older save's failure once a newer save is on its way", async () => {
+      const first = deferred<ReturnType<typeof confirmed>>();
+      const second = deferred<ReturnType<typeof confirmed>>();
+      setResourceCompletion.mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise);
+      const { result } = await loaded();
+
+      act(() => result.current.toggle("r2"));
+      act(() => result.current.toggle("r2"));
+      await act(async () => first.reject(new Error("offline")));
+
+      expect(result.current.unsaved).toEqual([]);
+    });
+  });
+
   it("does nothing until it knows the pathway to save to", async () => {
     fetchPathwayOrNull.mockReturnValue(new Promise(() => {}));
     const { result } = renderHook(() => useResourceTicks("c1"), { wrapper });
