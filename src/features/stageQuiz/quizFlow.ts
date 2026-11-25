@@ -24,7 +24,8 @@ export function goBack(flow: QuizFlow): QuizFlow {
 
 /** Moves on and leaves the question unanswered, even if it had been answered before. */
 export function skipQuestion(flow: QuizFlow, questionId: string, total: number): QuizFlow {
-  const { [questionId]: _skipped, ...answers } = flow.answers;
+  const answers = { ...flow.answers };
+  delete answers[questionId];
   return goNext({ ...flow, answers }, total);
 }
 

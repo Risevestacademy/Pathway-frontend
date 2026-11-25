@@ -41,7 +41,8 @@ export function markUnsaved(key: string, resourceId: string): void {
 
 /** The server confirmed this resource, so there is nothing left to show on top of it. */
 export function settleTick(key: string, resourceId: string): void {
-  const { [resourceId]: _settled, ...rest } = readDesired(key);
+  const rest = { ...readDesired(key) };
+  delete rest[resourceId];
   desired.set(key, rest);
   unsaved.set(key, readUnsaved(key).filter((id) => id !== resourceId));
   notify();
