@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { useId } from "react";
 import { Badge } from "../../../components/ui/Badge";
-import { ExternalLinkButton } from "../../../components/ui/Button";
+import { ExternalLinkButton, LinkButton } from "../../../components/ui/Button";
 import { analytics } from "@/lib/monitoring/events";
 import { ReportIssueLink } from "../../feedback/components/ReportIssueLink";
 import type { Resource } from "../../resources/resources.types";
@@ -101,6 +101,14 @@ export function ResourceDetailScreen({
               <p className="text-base font-medium text-ink">{nextTask.title}</p>
               <p className="mt-1 text-base text-ink">{nextTask.goal}</p>
               <p className="mt-2 text-sm text-ink-muted">{weeks(nextTask.estimatedWeeks)}</p>
+              <LinkButton
+                to="/my-pathway/$careerId/tasks/$taskId"
+                params={{ careerId, taskId: nextTask.id }}
+                isPrimary={false}
+                className="mt-4"
+              >
+                View brief
+              </LinkButton>
             </InfoCard>
           )}
         </div>

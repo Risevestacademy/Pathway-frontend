@@ -18,6 +18,13 @@ vi.mock("../hooks/useResourceTicks", () => ({
     toggle: (id: string) => toggle(id),
   }),
 }));
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({ children, to, params }: { children: React.ReactNode; to: string; params?: Record<string, string> }) => (
+    <a href={Object.entries(params ?? {}).reduce((path, [key, value]) => path.replace("$" + key, value), to)}>
+      {children}
+    </a>
+  ),
+}));
 vi.mock("../../skillCheck/components/BackLink", () => ({
   BackLinkTo: ({ label, to }: { label: string; to: string }) => <a href={to}>{label}</a>,
 }));
@@ -131,6 +138,15 @@ describe("ResourceDetailScreen", () => {
     expect(within(card).getByText("Build a typed API client")).toBeTruthy();
     expect(within(card).getByText("Practise generics")).toBeTruthy();
     expect(within(card).getByText("About 1 week")).toBeTruthy();
+  });
+
+  it("links the next task to its brief", () => {
+    screenOf();
+
+    const card = screen.getByRole("region", { name: "Your next task" });
+    expect(within(card).getByRole("link", { name: "View brief" }).getAttribute("href")).toBe(
+      "/my-pathway/c1/tasks/t1",
+    );
   });
 
   it("names no step, and still reports a problem, when no step lists the resource", () => {
