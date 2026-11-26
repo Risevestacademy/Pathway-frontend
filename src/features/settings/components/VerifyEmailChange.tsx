@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "cn";
+import { useResendCooldown } from "@/features/auth/hooks/useResendCooldown";
 
 const CODE_LENGTH = 6;
 
@@ -10,8 +11,15 @@ export default function VerifyEmailChange({
   onClose: () => void;
 }) {
   const [digits, setDigits] = useState<string[]>(Array(CODE_LENGTH).fill(""));
-  const [errorMessage] = useState<string | null>();
   const inputs = useRef<Array<HTMLInputElement | null>>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const { remaining, start } = useResendCooldown();
+
+  const code = digits.join("");
+  const isComplete = code.length === CODE_LENGTH;
 
   const focusAt = (idx: number) =>
     inputs.current[Math.min(Math.max(idx, 0), CODE_LENGTH - 1)]?.focus();
@@ -60,6 +68,43 @@ export default function VerifyEmailChange({
 
   const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!isComplete) return;
+
+    setErrorMessage(null);
+    setNotice(null);
+    setIsSubmitting(true);
+
+    try {
+      // integrate api
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "We couldn't verify your email. Please try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleResend = async () => {
+    setErrorMessage(null);
+    setNotice(null);
+    setIsResending(true);
+    start();
+
+    try {
+      // integrate api
+      setNotice("We've sent a new code to your email.");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "We couldn't verify your email. Please try again.",
+      );
+    } finally {
+      setIsResending(false);
+    }
   };
 
   return (
@@ -105,13 +150,25 @@ export default function VerifyEmailChange({
               {errorMessage}
             </p>
           )}
+          {notice && (
+            <p role="status" className="text-body-md text-brand-600">
+              {notice}
+            </p>
+          )}
         </div>
 
         <p className="text-muted-foreground text-[14px] font-medium">
           Did not get it?{" "}
-          <span className="text-brand-600 underline decoration-solid">
+          <button
+            type="button"
+            disabled
+            onClick={handleResend}
+            className="text-brand-600 underline decoration-solid"
+          >
+            {" "}
+            {/* disabled={isResending || remaining > 0 */}
             Resend code
-          </span>
+          </button>
         </p>
 
         <div className="flex gap-3 mt-2">
@@ -119,6 +176,8 @@ export default function VerifyEmailChange({
             Cancel
           </Button>
           <Button type="submit" disabled>
+            {" "}
+            {/* disable={!isComplete || isSubmitting} */}
             Confirm email
           </Button>
         </div>
