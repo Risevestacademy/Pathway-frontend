@@ -15,7 +15,7 @@ const avatarUrl = Object.values(avatarFiles)[0] ?? null;
 const itemClass =
   "flex h-11 cursor-pointer items-center rounded-lg px-4 text-base text-ink outline-none select-none data-highlighted:bg-brand-50 data-highlighted:text-brand-600";
 
-type OpenDialog = "feedback" | "settings" | "sign-out" | null;
+type OpenDialog = "feedback" | "sign-out" | null;
 
 /** The avatar in the top nav, with the signed-in learner's account actions. */
 export function AccountMenu() {

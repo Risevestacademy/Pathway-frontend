@@ -92,7 +92,9 @@ export default function InputNewEmail({ onClose }: { onClose: () => void }) {
           <Button isPrimary={false} onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit">Send Code</Button>
+          <Button type="submit" disabled>
+            Send Code
+          </Button>
         </div>
       </form>
     </div>

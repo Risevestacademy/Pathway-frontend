@@ -71,6 +71,7 @@ export default function AccountTab({ index }: { index: number }) {
             >
               {item.action && (
                 <Button
+                  aria-label={item.action.replace("-", " ")}
                   onClick={() => setOpenDialog(item.action)}
                   isPrimary={false}
                 >

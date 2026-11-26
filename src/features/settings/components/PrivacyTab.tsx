@@ -13,7 +13,7 @@ const PrivacyItems = [
   },
   {
     heading: "Download my data",
-    desc: "Get a copy of our profile, pathway and progress as a file.",
+    desc: "Get a copy of your profile, pathway and progress as a file.",
     actionType: "button",
     disable: true,
   },
@@ -60,6 +60,8 @@ export default function PrivacyTab({ index }: { index: number }) {
                     {enableAnalytics ? "On" : "Off"}
                   </span>
                   <Switch
+                    key={index}
+                    name={item.heading}
                     checked={enableAnalytics}
                     onChange={() => setEnableAnalytics((value) => !value)}
                     disabled
@@ -73,7 +75,7 @@ export default function PrivacyTab({ index }: { index: number }) {
         <SettingsCard className="p-0">
           <SettingsItem isHeader={true} heading="Delete account" />
           <SettingsItem
-            heading="Delete my account"
+            heading="Delete my account (coming soon)"
             desc="Permanently removes your profile, pathway and progress. This cannot be undone."
             border={false}
           >
@@ -81,6 +83,7 @@ export default function PrivacyTab({ index }: { index: number }) {
               isPrimary={false}
               className="bg-danger-600! border-danger-700! text-white hover:bg-danger-700 hover:border-danger-700"
               onClick={() => setOpenDialog(true)}
+              disabled
             >
               Delete account
             </Button>

@@ -43,7 +43,7 @@ export default function ChangePasswordDialog({
     <Modal
       open={open}
       onClose={close}
-      title="Change your passowrd"
+      title="Change your password"
       description="Choose a new password. You will stay signed in on this device."
     >
       <form

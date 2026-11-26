@@ -57,14 +57,11 @@ function Tab({
       role="tab"
       id={`tab-${idx}`}
       type="button"
-      aria-pressed={isActive}
       aria-selected={isActive}
-      tabIndex={isActive ? 0 : -1}
+      aria-controls={`panel-${idx}`}
       className={cn(
-        "w-full text-start px-3.5 py-3 rounded-lg leading-[100%] font-medium transition-colors duration-200 ease-out motion-reduce:transition-none",
-        isActive
-          ? "bg-brand-100 text-primary ring-2 ring-brand-600/20"
-          : "hover:bg-muted",
+        "w-full text-start px-3.5 py-3 rounded-lg focus:ring-2 focus:ring-brand-600/20 leading-[100%] font-medium transition-colors duration-200 ease-out motion-reduce:transition-none",
+        isActive ? "bg-brand-100 text-primary" : "hover:bg-muted",
       )}
       onClick={onClick}
     >

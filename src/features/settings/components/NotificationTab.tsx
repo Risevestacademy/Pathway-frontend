@@ -29,7 +29,7 @@ const NotificationsItems: NotificationItem[] = [
   {
     id: "feedback",
     heading: "Replies to your feedback",
-    desc: "When our team answers someting you reported.",
+    desc: "When our team answers something you reported.",
     disabled: true,
   },
   {
@@ -139,18 +139,20 @@ export default function NotificationTab({ index }: { index: number }) {
                   </p>
                 </th>
 
-                <td className="py-4 px-6 text-center">
+                <td className="py-2 px-3 sm:py-4 sm:px-6 text-center">
                   <Switch
-                    aria-label={`${each.heading} - In-app`}
+                    key={each.id}
+                    name={`${each.heading} - In-app`}
                     onChange={() => togglePreference(each.id, "inApp")}
                     checked={preferences[each.id].inApp}
                     disabled={each.disabled}
                   />
                 </td>
 
-                <td className="py-4 px-6 text-center">
+                <td className="py-2 px-3 sm:py-4 sm:px-6 text-center">
                   <Switch
-                    aria-label={`${each.heading} - Email`}
+                    key={each.id}
+                    name={`${each.heading} - Email`}
                     onChange={() => togglePreference(each.id, "email")}
                     checked={preferences[each.id].email}
                     disabled={each.disabled}
