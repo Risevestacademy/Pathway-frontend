@@ -2,6 +2,9 @@ import { useState, useRef } from "react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "cn";
 import { useResendCooldown } from "@/features/auth/hooks/useResendCooldown";
+import { useAuthStore } from "@/lib/stores/authStore";
+import { clearPendingEmailChange } from "../pendingEmailChange";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 const CODE_LENGTH = 6;
 
@@ -17,6 +20,7 @@ export default function VerifyEmailChange({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const { remaining, start } = useResendCooldown();
+  const userId = useAuthStore((state) => state.user?.id);
 
   const code = digits.join("");
   const isComplete = code.length === CODE_LENGTH;
@@ -76,6 +80,8 @@ export default function VerifyEmailChange({
 
     try {
       // integrate api
+      if (userId) clearPendingEmailChange(userId);
+      onClose();
     } catch (error) {
       setErrorMessage(
         error instanceof Error
@@ -163,11 +169,20 @@ export default function VerifyEmailChange({
             type="button"
             disabled
             onClick={handleResend}
-            className="text-brand-600 underline decoration-solid"
+            className="font-semibold underline decoration-solid text-brand-600 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-70"
           >
             {" "}
-            {/* disabled={isResending || remaining > 0 */}
-            Resend code
+            {/* disabled={isResending || remaining > 0} */}
+            {isResending ? (
+              <span className="inline-flex items-center gap-1">
+                <LoadingSpinner className="h-4 w-4" />
+                Resending...
+              </span>
+            ) : remaining > 0 ? (
+              `Resend code in ${remaining}s`
+            ) : (
+              "Resend code"
+            )}
           </button>
         </p>
 

@@ -1,18 +1,23 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { getRouteApi } from "@tanstack/react-router";
 import * as z from "zod/mini";
+import { useAuthStore } from "@/lib/stores/authStore";
+import { savePendingEmailChange } from "../pendingEmailChange";
 
 const emailSchema = z.email();
 
-const routeApi = getRouteApi("/_protected/settings");
-
-export default function InputNewEmail({ onClose }: { onClose: () => void }) {
+export default function InputNewEmail({
+  onCodeSent,
+  onClose,
+}: {
+  onClose: () => void;
+  onCodeSent: (email: string) => void;
+}) {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState<string>();
   const [errorText, setErrorText] = useState<string>();
-  const navigate = routeApi.useNavigate();
+  const userId = useAuthStore((state) => state.user?.id);
 
   const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -22,9 +27,9 @@ export default function InputNewEmail({ onClose }: { onClose: () => void }) {
       return;
     }
     // API errors will be set here also
-    navigate({
-      search: (prev) => ({ ...prev, "verify-email": email }),
-    });
+    if (!userId || !email) return;
+    savePendingEmailChange(userId, email);
+    onCodeSent(email);
   };
 
   return (

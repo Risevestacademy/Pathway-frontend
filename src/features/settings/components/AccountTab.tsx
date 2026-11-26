@@ -2,11 +2,14 @@ import SettingsCard from "./SettingsCard";
 import SettingsItem from "./SettingsItem";
 import { Button } from "@/components/ui/Button";
 import { SignOutDialog } from "@/features/auth/components/SignOutDialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ChangeEmailDialog from "./ChangeEmailDialog";
-import { getRouteApi } from "@tanstack/react-router";
 import ChangePasswordDialog from "./ChangePasswordDialog";
 import { useAuthStore } from "@/lib/stores/authStore";
+import {
+  clearPendingEmailChange,
+  getPendingEmailChange,
+} from "../pendingEmailChange";
 
 type OpenDialog = "sign-out" | "change-email" | "change-password" | null;
 
@@ -34,22 +37,21 @@ const SignInDetails: {
   },
 ];
 
-const routeApi = getRouteApi("/_protected/settings");
-
 export default function AccountTab({ index }: { index: number }) {
   const user = useAuthStore((state) => state.user);
   const userEmail = user?.email || "";
-  const { "verify-email": verifyEmail } = routeApi.useSearch();
+  const pendingEmail = user ? getPendingEmailChange(user.id) : null;
   const [openDialog, setOpenDialog] = useState<OpenDialog>(
-    verifyEmail ? "change-email" : null,
+    pendingEmail ? "change-email" : null,
   );
-  const navigate = routeApi.useNavigate();
+
+  useEffect(() => {
+    if (pendingEmail) setOpenDialog("change-email");
+  }, [pendingEmail, user?.id]);
 
   const handleDialogClose = () => {
+    if (user) clearPendingEmailChange(user.id);
     setOpenDialog(null);
-    navigate({
-      search: (prev) => ({ ...prev, "verify-email": undefined }),
-    });
   };
 
   return (
