@@ -97,9 +97,7 @@ export default function InputNewEmail({
           <Button isPrimary={false} onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit" disabled>
-            Send Code
-          </Button>
+          <Button type="submit">Send Code</Button>
         </div>
       </form>
     </div>

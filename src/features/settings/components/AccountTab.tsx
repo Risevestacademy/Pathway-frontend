@@ -2,7 +2,7 @@ import SettingsCard from "./SettingsCard";
 import SettingsItem from "./SettingsItem";
 import { Button } from "@/components/ui/Button";
 import { SignOutDialog } from "@/features/auth/components/SignOutDialog";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ChangeEmailDialog from "./ChangeEmailDialog";
 import ChangePasswordDialog from "./ChangePasswordDialog";
 import { useAuthStore } from "@/lib/stores/authStore";
@@ -44,10 +44,6 @@ export default function AccountTab({ index }: { index: number }) {
   const [openDialog, setOpenDialog] = useState<OpenDialog>(
     pendingEmail ? "change-email" : null,
   );
-
-  useEffect(() => {
-    if (pendingEmail) setOpenDialog("change-email");
-  }, [pendingEmail, user?.id]);
 
   const handleDialogClose = () => {
     if (user) clearPendingEmailChange(user.id);
