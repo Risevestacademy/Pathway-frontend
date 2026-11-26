@@ -22,6 +22,7 @@ import { Route as ProtectedMyPathwayRouteImport } from './routes/_protected/my-p
 import { Route as ProtectedNotificationsRouteImport } from './routes/_protected/notifications'
 import { Route as ProtectedProfileRouteImport } from './routes/_protected/profile'
 import { Route as ProtectedProgressRouteImport } from './routes/_protected/progress'
+import { Route as ProtectedSettingsRouteImport } from './routes/_protected/settings'
 import { Route as CareersIndexRouteImport } from './routes/careers/index'
 import { Route as ExploreIndexRouteImport } from './routes/explore/index'
 import { Route as ExploreCareerIdRouteImport } from './routes/explore/$careerId'
@@ -123,6 +124,11 @@ const ProtectedProfileRoute = ProtectedProfileRouteImport.update({
 const ProtectedProgressRoute = ProtectedProgressRouteImport.update({
   id: '/progress',
   path: '/progress',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedSettingsRoute = ProtectedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => ProtectedRoute,
 } as any)
 const CareersIndexRoute = CareersIndexRouteImport.update({
@@ -352,6 +358,7 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof ProtectedNotificationsRoute
   '/profile': typeof ProtectedProfileRoute
   '/progress': typeof ProtectedProgressRoute
+  '/settings': typeof ProtectedSettingsRoute
   '/explore/$careerId': typeof ExploreCareerIdRoute
   '/skill-check/$': typeof SkillCheckSplatRoute
   '/careers/': typeof CareersIndexRoute
@@ -402,6 +409,7 @@ export interface FileRoutesByTo {
   '/notifications': typeof ProtectedNotificationsRoute
   '/profile': typeof ProtectedProfileRoute
   '/progress': typeof ProtectedProgressRoute
+  '/settings': typeof ProtectedSettingsRoute
   '/explore/$careerId': typeof ExploreCareerIdRoute
   '/skill-check/$': typeof SkillCheckSplatRoute
   '/careers': typeof CareersIndexRoute
@@ -456,6 +464,7 @@ export interface FileRoutesById {
   '/_protected/notifications': typeof ProtectedNotificationsRoute
   '/_protected/profile': typeof ProtectedProfileRoute
   '/_protected/progress': typeof ProtectedProgressRoute
+  '/_protected/settings': typeof ProtectedSettingsRoute
   '/explore/$careerId': typeof ExploreCareerIdRoute
   '/skill-check/$': typeof SkillCheckSplatRoute
   '/careers/': typeof CareersIndexRoute
@@ -510,6 +519,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/profile'
     | '/progress'
+    | '/settings'
     | '/explore/$careerId'
     | '/skill-check/$'
     | '/careers/'
@@ -560,6 +570,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/profile'
     | '/progress'
+    | '/settings'
     | '/explore/$careerId'
     | '/skill-check/$'
     | '/careers'
@@ -613,6 +624,7 @@ export interface FileRouteTypes {
     | '/_protected/notifications'
     | '/_protected/profile'
     | '/_protected/progress'
+    | '/_protected/settings'
     | '/explore/$careerId'
     | '/skill-check/$'
     | '/careers/'
@@ -768,6 +780,13 @@ declare module '@tanstack/react-router' {
       path: '/progress'
       fullPath: '/progress'
       preLoaderRoute: typeof ProtectedProgressRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/settings': {
+      id: '/_protected/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof ProtectedSettingsRouteImport
       parentRoute: typeof ProtectedRoute
     }
     '/careers/': {
@@ -1118,6 +1137,7 @@ interface ProtectedRouteChildren {
   ProtectedNotificationsRoute: typeof ProtectedNotificationsRoute
   ProtectedProfileRoute: typeof ProtectedProfileRoute
   ProtectedProgressRoute: typeof ProtectedProgressRoute
+  ProtectedSettingsRoute: typeof ProtectedSettingsRoute
   ProtectedOpportunitiesIndexRoute: typeof ProtectedOpportunitiesIndexRoute
   ProtectedOpportunitiesOpportunitiesIdIndexRoute: typeof ProtectedOpportunitiesOpportunitiesIdIndexRoute
 }
@@ -1129,6 +1149,7 @@ const ProtectedRouteChildren: ProtectedRouteChildren = {
   ProtectedNotificationsRoute: ProtectedNotificationsRoute,
   ProtectedProfileRoute: ProtectedProfileRoute,
   ProtectedProgressRoute: ProtectedProgressRoute,
+  ProtectedSettingsRoute: ProtectedSettingsRoute,
   ProtectedOpportunitiesIndexRoute: ProtectedOpportunitiesIndexRoute,
   ProtectedOpportunitiesOpportunitiesIdIndexRoute:
     ProtectedOpportunitiesOpportunitiesIdIndexRoute,
