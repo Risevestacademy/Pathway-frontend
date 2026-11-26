@@ -1,12 +1,18 @@
 import { Button } from "../../../components/ui/Button";
 
-/** Shown above a step when the browser couldn't save a tick, with a way to try again. */
+/**
+ * Shown above a step when a tick couldn't be saved. Normally that is a failed
+ * request, with a way to try again. When the person isn't tracking the pathway,
+ * trying again can't help, so it says to start tracking instead.
+ */
 export function SaveFailedBanner({
   resourceTitle,
   onRetry,
+  notTracking = false,
 }: {
   resourceTitle: string;
   onRetry: () => void;
+  notTracking?: boolean;
 }) {
   return (
     <div
@@ -16,12 +22,16 @@ export function SaveFailedBanner({
       <div>
         <p className="text-base font-medium text-danger-700">We could not save your last change</p>
         <p className="text-sm text-ink">
-          Your tick on “{resourceTitle}” is not saved yet. Check your connection and try again.
+          {notTracking
+            ? "Start tracking this pathway to save your progress."
+            : `Your tick on “${resourceTitle}” is not saved yet. Check your connection and try again.`}
         </p>
       </div>
-      <Button isPrimary={false} className="shrink-0" onClick={onRetry}>
-        Try again
-      </Button>
+      {!notTracking && (
+        <Button isPrimary={false} className="shrink-0" onClick={onRetry}>
+          Try again
+        </Button>
+      )}
     </div>
   );
 }

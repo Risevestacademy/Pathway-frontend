@@ -1,7 +1,7 @@
 import type { PathwayResourceDto, PathwayResourceType } from "../../lib/api/pathways.api";
 import type { Resource } from "./resources.types";
 
-const resourceKindMap: Record<PathwayResourceType, Resource["kind"]> = {
+export const resourceKindMap: Record<PathwayResourceType, Resource["kind"]> = {
  COURSE: "course",
  CERTIFICATION: "certification",
  ARTICLE: "article",

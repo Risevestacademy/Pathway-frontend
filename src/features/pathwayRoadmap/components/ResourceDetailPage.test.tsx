@@ -82,9 +82,11 @@ describe("ResourceDetailPage", () => {
         step: { id: "s1", number: 1, title: "Step 1" },
         resource: { id: "r1", title: "Laws of UX", provider: "Jon", kind: "article", url: "https://a" },
         description: null,
-        curationRationale: "",
+        outcomes: [],
+        usageNote: null,
         lastChecked: "2026-09-12",
-        skills: [],
+        estimatedWeeks: 1,
+        nextTask: null,
       },
     });
 

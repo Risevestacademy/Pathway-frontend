@@ -3,6 +3,7 @@ import { Check, CheckCircle2, Circle } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../../../components/ui/Button";
 import { LoadingSpinner } from "../../../components/ui/LoadingSpinner";
+import { CareerNotSavedError } from "../../../lib/api/pathways.api";
 import type {
   PathwayStepStatus,
   StepCompletionStatus,
@@ -54,19 +55,26 @@ export default function StepCompletionButton({
     });
   };
 
-  const error = mutation.isError && (
-    <p role="alert" className="text-sm text-danger-700">
-      We couldn’t save that, so this step is still marked{" "}
-      {done ? "done" : "not done"}.{" "}
-      <button
-        type="button"
-        onClick={() => save(mutation.variables ?? target)}
-        className="focus-ring cursor-pointer rounded font-medium underline"
-      >
-        Try again
-      </button>
-    </p>
-  );
+  const error =
+    mutation.error instanceof CareerNotSavedError ? (
+      <p role="alert" className="text-sm text-danger-700">
+        Start tracking this pathway to save your progress.
+      </p>
+    ) : (
+      mutation.isError && (
+        <p role="alert" className="text-sm text-danger-700">
+          We couldn’t save that, so this step is still marked{" "}
+          {done ? "done" : "not done"}.{" "}
+          <button
+            type="button"
+            onClick={() => save(mutation.variables ?? target)}
+            className="focus-ring cursor-pointer rounded font-medium underline"
+          >
+            Try again
+          </button>
+        </p>
+      )
+    );
 
   const liveRegion = (
     <span role="status" className="sr-only">
@@ -192,7 +200,9 @@ export default function StepCompletionButton({
         )}
         {mutation.isPending ? "Saving" : done ? "Done" : "Mark done"}
         <span className="sr-only">
-          {done ? `: ${stepTitle}. Select to mark it not done` : `: ${stepTitle}`}
+          {done
+            ? `: ${stepTitle}. Select to mark it not done`
+            : `: ${stepTitle}`}
         </span>
       </button>
       {error}

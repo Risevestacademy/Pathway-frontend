@@ -38,3 +38,15 @@ describe("SaveFailedBanner", () => {
     expect(onRetry).toHaveBeenCalledOnce();
   });
 });
+
+describe("SaveFailedBanner when the pathway isn't tracked", () => {
+  it("says to start tracking, and offers no retry that could never work", () => {
+    cleanup();
+    render(<SaveFailedBanner resourceTitle="Laws of UX" notTracking onRetry={vi.fn()} />);
+
+    expect(screen.getByRole("alert")).toBeTruthy();
+    expect(screen.getByText("Start tracking this pathway to save your progress.")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Try again" })).toBeNull();
+    expect(screen.queryByText(/Check your connection/)).toBeNull();
+  });
+});

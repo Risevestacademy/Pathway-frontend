@@ -63,7 +63,7 @@ describe("StepCompletionButton", () => {
   it("saves COMPLETED and folds the server's progress into the cache", async () => {
     const bodies: unknown[] = [];
     server.use(
-      http.put("*/me/pathway-steps/s1", async ({ request }) => {
+      http.put("*/pathways/p1/steps/s1/completion", async ({ request }) => {
         bodies.push(await request.json());
         return HttpResponse.json({
           stepId: "s1",
@@ -77,7 +77,7 @@ describe("StepCompletionButton", () => {
 
     await userEvent.click(screen.getByRole("button", { name: /mark done/i }));
 
-    await waitFor(() => expect(bodies).toEqual([{ status: "COMPLETED" }]));
+    await waitFor(() => expect(bodies).toEqual([{ completed: true }]));
     await waitFor(() => {
       const cached = queryClient.getQueryData<ActivePathwayDto>(
         queryKeys.progress.active("u1"),
@@ -90,7 +90,7 @@ describe("StepCompletionButton", () => {
   it("keeps the step not done when the save fails, and retries the same status", async () => {
     const bodies: unknown[] = [];
     server.use(
-      http.put("*/me/pathway-steps/s1", async ({ request }) => {
+      http.put("*/pathways/p1/steps/s1/completion", async ({ request }) => {
         bodies.push(await request.json());
         return HttpResponse.json({}, { status: 500 });
       }),
@@ -110,14 +110,14 @@ describe("StepCompletionButton", () => {
     await userEvent.click(screen.getByRole("button", { name: /try again/i }));
 
     await waitFor(() =>
-      expect(bodies).toEqual([{ status: "COMPLETED" }, { status: "COMPLETED" }]),
+      expect(bodies).toEqual([{ completed: true }, { completed: true }]),
     );
   });
 
   it("sends NOT_STARTED to undo a completed step", async () => {
     const bodies: unknown[] = [];
     server.use(
-      http.put("*/me/pathway-steps/s1", async ({ request }) => {
+      http.put("*/pathways/p1/steps/s1/completion", async ({ request }) => {
         bodies.push(await request.json());
         return HttpResponse.json({ stepId: "s1", status: "NOT_STARTED", progress });
       }),
@@ -127,12 +127,42 @@ describe("StepCompletionButton", () => {
 
     await userEvent.click(screen.getByRole("button", { name: /done: html/i }));
 
-    await waitFor(() => expect(bodies).toEqual([{ status: "NOT_STARTED" }]));
+    await waitFor(() => expect(bodies).toEqual([{ completed: false }]));
+  });
+
+  it("says the pathway needs saving first when the server refuses with a 409", async () => {
+    server.use(
+      http.put("*/pathways/p1/steps/s1/completion", () => HttpResponse.json({}, { status: 409 })),
+    );
+    renderButton();
+
+    await userEvent.click(screen.getByRole("button", { name: /mark done/i }));
+
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).toContain("Start tracking this pathway");
+    expect(screen.queryByRole("button", { name: /try again/i })).toBeNull();
+  });
+
+  it("can't save when no pathway is being tracked, and says so without asking the server", async () => {
+    const requests: string[] = [];
+    server.use(
+      http.put("*/pathways/*/steps/*/completion", ({ request }) => {
+        requests.push(request.url);
+        return HttpResponse.json({});
+      }),
+    );
+    queryClient.removeQueries({ queryKey: queryKeys.progress.active("u1") });
+    renderButton();
+
+    await userEvent.click(screen.getByRole("button", { name: /mark done/i }));
+
+    await screen.findByRole("alert");
+    expect(requests).toEqual([]);
   });
 
   describe("the primary variant", () => {
     const saves = () =>
-      http.put("*/me/pathway-steps/s1", async () =>
+      http.put("*/pathways/p1/steps/s1/completion", async () =>
         HttpResponse.json({
           stepId: "s1",
           status: "COMPLETED",
@@ -143,7 +173,7 @@ describe("StepCompletionButton", () => {
     it("is a primary button that marks the step complete", async () => {
       const bodies: unknown[] = [];
       server.use(
-        http.put("*/me/pathway-steps/s1", async ({ request }) => {
+        http.put("*/pathways/p1/steps/s1/completion", async ({ request }) => {
           bodies.push(await request.json());
           return HttpResponse.json({ stepId: "s1", status: "COMPLETED", progress });
         }),
@@ -155,7 +185,7 @@ describe("StepCompletionButton", () => {
       expect(button.className).toContain("bg-brand-600");
       await userEvent.click(button);
 
-      await waitFor(() => expect(bodies).toEqual([{ status: "COMPLETED" }]));
+      await waitFor(() => expect(bodies).toEqual([{ completed: true }]));
     });
 
     it("says the step is complete once it has been saved", async () => {
@@ -169,7 +199,7 @@ describe("StepCompletionButton", () => {
     });
 
     it("doesn't say so when the save fails", async () => {
-      server.use(http.put("*/me/pathway-steps/s1", () => HttpResponse.json({}, { status: 500 })));
+      server.use(http.put("*/pathways/p1/steps/s1/completion", () => HttpResponse.json({}, { status: 500 })));
       const onCompleted = vi.fn();
       renderButton("NOT_STARTED", { variant: "primary", onCompleted });
 
@@ -199,7 +229,7 @@ describe("StepCompletionButton", () => {
     it("marks the step not complete again when Undo is chosen, without saying it was completed", async () => {
       const bodies: unknown[] = [];
       server.use(
-        http.put("*/me/pathway-steps/s1", async ({ request }) => {
+        http.put("*/pathways/p1/steps/s1/completion", async ({ request }) => {
           bodies.push(await request.json());
           return HttpResponse.json({ stepId: "s1", status: "NOT_STARTED", progress });
         }),
@@ -210,13 +240,13 @@ describe("StepCompletionButton", () => {
 
       await userEvent.click(screen.getByRole("button", { name: /undo/i }));
 
-      await waitFor(() => expect(bodies).toEqual([{ status: "NOT_STARTED" }]));
+      await waitFor(() => expect(bodies).toEqual([{ completed: false }]));
       await waitFor(() => expect(screen.getByRole("status").textContent).toContain("marked not done"));
       expect(onCompleted).not.toHaveBeenCalled();
     });
 
     it("keeps the step complete and offers to try again when undoing can't be saved", async () => {
-      server.use(http.put("*/me/pathway-steps/s1", () => HttpResponse.json({}, { status: 500 })));
+      server.use(http.put("*/pathways/p1/steps/s1/completion", () => HttpResponse.json({}, { status: 500 })));
       renderButton("COMPLETED", { variant: "primary" });
 
       await userEvent.click(screen.getByRole("button", { name: /undo/i }));
@@ -246,7 +276,7 @@ describe("StepCompletionButton", () => {
     it("marks the step not complete when chosen", async () => {
       const bodies: unknown[] = [];
       server.use(
-        http.put("*/me/pathway-steps/s1", async ({ request }) => {
+        http.put("*/pathways/p1/steps/s1/completion", async ({ request }) => {
           bodies.push(await request.json());
           return HttpResponse.json({ stepId: "s1", status: "NOT_STARTED", progress });
         }),
@@ -256,11 +286,11 @@ describe("StepCompletionButton", () => {
 
       await userEvent.click(screen.getByRole("button", { name: /undo/i }));
 
-      await waitFor(() => expect(bodies).toEqual([{ status: "NOT_STARTED" }]));
+      await waitFor(() => expect(bodies).toEqual([{ completed: false }]));
     });
 
     it("keeps the step complete and offers to try again when undoing can't be saved", async () => {
-      server.use(http.put("*/me/pathway-steps/s1", () => HttpResponse.json({}, { status: 500 })));
+      server.use(http.put("*/pathways/p1/steps/s1/completion", () => HttpResponse.json({}, { status: 500 })));
       renderButton("COMPLETED", { variant: "undo" });
 
       await userEvent.click(screen.getByRole("button", { name: /undo/i }));

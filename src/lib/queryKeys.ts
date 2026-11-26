@@ -16,6 +16,33 @@ export const queryKeys = {
   fields: ["fields"] as const,
   onboardingOptions: ["onboarding-options"] as const,
   pathway: (careerId: string) => ["pathway", careerId] as const,
+  pathwayDetail: (pathwayId: string) => ["pathway-detail", pathwayId] as const,
+  /** Each resource with the signed-in person's completion, so it is per person. */
+  pathwayResources: (userId: string, pathwayId: string) =>
+    ["pathway-resources", userId, pathwayId] as const,
+  /** Each task with the signed-in person's completion and checklist counts. */
+  pathwayTasks: (userId: string, pathwayId: string) =>
+    ["pathway-tasks", userId, pathwayId] as const,
+  /** One task's page: its checklist with the person's ticks, so it is per person. */
+  pathwayTask: (userId: string, pathwayId: string, taskId: string) =>
+    ["pathway-task", userId, pathwayId, taskId] as const,
+  /** One resource's detail, as read from a given step (which sets its usage note). */
+  pathwayResource: (
+    userId: string,
+    pathwayId: string,
+    resourceId: string,
+    stepId: string | null,
+  ) => ["pathway-resource", userId, pathwayId, resourceId, stepId] as const,
+  stageQuiz: {
+    all: ["stage-quiz"] as const,
+    questions: (pathwayId: string, stageId: string) =>
+      ["stage-quiz", pathwayId, stageId, "questions"] as const,
+    result: (pathwayId: string, stageId: string) =>
+      ["stage-quiz", pathwayId, stageId, "result"] as const,
+    /** What a submit returned (XP, streak), handed to the result page once. */
+    submission: (careerId: string, stageId: string) =>
+      ["stage-quiz", "submission", careerId, stageId] as const,
+  },
   profile: (userId: string) => ["profile", userId] as const,
   progress: {
     all: ["progress"] as const,

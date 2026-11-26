@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { useId } from "react";
 import { Badge } from "../../../components/ui/Badge";
-import { ExternalLinkButton } from "../../../components/ui/Button";
+import { ExternalLinkButton, LinkButton } from "../../../components/ui/Button";
 import { analytics } from "@/lib/monitoring/events";
 import { ReportIssueLink } from "../../feedback/components/ReportIssueLink";
 import type { Resource } from "../../resources/resources.types";
@@ -19,6 +19,9 @@ const OPEN_LABEL: Record<Resource["kind"], string> = {
   book: "Open book",
   certification: "Open certification",
 };
+
+/** "About 2 weeks", or "About 1 week". */
+const weeks = (count: number) => `About ${count} ${count === 1 ? "week" : "weeks"}`;
 
 function InfoCard({ title, children }: { title: string; children: ReactNode }) {
   const headingId = useId();
@@ -42,7 +45,7 @@ export function ResourceDetailScreen({
   careerTitle: string;
   detail: ResourceDetail;
 }) {
-  const { step, resource, description, curationRationale, lastChecked, skills } = detail;
+  const { step, resource, description, outcomes, usageNote, lastChecked, estimatedWeeks, nextTask } = detail;
   const { isTicked, isUnsaved, toggle } = useResourceTicks(careerId);
 
   const trackOpened = () =>
@@ -53,9 +56,11 @@ export function ResourceDetailScreen({
       <BackLinkTo to="/my-pathway/$careerId/resources" params={{ careerId }} label="Back" />
 
       <header>
-        <p className="text-brand-700">
-          Step {step.number} · {step.title}
-        </p>
+        {step && (
+          <p className="text-brand-700">
+            Step {step.number} · {step.title}
+          </p>
+        )}
         <h1 className="mt-1 font-display text-3xl leading-10 font-semibold text-ink sm:text-4xl">
           {resource.title}
         </h1>
@@ -69,26 +74,41 @@ export function ResourceDetailScreen({
               <p className="text-base text-ink">{description}</p>
             </InfoCard>
           )}
-          {skills.length > 0 && (
-            <InfoCard title="Skills you'll practise">
+          {outcomes.length > 0 && (
+            <InfoCard title="What you'll learn">
               <ol className="flex flex-col gap-4">
-                {skills.map((skill, index) => (
-                  <li key={skill} className="flex items-center gap-4 text-base text-ink">
+                {outcomes.map((outcome, index) => (
+                  <li key={outcome} className="flex items-center gap-4 text-base text-ink">
                     <span
                       aria-hidden
                       className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-100 text-sm font-medium text-brand-700"
                     >
                       {index + 1}
                     </span>
-                    {skill}
+                    {outcome}
                   </li>
                 ))}
               </ol>
             </InfoCard>
           )}
-          {curationRationale.trim() && (
+          {usageNote && (
             <InfoCard title="How to use it">
-              <p className="text-base text-ink">{curationRationale}</p>
+              <p className="text-base text-ink">{usageNote}</p>
+            </InfoCard>
+          )}
+          {nextTask && (
+            <InfoCard title="Your next task">
+              <p className="text-base font-medium text-ink">{nextTask.title}</p>
+              <p className="mt-1 text-base text-ink">{nextTask.goal}</p>
+              <p className="mt-2 text-sm text-ink-muted">{weeks(nextTask.estimatedWeeks)}</p>
+              <LinkButton
+                to="/my-pathway/$careerId/tasks/$taskId"
+                params={{ careerId, taskId: nextTask.id }}
+                isPrimary={false}
+                className="mt-4"
+              >
+                View brief
+              </LinkButton>
             </InfoCard>
           )}
         </div>
@@ -114,6 +134,7 @@ export function ResourceDetailScreen({
           <p className="text-sm text-ink-muted">
             Opens on the provider’s site. Opening it does not mark it done.
           </p>
+          <p className="text-sm text-ink-muted">{weeks(estimatedWeeks)}</p>
           <p className="text-sm text-ink-muted">Last checked {formatCheckedDate(lastChecked)}</p>
 
           <label className="flex cursor-pointer items-start gap-3 border-t border-line pt-4">
@@ -135,7 +156,7 @@ export function ResourceDetailScreen({
               subject={resource.title}
               section="RESOURCES"
               careerId={careerId}
-              about={`${careerTitle} · ${step.title} · ${resource.title}`}
+              about={[careerTitle, step?.title, resource.title].filter(Boolean).join(" · ")}
             />
           </div>
         </aside>

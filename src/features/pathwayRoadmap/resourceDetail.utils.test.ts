@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
-import type { PathwayResourceDto, PathwayStepDto } from "../../lib/api/pathways.api";
-import { findResourceDetail, formatCheckedDate } from "./resourceDetail.utils";
+import type {
+  PathwayResourceDetailDto,
+  PathwayResourceItemDto,
+  PathwayResourcesDto,
+} from "../../lib/api/pathwayResources.api";
+import { buildResourceDetail, findResourceStep, formatCheckedDate } from "./resourceDetail.utils";
 
 describe("formatCheckedDate", () => {
   it("writes the day, short month and year", () => {
@@ -18,85 +22,131 @@ describe("formatCheckedDate", () => {
   });
 });
 
-const resource = (id: string, over: Partial<PathwayResourceDto> = {}): PathwayResourceDto => ({
+const item = (id: string): PathwayResourceItemDto => ({
   id,
   title: `Resource ${id}`,
-  description: "What it is",
-  url: `https://example.com/${id}`,
-  type: "ARTICLE",
-  provider: "Jon Yablonski",
+  provider: "Acme",
+  type: "COURSE",
   costStatus: "FREE",
-  certificationCost: null,
-  curationRationale: "Why it was picked",
-  lastCheckedDate: "2026-09-12",
-  skills: [{ id: "k1", name: "UX laws" }],
-  ...over,
+  estimatedWeeks: 2,
+  lastCheckedDate: "2026-11-23T14:36:49.328Z",
+  isCompleted: false,
+  completedAt: null,
 });
 
-const step = (id: string, order: number, resources: PathwayResourceDto[]): PathwayStepDto => ({
+const step = (id: string, order: number, resources: PathwayResourceItemDto[]) => ({
   id,
-  title: `Step ${order}`,
-  description: "",
-  learningObjective: `Learn ${order}`,
-  prerequisites: null,
-  expectedActivity: "",
+  title: `Step ${id}`,
   order,
-  skills: [],
+  status: "NOT_STARTED" as const,
+  completedAt: null,
   resources,
 });
 
-const pathway = (steps: PathwayStepDto[]) => ({
-  id: "p1",
-  careerId: "c1",
-  title: "Roadmap",
-  description: "",
+const stage = (id: string, order: number, steps: ReturnType<typeof step>[]) => ({
+  id,
+  title: `Stage ${id}`,
+  order,
+  progress: { completed: 0, total: steps.length, percentage: 0 },
+  quiz: { status: "NOT_TAKEN" },
   steps,
 });
 
-describe("findResourceDetail", () => {
-  it("finds the resource, and the step it belongs to, numbered by its place in the pathway", () => {
-    const detail = findResourceDetail(
-      pathway([step("s2", 2, [resource("b")]), step("s1", 1, [resource("a")])]),
-      "b",
-    );
+// Out of order on purpose: the numbering follows stage order, then step order.
+const resources: PathwayResourcesDto = {
+  pathwayId: "p1",
+  stages: [
+    stage("g2", 2, [step("s3", 1, [item("c")])]),
+    stage("g1", 1, [step("s2", 2, [item("b"), item("a")]), step("s1", 1, [item("a")])]),
+  ],
+  optionalPaidCourses: [item("paid")],
+};
 
-    expect(detail?.step).toEqual({ id: "s2", number: 2, title: "Step 2" });
-    expect(detail?.resource.id).toBe("b");
+describe("findResourceStep", () => {
+  it("finds the step that lists the resource, numbered by its place in the whole pathway", () => {
+    expect(findResourceStep(resources, "b")).toEqual({ id: "s2", number: 2, title: "Step s2" });
+    expect(findResourceStep(resources, "c")).toEqual({ id: "s3", number: 3, title: "Step s3" });
   });
 
-  it("shapes the resource the way the step pages show it", () => {
-    const detail = findResourceDetail(pathway([step("s1", 1, [resource("a")])]), "a");
+  it("takes the earliest step when more than one lists it", () => {
+    expect(findResourceStep(resources, "a")).toEqual({ id: "s1", number: 1, title: "Step s1" });
+  });
 
-    expect(detail?.resource).toMatchObject({
-      title: "Resource a",
-      provider: "Jon Yablonski",
-      kind: "article",
-      url: "https://example.com/a",
+  it("is null for a resource no step lists, such as an optional paid course", () => {
+    expect(findResourceStep(resources, "paid")).toBeNull();
+    expect(findResourceStep(resources, "nope")).toBeNull();
+  });
+});
+
+describe("buildResourceDetail", () => {
+  const read: PathwayResourceDetailDto = {
+    ...item("r1"),
+    title: "The TypeScript Handbook",
+    provider: "Microsoft",
+    description: "  The official guide.  ",
+    outcomes: ["Write type-safe functions", "Use generics"],
+    url: "https://www.typescriptlang.org/docs/handbook/",
+    usageNote: "Read the first three chapters.",
+    nextTask: { id: "t1", title: "Build a typed API client", goal: "Practise generics", estimatedWeeks: 1 },
+  };
+  const where = { id: "s1", number: 1, title: "Learn TypeScript Basics" };
+
+  it("shapes the resource the way the step pages show it", () => {
+    const detail = buildResourceDetail(read, where);
+
+    expect(detail.resource).toEqual({
+      id: "r1",
+      title: "The TypeScript Handbook",
+      provider: "Microsoft",
+      kind: "course",
+      url: "https://www.typescriptlang.org/docs/handbook/",
       costLabel: "Course: free",
     });
   });
 
-  it("carries what the detail page needs beyond that", () => {
-    const detail = findResourceDetail(pathway([step("s1", 1, [resource("a")])]), "a");
+  it.each([
+    ["PAID", "Course: paid"],
+    ["UNKNOWN", "Cost unknown"],
+  ] as const)("words a %s cost as %s", (costStatus, label) => {
+    expect(buildResourceDetail({ ...read, costStatus }, where).resource.costLabel).toBe(label);
+  });
+
+  it.each([
+    ["COURSE", "course"],
+    ["CERTIFICATION", "certification"],
+    ["ARTICLE", "article"],
+    ["VIDEO", "video"],
+    ["BOOK", "book"],
+  ] as const)("shows a %s as a %s", (type, kind) => {
+    expect(buildResourceDetail({ ...read, type }, where).resource.kind).toBe(kind);
+  });
+
+  it("carries the step, what it covers, the outcomes, how to use it, and when it was checked", () => {
+    const detail = buildResourceDetail(read, where);
 
     expect(detail).toMatchObject({
-      description: "What it is",
-      curationRationale: "Why it was picked",
-      lastChecked: "2026-09-12",
-      skills: ["UX laws"],
+      step: where,
+      description: "The official guide.",
+      outcomes: ["Write type-safe functions", "Use generics"],
+      usageNote: "Read the first three chapters.",
+      lastChecked: "2026-11-23T14:36:49.328Z",
+      estimatedWeeks: 2,
+      nextTask: { id: "t1", title: "Build a typed API client", goal: "Practise generics", estimatedWeeks: 1 },
     });
   });
 
-  it("has no description when the backend gave none, or only blanks", () => {
-    const none = findResourceDetail(pathway([step("s1", 1, [resource("a", { description: null })])]), "a");
-    const blank = findResourceDetail(pathway([step("s1", 1, [resource("a", { description: "  " })])]), "a");
+  it("has no description, usage note or next task when the backend gave none, or only blanks", () => {
+    const detail = buildResourceDetail(
+      { ...read, description: "   ", usageNote: undefined, nextTask: null },
+      where,
+    );
 
-    expect(none?.description).toBeNull();
-    expect(blank?.description).toBeNull();
+    expect(detail.description).toBeNull();
+    expect(detail.usageNote).toBeNull();
+    expect(detail.nextTask).toBeNull();
   });
 
-  it("is null when no step has that resource", () => {
-    expect(findResourceDetail(pathway([step("s1", 1, [resource("a")])]), "zzz")).toBeNull();
-    expect(findResourceDetail(pathway([]), "a")).toBeNull();
+  it("has no step when no step lists the resource", () => {
+    expect(buildResourceDetail(read, null).step).toBeNull();
   });
 });

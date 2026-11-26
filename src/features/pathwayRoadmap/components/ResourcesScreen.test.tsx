@@ -5,6 +5,7 @@ import { ResourcesScreen } from "./ResourcesScreen";
 
 let tickedIds: string[] = [];
 let unsavedIds: string[] = [];
+let notTracking = false;
 const retrySaving = vi.fn();
 const playSound = vi.fn();
 
@@ -12,6 +13,7 @@ vi.mock("../hooks/useResourceTicks", () => ({
   useResourceTicks: () => ({
     isTicked: (id: string) => tickedIds.includes(id),
     unsaved: unsavedIds,
+    notTracking,
     retry: () => retrySaving(),
     countTicked: (ids: string[]) => ids.filter((id) => tickedIds.includes(id)).length,
     toggle: vi.fn(),
@@ -52,9 +54,17 @@ vi.mock("./Confetti", () => ({
   ),
 }));
 vi.mock("./SaveFailedBanner", () => ({
-  SaveFailedBanner: ({ resourceTitle, onRetry }: { resourceTitle: string; onRetry: () => void }) => (
+  SaveFailedBanner: ({
+    resourceTitle,
+    onRetry,
+    notTracking: untracked,
+  }: {
+    resourceTitle: string;
+    onRetry: () => void;
+    notTracking?: boolean;
+  }) => (
     <div role="alert">
-      {`not saved: ${resourceTitle}`}
+      {untracked ? "not tracking" : `not saved: ${resourceTitle}`}
       <button type="button" onClick={onRetry}>
         retry saving
       </button>
@@ -94,6 +104,19 @@ vi.mock("./StepCompleteDialog", () => ({
       </div>
     ) : null,
 }));
+vi.mock("../../stageQuiz/StageQuizCard", () => ({
+  StageQuizCard: ({
+    stageId,
+    stageTitle,
+    complete,
+  }: {
+    stageId: string;
+    stageTitle: string;
+    complete: boolean;
+  }) => (
+    <aside aria-label="stage quiz">{`quiz: ${stageTitle} (${stageId}) ${complete ? "complete" : "not complete"}`}</aside>
+  ),
+}));
 vi.mock("./PaidCoursesCard", () => ({
   PaidCoursesCard: ({ resources, hasFreeResources }: { resources: { id: string }[]; hasFreeResources: boolean }) =>
     resources.length === 0 ? null : (
@@ -106,6 +129,7 @@ afterEach(() => {
   playSound.mockReset();
   retrySaving.mockReset();
   unsavedIds = [];
+  notTracking = false;
   tickedIds = [];
 });
 
@@ -364,6 +388,13 @@ describe("ResourcesScreen", () => {
       expect(alert.compareDocumentPosition(card) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     });
 
+    it("says to start tracking when the pathway isn't tracked, though no tick is left unsaved", () => {
+      notTracking = true;
+      screenOf();
+
+      expect(screen.getByRole("alert").textContent).toContain("not tracking");
+    });
+
     it("names the most recent one when several aren't saved", () => {
       unsavedIds = ["a", "c"];
       screenOf();
@@ -394,6 +425,202 @@ describe("ResourcesScreen", () => {
       screenOf();
 
       expect(screen.queryByRole("alert")).toBeNull();
+    });
+  });
+
+  describe("the hero", () => {
+    it("says how many stages there are once they are known", () => {
+      screenOf({
+        stages: [
+          { id: "g1", title: "Foundations", stepIds: ["s1"] },
+          { id: "g2", title: "Core skills", stepIds: ["s3", "s5"] },
+        ],
+      });
+
+      expect(screen.getByText("2 stages, 16 steps. You mark each step complete yourself.")).toBeTruthy();
+    });
+
+    it("says nothing about stages when they aren't known", () => {
+      screenOf();
+
+      expect(screen.getByText("16 steps. You mark each step complete yourself.")).toBeTruthy();
+    });
+  });
+
+  describe("with the stages known", () => {
+    const stages = [
+      { id: "g1", title: "Foundations", stepIds: ["s1"] },
+      { id: "g2", title: "Core skills", stepIds: ["s3", "s5"] },
+    ];
+    const stageNav = () => within(screen.getByRole("navigation", { name: "Stages" }));
+
+    it("lists only the stages down the side, each with its tick count, and no step names", () => {
+      tickedIds = ["b"];
+      screenOf({ stages });
+
+      expect(stageNav().getAllByRole("button").map((b) => b.textContent)).toEqual([
+        "Foundations0 of 1",
+        "Core skills1 of 2",
+      ]);
+      expect(stageNav().queryByText(/Step \d/)).toBeNull();
+    });
+
+    it("starts on the first stage, showing its steps", () => {
+      screenOf({ stages });
+
+      expect(cards()).toEqual(["What design is for [untracked]"]);
+      expect(stageNav().getByRole("button", { name: /Foundations/ }).getAttribute("aria-current")).toBe("true");
+    });
+
+    it("shows every step of the stage that is picked, each with its own card", () => {
+      screenOf({ stages });
+
+      fireEvent.click(stageNav().getByRole("button", { name: /Core skills/ }));
+
+      expect(cards()).toEqual(["Get comfortable in Figma [untracked]", "Only paid [untracked]"]);
+      expect(stageNav().getByRole("button", { name: /Core skills/ }).getAttribute("aria-current")).toBe("true");
+    });
+
+    it("shows the paid courses of each step in the stage", () => {
+      screenOf({ stages });
+
+      fireEvent.click(stageNav().getByRole("button", { name: /Core skills/ }));
+
+      expect(screen.getAllByLabelText("paid courses").map((el) => el.textContent)).toEqual([
+        "paid: p1 | free: true",
+        "paid: p2 | free: false",
+      ]);
+    });
+
+    it("gives each step in the stage its saved status", () => {
+      screenOf({ stages, statuses: { s3: "COMPLETED" } });
+
+      fireEvent.click(stageNav().getByRole("button", { name: /Core skills/ }));
+
+      expect(cards()).toEqual(["Get comfortable in Figma [COMPLETED]", "Only paid [NOT_STARTED]"]);
+    });
+
+    it("moves on to the next stage when the step that was completed was the last of its stage", () => {
+      screenOf({ stages });
+
+      fireEvent.click(screen.getByRole("button", { name: "mark complete" }));
+      fireEvent.click(screen.getByRole("button", { name: "go next" }));
+
+      expect(cards()).toEqual(["Get comfortable in Figma [untracked]", "Only paid [untracked]"]);
+      expect(stageNav().getByRole("button", { name: /Core skills/ }).getAttribute("aria-current")).toBe("true");
+    });
+  });
+
+  describe("opening on a step or stage that was asked for", () => {
+    const stages = [
+      { id: "g1", title: "Foundations", stepIds: ["s1"] },
+      { id: "g2", title: "Core skills", stepIds: ["s3", "s5"] },
+    ];
+    const stageNav = () => within(screen.getByRole("navigation", { name: "Stages" }));
+
+    it("opens the stage that holds the step", () => {
+      screenOf({ stages, openStepId: "s5" });
+
+      expect(stageNav().getByRole("button", { name: /Core skills/ }).getAttribute("aria-current")).toBe("true");
+      expect(cards()).toEqual(["Get comfortable in Figma [untracked]", "Only paid [untracked]"]);
+    });
+
+    it("opens the stage that was asked for", () => {
+      screenOf({ stages, openStageId: "g2" });
+
+      expect(stageNav().getByRole("button", { name: /Core skills/ }).getAttribute("aria-current")).toBe("true");
+    });
+
+    it("opens the step on its own when the stages aren't known", () => {
+      screenOf({ openStepId: "s3" });
+
+      expect(cards()).toEqual(["Get comfortable in Figma [untracked]"]);
+    });
+
+    it("opens the first section when what was asked for isn't there", () => {
+      screenOf({ stages, openStepId: "gone", openStageId: "nope" });
+
+      expect(stageNav().getByRole("button", { name: /Foundations/ }).getAttribute("aria-current")).toBe("true");
+    });
+
+    it("lets a stage picked afterwards replace it", () => {
+      screenOf({ stages, openStepId: "s5" });
+
+      fireEvent.click(stageNav().getByRole("button", { name: /Foundations/ }));
+
+      expect(cards()).toEqual(["What design is for [untracked]"]);
+    });
+  });
+
+  it("lists the steps one by one when the stages aren't known", () => {
+    screenOf();
+
+    expect(screen.getByRole("navigation", { name: "Steps" })).toBeTruthy();
+    expect(screen.queryByRole("navigation", { name: "Stages" })).toBeNull();
+  });
+
+  describe("the stage quiz", () => {
+    const stages = [
+      { id: "g1", title: "Foundations", stepIds: ["s1", "s3"] },
+      { id: "g2", title: "Core skills", stepIds: ["s5"] },
+    ];
+    const stageNav = () => within(screen.getByRole("navigation", { name: "Stages" }));
+    const quiz = () => screen.getByLabelText("stage quiz").textContent;
+
+    it("is always on offer for the shown stage, and says when every step in it is complete", () => {
+      screenOf({ stages, statuses: { s1: "COMPLETED", s3: "COMPLETED", s5: "NOT_STARTED" } });
+
+      expect(quiz()).toBe("quiz: Foundations (g1) complete");
+    });
+
+    it("is on offer while a step in the stage is still to do, saying it isn't complete", () => {
+      screenOf({ stages, statuses: { s1: "COMPLETED", s3: "NOT_STARTED", s5: "NOT_STARTED" } });
+
+      expect(quiz()).toBe("quiz: Foundations (g1) not complete");
+    });
+
+    it("is on offer when they aren't tracking this pathway, which can't be complete", () => {
+      screenOf({ stages, statuses: null });
+
+      expect(quiz()).toBe("quiz: Foundations (g1) not complete");
+    });
+
+    it("follows the shown stage", () => {
+      screenOf({ stages, statuses: { s1: "COMPLETED", s3: "COMPLETED", s5: "NOT_STARTED" } });
+
+      fireEvent.click(stageNav().getByRole("button", { name: /Core skills/ }));
+
+      expect(quiz()).toBe("quiz: Core skills (g2) not complete");
+    });
+
+    it("comes after the stage's steps", () => {
+      screenOf({ stages, statuses: null });
+
+      const lastCard = screen.getAllByRole("region").at(-1) as HTMLElement;
+      expect(lastCard.compareDocumentPosition(screen.getByLabelText("stage quiz")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
+    it("is not on offer for a step shown on its own, when the stages aren't known, since there's no quiz to name", () => {
+      screenOf({ statuses: { s1: "COMPLETED", s3: "COMPLETED", s5: "COMPLETED" } });
+
+      expect(screen.queryByLabelText("stage quiz")).toBeNull();
+    });
+  });
+
+  describe("when the stages couldn't be loaded", () => {
+    it("says so, and that the quizzes are unavailable, with a way to try again", () => {
+      const onRetryStages = vi.fn();
+      screenOf({ stagesFailed: true, onRetryStages });
+
+      expect(screen.getByRole("alert").textContent).toContain("We couldn’t load the stages");
+      fireEvent.click(screen.getByRole("button", { name: "Try loading the stages again" }));
+      expect(onRetryStages).toHaveBeenCalledOnce();
+    });
+
+    it("says nothing when they loaded", () => {
+      screenOf({ stagesFailed: false });
+
+      expect(screen.queryByText(/couldn’t load the stages/)).toBeNull();
     });
   });
 });

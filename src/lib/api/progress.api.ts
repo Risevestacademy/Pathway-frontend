@@ -49,12 +49,6 @@ export interface SavedPathwayDto {
   progress: ProgressCountsDto;
 }
 
-export interface StepStatusResponseDto {
-  stepId: string;
-  status: StepCompletionStatus;
-  progress: PathwayProgressDto;
-}
-
 export async function fetchActivePathway(): Promise<ActivePathwayDto> {
   const { data } = await api.get<ActivePathwayDto>("/me/active-pathway");
   return data;
@@ -72,20 +66,5 @@ export async function setActivePathway(
   const { data } = await api.put<ActivePathwayDto>("/me/active-pathway", {
     careerId,
   });
-  return data;
-}
-
-/**
- * Sets a step's status outright rather than toggling it, so retrying a failed
- * save can never count the same step twice.
- */
-export async function setStepStatus(
-  stepId: string,
-  status: StepCompletionStatus,
-): Promise<StepStatusResponseDto> {
-  const { data } = await api.put<StepStatusResponseDto>(
-    `/me/pathway-steps/${encodeURIComponent(stepId)}`,
-    { status },
-  );
   return data;
 }

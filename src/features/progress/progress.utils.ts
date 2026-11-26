@@ -2,8 +2,8 @@ import type {
   ActivePathwayDto,
   PathwayStepStatus,
   SavedPathwayDto,
-  StepStatusResponseDto,
 } from "../../lib/api/progress.api";
+import type { StepCompletionResponseDto } from "../../lib/api/pathways.api";
 import type { CareerProgress } from "./progress.types";
 
 export function getCareerProgress(
@@ -46,7 +46,7 @@ export function getStepStatus(
 /** Folds a confirmed save into the cached active pathway. */
 export function applyStepStatus(
   active: ActivePathwayDto,
-  response: StepStatusResponseDto,
+  response: StepCompletionResponseDto,
 ): ActivePathwayDto {
   if (!active.steps.some((step) => step.id === response.stepId)) {
     return active;
@@ -54,7 +54,8 @@ export function applyStepStatus(
 
   return {
     ...active,
-    progress: response.progress,
+    // A step save doesn't send the starting point back, so keep it.
+    progress: { ...response.progress, startStepId: active.progress?.startStepId ?? null },
     steps: active.steps.map((step) =>
       step.id === response.stepId ? { ...step, status: response.status } : step,
     ),

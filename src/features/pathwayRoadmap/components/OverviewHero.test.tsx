@@ -74,10 +74,38 @@ describe("OverviewHero", () => {
     });
   });
 
-  it("makes no claim about stages or how long it takes, which the backend doesn't have", () => {
+  describe("when the stages are known", () => {
+    it("says how many stages and steps there are, and that the person marks each step complete", () => {
+      render(<OverviewHero title="Product Designer" stepCount={16} stageCount={4} />);
+
+      expect(screen.getByText("4 stages, 16 steps. You mark each step complete yourself.")).toBeTruthy();
+    });
+
+    it("uses the singular for one stage", () => {
+      render(<OverviewHero title="Product Designer" stepCount={16} stageCount={1} />);
+
+      expect(screen.getByText("1 stage, 16 steps. You mark each step complete yourself.")).toBeTruthy();
+    });
+
+    it("shows the stage count beside the step count on the card", () => {
+      render(<OverviewHero title="Product Designer" stepCount={16} stageCount={4} />);
+
+      const card = screen.getByRole("group", { name: "Roadmap size" });
+      expect(within(card).getByText("Stages").nextElementSibling?.textContent).toBe("4");
+      expect(within(card).getByText("Steps").nextElementSibling?.textContent).toBe("16");
+    });
+  });
+
+  it("makes no claim about stages when it isn't told them", () => {
     render(<OverviewHero title="Product Designer" stepCount={16} />);
 
     expect(screen.queryByText(/Stages/)).toBeNull();
+    expect(screen.queryByText(/stages/)).toBeNull();
+  });
+
+  it("never claims how long it takes, which the backend doesn't say", () => {
+    render(<OverviewHero title="Product Designer" stepCount={16} stageCount={4} />);
+
     expect(screen.queryByText(/months/)).toBeNull();
   });
 });

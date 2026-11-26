@@ -1,15 +1,30 @@
 import { Button } from "../../../components/ui/Button";
 import { Skeleton } from "../../../components/ui/Skeleton";
 import { StateMessage } from "../../../components/ui/StateMessage";
+import { usePathwayStages } from "../../stageQuiz/usePathwayStages";
 import { BackLinkTo } from "../../skillCheck/components/BackLink";
 import { usePathwayResources } from "../hooks/usePathwayResources";
 import { ResourcesScreen } from "./ResourcesScreen";
 
 /** A career's pathway resources, with their own loading, error and empty states. */
-export function ResourcesPage({ careerId }: { careerId: string }) {
+export function ResourcesPage({
+  careerId,
+  openStepId,
+  openStageId,
+}: {
+  careerId: string;
+  openStepId?: string;
+  openStageId?: string;
+}) {
   const { state, retry } = usePathwayResources(careerId);
+  const {
+    stages,
+    failed: stagesFailed,
+    loading: stagesLoading,
+    retry: retryStages,
+  } = usePathwayStages(careerId);
 
-  if (state.kind === "ready") {
+  if (state.kind === "ready" && !stagesLoading) {
     return (
       <ResourcesScreen
         careerId={careerId}
@@ -18,6 +33,11 @@ export function ResourcesPage({ careerId }: { careerId: string }) {
         groups={state.groups}
         statuses={state.statuses}
         progress={state.progress}
+        stages={stages}
+        stagesFailed={stagesFailed}
+        onRetryStages={retryStages}
+        openStepId={openStepId}
+        openStageId={openStageId}
       />
     );
   }
@@ -25,7 +45,7 @@ export function ResourcesPage({ careerId }: { careerId: string }) {
   return (
     <div className="flex flex-col gap-6">
       <BackLinkTo to="/my-pathway" label="Back" />
-      {state.kind === "loading" && (
+      {(state.kind === "loading" || state.kind === "ready") && (
         <div role="status" className="flex flex-col gap-6">
           <span className="sr-only">Loading the resources</span>
           <Skeleton className="h-56 rounded-3xl" />

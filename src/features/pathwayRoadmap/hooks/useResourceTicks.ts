@@ -1,41 +1,124 @@
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useMemo, useSyncExternalStore } from "react";
+import { CareerNotSavedError, fetchPathwayOrNull, setResourceCompletion } from "../../../lib/api/pathways.api";
+import { fetchPathwayResources, type PathwayResourcesDto } from "../../../lib/api/pathwayResources.api";
+import { queryKeys } from "../../../lib/queryKeys";
 import { useAuthStore } from "../../../lib/stores/authStore";
+import { applyResourceCompletion, completedResourceIds } from "../resourceCompletion.utils";
 import {
-  readTicks,
+  beginSave,
+  isLatestSave,
+  markNotTracking,
+  markUnsaved,
+  readDesired,
+  readNotTracking,
   readUnsaved,
   resourceTicksKey,
-  retrySave,
+  setDesired,
+  settleTick,
   subscribeResourceTicks,
-  toggleTick,
 } from "../resourceTicks.store";
 
-const EMPTY = JSON.stringify({ ticked: [], unsaved: [] });
+const PATHWAY_STALE_MS = 15 * 60 * 1000;
+const EMPTY = JSON.stringify({ desired: {}, unsaved: [], notTracking: false });
 
-/** The resources the signed-in person has ticked as done in this career's pathway, saved in this browser. */
+/**
+ * The resources the signed-in person has ticked as done in this career's
+ * pathway. The server holds the truth; a tick shows at once and is saved in
+ * the background, and one that fails to save stays ticked for now, named as not
+ * saved, until it is retried.
+ */
 export function useResourceTicks(careerId: string) {
   const userId = useAuthStore((state) => state.user?.id ?? "");
-  const key = resourceTicksKey(userId, careerId);
+  const queryClient = useQueryClient();
 
-  // A string, so React sees a change only when the ticks really change.
+  // Shares the roadmap's cache entry, so this adds no request of its own.
+  const pathwayQuery = useQuery({
+    queryKey: queryKeys.pathway(careerId),
+    queryFn: () => fetchPathwayOrNull(careerId),
+    staleTime: PATHWAY_STALE_MS,
+    refetchOnWindowFocus: false,
+  });
+  const pathwayId = pathwayQuery.data?.id ?? null;
+
+  const resourcesKey = queryKeys.pathwayResources(userId, pathwayId ?? "");
+  const resourcesQuery = useQuery({
+    queryKey: resourcesKey,
+    queryFn: () => fetchPathwayResources(pathwayId as string),
+    enabled: pathwayId !== null && userId !== "",
+  });
+
+  const key = resourceTicksKey(userId, pathwayId ?? "");
+  // A string, so React sees a change only when something really changes.
   const snapshot = useSyncExternalStore(
     subscribeResourceTicks,
-    () => JSON.stringify({ ticked: readTicks(key), unsaved: readUnsaved(key) }),
+    () =>
+      JSON.stringify({
+        desired: readDesired(key),
+        unsaved: readUnsaved(key),
+        notTracking: readNotTracking(key),
+      }),
     () => EMPTY,
   );
-  const { ticked, unsaved } = useMemo(() => {
-    const parsed = JSON.parse(snapshot) as { ticked: string[]; unsaved: string[] };
-    return { ticked: new Set(parsed.ticked), unsaved: parsed.unsaved };
-  }, [snapshot]);
+  const { desired, unsaved, notTracking } = useMemo(
+    () =>
+      JSON.parse(snapshot) as {
+        desired: Record<string, boolean>;
+        unsaved: string[];
+        notTracking: boolean;
+      },
+    [snapshot],
+  );
 
-  const isTicked = useCallback((resourceId: string) => ticked.has(resourceId), [ticked]);
+  const done = useMemo(() => completedResourceIds(resourcesQuery.data), [resourcesQuery.data]);
+
+  const isTicked = useCallback((resourceId: string) => desired[resourceId] ?? done.has(resourceId), [desired, done]);
   const isUnsaved = useCallback((resourceId: string) => unsaved.includes(resourceId), [unsaved]);
   const countTicked = useCallback(
-    (resourceIds: string[]) => resourceIds.filter((id) => ticked.has(id)).length,
-    [ticked],
+    (resourceIds: string[]) => resourceIds.filter(isTicked).length,
+    [isTicked],
   );
-  const toggle = useCallback((resourceId: string) => toggleTick(key, resourceId), [key]);
-  /** Tries again to save the ticks the browser refused. True once they are saved. */
-  const retry = useCallback(() => retrySave(key), [key]);
 
-  return { isTicked, isUnsaved, countTicked, toggle, retry, unsaved };
+  const save = useCallback(
+    (resourceId: string, ticked: boolean) => {
+      if (!pathwayId) return;
+      const sent = beginSave(key, resourceId);
+      // An answer to a save that a newer one has replaced says nothing about what is wanted now.
+      setResourceCompletion(pathwayId, resourceId, ticked).then(
+        (response) => {
+          if (!isLatestSave(key, resourceId, sent)) return;
+          queryClient.setQueryData<PathwayResourcesDto>(resourcesKey, (data) =>
+            applyResourceCompletion(data, response),
+          );
+          settleTick(key, resourceId);
+        },
+        (error: unknown) => {
+          if (!isLatestSave(key, resourceId, sent)) return;
+          if (error instanceof CareerNotSavedError) markNotTracking(key, resourceId);
+          else markUnsaved(key, resourceId);
+        },
+      );
+    },
+    [pathwayId, queryClient, resourcesKey, key],
+  );
+
+  const toggle = useCallback(
+    (resourceId: string) => {
+      if (!pathwayId) return;
+      const next = !isTicked(resourceId);
+      setDesired(key, resourceId, next);
+      save(resourceId, next);
+    },
+    [pathwayId, isTicked, key, save],
+  );
+
+  /** Tries again to save the ticks that failed, each as it was last wanted. */
+  const retry = useCallback(() => {
+    for (const resourceId of unsaved) {
+      const wanted = desired[resourceId];
+      if (wanted !== undefined) save(resourceId, wanted);
+    }
+  }, [unsaved, desired, save]);
+
+  return { isTicked, isUnsaved, countTicked, toggle, retry, unsaved, notTracking };
 }

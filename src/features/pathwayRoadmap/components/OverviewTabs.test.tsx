@@ -10,7 +10,7 @@ vi.mock("@tanstack/react-router", () => ({
 
 afterEach(cleanup);
 
-const tabs = (current: "overview" | "resources" | "progress" = "overview") =>
+const tabs = (current: "overview" | "resources" | "tasks" | "progress" = "overview") =>
   render(<OverviewTabs careerId="c1" current={current} />);
 
 describe("OverviewTabs", () => {
@@ -24,7 +24,7 @@ describe("OverviewTabs", () => {
     tabs();
 
     const items = within(screen.getByRole("navigation")).getAllByRole("listitem");
-    expect(items.map((item) => item.textContent?.replace(/\(coming soon\)/, "").trim())).toEqual([
+    expect(items.map((item) => item.textContent)).toEqual([
       "Overview",
       "Resources",
       "Practice tasks",
@@ -73,12 +73,26 @@ describe("OverviewTabs", () => {
     expect(screen.getByRole("link", { name: "Resources" }).getAttribute("href")).toBe("/my-pathway/c1/resources");
   });
 
-  it.each(["Practice tasks"])("shows %s as not available yet", (name) => {
+  it("links to Practice tasks from the other screens", () => {
+    tabs("overview");
+
+    expect(screen.getByRole("link", { name: "Practice tasks" }).getAttribute("href")).toBe("/my-pathway/c1/tasks");
+  });
+
+  it("shows Practice tasks as current on its own screen, with the others as links", () => {
+    tabs("tasks");
+
+    expect(screen.getByText("Practice tasks").getAttribute("aria-current")).toBe("page");
+    expect(screen.getByText("Practice tasks").getAttribute("aria-disabled")).toBeNull();
+    expect(screen.queryByRole("link", { name: "Practice tasks" })).toBeNull();
+    expect(screen.getByRole("link", { name: "Overview" }).getAttribute("href")).toBe("/my-pathway/c1/overview");
+    expect(screen.getByRole("link", { name: "Resources" }).getAttribute("href")).toBe("/my-pathway/c1/resources");
+    expect(screen.getByRole("link", { name: "Progress" }).getAttribute("href")).toBe("/my-pathway/c1/progress");
+  });
+
+  it("has no tab that is still marked as coming soon", () => {
     tabs();
 
-    const tab = screen.getByText(name);
-    expect(tab.getAttribute("aria-disabled")).toBe("true");
-    expect(tab.getAttribute("aria-current")).toBeNull();
-    expect(within(tab).getByText("(coming soon)")).toBeTruthy();
+    expect(screen.queryByText(/coming soon/i)).toBeNull();
   });
 });
