@@ -15,7 +15,7 @@ export default function VerifyEmailChange({
 }) {
   const [digits, setDigits] = useState<string[]>(Array(CODE_LENGTH).fill(""));
   const inputs = useRef<Array<HTMLInputElement | null>>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(true); // change this default to true when the integration is done.
   const [isResending, setIsResending] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -190,9 +190,7 @@ export default function VerifyEmailChange({
           <Button isPrimary={false} onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit" disabled>
-            {" "}
-            {/* disable={!isComplete || isSubmitting} */}
+          <Button type="submit" disabled={!isComplete || isSubmitting}>
             Confirm email
           </Button>
         </div>
